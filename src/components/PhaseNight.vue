@@ -4,14 +4,14 @@ import { ROLES } from '../roles';
 
 const props = defineProps<{ state: any, onPromptComplete: (r:any)=>void }>();
 
-const alivePlayers = computed(() => props.state.players.filter((p: any) => p.alive));
+const alivePlayers = computed(() => props.state.players.filter(p => p.alive));
 const currentTurn = computed(() => props.state.night.turns[props.state.night.currentIndex] || null);
 const currentRole = computed(() => currentTurn.value ? props.state.roleMeta[currentTurn.value.roleId] : null);
 const currentActor = computed(() => {
   const entry = currentTurn.value;
   if (!entry) return null;
   if (entry.kind === 'single') {
-    return props.state.players.find((p: any) => p.id === entry.playerId) || null;
+    return props.state.players.find(p => p.id === entry.playerId) || null;
   }
   return { id: 0, name: currentRole.value?.name, roleId: entry.roleId, group: true } as any;
 });
@@ -33,10 +33,10 @@ const shouldShowDeadPrompt = computed(() => {
   const entry = currentTurn.value;
   if (!entry) return false;
   if (entry.kind === 'single') {
-    const player = props.state.players.find((p: any) => p.id === entry.playerId);
+    const player = props.state.players.find(p => p.id === entry.playerId);
     return !player || player.alive === false;
   }
-  const anyAlive = alivePlayers.value.some((p: any) => p.roleId === entry.roleId);
+  const anyAlive = alivePlayers.value.some(p => p.roleId === entry.roleId);
   return !anyAlive;
 });
 </script>

@@ -11,7 +11,7 @@ const props = defineProps({
 const targetId = ref(null);
 const deadChoices = computed(() => [
     { label: 'Select a dead player…', value: null },
-    ...props.gameState.players.filter((p:any) => !p.alive).map((p:any) => ({ label: p.name, value: p.id }))
+    ...props.gameState.players.filter(p => !p.alive).map(p => ({ label: p.name, value: p.id }))
 ]);
 const canSubmit = computed(() => Number.isFinite(Number(targetId.value)) && Number(targetId.value) > 0);
 

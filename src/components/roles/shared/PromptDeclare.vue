@@ -13,7 +13,9 @@ const roleId = ref('');
 
 const aliveChoices = computed(() => [
     { label: 'Select a player…', value: null },
-    ...props.gameState.players.filter((p:any) => p.alive && p.id !== props.player.id).map((p:any) => ({ label: p.name, value: p.id }))
+    ...props.gameState.players
+        .filter(p => p.alive && p.id !== props.player.id)
+        .map(p => ({ label: p.name, value: p.id }))
 ]);
 
 const roleChoices = computed(() => {

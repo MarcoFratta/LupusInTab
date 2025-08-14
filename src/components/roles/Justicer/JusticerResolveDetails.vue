@@ -5,7 +5,7 @@ const props = defineProps({
 });
 
 const targetId = Number(props.entry?.result?.targetId);
-const target = Number.isFinite(targetId) ? props.gameState.players.find((p:any) => p.id === targetId) : null;
+const target = Number.isFinite(targetId) ? props.gameState.players.find(p => p.id === targetId) : null;
 </script>
 
 <template>

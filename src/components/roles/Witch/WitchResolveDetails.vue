@@ -4,7 +4,7 @@ const props = defineProps({
     entry: { type: Object, required: true },
 });
 const id = Number(props.entry?.result?.targetId);
-const target = Number.isFinite(id) ? props.gameState.players.find((p:any) => p.id === id) : null;
+const target = Number.isFinite(id) ? props.gameState.players.find(p => p.id === id) : null;
 const team = target ? (props.gameState.roleMeta[target.roleId]?.visibleAsTeam || props.gameState.roleMeta[target.roleId]?.team) : '';
 </script>
 

@@ -1,0 +1,46 @@
+<script setup>
+import { computed, ref } from 'vue';
+import PromptSelect from '../../prompts/PromptSelect.vue';
+
+const props = defineProps({
+    gameState: { type: Object, required: true },
+    player: { type: Object, required: true },
+    onComplete: { type: Function, required: true },
+});
+
+const targetId = ref(null);
+const deadChoices = computed(() => [
+    { label: 'Select a dead player…', value: null },
+    ...props.gameState.players.filter((p:any) => !p.alive).map((p:any) => ({ label: p.name, value: p.id }))
+]);
+const canSubmit = computed(() => Number.isFinite(Number(targetId.value)) && Number(targetId.value) > 0);
+
+function submit() {
+    if (!canSubmit.value) return;
+    props.onComplete({ targetId: Number(targetId.value) });
+}
+
+function skip() {
+    props.onComplete({ targetId: null });
+}
+</script>
+
+<template>
+    <div class="space-y-3">
+        <PromptSelect
+            label="Witch, check the faction of a dead player"
+            v-model="targetId"
+            :choices="deadChoices"
+            buttonText="Reveal faction"
+            accent="violet"
+            :disabled="deadChoices.length <= 1 && !canSubmit"
+            @confirm="submit"
+        />
+        <div class="flex justify-end">
+            <button class="btn btn-secondary" @click="skip">Skip</button>
+        </div>
+    </div>
+</template>
+
+
+

@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* Fallback styles in case Tailwind doesn't load */
+body {
+  margin: 0;
+  background: #0a0a0a; /* neutral-950 */
+  color: #e5e5e5; /* neutral-200 */
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+#app {
+  display: flex;
+  align-items: center;    /* center vertically */
+  justify-content: center;/* center horizontally */
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium px-4 py-2 transition-colors border shadow-sm;
+  }
+  .btn-primary {
+    @apply bg-neutral-700 text-neutral-100 border-neutral-700 hover:bg-neutral-600 hover:border-neutral-600;
+  }
+  .btn-accent {
+    @apply bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white border-transparent hover:from-violet-400 hover:to-fuchsia-400 shadow-md;
+  }
+  .btn-secondary {
+    @apply bg-neutral-900/60 text-neutral-200 border-neutral-800 hover:bg-neutral-800/60;
+  }
+  .btn-ghost {
+    @apply bg-transparent text-neutral-300 border-neutral-800 hover:bg-neutral-900/60 hover:text-neutral-100;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white border-red-600 hover:bg-red-500;
+  }
+  .btn-disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .panel {
+    @apply bg-neutral-900/60 border border-neutral-800/40 rounded-xl;
+  }
+  .stat-card {
+    /* can't @apply custom classes in Tailwind v4; inline the utilities */
+    @apply bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 hover:bg-neutral-900/80 transition-colors;
+  }
+}

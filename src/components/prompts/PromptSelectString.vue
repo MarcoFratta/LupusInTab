@@ -3,8 +3,8 @@ import { computed } from 'vue';
 
 const props = defineProps<{
 	label: string;
-	modelValue: number | null;
-	choices: Array<{ label: string; value: number | null }>;
+	modelValue: string | null;
+	choices: Array<{ label: string; value: string | null }>;
 	placeholder?: string;
 	buttonText?: string;
 	accent?: 'red' | 'emerald' | 'violet' | 'neutral';
@@ -12,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-	(e: 'update:modelValue', value: number | null): void;
+	(e: 'update:modelValue', value: string | null): void;
 	(e: 'confirm'): void;
 }>();
 
@@ -31,9 +31,8 @@ const accentClasses = computed(() => {
 
 function onChange(event: Event) {
 	const target = event.target as HTMLSelectElement;
-	const raw = target.value;
-	const value = raw === 'null' ? null : Number(raw);
-	emit('update:modelValue', Number.isFinite(value as any) ? (value as number) : null);
+	const value = target.value;
+	emit('update:modelValue', value === 'null' || value === '' ? null : value);
 }
 
 function confirm() {
@@ -50,10 +49,10 @@ function confirm() {
 				class="w-full appearance-none rounded-lg border border-neutral-800/60 bg-neutral-900/70 px-2 pr-9 py-2 text-neutral-100 text-sm hover:bg-neutral-900/80 focus:outline-none"
 				:class="accentClasses"
 				@change="onChange"
-				:value="modelValue === null ? 'null' : String(modelValue)"
+				:value="modelValue === null ? 'null' : modelValue"
 			>
 				<option v-if="placeholder" disabled :value="'null'">{{ placeholder }}</option>
-				<option v-for="opt in choices" :key="String(opt.value)" :value="opt.value === null ? 'null' : String(opt.value)">
+				<option v-for="opt in choices" :key="String(opt.value)" :value="opt.value === null ? 'null' : opt.value">
 					{{ opt.label }}
 				</option>
 			</select>
@@ -69,5 +68,3 @@ function confirm() {
 	</div>
 	
 </template>
-
-

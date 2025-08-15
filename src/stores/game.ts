@@ -12,6 +12,13 @@ export type NightTurn = NightTurnSingle | NightTurnGroup;
 
 export interface NightSummary { targeted: number[]; saved: number[]; died: number[]; checks: Array<{by:number; target:number; team:string}> }
 
+export interface DaySummary { lynched: number | null; day: number; }
+
+export interface EventHistory {
+    nights: Array<{ night: number; summary: NightSummary; results: any[] }>;
+    days: Array<DaySummary>;
+}
+
 export interface GameState {
 	phase: Phase;
 	nightNumber: number;
@@ -26,6 +33,7 @@ export interface GameState {
 	winner: string | null;
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
+    eventHistory?: EventHistory;
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -43,6 +51,7 @@ export const useGameStore = defineStore('game', () => {
 		winner: null,
 		lynchedHistory: [],
 		usedPowers: {},
+		eventHistory: { nights: [], days: [] },
 	});
 
 	return { state };

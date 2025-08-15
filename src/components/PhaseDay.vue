@@ -38,7 +38,7 @@ function confirmSindaco() {
 
     <!-- Sindaco election step (first day only, when enabled and not yet elected) -->
     <div v-if="needsSindacoElection" class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3 text-left">
-      <div class="text-slate-300 text-sm">Eleggi il Sindaco (Mayor). Il voto dell’eletto conterà come 2 per il resto della partita.</div>
+      <div class="text-slate-300 text-sm">Eleggi il Sindaco. Il voto dell'eletto conterà come 2 per il resto della partita.</div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <label v-for="p in alivePlayers" :key="p.id" class="flex items-center justify-between gap-3 px-3 py-2 rounded-md border border-neutral-700/60 bg-neutral-900/50 text-neutral-200 cursor-pointer">
           <div class="flex items-center gap-3">

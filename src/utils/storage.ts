@@ -21,13 +21,23 @@ export function clearSavedGame(): void {
 	try { localStorage.removeItem(KEY); } catch {}
 }
 
-export function savePlayersSetup(payload: { numPlayers: number; players: Array<{ name: string }> }): void {
+export function savePlayersSetup(payload: { 
+	numPlayers: number; 
+	players: Array<{ name: string }>; 
+	rolesCounts: Record<string, number>;
+	rolesEnabled: Record<string, boolean>;
+}): void {
 	try {
 		localStorage.setItem(PLAYERS_KEY, JSON.stringify(payload));
 	} catch {}
 }
 
-export function loadPlayersSetup(): { numPlayers: number; players: Array<{ name: string }> } | null {
+export function loadPlayersSetup(): { 
+	numPlayers: number; 
+	players: Array<{ name: string }>; 
+	rolesCounts?: Record<string, number>;
+	rolesEnabled?: Record<string, boolean>;
+} | null {
 	try {
 		const raw = localStorage.getItem(PLAYERS_KEY);
 		return raw ? JSON.parse(raw) : null;

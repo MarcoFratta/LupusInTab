@@ -9,6 +9,21 @@ const props = defineProps({
 const emit = defineEmits(['next']);
 const revealed = ref(false);
 
+// Team mapping for display
+const teamMapping = {
+  'lupi': 'Lupi',
+  'village': 'Villaggio', 
+  'matti': 'Folle',
+  'mannari': 'Mannari'
+};
+
+function getTeamClasses(team) {
+  if (team === 'lupi') return 'bg-red-500/20 text-red-400 border-red-500/30';
+  if (team === 'matti') return 'bg-violet-500/20 text-violet-400 border-violet-500/30';
+  if (team === 'mannari') return 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30';
+  return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
+}
+
 function reveal() { revealed.value = true; }
 function next() { revealed.value = false; emit('next'); }
 </script>
@@ -31,8 +46,8 @@ function next() { revealed.value = false; emit('next'); }
 					<div class="flex items-center justify-between">
 						<div class="text-slate-100 text-sm font-medium">La tua fazione è</div>
 						<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold border"
-								:class="roleMeta.team === 'lupi' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'">
-							{{ roleMeta.team.toUpperCase() }}
+								:class="getTeamClasses(roleMeta.team)">
+							{{ teamMapping[roleMeta.team] || roleMeta.team }}
 						</span>
 					</div>
 				</div>

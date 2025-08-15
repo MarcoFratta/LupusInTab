@@ -5,6 +5,14 @@ import { nextReveal as engineNextReveal } from '../core/engine';
 
 const props = defineProps<{ state: any, onStartNight: () => void }>();
 
+// Team mapping for display
+const teamMapping = {
+  'lupi': 'Lupi',
+  'village': 'Villaggio', 
+  'matti': 'Folle',
+  'mannari': 'Mannari'
+};
+
 const showIntro = ref(true);
 const showPreNightInfo = ref(false);
 
@@ -32,7 +40,7 @@ const knownAllies = computed(() => {
   return players.map(p => {
     const rm = props.state.roleMeta[p.roleId];
     const showMode = rm.revealToAllies || 'team';
-    const labelText = showMode === 'role' ? rm.name : rm.team.toUpperCase();
+    const labelText = showMode === 'role' ? rm.name : (teamMapping[rm.team] || rm.team);
     return { id: p.id, name: p.name, labelText, team: rm.team, color: rm.color };
   });
 });

@@ -14,10 +14,10 @@ const dog: RoleDef = {
     countsAsWolfForWin: true,
     immuneToKillers: ['wolf'],
     getPromptComponent() {
-        return () => import('../components/roles/shared/PromptDeclare.vue');
+        return () => import('../components/roles/Dog/DogPrompt.vue');
     },
     getResolveDetailsComponent() {
-        return () => import('../components/roles/shared/DeclareResolveDetails.vue');
+        return () => import('../components/roles/Dog/DogResolveDetails.vue');
     },
     resolve(gameState: any, entry: any) {
         const targetId = Number(entry?.result?.targetId);

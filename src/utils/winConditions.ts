@@ -21,6 +21,15 @@ function isWolfForParity(state: GameState, roleId: string): boolean {
 
 export function useWinConditions() {
     const wolvesWin: WinCheck = (state) => {
+        // Check if LupoMannaro is alive - if so, it blocks wolf wins unless exactly 2 players remain
+        const dogAlive = countAlive(state, (p) => p.roleId === 'dog');
+        const totalAlive = countAlive(state, (p) => true);
+        
+        // If LupoMannaro is alive and more than 2 players remain, wolves cannot win
+        if (dogAlive > 0 && totalAlive > 2) {
+            return false;
+        }
+        
         // For wolves parity calculation, count roles that have countsAsWolfForWin (like dog)
         const wolvesAlive = countAlive(state, (p) => isWolfForParity(state, p.roleId));
         const nonWolvesAlive = countAlive(state, (p) => !isWolfForParity(state, p.roleId));
@@ -29,12 +38,30 @@ export function useWinConditions() {
     };
 
     const villageWin: WinCheck = (state) => {
+        // Check if LupoMannaro is alive - if so, it blocks village wins unless exactly 2 players remain
+        const dogAlive = countAlive(state, (p) => p.roleId === 'dog');
+        const totalAlive = countAlive(state, (p) => true);
+        
+        // If LupoMannaro is alive and more than 2 players remain, village cannot win
+        if (dogAlive > 0 && totalAlive > 2) {
+            return false;
+        }
+        
         // Village-aligned roles win when no ACTUAL wolves remain (exclude roles with countsAsWolfForWin like dog)
         const actualWolvesAlive = countAlive(state, (p) => isWolf(state, p.roleId));
         return actualWolvesAlive === 0;
     };
 
     const loversWin: WinCheck = (state) => {
+        // Check if LupoMannaro is alive - if so, it blocks lover wins unless exactly 2 players remain
+        const dogAlive = countAlive(state, (p) => p.roleId === 'dog');
+        const totalAlive = countAlive(state, (p) => true);
+        
+        // If LupoMannaro is alive and more than 2 players remain, lovers cannot win
+        if (dogAlive > 0 && totalAlive > 2) {
+            return false;
+        }
+        
         // For now, lovers share village win condition
         return villageWin(state);
     };

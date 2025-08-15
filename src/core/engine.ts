@@ -383,6 +383,14 @@ export function resolveNight(state: GameState, roles: RolesRegistry): void {
 		checks: (state.night.context.checks || []).slice(),
 	} as any;
 
+	// Store night summary and results in event history
+	if (!state.eventHistory) state.eventHistory = { nights: [], days: [] };
+	state.eventHistory.nights.push({
+		night: state.nightNumber,
+		summary: { ...state.night.summary },
+		results: [...state.night.results]
+	});
+
 	// After applying deaths and constructing summary, check win conditions immediately
 	const winner = evaluateWinner(state, roles);
 	if (winner) {
@@ -421,6 +429,14 @@ export function lynchPlayer(state: GameState, playerId: number): void {
     target.alive = false;
     if (!Array.isArray((state as any).lynchedHistory)) (state as any).lynchedHistory = [];
     (state as any).lynchedHistory.push(target.id);
+    
+    // Store day event in history
+    if (!state.eventHistory) state.eventHistory = { nights: [], days: [] };
+    state.eventHistory.days.push({
+        day: state.dayNumber,
+        lynched: playerId
+    });
+    
     // Immediate win for Crazyman if lynched
     const roleTeam = state.roleMeta[target.roleId]?.team;
     if (roleTeam === 'matti') {

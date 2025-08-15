@@ -15,6 +15,7 @@ import SetupRoles from './components/SetupRoles.vue';
 import SetupSettings from './components/SetupSettings.vue';
 import PlayerRoleList from './components/ui/PlayerRoleList.vue';
 import RoleDetails from './components/RoleDetails.vue';
+import EventHistory from './components/EventHistory.vue';
 // @ts-ignore - ambient module declarations provided in env.d.ts
 import { shuffled } from './utils/random';
 import { useGameStore } from './stores/game';
@@ -79,6 +80,7 @@ const resumeAvailable = ref(!!(savedGameAtBoot && (savedGameAtBoot as any).phase
 const route = useRoute();
 const router = useRouter();
 const currentPage = ref<'home' | 'roles' | 'players' | 'settings'>('home');
+const showEventHistory = ref(false);
 const store = useGameStore();
 const state = store.state;
 // Ensure settings exist even if state was restored from an older schema
@@ -88,6 +90,10 @@ if (!(state as any).settings) {
 // Ensure rolesEnabled exists in setup for older saved states
 if (!(state as any).setup?.rolesEnabled) {
     (state as any).setup.rolesEnabled = { wolf: true, villager: true, doctor: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false } as any;
+}
+// Ensure eventHistory exists for older saved states
+if (!state.eventHistory) {
+    state.eventHistory = { nights: [], days: [] };
 }
 const routePage = computed(() => {
     const p = route.params.page as string | undefined;
@@ -106,7 +112,18 @@ if (state.phase === PHASES.SETUP) {
     if (savedPlayers0 && Array.isArray(savedPlayers0.players) && savedPlayers0.players.length > 0) {
         state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers0.numPlayers) || 6));
         state.setup.players = savedPlayers0.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
-        initDefaultRolesCounts();
+        
+        // Restore role configuration if available
+        if (savedPlayers0.rolesCounts && typeof savedPlayers0.rolesCounts === 'object') {
+            state.setup.rolesCounts = { ...savedPlayers0.rolesCounts };
+        } else {
+            initDefaultRolesCounts();
+        }
+        
+        if (savedPlayers0.rolesEnabled && typeof savedPlayers0.rolesEnabled === 'object') {
+            state.setup.rolesEnabled = { ...savedPlayers0.rolesEnabled };
+        }
+        
         normalizeRoleCounts();
     }
 }
@@ -130,13 +147,20 @@ watch(
     { deep: true }
 );
 
-// Persist players setup independently so they are restored across visits
+// Persist players setup and role configuration independently so they are restored across visits
 watch(
-    () => ({ players: state.setup.players.map((p: { name: string }) => p.name), numPlayers: state.setup.numPlayers }),
+    () => ({ 
+        players: state.setup.players.map((p: { name: string }) => p.name), 
+        numPlayers: state.setup.numPlayers,
+        rolesCounts: state.setup.rolesCounts,
+        rolesEnabled: state.setup.rolesEnabled
+    }),
     () => {
         savePlayersSetup({
             numPlayers: state.setup.numPlayers,
-            players: state.setup.players.map((p: { name: string }) => ({ name: p.name }))
+            players: state.setup.players.map((p: { name: string }) => ({ name: p.name })),
+            rolesCounts: { ...state.setup.rolesCounts },
+            rolesEnabled: { ...state.setup.rolesEnabled }
         });
     },
     { deep: true }
@@ -160,13 +184,31 @@ watch(
 );
 
 function resetAll() {
+    // Save current settings before reset
+    const currentSettings = { ...state.settings };
+    
     Object.assign(store.state, engineCreateEmptyState());
+    
+    // Restore settings immediately after reset
+    state.settings = currentSettings;
+    
 	// Ensure setup players are re-initialized, preferring saved players if present
 	const savedPlayers = loadPlayersSetup();
 	if (savedPlayers && savedPlayers.players?.length) {
 		state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
         state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
-		initDefaultRolesCounts();
+		
+        // Restore role configuration if available
+        if (savedPlayers.rolesCounts && typeof savedPlayers.rolesCounts === 'object') {
+            state.setup.rolesCounts = { ...savedPlayers.rolesCounts };
+        } else {
+            initDefaultRolesCounts();
+        }
+        
+        if (savedPlayers.rolesEnabled && typeof savedPlayers.rolesEnabled === 'object') {
+            state.setup.rolesEnabled = { ...savedPlayers.rolesEnabled };
+        }
+        
 		normalizeRoleCounts();
 	} else {
 		initSetupPlayers();
@@ -227,7 +269,18 @@ if (state.phase === PHASES.SETUP && state.setup.players.length === 0) {
     if (savedPlayers && savedPlayers.players?.length) {
         state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
         state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
-        engineInitDefaultRolesCounts(state as any);
+        
+        // Restore role configuration if available
+        if (savedPlayers.rolesCounts && typeof savedPlayers.rolesCounts === 'object') {
+            state.setup.rolesCounts = { ...savedPlayers.rolesCounts };
+        } else {
+            engineInitDefaultRolesCounts(state as any);
+        }
+        
+        if (savedPlayers.rolesEnabled && typeof savedPlayers.rolesEnabled === 'object') {
+            state.setup.rolesEnabled = { ...savedPlayers.rolesEnabled };
+        }
+        
         engineNormalizeRoleCounts(state as any);
     } else {
         engineInitSetupPlayers(state as any);
@@ -333,12 +386,21 @@ function onLynch(playerId: number) {
 }
 
 function onSkipDay() {
-    // No lynch: just complete the day (winner check and start night)
+    // No lynch: record empty day event and complete the day
+    if (!state.eventHistory) state.eventHistory = { nights: [], days: [] };
+    state.eventHistory.days.push({
+        day: state.dayNumber,
+        lynched: null
+    });
     engineCompleteDay(state as any, ROLES as any);
 }
 
 function onElectSindaco(playerId: number) {
     engineSetSindaco(state as any, playerId);
+}
+
+function toggleEventHistory() {
+    showEventHistory.value = !showEventHistory.value;
 }
 </script>
 
@@ -431,25 +493,45 @@ function onElectSindaco(playerId: number) {
 
         <!-- End Phase -->
         <div v-else-if="state.phase === PHASES.END" class="space-y-4 text-center">
-			<h2 class="text-xl font-semibold text-slate-100">Fine partita</h2>
-            <div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
-            <div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : 'text-emerald-400')">
-					{{ (state.winner || 'Sconosciuto') + ' vincono' }}
+            <!-- Main End Game Content -->
+            <div v-if="!showEventHistory" class="space-y-6">
+                <h2 class="text-xl font-semibold text-slate-100 mb-6">Fine partita</h2>
+                <div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
+                    <div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : 'text-emerald-400')">
+                        {{ (state.winner || 'Sconosciuto') + ' vincono' }}
+                    </div>
+                    <div>
+                        <div class="text-slate-300 text-sm mb-2">Vincitori:</div>
+                        <PlayerRoleList 
+                            :state="state" 
+                            :players="state.players.filter(p => (state.winner === 'matti' ? (state.roleMeta[p.roleId]?.team === 'matti') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
+                        />
+                    </div>
+                    <div class="text-slate-400">Grazie per aver giocato.</div>
                 </div>
-                <div>
-					<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
-                <PlayerRoleList 
-                    :state="state" 
-                    :players="state.players.filter(p => (state.winner === 'matti' ? (state.roleMeta[p.roleId]?.team === 'matti') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
-                />
+                
+                <!-- Action Buttons with consistent styling -->
+                <div class="grid grid-cols-2 gap-2 mt-6">
+                    <button class="btn btn-ghost w-full" @click="toggleEventHistory">
+                        📋 Eventi
+                    </button>
+                    <button class="btn btn-primary w-full" @click="quitAndReset">
+                        Nuova partita
+                    </button>
                 </div>
-					<div class="text-slate-400">Grazie per aver giocato.</div>
-            </div>
-            <div class="flex justify-center">
-				<button class="px-4 py-2 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700" @click="quitAndReset">Nuova partita</button>
             </div>
         </div>
 	</div>
+
+    <!-- Full Screen Event History Modal -->
+    <div v-if="showEventHistory && state.phase === PHASES.END" class="fixed inset-0 bg-neutral-950 z-50 overflow-hidden">
+        <div class="w-full max-w-6xl mx-auto h-full bg-neutral-950/95 border-x border-neutral-800/40 backdrop-blur-sm shadow-xl p-4 sm:p-6 md:p-8 text-neutral-200">
+            <EventHistory 
+                :state="state" 
+                :onClose="() => showEventHistory = false" 
+            />
+        </div>
+    </div>
 </template>
 
  

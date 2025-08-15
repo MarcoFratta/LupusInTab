@@ -16,10 +16,10 @@ const hangman: RoleDef = {
     revealToAllies: 'role',
     revealAlliesWithinTeam: false,
     getPromptComponent() {
-        return () => import('../components/roles/shared/PromptDeclare.vue');
+        return () => import('../components/roles/Hangman/HangmanPrompt.vue');
     },
     getResolveDetailsComponent() {
-        return () => import('../components/roles/shared/DeclareResolveDetails.vue');
+        return () => import('../components/roles/Hangman/HangmanResolveDetails.vue');
     },
     resolve(gameState: any, entry: any) {
         const targetId = Number(entry?.result?.targetId);

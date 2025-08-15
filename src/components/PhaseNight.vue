@@ -70,9 +70,11 @@ const shouldShowDeadPrompt = computed(() => {
         <button class="btn btn-secondary" @click="props.onPromptComplete({ skipped: true })">Salta</button>
       </div>
 
-      <div v-else-if="isFirstNightSkipped" class="flex items-center justify-between">
-        <div class="text-slate-300">La prima notte è tranquilla. Gli effetti sono ignorati.</div>
-        <button class="btn btn-secondary" @click="props.onPromptComplete({ skipped: true })">Salta</button>
+      <div v-else-if="isFirstNightSkipped" class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3 text-left">
+        <div class="text-slate-300 text-sm">La prima notte è tranquilla. Gli effetti sono ignorati.</div>
+        <div class="pt-2">
+          <button class="btn btn-primary w-full" @click="props.onPromptComplete({ skipped: true })">Salta</button>
+        </div>
       </div>
 
       <component v-else-if="currentPromptComponent"

@@ -7,6 +7,8 @@ import DetailsCard from './ui/DetailsCard.vue';
 const WolvesResolveDetails = defineAsyncComponent(() => import('./roles/Wolf/WolvesResolveDetails.vue'));
 const DoctorResolveDetails = defineAsyncComponent(() => import('./roles/Doctor/DoctorResolveDetails.vue'));
 const MediumResolveDetails = defineAsyncComponent(() => import('./roles/Medium/MediumResolveDetails.vue'));
+const DogResolveDetails = defineAsyncComponent(() => import('./roles/Dog/DogResolveDetails.vue'));
+const HangmanResolveDetails = defineAsyncComponent(() => import('./roles/Hangman/HangmanResolveDetails.vue'));
 
 const props = defineProps<{
   state: any;
@@ -45,6 +47,43 @@ const detailEntries = computed(() => {
     const mediums = props.state.players.filter((p: any) => p.roleId === 'medium');
     for (const m of mediums) {
       entries.push({ key: `medium-${m.id}` , title: 'Medium', component: MediumResolveDetails, props: { player: m } });
+    }
+  }
+
+  // Dog (LupoMannaro) results
+  const results = props.state?.night?.results || [];
+  const dogResults = results.filter((r: any) => r.roleId === 'dog');
+  for (const result of dogResults) {
+    const player = props.state.players.find((p: any) => p.id === result.playerId);
+    if (player) {
+      entries.push({ 
+        key: `dog-${result.playerId}`, 
+        title: 'LupoMannaro', 
+        component: DogResolveDetails, 
+        props: { 
+          gameState: props.state, 
+          entry: result,
+          player: player
+        } 
+      });
+    }
+  }
+
+  // Hangman (Boia) results
+  const hangmanResults = results.filter((r: any) => r.roleId === 'hangman');
+  for (const result of hangmanResults) {
+    const player = props.state.players.find((p: any) => p.id === result.playerId);
+    if (player) {
+      entries.push({ 
+        key: `hangman-${result.playerId}`, 
+        title: 'Boia', 
+        component: HangmanResolveDetails, 
+        props: { 
+          gameState: props.state, 
+          entry: result,
+          player: player
+        } 
+      });
     }
   }
 
@@ -91,7 +130,7 @@ const detailEntries = computed(() => {
 
       <!-- Details section -->
       <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Lupi' ? 'lupi' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : 'neutral'))">
+        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Lupi' ? 'lupi' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : (e.title === 'Boia' ? 'lupi' : (e.title === 'LupoMannaro' ? 'violet' : 'neutral'))))">
           <component :is="e.component" :state="props.state" v-bind="e.props || {}" />
         </DetailsCard>
       </div>

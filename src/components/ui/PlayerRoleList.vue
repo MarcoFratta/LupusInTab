@@ -18,7 +18,8 @@ const items = computed(() => props.players.map((p: any) => {
 
 <template>
   <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-    <li v-for="p in items" :key="p.id" class="px-3 py-2 rounded-md border border-neutral-700/60 bg-neutral-900/50 text-neutral-200 flex items-center justify-between">
+    <li v-for="p in items" :key="p.id" class="px-3 py-2 rounded-md border bg-neutral-900/50 text-neutral-200 flex items-center justify-between"
+        :class="props.state.sindacoId === p.id ? 'border-yellow-400' : 'border-neutral-700/60'">
       <div class="font-medium">{{ p.name }}</div>
       <div class="text-[11px] px-2 py-0.5 rounded border" :style="{ color: p.roleColor, borderColor: p.roleColor }">{{ p.roleName }}</div>
     </li>

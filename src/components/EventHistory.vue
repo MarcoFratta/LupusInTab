@@ -51,7 +51,7 @@ function buildNightDetailEntries(nightData) {
   if (doctorRole) {
     const doctors = state.players.filter((p) => p.roleId === 'doctor');
     for (const d of doctors) {
-      entries.push({ key: `doctor-${d.id}`, title: 'Doctor', component: DoctorResolveDetails, props: { player: d } });
+      entries.push({ key: `doctor-${d.id}`, title: 'Guardia', component: DoctorResolveDetails, props: { player: d } });
     }
   }
 
@@ -60,7 +60,7 @@ function buildNightDetailEntries(nightData) {
   if (mediumRole) {
     const mediums = state.players.filter((p) => p.roleId === 'medium');
     for (const m of mediums) {
-      entries.push({ key: `medium-${m.id}`, title: 'Medium', component: MediumResolveDetails, props: { player: m } });
+      entries.push({ key: `medium-${m.id}`, title: 'Veggente', component: MediumResolveDetails, props: { player: m } });
     }
   }
 

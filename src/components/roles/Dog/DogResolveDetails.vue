@@ -41,3 +41,4 @@ const hasDeclaration = computed(() => target && roleId);
         </div>
     </div>
 </template>
+

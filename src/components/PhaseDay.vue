@@ -67,7 +67,7 @@ function confirmSindaco() {
 
     <!-- Regular lynch voting (or first day lynch if not skipped) -->
     <div v-else class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3 text-left">
-      <div class="text-slate-300 text-sm">Seleziona il giocatore con più voti da linciare. Se un Crazyman viene linciato, la partita termina immediatamente con la sua vittoria.</div>
+      <div class="text-slate-300 text-sm">Seleziona il giocatore con più voti da linciare.</div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <label v-for="p in alivePlayers" :key="p.id" class="flex items-center justify-between gap-3 px-3 py-2 rounded-md border border-neutral-700/60 bg-neutral-900/50 text-neutral-200 cursor-pointer">

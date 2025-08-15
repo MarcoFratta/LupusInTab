@@ -37,7 +37,7 @@ const detailEntries = computed(() => {
   if (doctorRole) {
     const doctors = props.state.players.filter((p: any) => p.roleId === 'doctor');
     for (const d of doctors) {
-      entries.push({ key: `doctor-${d.id}` , title: 'Doctor', component: DoctorResolveDetails, props: { player: d } });
+      entries.push({ key: `doctor-${d.id}` , title: 'Guardia', component: DoctorResolveDetails, props: { player: d } });
     }
   }
 
@@ -46,7 +46,7 @@ const detailEntries = computed(() => {
   if (mediumRole) {
     const mediums = props.state.players.filter((p: any) => p.roleId === 'medium');
     for (const m of mediums) {
-      entries.push({ key: `medium-${m.id}` , title: 'Medium', component: MediumResolveDetails, props: { player: m } });
+      entries.push({ key: `medium-${m.id}` , title: 'Veggente', component: MediumResolveDetails, props: { player: m } });
     }
   }
 
@@ -130,7 +130,7 @@ const detailEntries = computed(() => {
 
       <!-- Details section -->
       <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Lupi' ? 'lupi' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : (e.title === 'Boia' ? 'lupi' : (e.title === 'LupoMannaro' ? 'violet' : 'neutral'))))">
+        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Lupi' ? 'lupi' : (e.title === 'Guardia' ? 'emerald' : (e.title === 'Veggente' ? 'violet' : (e.title === 'Boia' ? 'lupi' : (e.title === 'LupoMannaro' ? 'violet' : 'neutral'))))">
           <component :is="e.component" :state="props.state" v-bind="e.props || {}" />
         </DetailsCard>
       </div>

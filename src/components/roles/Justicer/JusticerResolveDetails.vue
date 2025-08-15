@@ -10,8 +10,8 @@ const target = Number.isFinite(targetId) ? props.gameState.players.find(p => p.i
 
 <template>
     <div class="text-sm text-neutral-300">
-        <div v-if="target">Justicer targeted <span class="font-semibold">{{ target.name }}</span>.</div>
-        <div v-else>Justicer did not target anyone.</div>
+        <div v-if="target">Giustiziere ha giustiziato <span class="font-semibold">{{ target.name }}</span>.</div>
+        <div v-else>Giustiziere non ha agito.</div>
     </div>
 </template>
 

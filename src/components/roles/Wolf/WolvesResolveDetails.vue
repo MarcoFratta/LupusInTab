@@ -12,7 +12,7 @@ const wolves = computed(() => props.state.players.filter((p) => props.state.role
     <div v-if="targeted.length === 0" class="text-slate-400">Nessun attacco effettuato.</div>
     <div v-else class="space-y-2">
       <ComparisonRow
-        label="uccisi"
+        label="ucciso"
         :left-items="wolves.map(w => ({ label: w.name, color: props.state.roleMeta['wolf']?.color || '#ef4444' }))"
         :right-items="targeted.map(pid => ({ label: props.state.players.find(p=>p.id===pid)?.name, color: props.state.roleMeta[props.state.players.find(p=>p.id===pid)?.roleId]?.color }))"
       />

@@ -126,19 +126,11 @@ function openRoleDetails(roleId: string): void {
                     {{ role.team === 'lupi' ? 'Lupo' : (role.team === 'matti' ? 'Folle' : (role.team === 'mannari' ? 'Mannari' : 'Villaggio')) }}
                   </span>
                 </div>
-                <div class="mt-1 text-xs text-neutral-400 line-clamp-2">{{ role.description }}</div>
-                <div v-if="role.id === 'wolf' || role.id === 'villager'" class="mt-2 text-[10px] text-neutral-400">Sempre abilitato</div>
+                <div class="mt-1 text-xs text-neutral-400 line-clamp-2 text-left">{{ role.description }}</div>
+                <div v-if="role.id === 'wolf' || role.id === 'villager'" class="mt-2 text-[10px] text-neutral-400 text-left">Sempre abilitato</div>
               </div>
               
-              <div class="shrink-0 flex items-center gap-2">
-                <!-- Details button -->
-                <button
-                  @click="openRoleDetails(role.id)"
-                  class="px-3 py-1.5 text-xs font-medium text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-lg transition-colors"
-                >
-                  Dettagli
-                </button>
-                
+              <div class="shrink-0 flex flex-col items-end gap-2">
                 <!-- Toggle switch -->
                 <button
                   type="button"
@@ -149,6 +141,14 @@ function openRoleDetails(roleId: string): void {
                 >
                   <div class="absolute top-1/2 -translate-y-1/2 transition-all w-4 h-4 rounded-full"
                        :class="isEnabled(role.id) ? 'translate-x-6 bg-emerald-400' : 'translate-x-1 bg-neutral-600'" />
+                </button>
+                
+                <!-- Details button -->
+                <button
+                  @click="openRoleDetails(role.id)"
+                  class="px-2 py-1 text-[10px] font-medium text-neutral-400 bg-neutral-800/40 hover:bg-neutral-700/50 border border-neutral-700/50 rounded-md transition-colors"
+                >
+                  Dettagli
                 </button>
               </div>
             </div>

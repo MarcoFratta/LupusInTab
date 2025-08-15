@@ -25,7 +25,7 @@ const detailEntries = computed(() => {
   // Wolves (group): show who they killed (targeted minus saved, or targeted list)
   const wolvesRole = ROLES['wolf'];
   if (wolvesRole) {
-    entries.push({ key: 'wolf', title: 'Wolves', component: WolvesResolveDetails });
+    entries.push({ key: 'wolf', title: 'Lupi', component: WolvesResolveDetails });
   }
 
   // Doctor (per-actor): show saves if any
@@ -89,7 +89,7 @@ const detailEntries = computed(() => {
 
       <!-- Details section -->
       <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Wolves' ? 'lupi' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : 'neutral'))">
+        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Lupi' ? 'lupi' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : 'neutral'))">
           <component :is="e.component" :state="props.state" v-bind="e.props || {}" />
         </DetailsCard>
       </div>

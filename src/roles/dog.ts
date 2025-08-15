@@ -5,7 +5,7 @@ const dog: RoleDef = {
     name: 'LupoMannaro',
     team: 'mannari',
     visibleAsTeam: 'lupi',
-    description: 'Gioca da solo. Vince se restate in due (tu e un altro). Conta come lupo per la parità. I lupi non possono ucciderti. Di notte dichiara un giocatore e un ruolo: se indovini, muore. Se il Veggente indaga il tuo ruolo, muori.',
+    description: 'Gioca da solo. Vince se restate in due (tu e un altro). Conta come lupi per la parità. I lupi non possono ucciderti. Di notte dichiara un giocatore e un ruolo: se indovini, muore. Se il Veggente indaga il tuo ruolo, muori.',
     color: '#10b981',
     phaseOrder: 2,
     group: false,

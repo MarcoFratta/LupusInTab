@@ -5,7 +5,7 @@ const demoniac: RoleDef = {
     name: 'Indemoniato',
     team: 'lupi',
     visibleAsTeam: 'lupi',
-    description: 'Alleato segreto dei lupi. Visto come Lupo dagli altri. Nessuna azione notturna. Vince quando vincono i Lupi, ma non conta come Lupo per la parità.',
+    description: 'Alleato segreto dei lupi. Visto come lupi dagli altri. Nessuna azione notturna. Vince quando vincono i lupi, ma non conta come lupi per la parità.',
     color: '#fb7185',
     phaseOrder: 98,
     group: false,

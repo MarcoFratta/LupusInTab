@@ -1,12 +1,12 @@
 <script setup>
 const props = defineProps({
   title: { type: String, required: true },
-  variant: { type: String, default: 'neutral' }, // 'wolf' | 'village' | 'violet' | 'emerald' | 'neutral'
+  variant: { type: String, default: 'neutral' }, // 'lupi' | 'village' | 'violet' | 'emerald' | 'neutral'
 });
 
 function headerAccentClass(variant) {
   const v = String(variant || 'neutral');
-  if (v === 'wolf') return 'bg-red-500/20 text-red-300 border-red-500/30';
+  if (v === 'lupi') return 'bg-red-500/20 text-red-300 border-red-500/30';
   if (v === 'village' || v === 'emerald') return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
   if (v === 'violet') return 'bg-violet-500/20 text-violet-300 border-violet-500/30';
   return 'text-neutral-300 border-neutral-600/40';

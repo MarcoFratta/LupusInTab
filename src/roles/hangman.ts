@@ -3,8 +3,8 @@ import type { RoleDef } from '../types';
 const hangman: RoleDef = {
     id: 'hangman',
     name: 'Boia',
-    team: 'wolf',
-    visibleAsTeam: 'wolf',
+    team: 'lupi',
+    visibleAsTeam: 'lupi',
     description: 'Una volta per partita, di notte: dichiara un giocatore e un ruolo. Se indovini, muore; altrimenti muori tu. I lupi ti conoscono; tu non conosci loro.',
     color: '#f97316',
     phaseOrder: 2,
@@ -12,7 +12,7 @@ const hangman: RoleDef = {
     actsAtNight: true,
     usage: 'once',
     // Wolves should see Hangman as ally including role; Hangman does not see wolves
-    knownToTeams: ['wolf'],
+    knownToTeams: ['lupi'],
     revealToAllies: 'role',
     revealAlliesWithinTeam: false,
     getPromptComponent() {

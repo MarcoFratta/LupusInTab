@@ -8,19 +8,27 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100vh;
   line-height: 1.5;
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling on iOS */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight */
 }
 
 #app {
   display: flex;
   align-items: center;    /* center vertically */
   justify-content: center;/* center horizontally */
-  padding: 1rem;
+  padding: 0.75rem;      /* smaller padding on mobile */
   min-height: 100vh;
+}
+
+@media (min-width: 640px) {
+  #app {
+    padding: 1rem;
+  }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium px-4 py-2 transition-colors border shadow-sm;
+    @apply inline-flex items-center justify-center gap-1 sm:gap-2 rounded-md text-sm font-medium px-3 sm:px-4 py-2 transition-colors border shadow-sm;
   }
   .btn-primary {
     @apply bg-neutral-700 text-neutral-100 border-neutral-700 hover:bg-neutral-600 hover:border-neutral-600;

@@ -12,8 +12,8 @@ const roleName = roleId ? (props.gameState.roleMeta?.[roleId]?.name || roleId) :
 
 <template>
     <div class="text-sm text-neutral-300">
-        <div v-if="targetId && roleId">Declared <span class="font-semibold">{{ target?.name || ('#'+targetId) }}</span> as <span class="font-semibold">{{ roleName }}</span>.</div>
-        <div v-else>No declaration.</div>
+        <div v-if="targetId && roleId">Dichiarato <span class="font-semibold">{{ target?.name || ('#'+targetId) }}</span> come <span class="font-semibold">{{ roleName }}</span>.</div>
+        <div v-else>Nessuna dichiarazione.</div>
     </div>
 </template>
 

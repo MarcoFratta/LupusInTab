@@ -1,8 +1,8 @@
 <script setup>
 const props = defineProps({
 	label: { type: String, required: true },
-	leftItems: { type: Array, required: true }, // Array<{ label: string, color?: string, variant?: 'wolf'|'village'|'violet'|'emerald'|'yellow'|'neutral' }>
-	rightItems: { type: Array, required: true }, // Array<{ label: string, color?: string, variant?: 'wolf'|'village'|'violet'|'emerald'|'yellow'|'neutral' }>
+	leftItems: { type: Array, required: true }, // Array<{ label: string, color?: string, variant?: 'lupi'|'village'|'violet'|'emerald'|'yellow'|'neutral' }>
+	rightItems: { type: Array, required: true }, // Array<{ label: string, color?: string, variant?: 'lupi'|'village'|'violet'|'emerald'|'yellow'|'neutral' }>
 	dense: { type: Boolean, default: true },
 });
 
@@ -12,7 +12,7 @@ const normalChip = 'px-2 py-0.5 text-[11px]';
 
 function chipClass(variant) {
 	const tone = String(variant || 'neutral');
-	if (tone === 'wolf') return `${baseChip} ${props.dense ? denseChip : normalChip} bg-red-500/20 text-red-300 border-red-500/30`;
+	if (tone === 'lupi') return `${baseChip} ${props.dense ? denseChip : normalChip} bg-red-500/20 text-red-300 border-red-500/30`;
 	if (tone === 'village' || tone === 'emerald') return `${baseChip} ${props.dense ? denseChip : normalChip} bg-emerald-500/20 text-emerald-300 border-emerald-500/30`;
 	if (tone === 'yellow') return `${baseChip} ${props.dense ? denseChip : normalChip} bg-yellow-500/20 text-yellow-300 border-yellow-500/30`;
 	if (tone === 'violet') return `${baseChip} ${props.dense ? denseChip : normalChip} bg-violet-500/20 text-violet-300 border-violet-500/30`;

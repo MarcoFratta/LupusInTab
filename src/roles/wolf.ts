@@ -4,8 +4,8 @@ import { useWinConditions } from '../utils/winConditions';
 const wolf: RoleDef = {
 	id: 'wolf',
     name: 'Lupo',
-	team: 'wolf',
-    visibleAsTeam: 'wolf',
+	team: 'lupi',
+    visibleAsTeam: 'lupi',
     description: 'Di notte i lupi scelgono una vittima. Vincono quando restano solo loro o raggiungono la parità con gli altri.',
     color: '#ef4444',
 	phaseOrder: 1,

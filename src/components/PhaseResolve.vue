@@ -89,7 +89,7 @@ const detailEntries = computed(() => {
 
       <!-- Details section -->
       <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Wolves' ? 'wolf' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : 'neutral'))">
+        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Wolves' ? 'lupi' : (e.title === 'Doctor' ? 'emerald' : (e.title === 'Medium' ? 'violet' : 'neutral'))">
           <component :is="e.component" :state="props.state" v-bind="e.props || {}" />
         </DetailsCard>
       </div>

@@ -24,7 +24,7 @@ const knownAllies = computed(() => {
     const rm = props.state.roleMeta[p.roleId];
     if (!rm) return false;
     // Show wolves to wolves unless the current role disables intra-team ally reveal
-    if (rm.team === roleMeta.team && roleMeta.team === 'wolf' && (roleMeta.revealAlliesWithinTeam !== false)) return true;
+    if (rm.team === roleMeta.team && roleMeta.team === 'lupi' && (roleMeta.revealAlliesWithinTeam !== false)) return true;
     const kt = rm.knownToTeams as string[] | undefined;
     return Array.isArray(kt) && kt.includes(roleMeta.team);
   });

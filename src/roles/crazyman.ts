@@ -3,7 +3,7 @@ import type { RoleDef } from '../types';
 const crazyman: RoleDef = {
     id: 'crazyman',
     name: 'Matto',
-    team: 'crazyman',
+    team: 'matti',
     visibleAsTeam: 'village',
     description: 'Vinci da solo se il villaggio ti lincia. Agli altri appari come un Villico.',
     color: '#a855f7',

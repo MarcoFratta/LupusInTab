@@ -8,7 +8,7 @@ const targetId = ref<number | null>(null);
 const choices = computed(() => {
 	const alive = props.gameState.players.filter((p: any) => p.alive);
 	return [
-		{ label: 'No one', value: null },
+		{ label: 'Nessuno', value: null },
 		...alive.map((p: any) => ({ label: p.name, value: p.id }))
 	];
 });
@@ -20,10 +20,10 @@ function submit() {
 
 <template>
 	<PromptSelect
-		label="Choose a player to save"
+		label="Scegli un giocatore da salvare"
 		v-model="targetId"
 		:choices="choices"
-		buttonText="Confirm"
+		buttonText="Conferma"
 		accent="emerald"
 		@confirm="submit"
 	/>

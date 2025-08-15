@@ -27,7 +27,7 @@ function onNumChange(e: any) {
             <span class="px-2 py-0.5 rounded text-[11px] font-semibold border text-neutral-200 border-neutral-700/60">{{ state.setup.players.length }}</span>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <button class="btn btn-secondary w-full text-xs" @click="resetNames">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M4 4v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -35,7 +35,7 @@ function onNumChange(e: any) {
             </svg>
             Reimposta nomi
           </button>
-          <button class="btn btn-primary w-full text-xs" @click="() => { state.setup.players.push({ name: `Player ${state.setup.players.length + 1}` }); state.setup.numPlayers = state.setup.players.length; engineNormalizeRoleCounts(state); }">
+          <button class="btn btn-primary w-full text-xs" @click="() => { state.setup.players.push({ name: `Giocatore ${state.setup.players.length + 1}` }); state.setup.numPlayers = state.setup.players.length; engineNormalizeRoleCounts(state); }">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
@@ -49,12 +49,11 @@ function onNumChange(e: any) {
         <div class="max-h-72 overflow-y-auto overflow-x-hidden space-y-2 px-1.5">
           <div v-for="(p, idx) in state.setup.players" :key="idx" class="flex items-center gap-2.5 p-2.5 bg-neutral-900/60 border border-neutral-800/40 rounded-lg hover:bg-neutral-800/60 transition-colors w-full">
             <div class="w-6 h-6 bg-indigo-600 rounded text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{{ idx + 1 }}</div>
-            <input type="text" v-model="p.name" class="flex-1 min-w-0 px-2 py-1 bg-transparent border border-neutral-800/40 rounded text-slate-100 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50" :placeholder="`Player ${idx + 1}`"/>
-            <button class="btn btn-secondary text-[11px]" @click="() => { state.setup.players.splice(idx, 1); state.setup.numPlayers = state.setup.players.length; engineNormalizeRoleCounts(state); }">
+            <input type="text" v-model="p.name" class="flex-1 min-w-0 px-2 py-1 bg-transparent border border-neutral-800/40 rounded text-slate-100 text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50" :placeholder="`Giocatore ${idx + 1}`"/>
+            <button class="w-8 h-8 flex items-center justify-center rounded border border-neutral-800/60 bg-neutral-900/60 text-neutral-300 hover:bg-neutral-800/60 hover:text-neutral-100 transition-colors" @click="() => { state.setup.players.splice(idx, 1); state.setup.numPlayers = state.setup.players.length; engineNormalizeRoleCounts(state); }">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Rimuovi
             </button>
           </div>
           <div class="flex justify-end" />

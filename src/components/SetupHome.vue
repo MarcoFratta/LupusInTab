@@ -39,7 +39,7 @@ function beginReveal() {
 <template>
   <div class="space-y-5">
     <!-- Compact Summary Cards -->
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-2">
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
         <div class="flex items-center justify-between gap-2 whitespace-nowrap">
           <div class="flex items-center gap-2">
@@ -48,7 +48,7 @@ function beginReveal() {
                 <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" fill="currentColor"/>
               </svg>
             </div>
-            <span class="text-sm text-neutral-400 leading-none">Players</span>
+            <span class="text-sm text-neutral-400 leading-none">Giocatori</span>
           </div>
           <span class="text-lg font-bold text-neutral-100 leading-none tabular-nums">{{ state.setup.numPlayers }}</span>
         </div>
@@ -63,7 +63,7 @@ function beginReveal() {
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" fill="none"/>
               </svg>
             </div>
-            <span class="text-sm text-neutral-400 leading-none">Roles</span>
+            <span class="text-sm text-neutral-400 leading-none">Ruoli</span>
           </div>
           <span class="text-lg font-bold leading-none tabular-nums" :class="totalRolesSelected === state.setup.numPlayers ? 'text-emerald-400' : 'text-red-400'">
             {{ totalRolesSelected }}/{{ state.setup.numPlayers }}
@@ -79,7 +79,7 @@ function beginReveal() {
       <p class="text-sm text-neutral-400">Imposta il numero di ogni ruolo per la partita</p>
       </div>
 
-      <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-[1fr]">
+      <div class="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[1fr]">
            <RoleCard
           v-for="role in ROLE_LIST.filter(r => state.setup.rolesEnabled?.[r.id] ?? true)"
           :key="role.id"

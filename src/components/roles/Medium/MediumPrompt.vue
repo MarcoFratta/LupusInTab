@@ -15,7 +15,7 @@ const result = computed(() => {
 });
 
 const choices = computed(() => [
-	{ label: 'Select a player…', value: null },
+	{ label: 'Seleziona un giocatore…', value: null },
 	...selectable.value.map((p: any) => ({ label: p.name, value: p.id }))
 ]);
 
@@ -40,11 +40,11 @@ const teamId = computed(() => {
 const teamLabel = computed(() => {
 	if (!teamId.value) return null;
 	const t = String(teamId.value).toLowerCase();
-	return t === 'wolf' ? 'Wolf' : 'Village';
+	return t === 'lupi' ? 'Lupi' : 'Villaggio';
 });
 
 const teamPillClass = computed(() => {
-	return teamId.value === 'wolf'
+	return teamId.value === 'lupi'
 		? 'bg-red-500/20 text-red-300 border-red-500/30'
 		: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
 });
@@ -53,16 +53,16 @@ const teamPillClass = computed(() => {
 <template>
 	<div class="stack">
 		<PromptSelect
-			label="Choose a player to check"
+			label="Scegli un giocatore da controllare"
 			v-model="targetId"
 			:choices="choices"
-			buttonText="Confirm"
+			buttonText="Conferma"
 			accent="violet"
 			:disabled="!choices.length"
 			@confirm="submit"
 		/>
 		<div v-if="selectedPlayer && teamLabel" class="mt-4 space-y-2">
-			<div class="text-sm text-neutral-400">Result</div>
+			<div class="text-sm text-neutral-400">Risultato</div>
 			<div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-4 flex items-center justify-between gap-4">
 				<div class="flex items-center gap-3 min-w-0">
 					<div class="w-9 h-9 rounded-full bg-neutral-800/70 border border-neutral-700/50 flex items-center justify-center text-neutral-300 text-sm font-medium">
@@ -70,7 +70,7 @@ const teamPillClass = computed(() => {
 					</div>
 					<div class="min-w-0">
 						<div class="text-sm font-semibold text-neutral-100 truncate">{{ selectedPlayer.name }}</div>
-						<div class="text-xs text-neutral-400 truncate">plays for</div>
+						<div class="text-xs text-neutral-400 truncate">gioca per</div>
 					</div>
 				</div>
 				<div class="shrink-0">

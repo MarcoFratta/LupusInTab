@@ -10,7 +10,7 @@ function isWolf(state: GameState, roleId: string): boolean {
     const meta = state.roleMeta[roleId] as any;
     if (!meta) return false;
     if (meta.countsAsWolfForWin) return true;
-    return meta.team === 'wolf';
+    return meta.team === 'lupi';
 }
 
 export function useWinConditions() {

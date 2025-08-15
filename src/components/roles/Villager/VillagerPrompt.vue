@@ -12,8 +12,8 @@ function submit() {
 
 <template>
 	<div class="stack center">
-		<div class="muted">Villagers sleep peacefully. No action.</div>
-		<button @click="submit">Continue</button>
+		<div class="muted">I paesani dormono tranquillamente. Nessuna azione.</div>
+		<button @click="submit">Continua</button>
 	</div>
 </template>
 

@@ -4,6 +4,7 @@ const routes = [
     { path: '/', redirect: '/setup/home' },
     // We render everything in App.vue; this route only carries the page param for tabs
     { path: '/setup/:page(home|roles|players|settings)?', name: 'setup', component: { template: '<div />' } },
+    { path: '/role-details', name: 'role-details', component: { template: '<div />' } },
 ];
 
 export const router = createRouter({

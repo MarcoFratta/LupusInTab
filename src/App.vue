@@ -14,6 +14,7 @@ import SetupPlayers from './components/SetupPlayers.vue';
 import SetupRoles from './components/SetupRoles.vue';
 import SetupSettings from './components/SetupSettings.vue';
 import PlayerRoleList from './components/ui/PlayerRoleList.vue';
+import RoleDetails from './components/RoleDetails.vue';
 // @ts-ignore - ambient module declarations provided in env.d.ts
 import { shuffled } from './utils/random';
 import { useGameStore } from './stores/game';
@@ -96,6 +97,7 @@ const isHome = computed(() => routePage.value === 'home');
 const isRoles = computed(() => routePage.value === 'roles');
 const isPlayers = computed(() => routePage.value === 'players');
 const isSettings = computed(() => routePage.value === 'settings');
+const isRoleDetails = computed(() => route.name === 'role-details');
 // Hydration
 // 1) Do NOT auto-resume a game; only resume if started and the user asks
 // 2) Always load players setup from dedicated storage if available
@@ -103,7 +105,7 @@ const savedPlayers0 = loadPlayersSetup();
 if (state.phase === PHASES.SETUP) {
     if (savedPlayers0 && Array.isArray(savedPlayers0.players) && savedPlayers0.players.length > 0) {
         state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers0.numPlayers) || 6));
-        state.setup.players = savedPlayers0.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Player ${i+1}`) }));
+        state.setup.players = savedPlayers0.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
         initDefaultRolesCounts();
         normalizeRoleCounts();
     }
@@ -163,7 +165,7 @@ function resetAll() {
 	const savedPlayers = loadPlayersSetup();
 	if (savedPlayers && savedPlayers.players?.length) {
 		state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
-        state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Player ${i+1}`) }));
+        state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
 		initDefaultRolesCounts();
 		normalizeRoleCounts();
 	} else {
@@ -175,8 +177,8 @@ function resetAll() {
 
 // derive alive groups via engine selectors
 const alivePlayers = computed(() => state.players.filter(p => p.alive));
-const wolvesAlive = computed(() => alivePlayers.value.filter(p => state.roleMeta[p.roleId]?.team === 'wolf'));
-const villagersAlive = computed(() => alivePlayers.value.filter(p => state.roleMeta[p.roleId]?.team !== 'wolf'));
+const wolvesAlive = computed(() => alivePlayers.value.filter(p => state.roleMeta[p.roleId]?.team === 'lupi'));
+const villagersAlive = computed(() => alivePlayers.value.filter(p => state.roleMeta[p.roleId]?.team !== 'lupi'));
 
 // winner computed inside engine flow
 
@@ -224,7 +226,7 @@ if (state.phase === PHASES.SETUP && state.setup.players.length === 0) {
     const savedPlayers = loadPlayersSetup();
     if (savedPlayers && savedPlayers.players?.length) {
         state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
-        state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Player ${i+1}`) }));
+        state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
         engineInitDefaultRolesCounts(state as any);
         engineNormalizeRoleCounts(state as any);
     } else {
@@ -341,7 +343,11 @@ function onElectSindaco(playerId: number) {
 </script>
 
 <template>
-	<div class="w-full max-w-4xl mx-auto bg-neutral-950/95 border border-neutral-800/40 rounded-2xl backdrop-blur-sm shadow-xl p-6 md:p-8 text-neutral-200">
+	<!-- Role Details Page -->
+	<RoleDetails v-if="isRoleDetails" />
+	
+	<!-- Main Game Container -->
+	<div v-else class="w-full max-w-4xl mx-auto bg-neutral-950/95 border border-neutral-800/40 rounded-2xl backdrop-blur-sm shadow-xl p-4 sm:p-6 md:p-8 text-neutral-200">
 		<h1 class="text-2xl md:text-3xl font-semibold text-neutral-100 mb-6 text-center">Lupus in Tabula</h1>
 		<div class="h-px bg-neutral-800/40 mb-6"></div>
 
@@ -361,45 +367,45 @@ function onElectSindaco(playerId: number) {
 
 		<!-- Setup Phase -->
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center">
-			<!-- Page Navigation -->
-			<div class="inline-flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg">
-				<button 
-                    class="flex-1 text-sm"
-                    :class="isHome 
-                        ? 'btn btn-primary shadow-sm' 
-                        : 'btn btn-ghost'"
-					@click="navigateToPage('home')"
-				>
-					Home
-				</button>
-				<button 
-					class="flex-1 text-sm"
-					:class="isRoles 
-						? 'btn btn-primary shadow-sm' 
-						: 'btn btn-ghost'"
-					@click="navigateToPage('roles')"
-				>
-					Ruoli
-				</button>
-				<button 
-					class="flex-1 text-sm"
-                    :class="isPlayers 
-                        ? 'btn btn-primary shadow-sm' 
-                        : 'btn btn-ghost'"
-					@click="navigateToPage('players')"
-				>
-					Giocatori
-				</button>
-				<button 
-					class="flex-1 text-sm"
-                    :class="isSettings 
-                        ? 'btn btn-primary shadow-sm' 
-                        : 'btn btn-ghost'"
-					@click="navigateToPage('settings')"
-				>
-					Impostazioni
-				</button>
-			</div>
+					<!-- Page Navigation -->
+		<div class="grid grid-cols-2 sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg">
+			<button 
+                class="text-sm"
+                :class="isHome 
+                    ? 'btn btn-primary shadow-sm' 
+                    : 'btn btn-ghost'"
+				@click="navigateToPage('home')"
+			>
+				Home
+			</button>
+			<button 
+				class="text-sm"
+				:class="isRoles 
+					? 'btn btn-primary shadow-sm' 
+					: 'btn btn-ghost'"
+				@click="navigateToPage('roles')"
+			>
+				Ruoli
+			</button>
+			<button 
+				class="text-sm"
+                :class="isPlayers 
+                    ? 'btn btn-primary shadow-sm' 
+                    : 'btn btn-ghost'"
+				@click="navigateToPage('players')"
+			>
+				Giocatori
+			</button>
+			<button 
+				class="text-sm"
+                :class="isSettings 
+                    ? 'btn btn-primary shadow-sm' 
+                    : 'btn btn-ghost'"
+				@click="navigateToPage('settings')"
+			>
+				Impostazioni
+			</button>
+		</div>
 
             <!-- Page Content -->
             <SetupHome v-show="isHome" />
@@ -427,14 +433,14 @@ function onElectSindaco(playerId: number) {
         <div v-else-if="state.phase === PHASES.END" class="space-y-4 text-center">
 			<h2 class="text-xl font-semibold text-slate-100">Fine partita</h2>
             <div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
-            <div class="text-2xl font-bold" :class="state.winner === 'wolf' ? 'text-red-400' : (state.winner === 'crazyman' ? 'text-violet-400' : 'text-emerald-400')">
+            <div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : 'text-emerald-400')">
 					{{ (state.winner || 'Sconosciuto') + ' vincono' }}
                 </div>
                 <div>
 					<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
                 <PlayerRoleList 
                     :state="state" 
-                    :players="state.players.filter(p => (state.winner === 'crazyman' ? (state.roleMeta[p.roleId]?.team === 'crazyman') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
+                    :players="state.players.filter(p => (state.winner === 'matti' ? (state.roleMeta[p.roleId]?.team === 'matti') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
                 />
                 </div>
 					<div class="text-slate-400">Grazie per aver giocato.</div>

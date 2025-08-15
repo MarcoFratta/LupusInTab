@@ -5,7 +5,7 @@ const props = defineProps<{ state: any; players: Array<{ id: number; name: strin
 
 const items = computed(() => props.players.map((p: any) => {
   const meta = props.state.roleMeta[p.roleId] || {} as any;
-  const fallbackColor = meta.team === 'wolf' ? '#ef4444' : '#22c55e';
+  const fallbackColor = meta.team === 'lupi' ? '#ef4444' : '#22c55e';
   return {
     id: p.id,
     name: p.name,

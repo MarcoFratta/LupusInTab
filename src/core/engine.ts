@@ -53,7 +53,7 @@ export function resizePlayers(state: GameState, nextCount: number): void {
 	state.setup.numPlayers = n;
 	const current = state.setup.players.length;
 	if (n > current) {
-		for (let i = current; i < n; i += 1) state.setup.players.push({ name: `Player ${i + 1}` });
+		for (let i = current; i < n; i += 1) state.setup.players.push({ name: `Giocatore ${i + 1}` });
 	} else if (n < current) {
 		state.setup.players.splice(n);
 	}
@@ -169,11 +169,11 @@ export function getAlivePlayers(state: GameState): Player[] {
 }
 
 export function getWolvesAlive(state: GameState): Player[] {
-    return getAlivePlayers(state).filter(p => state.roleMeta[p.roleId]?.team === 'wolf');
+    return getAlivePlayers(state).filter(p => state.roleMeta[p.roleId]?.team === 'lupi');
 }
 
 export function getVillagersAlive(state: GameState): Player[] {
-    return getAlivePlayers(state).filter(p => state.roleMeta[p.roleId]?.team !== 'wolf');
+    return getAlivePlayers(state).filter(p => state.roleMeta[p.roleId]?.team !== 'lupi');
 }
 
 export function computeWinner(state: GameState): GameState['winner'] {
@@ -399,8 +399,8 @@ export function lynchPlayer(state: GameState, playerId: number): void {
     (state as any).lynchedHistory.push(target.id);
     // Immediate win for Crazyman if lynched
     const roleTeam = state.roleMeta[target.roleId]?.team;
-    if (roleTeam === 'crazyman') {
-        state.winner = 'crazyman';
+    if (roleTeam === 'matti') {
+        state.winner = 'matti';
         state.phase = 'end';
     }
 }

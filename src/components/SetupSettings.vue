@@ -22,14 +22,14 @@ watch(() => state.settings, () => {
         <input type="checkbox" v-model="state.settings.skipFirstNightActions" class="mt-1" />
         <div>
           <div class="text-slate-100 text-sm font-medium">Salta le azioni della prima notte</div>
-          <div class="text-slate-400 text-xs">Tutti i ruoli vengono chiamati nella Notte 1, ma i loro effetti sono ignorati. Nessuno muore e nessuna indagine viene rivelata.</div>
+          <div class="text-slate-400 text-xs">Tutti i ruoli vengono chiamati nella Notte 1, ma i loro effetti sono ignorati.</div>
         </div>
       </label>
       <label class="flex items-start gap-3 opacity-80">
         <input type="checkbox" v-model="state.settings.enableSindaco" class="mt-1" />
         <div>
-          <div class="text-slate-100 text-sm font-medium">Abilita Sindaco (Mayor)</div>
-          <div class="text-slate-400 text-xs">Funzionalità prevista per il giorno. Nessun effetto in questa versione.</div>
+          <div class="text-slate-100 text-sm font-medium">Abilita Sindaco</div>
+          <div class="text-slate-400 text-xs">Il voto del sindaco vale doppio durante la votazione quando è in vita.</div>
         </div>
       </label>
     </div>

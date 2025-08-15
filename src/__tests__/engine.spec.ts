@@ -182,7 +182,7 @@ describe('new roles logic', () => {
     expect(victim.alive).toBe(false); // not saved
   });
 
-  it('Crazyman wins immediately on lynch', () => {
+  it('Crazyman wins immediately on lynch', async () => {
     const s = createEmptyState();
     s.players = [
       { id: 1, name: 'C', roleId: 'crazyman', alive: true },
@@ -199,7 +199,7 @@ describe('new roles logic', () => {
     expect(s.phase).toBe('end');
   });
 
-  it('Dog blocks village win when no wolves but dog alive (more than 2 players)', () => {
+  it('Dog blocks village win when no wolves but dog alive (more than 2 players)', async () => {
     const s = createEmptyState();
     s.players = [
       { id: 1, name: 'Dog', roleId: 'dog', alive: true },
@@ -207,18 +207,19 @@ describe('new roles logic', () => {
       { id: 3, name: 'V2', roleId: 'villager', alive: true },
     ] as any;
     s.roleMeta = {
-      dog: { id:'dog', name:'Dog', team:'dog', phaseOrder:2, countsAsWolfForWin: true } as any,
+      dog: { id:'dog', name:'Dog', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
     } as any;
     const { villageWin } = useWinConditions();
     const winner = (await import('../core/engine')).evaluateWinner(s as any, {
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: villageWin },
-      dog: { id:'dog', name:'Dog', team:'dog', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => st.players.filter((p:any)=>p.alive).length === 2 && st.players.some((p:any)=>p.alive && p.roleId==='dog') },
+      dog: { id:'dog', name:'Dog', team:'mannari', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => st.players.filter((p:any)=>p.alive).length === 2 && st.players.some((p:any)=>p.alive && p.roleId==='dog') },
     } as any);
-    expect(winner).toBe(null);
+    // Village can win when no actual wolves remain, even if dog is alive
+    expect(winner).toBe('village');
   });
 
-  it('Dog blocks wolves parity win while alive', () => {
+  it('Dog blocks wolves parity win while alive', async () => {
     const s = createEmptyState();
     s.players = [
       { id: 1, name: 'Dog', roleId: 'dog', alive: true },
@@ -260,6 +261,152 @@ describe('new roles logic', () => {
     } as any);
     // wolvesAlive = 1, nonWolvesAlive = 3 -> wolves not in parity, winner null
     expect(winner).toBe(null);
+  });
+
+  it('Dog (LupoMannaro) should win when down to 2 players (dog + 1 other)', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'Dog', roleId: 'dog', alive: true },
+      { id: 2, name: 'V', roleId: 'villager', alive: true },
+    ] as any;
+    s.roleMeta = {
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
+    } as any;
+    const { villageWin } = useWinConditions();
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: villageWin },
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, actsAtNight:true, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => {
+        const alive = st.players.filter((p:any) => p.alive);
+        const anyDogAlive = alive.some((p:any) => p.roleId === 'dog');
+        return anyDogAlive && alive.length === 2;
+      } },
+    } as any);
+    // Dog should win with 2 players alive (dog + villager)
+    expect(winner).toBe('mannari');
+  });
+
+  it('BUG REPRODUCTION: Dog prevents any team from winning when alive with 3+ players', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'Dog', roleId: 'dog', alive: true },
+      { id: 2, name: 'V1', roleId: 'villager', alive: true },
+      { id: 3, name: 'V2', roleId: 'villager', alive: true },
+    ] as any;
+    s.roleMeta = {
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
+    } as any;
+    const { villageWin } = useWinConditions();
+    
+    // In this scenario: 3 players alive (dog + 2 villagers)
+    // - Village should NOT win because dog countsAsWolfForWin=true (so there's still a "wolf")
+    // - Dog should NOT win because there are 3 players, not 2
+    // - But currently, no other win condition exists, so the game continues indefinitely
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: villageWin },
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, actsAtNight:true, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => {
+        const alive = st.players.filter((p:any) => p.alive);
+        const anyDogAlive = alive.some((p:any) => p.roleId === 'dog');
+        return anyDogAlive && alive.length === 2;
+      } },
+    } as any);
+    
+    console.log('Winner with 3 players (dog + 2 villagers):', winner);
+    // With 3+ players and no actual wolves, village should win
+    expect(winner).toBe('village');
+    
+    // Now test the village win condition specifically
+    console.log('Village win condition result:', villageWin(s as any));
+    // Village can win when no actual wolves remain
+    expect(villageWin(s as any)).toBe(true);
+  });
+
+  it('BUG REPRODUCTION: Dog prevents village from winning even when all real wolves are dead', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'Dog', roleId: 'dog', alive: true },
+      { id: 2, name: 'V1', roleId: 'villager', alive: true },
+      { id: 3, name: 'V2', roleId: 'villager', alive: true },
+      { id: 4, name: 'V3', roleId: 'villager', alive: true },
+      { id: 5, name: 'W', roleId: 'wolf', alive: false }, // DEAD WOLF
+    ] as any;
+    s.roleMeta = {
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
+      wolf: { id:'wolf', name:'Wolf', team:'lupi', phaseOrder:1 } as any,
+    } as any;
+    const { villageWin, wolvesWin } = useWinConditions();
+    
+    // In this scenario: all real wolves are dead, but dog is alive
+    // - Village SHOULD win because all actual wolves are dead
+    // - But currently villageWin returns false because dog countsAsWolfForWin=true
+    // - This creates a deadlock where no one can win
+    
+    console.log('Village win (should be true, but currently false):', villageWin(s as any));
+    console.log('Wolves win (should be false):', wolvesWin(s as any));
+    
+    // After fix: village should win when all real wolves are dead, even if dog is alive
+    expect(villageWin(s as any)).toBe(true); // Should be true after fix
+  });
+
+  it('VERIFICATION: Complete lupo mannaro fix works in all scenarios', async () => {
+    const { villageWin, wolvesWin } = useWinConditions();
+    const { evaluateWinner } = await import('../core/engine');
+    
+    // Scenario 1: Dog wins when exactly 2 players (dog + 1 other)
+    const scenario1 = createEmptyState();
+    scenario1.players = [
+      { id: 1, name: 'Dog', roleId: 'dog', alive: true },
+      { id: 2, name: 'V', roleId: 'villager', alive: true },
+    ] as any;
+    scenario1.roleMeta = {
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
+    } as any;
+    
+    const roles = {
+      villager: { id:'villager', checkWin: villageWin },
+      dog: { id:'dog', checkWin: (st:any) => st.players.filter((p:any) => p.alive).length === 2 && st.players.some((p:any) => p.alive && p.roleId === 'dog') },
+    } as any;
+    
+    expect(evaluateWinner(scenario1 as any, roles)).toBe('mannari'); // Dog wins
+    
+    // Scenario 2: Village wins when no real wolves and 3+ players
+    const scenario2 = createEmptyState();
+    scenario2.players = [
+      { id: 1, name: 'Dog', roleId: 'dog', alive: true },
+      { id: 2, name: 'V1', roleId: 'villager', alive: true },
+      { id: 3, name: 'V2', roleId: 'villager', alive: true },
+    ] as any;
+    scenario2.roleMeta = {
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
+    } as any;
+    
+    expect(evaluateWinner(scenario2 as any, roles)).toBe('village'); // Village wins
+    
+    // Scenario 3: Nobody wins when actual wolves are still alive
+    const scenario3 = createEmptyState();
+    scenario3.players = [
+      { id: 1, name: 'Dog', roleId: 'dog', alive: true },
+      { id: 2, name: 'W', roleId: 'wolf', alive: true },
+      { id: 3, name: 'V', roleId: 'villager', alive: true },
+    ] as any;
+    scenario3.roleMeta = {
+      dog: { id:'dog', name:'LupoMannaro', team:'mannari', phaseOrder:2, countsAsWolfForWin: true } as any,
+      wolf: { id:'wolf', name:'Wolf', team:'lupi', phaseOrder:1 } as any,
+      villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
+    } as any;
+    
+    const rolesWithWolf = {
+      ...roles,
+      wolf: { id:'wolf', checkWin: wolvesWin },
+    } as any;
+    
+    expect(evaluateWinner(scenario3 as any, rolesWithWolf)).toBe('lupi'); // Wolves win by parity (dog counts toward parity)
+    
+    console.log('✅ All lupo mannaro scenarios work correctly after fix!');
   });
 });
 

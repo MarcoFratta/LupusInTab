@@ -276,8 +276,8 @@ const currentPromptComponent = computed(() => {
 	if (!role) return null;
 	const factory = entry.kind === 'group' && typeof role.getGroupPromptComponent === 'function'
 		? role.getGroupPromptComponent(state, entry)
-		: role.getPromptComponent(state, currentActor.value);
-	return defineAsyncComponent(factory);
+		: role.getPromptComponent?.(state, currentActor.value);
+	return factory ? defineAsyncComponent(factory) : null;
 });
 
 const isFirstNightSkipped = computed(() => !!state.settings?.skipFirstNightActions && state.nightNumber === 1);
@@ -369,42 +369,42 @@ function onElectSindaco(playerId: number) {
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center">
 					<!-- Page Navigation -->
 		<div class="grid grid-cols-2 sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg">
-			<button 
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'home' } }"
                 class="text-sm"
                 :class="isHome 
                     ? 'btn btn-primary shadow-sm' 
                     : 'btn btn-ghost'"
-				@click="navigateToPage('home')"
 			>
 				Home
-			</button>
-			<button 
+			</router-link>
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'roles' } }"
 				class="text-sm"
 				:class="isRoles 
 					? 'btn btn-primary shadow-sm' 
 					: 'btn btn-ghost'"
-				@click="navigateToPage('roles')"
 			>
 				Ruoli
-			</button>
-			<button 
+			</router-link>
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'players' } }"
 				class="text-sm"
                 :class="isPlayers 
                     ? 'btn btn-primary shadow-sm' 
                     : 'btn btn-ghost'"
-				@click="navigateToPage('players')"
 			>
 				Giocatori
-			</button>
-			<button 
+			</router-link>
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'settings' } }"
 				class="text-sm"
                 :class="isSettings 
                     ? 'btn btn-primary shadow-sm' 
                     : 'btn btn-ghost'"
-				@click="navigateToPage('settings')"
 			>
 				Impostazioni
-			</button>
+			</router-link>
 		</div>
 
             <!-- Page Content -->

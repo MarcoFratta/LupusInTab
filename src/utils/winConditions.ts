@@ -9,22 +9,29 @@ function countAlive(state: GameState, predicate: (p: { roleId: string; alive: bo
 function isWolf(state: GameState, roleId: string): boolean {
     const meta = state.roleMeta[roleId] as any;
     if (!meta) return false;
+    return meta.team === 'lupi';
+}
+
+function isWolfForParity(state: GameState, roleId: string): boolean {
+    const meta = state.roleMeta[roleId] as any;
+    if (!meta) return false;
     if (meta.countsAsWolfForWin) return true;
     return meta.team === 'lupi';
 }
 
 export function useWinConditions() {
     const wolvesWin: WinCheck = (state) => {
-        const wolvesAlive = countAlive(state, (p) => isWolf(state, p.roleId));
-        const nonWolvesAlive = countAlive(state, (p) => !isWolf(state, p.roleId));
+        // For wolves parity calculation, count roles that have countsAsWolfForWin (like dog)
+        const wolvesAlive = countAlive(state, (p) => isWolfForParity(state, p.roleId));
+        const nonWolvesAlive = countAlive(state, (p) => !isWolfForParity(state, p.roleId));
         // Wolves win if wolves are in equal number with non-wolves (parity) or greater
         return wolvesAlive > 0 && wolvesAlive >= nonWolvesAlive;
     };
 
     const villageWin: WinCheck = (state) => {
-        // Village-aligned roles win when no wolves remain
-        const wolvesAlive = countAlive(state, (p) => isWolf(state, p.roleId));
-        return wolvesAlive === 0;
+        // Village-aligned roles win when no ACTUAL wolves remain (exclude roles with countsAsWolfForWin like dog)
+        const actualWolvesAlive = countAlive(state, (p) => isWolf(state, p.roleId));
+        return actualWolvesAlive === 0;
     };
 
     const loversWin: WinCheck = (state) => {

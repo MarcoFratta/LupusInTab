@@ -60,7 +60,7 @@ export interface RoleDef {
     maxCount?: number | ((numPlayers: number) => number);
     /** If provided, the allowed counts must be one of these values (computed against player count). */
     allowedCounts?: number[] | ((numPlayers: number) => number[]);
-    getPromptComponent: (gameState: any, player: any) => () => Promise<any>;
+    getPromptComponent?: (gameState: any, player: any) => () => Promise<any>;
     getGroupPromptComponent?: (gameState: any, entry: any) => () => Promise<any>;
     /** Optional component factory to render per-actor resolve details (single roles) */
     getResolveDetailsComponent?: (gameState: any, entry: any) => () => Promise<any>;

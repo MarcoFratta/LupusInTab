@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import { ROLES } from '../roles';
-import WolvesResolveDetails from './roles/Wolf/WolvesResolveDetails.vue';
-import DoctorResolveDetails from './roles/Doctor/DoctorResolveDetails.vue';
-import MediumResolveDetails from './roles/Medium/MediumResolveDetails.vue';
 import DetailsCard from './ui/DetailsCard.vue';
+
+// Use dynamic imports for consistency with role definitions
+const WolvesResolveDetails = defineAsyncComponent(() => import('./roles/Wolf/WolvesResolveDetails.vue'));
+const DoctorResolveDetails = defineAsyncComponent(() => import('./roles/Doctor/DoctorResolveDetails.vue'));
+const MediumResolveDetails = defineAsyncComponent(() => import('./roles/Medium/MediumResolveDetails.vue'));
 
 const props = defineProps<{
   state: any;

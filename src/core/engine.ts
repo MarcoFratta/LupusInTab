@@ -193,8 +193,32 @@ export function evaluateWinner(state: GameState, roles: RolesRegistry): GameStat
     // If only one team remains alive, that's an automatic win
     const trivial = computeWinner(state);
     if (trivial) return trivial;
+    
     const alivePlayers = getAlivePlayers(state);
+    
+    // Check high-priority roles first (roles that can win alone and should take precedence)
+    const priorityRoles = ['dog']; // Dog should win with priority when its condition is met
+    for (const roleId of priorityRoles) {
+        const player = alivePlayers.find(p => p.roleId === roleId);
+        if (player) {
+            const roleDef = roles[player.roleId];
+            if (roleDef && typeof roleDef.checkWin === 'function') {
+                try {
+                    if (roleDef.checkWin(state as any)) {
+                        const team = state.roleMeta[player.roleId]?.team || roleDef.team;
+                        return team || null;
+                    }
+                } catch {
+                    // ignore faulty role checkers
+                }
+            }
+        }
+    }
+    
+    // Then check other roles
     for (const player of alivePlayers) {
+        if (priorityRoles.includes(player.roleId)) continue; // Skip already checked priority roles
+        
         const roleDef = roles[player.roleId];
         if (roleDef && typeof roleDef.checkWin === 'function') {
             try {

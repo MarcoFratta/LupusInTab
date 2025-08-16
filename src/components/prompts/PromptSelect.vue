@@ -63,8 +63,8 @@ function confirm() {
 				</svg>
 			</span>
 		</div>
-        <div v-if="buttonText" class="mt-3 flex justify-end">
-            <button class="btn btn-primary" :class="{ 'btn-disabled': disabled }" :disabled="disabled" @click="confirm">{{ buttonText }}</button>
+        <div v-if="buttonText" class="mt-3">
+            <button class="btn btn-primary w-full" :class="{ 'btn-disabled': disabled }" :disabled="disabled" @click="confirm">{{ buttonText }}</button>
 		</div>
 	</div>
 	

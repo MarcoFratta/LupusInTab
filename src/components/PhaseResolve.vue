@@ -32,7 +32,8 @@ const detailEntries = computed(() => {
   // Wolves (group): show who they killed (targeted minus saved, or targeted list)
   const wolvesRole = ROLES['wolf'];
   if (wolvesRole) {
-    entries.push({ key: 'wolf', title: 'Lupi', component: WolvesResolveDetails });
+    const title = props.state.roleMeta?.['wolf']?.name || wolvesRole.name || 'Lupi';
+    entries.push({ key: 'wolf', title, component: WolvesResolveDetails });
   }
 
   // Doctor (per-actor): show saves if any
@@ -40,7 +41,8 @@ const detailEntries = computed(() => {
   if (doctorRole) {
     const doctors = props.state.players.filter((p: any) => p.roleId === 'doctor');
     for (const d of doctors) {
-      entries.push({ key: `doctor-${d.id}` , title: 'Guardia', component: DoctorResolveDetails, props: { player: d } });
+      const title = props.state.roleMeta?.['doctor']?.name || doctorRole.name || 'Guardia';
+      entries.push({ key: `doctor-${d.id}` , title, component: DoctorResolveDetails, props: { player: d } });
     }
   }
 
@@ -49,7 +51,8 @@ const detailEntries = computed(() => {
   if (mediumRole) {
     const mediums = props.state.players.filter((p: any) => p.roleId === 'medium');
     for (const m of mediums) {
-      entries.push({ key: `medium-${m.id}` , title: 'Veggente', component: MediumResolveDetails, props: { player: m } });
+      const title = props.state.roleMeta?.['medium']?.name || mediumRole.name || 'Medium';
+      entries.push({ key: `medium-${m.id}` , title, component: MediumResolveDetails, props: { player: m } });
     }
   }
 
@@ -59,9 +62,10 @@ const detailEntries = computed(() => {
   for (const result of dogResults) {
     const player = props.state.players.find((p: any) => p.id === result.playerId);
     if (player) {
+      const title = props.state.roleMeta?.['dog']?.name || 'Lupo Mannaro';
       entries.push({ 
         key: `dog-${result.playerId}`, 
-        title: 'LupoMannaro', 
+        title, 
         component: DogResolveDetails, 
         props: { 
           gameState: props.state, 
@@ -77,9 +81,10 @@ const detailEntries = computed(() => {
   for (const result of hangmanResults) {
     const player = props.state.players.find((p: any) => p.id === result.playerId);
     if (player) {
+      const title = props.state.roleMeta?.['hangman']?.name || 'Boia';
       entries.push({ 
         key: `hangman-${result.playerId}`, 
-        title: 'Boia', 
+        title, 
         component: HangmanResolveDetails, 
         props: { 
           gameState: props.state, 

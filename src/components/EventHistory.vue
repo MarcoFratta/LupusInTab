@@ -44,7 +44,8 @@ function buildNightDetailEntries(nightData) {
   // Wolves (group): show who they killed
   const wolvesRole = ROLES['wolf'];
   if (wolvesRole) {
-    entries.push({ key: 'wolf', title: 'Lupi', component: WolvesResolveDetails });
+    const title = props.state.roleMeta?.['wolf']?.name || wolvesRole.name || 'Lupi';
+    entries.push({ key: 'wolf', title, component: WolvesResolveDetails });
   }
 
   // Doctor (per-actor): show saves if any
@@ -52,7 +53,8 @@ function buildNightDetailEntries(nightData) {
   if (doctorRole) {
     const doctors = state.players.filter((p) => p.roleId === 'doctor');
     for (const d of doctors) {
-      entries.push({ key: `doctor-${d.id}`, title: 'Guardia', component: DoctorResolveDetails, props: { player: d } });
+      const title = props.state.roleMeta?.['doctor']?.name || doctorRole.name || 'Guardia';
+      entries.push({ key: `doctor-${d.id}`, title, component: DoctorResolveDetails, props: { player: d } });
     }
   }
 
@@ -61,7 +63,8 @@ function buildNightDetailEntries(nightData) {
   if (mediumRole) {
     const mediums = state.players.filter((p) => p.roleId === 'medium');
     for (const m of mediums) {
-      entries.push({ key: `medium-${m.id}`, title: 'Veggente', component: MediumResolveDetails, props: { player: m } });
+      const title = props.state.roleMeta?.['medium']?.name || mediumRole.name || 'Medium';
+      entries.push({ key: `medium-${m.id}`, title, component: MediumResolveDetails, props: { player: m } });
     }
   }
 
@@ -73,9 +76,10 @@ function buildNightDetailEntries(nightData) {
   for (const result of dogResults) {
     const player = state.players.find((p) => p.id === result.playerId);
     if (player) {
+      const title = props.state.roleMeta?.['dog']?.name || 'Lupo Mannaro';
       entries.push({ 
         key: `dog-${result.playerId}`, 
-        title: 'LupoMannaro', 
+        title, 
         component: DogResolveDetails, 
         props: { 
           gameState: { ...state, night: { ...state.night, results } }, 
@@ -91,9 +95,10 @@ function buildNightDetailEntries(nightData) {
   for (const result of hangmanResults) {
     const player = state.players.find((p) => p.id === result.playerId);
     if (player) {
+      const title = props.state.roleMeta?.['hangman']?.name || 'Boia';
       entries.push({ 
         key: `hangman-${result.playerId}`, 
-        title: 'Boia', 
+        title, 
         component: HangmanResolveDetails, 
         props: { 
           gameState: { ...state, night: { ...state.night, results } }, 
@@ -109,9 +114,10 @@ function buildNightDetailEntries(nightData) {
   for (const result of witchResults) {
     const player = state.players.find((p) => p.id === result.playerId);
     if (player) {
+      const title = props.state.roleMeta?.['witch']?.name || 'Medium';
       entries.push({ 
         key: `witch-${result.playerId}`, 
-        title: 'Strega', 
+        title, 
         component: WitchResolveDetails, 
         props: { 
           gameState: { ...state, night: { ...state.night, results } }, 
@@ -144,16 +150,7 @@ function buildNightDetailEntries(nightData) {
 }
 
 // Get variant for role titles
-function getRoleVariant(title) {
-  if (title === 'Lupi') return 'lupi';
-  if (title === 'Doctor') return 'emerald';
-  if (title === 'Medium') return 'violet';
-  if (title === 'Boia') return 'lupi';
-  if (title === 'LupoMannaro') return 'violet';
-  if (title === 'Strega') return 'violet';
-  if (title === 'Giustiziere') return 'emerald';
-  return 'neutral';
-}
+function getRoleVariant(title) { return 'neutral'; }
 
 // Combine and sort all events chronologically
 const allEvents = computed(() => {
@@ -248,7 +245,7 @@ const allEvents = computed(() => {
               v-for="entry in buildNightDetailEntries(event.data)" 
               :key="entry.key" 
               :title="entry.title" 
-              :variant="getRoleVariant(entry.title)"
+              :color="entry.props?.player ? (props.state.roleMeta[entry.props.player.roleId]?.color) : (entry.key==='wolf' ? props.state.roleMeta['wolf']?.color : '#9ca3af')"
             >
               <component 
                 :is="entry.component" 

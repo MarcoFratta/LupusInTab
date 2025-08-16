@@ -53,6 +53,14 @@ function skip() {
             @confirm="submit"
             @skip="skip"
         />
+        <div v-else>
+            <SkipConfirmButtons
+                :showSkip="false"
+                confirm-text="Continua"
+                :confirm-disabled="false"
+                @confirm="skip"
+            />
+        </div>
     </div>
 </template>
 

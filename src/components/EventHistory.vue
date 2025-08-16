@@ -3,6 +3,7 @@ import { computed, ref, defineAsyncComponent } from 'vue';
 import EventCard from './ui/EventCard.vue';
 import DetailsCard from './ui/DetailsCard.vue';
 import { ROLES } from '../roles/index';
+import GhostButton from './ui/GhostButton.vue';
 
 // Dynamic imports for role resolve detail components (to match the app's pattern)
 const WolvesResolveDetails = defineAsyncComponent(() => import('./roles/Wolf/WolvesResolveDetails.vue'));
@@ -189,12 +190,9 @@ const allEvents = computed(() => {
   <div class="h-full flex flex-col space-y-4 text-center">
     <div class="flex items-center justify-between flex-shrink-0">
       <h2 class="text-2xl font-semibold text-slate-100">📋 Storico Eventi</h2>
-      <button 
-        class="btn btn-ghost text-sm" 
-        @click="onClose"
-      >
+      <GhostButton size="sm" @click="onClose">
         ✕ Chiudi
-      </button>
+      </GhostButton>
     </div>
     
     <div class="flex-1 overflow-y-auto space-y-3 pr-2">
@@ -235,12 +233,14 @@ const allEvents = computed(() => {
           </div>
 
           <!-- Toggle Details Button -->
-          <button 
-            class="btn btn-ghost w-full text-xs mb-2" 
+          <GhostButton 
+            full-width 
+            size="xs"
+            class="mb-2"
             @click="toggleEventExpansion('night-' + event.night)"
           >
             {{ isEventExpanded('night-' + event.night) ? 'Nascondi dettagli' : 'Mostra dettagli' }}
-          </button>
+          </GhostButton>
 
           <!-- Detailed Actions (expanded) -->
           <div v-if="isEventExpanded('night-' + event.night)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-left">

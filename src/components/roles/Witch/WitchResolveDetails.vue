@@ -10,8 +10,8 @@ const team = target ? (props.gameState.roleMeta[target.roleId]?.visibleAsTeam ||
 
 <template>
     <div class="text-sm text-neutral-300">
-        <div v-if="target">Il Veggente ha visto che <span class="font-semibold">{{ target.name }}</span> era <span class="font-semibold">{{ (team || '').toUpperCase() }}</span>.</div>
-        <div v-else>Il Veggente non ha agito.</div>
+        <div v-if="target">Il Medium ha controllato che <span class="font-semibold">{{ target.name }}</span> era <span class="font-semibold">{{ (team || '').toUpperCase() }}</span>.</div>
+        <div v-else>Il Medium non ha agito.</div>
     </div>
 </template>
 

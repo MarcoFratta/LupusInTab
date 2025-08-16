@@ -16,6 +16,10 @@ import SetupSettings from './components/SetupSettings.vue';
 import PlayerRoleList from './components/ui/PlayerRoleList.vue';
 import RoleDetails from './components/RoleDetails.vue';
 import EventHistory from './components/EventHistory.vue';
+import SecondaryButton from './components/ui/SecondaryButton.vue';
+import PrimaryButton from './components/ui/PrimaryButton.vue';
+import GhostButton from './components/ui/GhostButton.vue';
+import ButtonGroup from './components/ui/ButtonGroup.vue';
 // @ts-ignore - ambient module declarations provided in env.d.ts
 import { shuffled } from './utils/random';
 import { useGameStore } from './stores/game';
@@ -421,8 +425,8 @@ function toggleEventHistory() {
 					<div class="text-neutral-400 text-xs">È stata trovata una sessione salvata su questo dispositivo.</div>
 				</div>
 				<div class="flex gap-2">
-					<button class="btn btn-secondary text-xs" @click="dismissResumeBanner">Chiudi</button>
-					<button class="btn btn-primary text-xs" @click="resumeGame">Riprendi partita</button>
+					<SecondaryButton size="xs" @click="dismissResumeBanner">Chiudi</SecondaryButton>
+					<PrimaryButton size="xs" @click="resumeGame">Riprendi partita</PrimaryButton>
 				</div>
 			</div>
 		</div>
@@ -511,14 +515,14 @@ function toggleEventHistory() {
                 </div>
                 
                 <!-- Action Buttons with consistent styling -->
-                <div class="grid grid-cols-2 gap-2 mt-6">
-                    <button class="btn btn-ghost w-full" @click="toggleEventHistory">
+                <ButtonGroup class="mt-6">
+                    <GhostButton full-width @click="toggleEventHistory">
                         📋 Eventi
-                    </button>
-                    <button class="btn btn-primary w-full" @click="quitAndReset">
+                    </GhostButton>
+                    <PrimaryButton full-width @click="quitAndReset">
                         Nuova partita
-                    </button>
-                </div>
+                    </PrimaryButton>
+                </ButtonGroup>
             </div>
         </div>
 	</div>

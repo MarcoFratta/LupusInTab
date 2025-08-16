@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import PromptSelect from './PromptSelect.vue';
 import PromptSelectString from './PromptSelectString.vue';
+import SkipConfirmButtons from '../ui/SkipConfirmButtons.vue';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -56,10 +57,11 @@ function skip() {
             <div class="text-neutral-400 text-sm">→</div>
             <PromptSelectString label="Ruolo" v-model="roleId" :choices="roleChoices" buttonText="" />
         </div>
-        <div class="grid grid-cols-2 gap-2">
-            <button class="btn btn-secondary w-full" @click="skip">Salta</button>
-            <button class="btn btn-primary w-full" :class="{ 'btn-disabled': !canSubmit }" :disabled="!canSubmit" @click="submit">Conferma</button>
-        </div>
+        <SkipConfirmButtons
+            :confirm-disabled="!canSubmit"
+            @confirm="submit"
+            @skip="skip"
+        />
     </div>
 </template>
 

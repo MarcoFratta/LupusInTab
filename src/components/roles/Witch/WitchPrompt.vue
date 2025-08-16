@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import PromptSelect from '../../prompts/PromptSelect.vue';
+import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -31,14 +32,16 @@ function skip() {
             label="Medium, controlla la fazione di un giocatore morto"
             v-model="targetId"
             :choices="deadChoices"
-            buttonText="Rivela fazione"
+            buttonText=""
             accent="violet"
-            :disabled="deadChoices.length <= 1 && !canSubmit"
-            @confirm="submit"
+            :disabled="deadChoices.length <= 1"
         />
-        <div class="flex justify-end">
-            <button class="btn btn-secondary" @click="skip">Salta</button>
-        </div>
+        <SkipConfirmButtons
+            confirm-text="Rivela fazione"
+            :confirm-disabled="!canSubmit"
+            @confirm="submit"
+            @skip="skip"
+        />
     </div>
 </template>
 

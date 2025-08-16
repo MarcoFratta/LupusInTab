@@ -2,6 +2,9 @@
 import { ref, computed, defineAsyncComponent } from 'vue';
 import { ROLES } from '../roles';
 import DetailsCard from './ui/DetailsCard.vue';
+import ButtonGroup from './ui/ButtonGroup.vue';
+import GhostButton from './ui/GhostButton.vue';
+import PrimaryButton from './ui/PrimaryButton.vue';
 
 // Use dynamic imports for consistency with role definitions
 const WolvesResolveDetails = defineAsyncComponent(() => import('./roles/Wolf/WolvesResolveDetails.vue'));
@@ -121,12 +124,12 @@ const detailEntries = computed(() => {
       </div>
 
       <!-- Controls: two equal buttons, left and right -->
-      <div class="grid grid-cols-2 gap-2">
-        <button class="btn btn-ghost w-full" @click="showDetails = !showDetails">
+      <ButtonGroup>
+        <GhostButton full-width @click="showDetails = !showDetails">
           {{ showDetails ? 'Nascondi dettagli' : 'Mostra dettagli' }}
-        </button>
-        <button class="btn btn-primary w-full" @click="props.onContinue">Continua</button>
-      </div>
+        </GhostButton>
+        <PrimaryButton full-width @click="props.onContinue">Continua</PrimaryButton>
+      </ButtonGroup>
 
       <!-- Details section -->
       <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">

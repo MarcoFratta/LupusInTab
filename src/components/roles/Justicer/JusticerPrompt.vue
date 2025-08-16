@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import PromptSelect from '../../prompts/PromptSelect.vue';
+import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -41,14 +42,17 @@ function skip() {
             label="Giustiziere, scegli un giocatore da giustiziare (una volta per partita)"
             v-model="targetId"
             :choices="choices"
-            buttonText="Giustizia"
+            buttonText=""
             accent="violet"
-            :disabled="!canSubmit && choices.length === 0"
-            @confirm="submit"
+            :disabled="choices.length === 0"
         />
-        <div class="flex justify-end" v-if="!hasActed">
-            <button class="btn btn-secondary" @click="skip">Salta</button>
-        </div>
+        <SkipConfirmButtons
+            v-if="!hasActed"
+            confirm-text="Giustizia"
+            :confirm-disabled="!canSubmit"
+            @confirm="submit"
+            @skip="skip"
+        />
     </div>
 </template>
 

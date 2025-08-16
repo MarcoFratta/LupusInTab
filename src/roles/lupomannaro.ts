@@ -5,12 +5,14 @@ const dog: RoleDef = {
     name: 'Lupo Mannaro',
     team: 'mannari',
     visibleAsTeam: 'lupi',
-    description: 'Gioca da solo. Vince se restate in due (tu e un altro). Conta come lupi per la parità. I lupi non possono ucciderti. Di notte dichiara un giocatore e un ruolo: se indovini, muore. Se il Veggente indaga il tuo ruolo, muori.',
+    description: 'Gioca da solo. Vince se restate in due (tu e un altro). I lupi non possono ucciderti. Di notte dichiara un giocatore e un ruolo: se indovini, muore. Se il Veggente indaga il tuo ruolo, muori.',
     color: '#6366f1',
     phaseOrder: 2,
     group: false,
     actsAtNight: true,
     usage: 'unlimited',
+    minCount: 1,
+    maxCount: 1,
     countsAsWolfForWin: true,
     immuneToKillers: ['wolf'],
     getPromptComponent() {
@@ -35,6 +37,12 @@ const dog: RoleDef = {
         const alive = gameState.players.filter((p: any) => p.alive);
         const anyDogAlive = alive.some((p: any) => p.roleId === 'dog');
         return anyDogAlive && alive.length === 2;
+    },
+    checkWinConstraint(gameState: any) {
+        // If LupoMannaro is alive and more than 2 players remain, block any win
+        const alive = gameState.players.filter((p: any) => p.alive);
+        const anyDogAlive = alive.some((p: any) => p.roleId === 'dog');
+        return anyDogAlive && alive.length > 2;
     },
 };
 

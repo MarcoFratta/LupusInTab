@@ -13,6 +13,8 @@ const demoniac: RoleDef = {
     usage: 'unlimited',
     knownToTeams: ['lupi'],
     revealToAllies: 'role',
+    minCount: 1,
+    maxCount: 1,
     getPromptComponent() {
         return () => Promise.resolve(() => null as any);
     },

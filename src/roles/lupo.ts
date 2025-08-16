@@ -13,6 +13,8 @@ const wolf: RoleDef = {
     actsAtNight: true,
     usage: 'requiredEveryNight',
     revealToAllies: 'role',
+    minCount: 1,
+    maxCount: (state: any) => Math.max(1, Math.floor(((state?.setup?.numPlayers) || 0 - 1) / 2)),
     getGroupPromptComponent() {
         return () => import('../components/roles/Wolf/WolvesPrompt.vue');
     },

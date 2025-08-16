@@ -166,18 +166,22 @@ describe('new roles logic', () => {
       villager: { id: 'villager', name: 'Villager', team: 'village', phaseOrder: 99 } as any,
       doctor: { id: 'doctor', name: 'Doctor', team: 'village', phaseOrder: 3 } as any,
     } as any;
-    beginNight(s as any, {
+    const rolesReg = {
       justicer: { id:'justicer', name:'Justicer', team:'village', phaseOrder:2, usage:'once', getPromptComponent: () => async () => ({}), resolve: (st:any, e:any) => {
         const id = e.result?.targetId; st.night.context.pendingKills[id] = ['justicer'];
       } },
-      doctor: { id:'doctor', name:'Doctor', team:'village', phaseOrder:3, getPromptComponent: () => async () => ({}), resolve: (st:any, e:any) => { const id = e.result?.targetId; st.night.context.saves.push(id); } },
+      // Doctor only saves wolf kills per current role design; should not save Justicer kills
+      doctor: { id:'doctor', name:'Doctor', team:'village', phaseOrder:3, getPromptComponent: () => async () => ({}), resolve: (st:any, e:any) => { 
+        const id = e.result?.targetId; const killers = st.night.context.pendingKills[id] || []; if (killers.includes('wolf')) st.night.context.saves.push(id);
+      } },
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {} },
-    } as any);
+    } as any;
+    beginNight(s as any, rolesReg);
     // Force turns to Justicer then Doctor
     s.night.turns = [ { kind:'single', roleId:'justicer', playerId:1 }, { kind:'single', roleId:'doctor', playerId:3 } ] as any;
     recordNightResult(s as any, { targetId: 2 });
     recordNightResult(s as any, { targetId: 2 });
-    resolveNight(s as any, {} as any);
+    resolveNight(s as any, rolesReg as any);
     const victim = s.players.find(p => p.id === 2)!;
     expect(victim.alive).toBe(false); // not saved
   });
@@ -189,17 +193,17 @@ describe('new roles logic', () => {
       { id: 2, name: 'V', roleId: 'villager', alive: true },
     ] as any;
     s.roleMeta = {
-      crazyman: { id:'crazyman', name:'Crazyman', team:'crazyman', phaseOrder:97 } as any,
+      crazyman: { id:'crazyman', name:'Crazyman', team:'matti', phaseOrder:97 } as any,
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
     } as any;
     // lynch player 1
     const { lynchPlayer } = await import('../core/engine');
     lynchPlayer(s as any, 1);
-    expect(s.winner).toBe('crazyman');
+    expect(s.winner).toBe('matti');
     expect(s.phase).toBe('end');
   });
 
-  it('Dog blocks village win when no wolves but dog alive (more than 2 players)', async () => {
+  it('Dog blocks village win when no wolves but dog alive (more than 2 players) via checkWinConstraint', async () => {
     const s = createEmptyState();
     s.players = [
       { id: 1, name: 'Dog', roleId: 'dog', alive: true },
@@ -213,13 +217,13 @@ describe('new roles logic', () => {
     const { villageWin } = useWinConditions();
     const winner = (await import('../core/engine')).evaluateWinner(s as any, {
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: villageWin },
-      dog: { id:'dog', name:'Dog', team:'mannari', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => st.players.filter((p:any)=>p.alive).length === 2 && st.players.some((p:any)=>p.alive && p.roleId==='dog') },
+      dog: { id:'dog', name:'Dog', team:'mannari', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => st.players.filter((p:any)=>p.alive).length === 2 && st.players.some((p:any)=>p.alive && p.roleId==='dog'), checkWinConstraint: (st:any) => st.players.some((p:any)=>p.alive && p.roleId==='dog') && st.players.filter((p:any)=>p.alive).length>2 },
     } as any);
-    // Village can win when no actual wolves remain, even if dog is alive
-    expect(winner).toBe('village');
+    // With 3+ players alive and Dog alive, village should NOT win due to constraint
+    expect(winner).toBe(null);
   });
 
-  it('Dog blocks wolves parity win while alive', async () => {
+  it('Dog blocks wolves parity win while alive via checkWinConstraint', async () => {
     const s = createEmptyState();
     s.players = [
       { id: 1, name: 'Dog', roleId: 'dog', alive: true },
@@ -235,7 +239,7 @@ describe('new roles logic', () => {
     const winner = (await import('../core/engine')).evaluateWinner(s as any, {
       wolf: { id:'wolf', name:'Wolf', team:'wolf', phaseOrder:1, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: wolvesWin },
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {} },
-      dog: { id:'dog', name:'Dog', team:'dog', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => st.players.filter((p:any)=>p.alive).length === 2 && st.players.some((p:any)=>p.alive && p.roleId==='dog') },
+      dog: { id:'dog', name:'Dog', team:'dog', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => st.players.filter((p:any)=>p.alive).length === 2 && st.players.some((p:any)=>p.alive && p.roleId==='dog'), checkWinConstraint: (st:any) => st.players.some((p:any)=>p.alive && p.roleId==='dog') && st.players.filter((p:any)=>p.alive).length>2 },
     } as any);
     expect(winner).toBe(null);
   });
@@ -313,13 +317,13 @@ describe('new roles logic', () => {
     } as any);
     
     console.log('Winner with 3 players (dog + 2 villagers):', winner);
-    // With 3+ players and no actual wolves, village should win
-    expect(winner).toBe('village');
+    // With 3+ players and Dog alive, no winner due to constraint
+    expect(winner).toBe(null);
     
     // Now test the village win condition specifically
     console.log('Village win condition result:', villageWin(s as any));
-    // Village can win when no actual wolves remain
-    expect(villageWin(s as any)).toBe(true);
+    // With Dog alive and > 2 players, village should NOT win either
+    expect(villageWin(s as any)).toBe(false);
   });
 
   it('BUG REPRODUCTION: Dog prevents village from winning even when all real wolves are dead', async () => {
@@ -346,8 +350,8 @@ describe('new roles logic', () => {
     console.log('Village win (should be true, but currently false):', villageWin(s as any));
     console.log('Wolves win (should be false):', wolvesWin(s as any));
     
-    // After fix: village should win when all real wolves are dead, even if dog is alive
-    expect(villageWin(s as any)).toBe(true); // Should be true after fix
+    // With blocking constraint approach, village cannot win while Dog alive and >2 players
+    expect(villageWin(s as any)).toBe(false);
   });
 
   it('VERIFICATION: Complete lupo mannaro fix works in all scenarios', async () => {
@@ -384,7 +388,7 @@ describe('new roles logic', () => {
       villager: { id:'villager', name:'Villager', team:'village', phaseOrder:99 } as any,
     } as any;
     
-    expect(evaluateWinner(scenario2 as any, roles)).toBe('village'); // Village wins
+    expect(evaluateWinner(scenario2 as any, roles)).toBe(null); // No winner due to Dog alive and >2 players
     
     // Scenario 3: Nobody wins when actual wolves are still alive
     const scenario3 = createEmptyState();

@@ -12,6 +12,8 @@ const medium: RoleDef = {
     group: false,
     actsAtNight: true,
     usage: 'unlimited',
+    minCount: 1,
+    maxCount: (state:any) => state?.setup?.numPlayers || 0,
     getPromptComponent() {
         return () => import('../components/roles/Medium/MediumPrompt.vue');
     },

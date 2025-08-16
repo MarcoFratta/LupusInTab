@@ -1,5 +1,6 @@
 import type { GameState, NightTurn, Player } from '../stores/game';
 import type { RoleDef } from '../types';
+import { ROLES as ROLE_DEFS } from '../roles';
 
 export type RolesRegistry = Record<string, RoleDef>;
 
@@ -61,91 +62,41 @@ export function resizePlayers(state: GameState, nextCount: number): void {
 }
 
 export function normalizeRoleCounts(state: GameState): void {
-    const n = state.setup.numPlayers;
     const roles = state.setup.rolesCounts;
     const enabled = state.setup.rolesEnabled || {};
-    // Apply generic floor for existing roles
-    roles.wolf = Math.max(0, Math.floor(Number(roles.wolf) || 0));
-    roles.doctor = Math.max(0, Math.floor(Number(roles.doctor) || 0));
-    roles.medium = Math.max(0, Math.floor(Number(roles.medium) || 0));
-    if (typeof roles.lover !== 'undefined') roles.lover = Math.max(0, Math.floor(Number(roles.lover) || 0));
-    if (typeof roles.crazyman !== 'undefined') roles.crazyman = Math.max(0, Math.floor(Number(roles.crazyman) || 0));
-    if (typeof roles.justicer !== 'undefined') roles.justicer = Math.max(0, Math.floor(Number(roles.justicer) || 0));
-
-    // Role-specific constraints
-    // Wolves: min 1; max = ceil((n-1)/2) - 1 i.e. strictly less than half → Math.floor((n-1)/2)
-    const wolvesMin = 1;
-    const wolvesMax = Math.max(1, Math.floor((n - 1) / 2));
-    roles.wolf = Math.min(Math.max(roles.wolf, wolvesMin), wolvesMax);
-
-    // Lovers: either 0 or 2 if present in counts
-    if (typeof roles.lover !== 'undefined') {
-        const loverCount = Math.max(0, Math.floor(Number(roles.lover) || 0));
-        roles.lover = loverCount === 1 ? 2 : (loverCount >= 2 ? 2 : 0);
-    }
-
-    // Apply enabled toggles: if a role is disabled, set its count to 0 except villager and wolf which are always enabled
+    // No normalization beyond keeping integers and non-negative, and honoring disabled roles
     for (const key of Object.keys(roles)) {
-        if (key === 'villager' || key === 'wolf') continue;
-        if (enabled && enabled[key] === false) {
-            roles[key] = 0;
-        }
+        roles[key] = Math.max(0, Math.floor(Number(roles[key]) || 0));
+        if (enabled && enabled[key] === false) roles[key] = 0;
     }
-
-    // Enforce minimums for enabled roles (excluding villager which can be 0)
-    for (const key of Object.keys(roles)) {
-        if (key === 'villager') continue;
-        if (enabled && enabled[key] === false) continue;
-        if (key === 'lover') {
-            // If lovers are enabled, minimum is 2
-            roles[key] = Math.max(2, Number(roles[key]) || 0);
-            continue;
-        }
-        if (key === 'crazyman' || key === 'justicer') {
-            roles[key] = Math.max(1, Math.min(1, Number(roles[key]) || 0));
-            continue;
-        }
-        if (key !== 'wolf') {
-            roles[key] = Math.max(1, Number(roles[key]) || 0);
-        }
-    }
-
-    // Do not auto-balance with villagers anymore. Villager count is user-controlled (min 0, max n).
-    // Start button validation will ensure totals match num players.
 }
 
 export function updateRoleCount(state: GameState, roleId: string, count: number): void {
     const counts = state.setup.rolesCounts;
-    // Apply role-specific constraints only, no auto-balance
-    if (roleId === 'lover') {
-        counts[roleId] = count >= 2 ? 2 : 0;
-    } else {
-        counts[roleId] = Math.max(0, Math.floor(Number(count) || 0));
-    }
-    normalizeRoleCounts(state);
+    const min = getMinCountForRole(state, roleId);
+    const max = getMaxCountForRole(state, roleId);
+    const next = Math.floor(Number(count) || 0);
+    counts[roleId] = Math.max(min, Math.min(max, next));
 }
 
 export function getMaxCountForRole(state: GameState, roleId: string): number {
     const n = state.setup.numPlayers;
-    let roleSpecificMax: number;
-    if (roleId === 'wolf') roleSpecificMax = Math.max(1, Math.floor((n - 1) / 2));
-    else if (roleId === 'lover') roleSpecificMax = Math.min(2, n);
-    else if (roleId === 'villager') roleSpecificMax = n;
-    else if (roleId === 'crazyman') roleSpecificMax = 1;
-    else if (roleId === 'justicer') roleSpecificMax = 1;
-    else if (roleId === 'dog') roleSpecificMax = 1;
-    else roleSpecificMax = Math.min(2, n - 1);
-    // Allow users to configure counts beyond role-specific caps up to at least numPlayers.
-    return Math.max(n, roleSpecificMax);
+    // If the registry defines maxCount as a function/number, use it. Fallback to players.
+    const roleDef = (ROLE_DEFS as any)?.[roleId] as any;
+    const maxFromDef = roleDef?.maxCount;
+    // If no max is provided, treat as Infinity
+    const resolved = typeof maxFromDef === 'function' ? Number(maxFromDef(state)) : (typeof maxFromDef === 'number' ? Number(maxFromDef) : Infinity);
+    const cap = Number.isFinite(resolved) ? resolved : Infinity;
+    // Always cap by number of players
+    return Math.max(0, Math.min(n, Math.floor(isFinite(cap) ? cap : n)));
 }
 
 export function getMinCountForRole(state: GameState, roleId: string): number {
-    const enabled = state.setup.rolesEnabled || {};
-    if (roleId === 'villager') return 0;
-    if (roleId === 'wolf') return 1;
-    if (roleId === 'lover') return (enabled.lover === false) ? 0 : 2;
-    // If a role is enabled in setup, require at least 1 by default
-    return (enabled[roleId] === false) ? 0 : 1;
+    const roleDef = (ROLE_DEFS as any)?.[roleId] as any;
+    const minFromDef = roleDef?.minCount;
+    const resolved = typeof minFromDef === 'function' ? Number(minFromDef(state)) : Number(minFromDef);
+    const min = Number.isFinite(resolved) ? resolved : 1;
+    return Math.max(0, Math.floor(min));
 }
 
 export function setRoleEnabled(state: GameState, roleId: string, enabled: boolean): void {
@@ -191,45 +142,30 @@ export function computeWinner(state: GameState): GameState['winner'] {
  * Returns the winning team id, or null.
  */
 export function evaluateWinner(state: GameState, roles: RolesRegistry): GameState['winner'] {
-    // If only one team remains alive, that's an automatic win
+    // If only one team remains alive, that's an automatic win unless blocked
     const trivial = computeWinner(state);
-    if (trivial) return trivial;
-    
     const alivePlayers = getAlivePlayers(state);
-    
-    // Check high-priority roles first (roles that can win alone and should take precedence)
-    const priorityRoles = ['dog']; // Dog should win with priority when its condition is met
-    for (const roleId of priorityRoles) {
-        const player = alivePlayers.find(p => p.roleId === roleId);
-        if (player) {
-            const roleDef = roles[player.roleId];
-            if (roleDef && typeof roleDef.checkWin === 'function') {
-                try {
-                    if (roleDef.checkWin(state as any)) {
-                        const team = state.roleMeta[player.roleId]?.team || roleDef.team;
-                        return team || null;
-                    }
-                } catch {
-                    // ignore faulty role checkers
-                }
-            }
+
+    // If any alive role blocks the win, no winner
+    for (const p of alivePlayers) {
+        const def = roles[p.roleId];
+        if (def && typeof def.checkWinConstraint === 'function') {
+            try { if (def.checkWinConstraint(state as any)) return null; } catch {}
         }
     }
-    
-    // Then check other roles
-    for (const player of alivePlayers) {
-        if (priorityRoles.includes(player.roleId)) continue; // Skip already checked priority roles
-        
-        const roleDef = roles[player.roleId];
-        if (roleDef && typeof roleDef.checkWin === 'function') {
+
+    if (trivial) return trivial;
+
+    // Let roles declare their faction win (dumb engine)
+    for (const p of alivePlayers) {
+        const def = roles[p.roleId];
+        if (def && typeof def.checkWin === 'function') {
             try {
-                if (roleDef.checkWin(state as any)) {
-                    const team = state.roleMeta[player.roleId]?.team || roleDef.team;
+                if (def.checkWin(state as any)) {
+                    const team = state.roleMeta[p.roleId]?.team || def.team;
                     return team || null;
                 }
-            } catch {
-                // ignore faulty role checkers
-            }
+            } catch {}
         }
     }
     return null;

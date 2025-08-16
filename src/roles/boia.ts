@@ -15,6 +15,8 @@ const hangman: RoleDef = {
     knownToTeams: ['lupi'],
     revealToAllies: 'role',
     revealAlliesWithinTeam: false,
+    minCount: 1,
+    maxCount: 1,
     getPromptComponent() {
         return () => import('../components/roles/Hangman/HangmanPrompt.vue');
     },

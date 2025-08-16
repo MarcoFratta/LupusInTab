@@ -2,7 +2,7 @@ import type { RoleDef } from '../types';
 
 const witch: RoleDef = {
     id: 'witch',
-    name: 'Miedium',
+    name: 'Medium',
     team: 'village',
     visibleAsTeam: 'village',
     description: 'Di notte, controlla la fazione di un giocatore morto. Se non ci sono morti, non puoi agire ma vedrai comunque il prompt.',

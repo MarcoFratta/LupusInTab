@@ -13,6 +13,8 @@ const doctor: RoleDef = {
     actsAtNight: true,
     usage: 'unlimited',
     affectedRoles: ['wolf'],
+    minCount: 1,
+    maxCount: (state:any) => state?.setup?.numPlayers || 0,
     getPromptComponent() {
         return () => import('../components/roles/Doctor/DoctorPrompt.vue');
     },

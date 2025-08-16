@@ -12,6 +12,8 @@ const villager: RoleDef = {
     group: false,
     actsAtNight: false, // ensure auto-skip at night
     usage: 'unlimited',
+    minCount: 1,
+    maxCount: (state:any) => state?.setup?.numPlayers || 0,
     // No prompt component to enforce auto-skip
     getPromptComponent() {
         return () => Promise.resolve(() => null as any);

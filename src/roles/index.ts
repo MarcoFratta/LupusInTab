@@ -7,7 +7,7 @@ import lover from './massone';
 import crazyman from './matto';
 import justicer from './giustiziere';
 import hangman from './boia';
-import witch from './strega';
+import witch from './medium';
 import dog from './lupomannaro';
 import demoniac from './indemoniato';
 

@@ -11,6 +11,7 @@ const justicer: RoleDef = {
     group: false,
     actsAtNight: true,
     usage: 'once',
+    minCount: 1,
     getPromptComponent() {
         return () => import('../components/roles/Justicer/JusticerPrompt.vue');
     },

@@ -56,10 +56,10 @@ export interface RoleDef {
      * Setup constraints for how many copies of this role can be selected.
      * If not specified, role can be 0..N.
      */
-    minCount?: number | ((numPlayers: number) => number);
-    maxCount?: number | ((numPlayers: number) => number);
-    /** If provided, the allowed counts must be one of these values (computed against player count). */
-    allowedCounts?: number[] | ((numPlayers: number) => number[]);
+    minCount?: number | ((state: any) => number);
+    maxCount?: number | ((state: any) => number);
+    /** If provided, the allowed counts must be one of these values (computed dynamically). */
+    allowedCounts?: number[] | ((state: any) => number[]);
     getPromptComponent?: (gameState: any, player: any) => () => Promise<any>;
     getGroupPromptComponent?: (gameState: any, entry: any) => () => Promise<any>;
     /** Optional component factory to render per-actor resolve details (single roles) */
@@ -69,10 +69,12 @@ export interface RoleDef {
     resolve: (gameState: any, entry: any) => void;
     /**
      * Optional per-role win check. It should return true when this role's faction has met its winning condition.
-     * The engine will iterate alive players and, if any alive player's role checkWin returns true,
-     * it declares that role's team as the winner.
      */
     checkWin?: (gameState: any) => boolean;
+    /**
+     * Optional per-role blocker. Return true if this role blocks declaring any winner (e.g., Dog alive blocks wins).
+     */
+    checkWinConstraint?: (gameState: any) => boolean;
 }
 
 

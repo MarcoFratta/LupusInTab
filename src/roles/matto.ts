@@ -11,7 +11,7 @@ const crazyman: RoleDef = {
     group: false,
     actsAtNight: false,
     usage: 'unlimited',
-    minCount: 0,
+    minCount: 1,
     maxCount: 1,
     getPromptComponent() {
         // No night action for Crazyman

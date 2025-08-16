@@ -113,14 +113,14 @@ function openRoleDetails(roleId: string): void {
           <div
             v-for="role in faction.roles"
             :key="role.id"
-            class="relative rounded-xl border border-neutral-800/40 p-4 transition-all ring-1 ring-inset bg-neutral-900/50"
+            class="relative rounded-xl border border-neutral-800/40 p-4 transition-all ring-1 ring-inset bg-neutral-900/50 overflow-hidden"
             :class="[roleTeamClass(role.team), isEnabled(role.id) ? 'opacity-100' : 'opacity-60 grayscale']"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold truncate" :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</span>
-                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium"
+                <div class="flex items-center gap-2 flex-wrap md:flex-nowrap min-w-0 md:items-start">
+                  <span class="text-sm font-semibold truncate min-w-0 flex-1 md:text-left" :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</span>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium shrink-0"
                         :class="rolePillTeamClass(role.team)">
                     <span class="w-1 h-1 rounded-full bg-current"></span>
                     {{ role.team === 'lupi' ? 'Lupo' : (role.team === 'matti' ? 'Folle' : (role.team === 'mannari' ? 'Mannari' : 'Villaggio')) }}

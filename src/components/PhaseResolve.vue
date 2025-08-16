@@ -133,7 +133,11 @@ const detailEntries = computed(() => {
 
       <!-- Details section -->
       <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-        <DetailsCard v-for="e in detailEntries" :key="e.key" :title="e.title" :variant="e.title === 'Lupi' ? 'lupi' : (e.title === 'Guardia' ? 'emerald' : (e.title === 'Veggente' ? 'violet' : (e.title === 'Boia' ? 'lupi' : (e.title === 'LupoMannaro' ? 'violet' : 'neutral'))))">
+        <DetailsCard 
+          v-for="e in detailEntries" 
+          :key="e.key" 
+          :title="e.title" 
+          :color="(e.props?.player ? (props.state.roleMeta[e.props.player.roleId]?.color) : (e.key==='wolf' ? props.state.roleMeta['wolf']?.color : undefined)) || '#9ca3af'">
           <component :is="e.component" :state="props.state" v-bind="e.props || {}" />
         </DetailsCard>
       </div>

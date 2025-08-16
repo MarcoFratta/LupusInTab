@@ -1,22 +1,26 @@
 <script setup>
+import { hexToRgba } from '../../utils/color';
 const props = defineProps({
   title: { type: String, required: true },
-  variant: { type: String, default: 'neutral' }, // 'lupi' | 'village' | 'violet' | 'emerald' | 'neutral'
+  variant: { type: String, default: 'neutral' }, // legacy; kept for backward-compat
+  color: { type: String, default: '' }, // hex color; if provided, overrides variant styling
 });
 
-function headerAccentClass(variant) {
-  const v = String(variant || 'neutral');
-  if (v === 'lupi') return 'bg-red-500/20 text-red-300 border-red-500/30';
-  if (v === 'village' || v === 'emerald') return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-  if (v === 'violet') return 'bg-violet-500/20 text-violet-300 border-violet-500/30';
-  return 'text-neutral-300 border-neutral-600/40';
+function headerStyle(color) {
+  if (!color) return {};
+  const bg = hexToRgba(color, 0.18) || undefined;
+  const border = hexToRgba(color, 0.35) || undefined;
+  return { backgroundColor: bg, color, borderColor: border };
 }
 </script>
 
 <template>
   <div class="bg-white/5 border border-white/10 rounded-lg py-2 px-4 w-full">
     <div class="flex items-center justify-center mb-2">
-      <div class="font-semibold text-slate-100">{{ title }}</div>
+      <div class="font-semibold px-2 py-1 rounded border"
+           :style="headerStyle(color)">
+        {{ title }}
+      </div>
     </div>
     <div class="text-left">
       <slot />

@@ -30,10 +30,10 @@ export interface RoleDef {
      */
     canTargetDead?: boolean;
     /**
-     * For roles that interact with pending kills (e.g., Doctor), which killer roleIds their effect applies to.
+     * For roles that interact with other roles' actions (e.g., Doctor), which roleIds are affected by this role's power.
      * Example: ['wolf'] means it can counter kills initiated by wolves.
      */
-    affectsKillers?: string[];
+    affectedRoles?: string[];
     /** If present, killers in this list cannot kill this role (are ignored at resolve) */
     immuneToKillers?: string[];
     /**

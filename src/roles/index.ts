@@ -1,15 +1,15 @@
 import type { RoleDef } from '../types';
-import wolf from './wolf';
-import doctor from './doctor';
-import medium from './medium';
-import villager from './villager';
-import lover from './lover';
-import crazyman from './crazyman';
-import justicer from './justicer';
-import hangman from './hangman';
-import witch from './witch';
-import dog from './dog';
-import demoniac from './demoniac';
+import wolf from './lupo';
+import doctor from './guardia';
+import medium from './veggente';
+import villager from './villico';
+import lover from './massone';
+import crazyman from './matto';
+import justicer from './giustiziere';
+import hangman from './boia';
+import witch from './strega';
+import dog from './lupomannaro';
+import demoniac from './indemoniato';
 
 export const ROLES: Record<string, RoleDef> = {
 	wolf,

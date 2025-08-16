@@ -9,6 +9,12 @@ const router = useRouter();
 const roleId = computed(() => route.query.role as string);
 const role = computed(() => ROLES[roleId.value] as RoleDef | undefined);
 
+// Map a role id to its Italian display name
+function mapRoleIdToName(id: string): string {
+  const r = ROLES[id] as RoleDef | undefined;
+  return r?.name || id;
+}
+
 // Team mapping for display
 const teamMapping: Record<string, string> = {
   'lupi': 'Lupi',
@@ -222,7 +228,7 @@ watch(roleId, () => {
           </div>
 
           <!-- Additional abilities (if applicable) -->
-          <div v-if="role.actsAtNight || role.usage || role.affectsKillers || role.immuneToKillers" 
+          <div v-if="role.actsAtNight || role.usage || role.affectedRoles || role.immuneToKillers" 
                class="md:col-span-2">
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/30 p-4">
               <h3 class="text-base font-semibold mb-3 flex items-center gap-2">
@@ -250,10 +256,10 @@ watch(roleId, () => {
                   <div class="w-2 h-2 rounded-full bg-gray-400"></div>
                   <span class="text-xs">Può agire sui morti</span>
                 </div>
-                <div v-if="role.affectsKillers?.length" class="flex items-start gap-2 p-2 rounded bg-neutral-900/50">
+                <div v-if="role.affectedRoles?.length" class="flex items-start gap-2 p-2 rounded bg-neutral-900/50">
                   <div class="w-2 h-2 rounded-full bg-red-400 mt-1"></div>
                   <div>
-                    <div class="text-xs font-medium">Influenza: {{ role.affectsKillers.join(', ') }}</div>
+                    <div class="text-xs font-medium">Influenza: {{ role.affectedRoles.map(mapRoleIdToName).join(', ') }}</div>
                   </div>
                 </div>
                 <div v-if="role.immuneToKillers?.length" class="flex items-start gap-2 p-2 rounded bg-neutral-900/50">

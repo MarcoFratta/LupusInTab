@@ -93,7 +93,8 @@ if (!(state as any).settings) {
 }
 // Ensure rolesEnabled exists in setup for older saved states
 if (!(state as any).setup?.rolesEnabled) {
-    (state as any).setup.rolesEnabled = { wolf: true, villager: true, doctor: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false } as any;
+    // Default active roles: only Villager and Wolf
+    (state as any).setup.rolesEnabled = { wolf: true, villager: true } as any;
 }
 // Ensure eventHistory exists for older saved states
 if (!state.eventHistory) {
@@ -434,113 +435,115 @@ function toggleEventHistory() {
 		<!-- Setup Phase -->
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center">
 					<!-- Page Navigation -->
-		<div class="grid grid-cols-2 sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg">
-			<router-link 
-				:to="{ name: 'setup', params: { page: 'home' } }"
-                class="text-sm"
-                :class="isHome 
-                    ? 'btn btn-primary shadow-sm' 
-                    : 'btn btn-ghost'"
-			>
-				Home
-			</router-link>
-			<router-link 
-				:to="{ name: 'setup', params: { page: 'roles' } }"
-				class="text-sm"
-				:class="isRoles 
-					? 'btn btn-primary shadow-sm' 
-					: 'btn btn-ghost'"
-			>
-				Ruoli
-			</router-link>
-			<router-link 
-				:to="{ name: 'setup', params: { page: 'players' } }"
-				class="text-sm"
-                :class="isPlayers 
-                    ? 'btn btn-primary shadow-sm' 
-                    : 'btn btn-ghost'"
-			>
-				Giocatori
-			</router-link>
-			<router-link 
-				:to="{ name: 'setup', params: { page: 'settings' } }"
-				class="text-sm"
-                :class="isSettings 
-                    ? 'btn btn-primary shadow-sm' 
-                    : 'btn btn-ghost'"
-			>
-				Impostazioni
-			</router-link>
-		</div>
+			<div class="grid grid-cols-2 sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
+				<router-link 
+					:to="{ name: 'setup', params: { page: 'home' } }"
+					class="flex-1 text-center py-1"
+					:class="isHome 
+						? 'btn btn-primary shadow-sm' 
+						: 'btn btn-ghost'"
+				>
+					Home
+				</router-link>
+				<router-link 
+					:to="{ name: 'setup', params: { page: 'roles' } }"
+					class="flex-1 text-center py-1"
+					:class="isRoles 
+						? 'btn btn-primary shadow-sm' 
+						: 'btn btn-ghost'"
+				>
+					Ruoli
+				</router-link>
+				<router-link 
+					:to="{ name: 'setup', params: { page: 'players' } }"
+					class="flex-1 text-center py-1"
+					:class="isPlayers 
+						? 'btn btn-primary shadow-sm' 
+						: 'btn btn-ghost'"
+				>
+					Giocatori
+				</router-link>
+				<router-link 
+					:to="{ name: 'setup', params: { page: 'settings' } }"
+					class="flex-1 text-center py-1"
+					:class="isSettings 
+						? 'btn btn-primary shadow-sm' 
+						: 'btn btn-ghost'"
+				>
+					Impostazioni
+				</router-link>
+			</div>
 
-            <!-- Page Content -->
-            <SetupHome v-show="isHome" />
-            <SetupRoles v-show="isRoles" />
-            <SetupPlayers v-show="isPlayers" />
-            <SetupSettings v-show="isSettings" />
-        </div>
+				<!-- Page Content -->
+				<SetupHome v-show="isHome" />
+				<SetupRoles v-show="isRoles" />
+				<SetupPlayers v-show="isPlayers" />
+				<SetupSettings v-show="isSettings" />
+			</div>
 
-		<!-- Reveal Roles Phase -->
-        <PhaseReveal v-else-if="state.phase === PHASES.REVEAL" :state="state" :onStartNight="beginNight" />
+			<!-- Reveal Roles Phase -->
+			<PhaseReveal v-else-if="state.phase === PHASES.REVEAL" :state="state" :onStartNight="beginNight" />
 
-        <!-- Pre-Night Phase -->
-        <PhasePreNight v-else-if="state.phase === PHASES.PRE_NIGHT" :state="state" :onContinue="beginNight" />
+			<!-- Pre-Night Phase -->
+			<PhasePreNight v-else-if="state.phase === PHASES.PRE_NIGHT" :state="state" :onContinue="beginNight" />
 
-        <!-- Night Phase -->
-        <PhaseNight v-else-if="state.phase === PHASES.NIGHT" :state="state" :onPromptComplete="onPromptComplete" />
+			<!-- Night Phase -->
+			<PhaseNight v-else-if="state.phase === PHASES.NIGHT" :state="state" :onPromptComplete="onPromptComplete" />
 
-		<!-- Resolve Phase -->
-        <PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDay" :onReset="quitAndReset" />
+			<!-- Resolve Phase -->
+			<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDay" :onReset="quitAndReset" />
 
-		<!-- Day Phase -->
-        <PhaseDay v-else-if="state.phase === PHASES.DAY" :state="state" :onLynch="onLynch" :onElectSindaco="onElectSindaco" :onSkipDay="onSkipDay" :onReset="quitAndReset" />
+			<!-- Day Phase -->
+			<PhaseDay v-else-if="state.phase === PHASES.DAY" :state="state" :onLynch="onLynch" :onElectSindaco="onElectSindaco" :onSkipDay="onSkipDay" :onReset="quitAndReset" />
 
-        <!-- End Phase -->
-        <div v-else-if="state.phase === PHASES.END" class="space-y-4 text-center">
-            <!-- Main End Game Content -->
-            <div v-if="!showEventHistory" class="space-y-6">
-                <h2 class="text-xl font-semibold text-slate-100 mb-6">Fine partita</h2>
-                <div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
-                    <div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : 'text-emerald-400')">
-                        {{ (state.winner || 'Sconosciuto') + ' vincono' }}
-                    </div>
-                    <div>
-                        <div class="text-slate-300 text-sm mb-2">Vincitori:</div>
-                        <PlayerRoleList 
-                            :state="state" 
-                            :players="state.players.filter(p => (state.winner === 'matti' ? (state.roleMeta[p.roleId]?.team === 'matti') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
-                        />
-                    </div>
-                    <div class="text-slate-400">Grazie per aver giocato.</div>
-                </div>
-                
-                <!-- Action Buttons with consistent styling -->
-                <ButtonGroup class="mt-6">
-                    <GhostButton full-width @click="toggleEventHistory">
-                        📋 Eventi
-                    </GhostButton>
-                    <PrimaryButton full-width @click="quitAndReset">
-                        Nuova partita
-                    </PrimaryButton>
-                </ButtonGroup>
-            </div>
-        </div>
+			<!-- End Phase -->
+			<div v-else-if="state.phase === PHASES.END" class="space-y-4 text-center">
+				<!-- Main End Game Content -->
+				<div v-if="!showEventHistory" class="space-y-6">
+					<h2 class="text-xl font-semibold text-slate-100 mb-6">Fine partita</h2>
+					<div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
+						<div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : 'text-emerald-400')">
+							{{ (state.winner || 'Sconosciuto') + ' vincono' }}
+						</div>
+						<div>
+							<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
+							<PlayerRoleList 
+								:state="state" 
+								:players="state.players.filter(p => (state.winner === 'matti' ? (state.roleMeta[p.roleId]?.team === 'matti') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
+							/>
+						</div>
+						<div class="text-slate-400">Grazie per aver giocato.</div>
+					</div>
+					
+					<!-- Action Buttons with consistent styling -->
+					<ButtonGroup class="mt-6">
+						<GhostButton full-width @click="toggleEventHistory">
+							📋 Eventi
+						</GhostButton>
+						<PrimaryButton full-width @click="quitAndReset">
+							Nuova partita
+						</PrimaryButton>
+					</ButtonGroup>
+				</div>
+			</div>
 	</div>
 
-    <!-- Full Screen Event History Modal -->
-    <div v-if="showEventHistory && state.phase === PHASES.END" class="fixed inset-0 bg-neutral-950 z-50 overflow-hidden">
-        <div class="w-full max-w-6xl mx-auto h-full bg-neutral-950/95 border-x border-neutral-800/40 backdrop-blur-sm shadow-xl p-4 sm:p-6 md:p-8 text-neutral-200">
-            <EventHistory 
-                :state="state" 
-                :onClose="() => showEventHistory = false" 
-            />
-        </div>
-    </div>
+	<!-- Full Screen Event History Modal -->
+	<div v-if="showEventHistory && state.phase === PHASES.END" class="fixed inset-0 bg-neutral-950 z-50 overflow-hidden">
+		<div class="w-full max-w-6xl mx-auto h-full bg-neutral-950/95 border-x border-neutral-800/40 backdrop-blur-sm shadow-xl p-4 sm:p-6 md:p-8 text-neutral-200">
+			<EventHistory 
+				:state="state" 
+				:onClose="() => showEventHistory = false" 
+			/>
+		</div>
+	</div>
 </template>
 
  
 
 
+ 
+ 
  
 
 

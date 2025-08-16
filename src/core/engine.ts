@@ -44,7 +44,8 @@ export function initDefaultRolesCounts(state: GameState): void {
     state.setup.rolesCounts = { wolf: wolves, doctor, medium, villager } as Record<string, number>;
     // initialize enabled roles if missing
     if (!state.setup.rolesEnabled) {
-        state.setup.rolesEnabled = { wolf: true, villager: true, doctor: doctor > 0, medium: medium > 0, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false } as Record<string, boolean>;
+        // Default active roles: only Villager and Wolf
+        state.setup.rolesEnabled = { wolf: true, villager: true } as Record<string, boolean>;
     }
 }
 
@@ -109,34 +110,33 @@ export function normalizeRoleCounts(state: GameState): void {
         }
     }
 
-    // Villagers can be any non-negative number; we try to fill remaining slots automatically after enforcing mins
-    const sumOthers = Object.entries(roles)
-        .filter(([k]) => k !== 'villager')
-        .reduce((acc, [, v]) => acc + (Number(v) || 0), 0);
-    const remaining = Math.max(0, n - sumOthers);
-    roles.villager = remaining;
+    // Do not auto-balance with villagers anymore. Villager count is user-controlled (min 0, max n).
+    // Start button validation will ensure totals match num players.
 }
 
 export function updateRoleCount(state: GameState, roleId: string, count: number): void {
+    const counts = state.setup.rolesCounts;
+    // Apply role-specific constraints only, no auto-balance
     if (roleId === 'lover') {
-        // Lovers only allow 0 or 2. Any value < 2 becomes 0; >= 2 becomes 2
-        state.setup.rolesCounts[roleId] = count >= 2 ? 2 : 0;
-        normalizeRoleCounts(state);
-        return;
+        counts[roleId] = count >= 2 ? 2 : 0;
+    } else {
+        counts[roleId] = Math.max(0, Math.floor(Number(count) || 0));
     }
-    state.setup.rolesCounts[roleId] = count;
     normalizeRoleCounts(state);
 }
 
 export function getMaxCountForRole(state: GameState, roleId: string): number {
     const n = state.setup.numPlayers;
-    if (roleId === 'wolf') return Math.max(1, Math.floor((n - 1) / 2));
-    if (roleId === 'lover') return Math.min(2, n);
-    if (roleId === 'villager') return n;
-    if (roleId === 'crazyman') return 1;
-    if (roleId === 'justicer') return 1;
-    if (roleId === 'dog') return 1;
-    return Math.min(2, n - 1);
+    let roleSpecificMax: number;
+    if (roleId === 'wolf') roleSpecificMax = Math.max(1, Math.floor((n - 1) / 2));
+    else if (roleId === 'lover') roleSpecificMax = Math.min(2, n);
+    else if (roleId === 'villager') roleSpecificMax = n;
+    else if (roleId === 'crazyman') roleSpecificMax = 1;
+    else if (roleId === 'justicer') roleSpecificMax = 1;
+    else if (roleId === 'dog') roleSpecificMax = 1;
+    else roleSpecificMax = Math.min(2, n - 1);
+    // Allow users to configure counts beyond role-specific caps up to at least numPlayers.
+    return Math.max(n, roleSpecificMax);
 }
 
 export function getMinCountForRole(state: GameState, roleId: string): number {
@@ -144,6 +144,7 @@ export function getMinCountForRole(state: GameState, roleId: string): number {
     if (roleId === 'villager') return 0;
     if (roleId === 'wolf') return 1;
     if (roleId === 'lover') return (enabled.lover === false) ? 0 : 2;
+    // If a role is enabled in setup, require at least 1 by default
     return (enabled[roleId] === false) ? 0 : 1;
 }
 

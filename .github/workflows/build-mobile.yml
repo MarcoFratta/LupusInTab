@@ -2,9 +2,9 @@ name: Build Mobile App
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   release:
     types: [ published ]
 
@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -27,14 +27,14 @@ jobs:
       - name: Build Vue project
         run: npm run build
 
-      - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli
-
       - name: Install Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Verify Capacitor setup
+        run: npx cap doctor
 
       - name: Setup Java
         uses: actions/setup-java@v3
@@ -76,7 +76,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -85,14 +85,14 @@ jobs:
       - name: Build Vue project
         run: npm run build
 
-      - name: Install Capacitor CLI
-        run: npm install -g @capacitor/cli
-
       - name: Install iOS platform
         run: npx cap add ios
 
       - name: Sync Capacitor
         run: npx cap sync ios
+
+      - name: Verify Capacitor setup
+        run: npx cap doctor
 
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
@@ -125,7 +125,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -148,7 +148,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies

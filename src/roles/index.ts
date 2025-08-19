@@ -5,6 +5,7 @@ import lover from './massone';
 import medium from './veggente';
 import justicer from './giustiziere';
 import barabba from './barabba';
+import angelo from './angelo';
 import crazyman from './matto';
 import guardia from './guardia';
 import hangman from './boia';
@@ -21,6 +22,7 @@ const rolesArray: RoleDef[] = [
 	medium,
 	justicer,
 	barabba,
+	angelo,
 	crazyman,
 	guardia,
 	hangman,

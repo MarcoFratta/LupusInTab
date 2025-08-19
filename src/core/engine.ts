@@ -8,7 +8,7 @@ export function createEmptyState(): GameState {
 		nightNumber: 0,
 		dayNumber: 0,
 		players: [],
-        setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false } },
+        setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false, barabba: false, angelo: false } },
 		revealIndex: 0,
 		night: { turns: [], currentIndex: 0, context: null, summary: null },
 		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
@@ -67,7 +67,7 @@ export function initDefaultRolesCounts(state: GameState): void {
 	const villager = Math.max(0, n - used);
     state.setup.rolesCounts = { wolf: wolves, guardia, medium, insinuo, villager } as Record<string, number>;
     if (!state.setup.rolesEnabled) {
-        state.setup.rolesEnabled = { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false } as Record<string, boolean>;
+        state.setup.rolesEnabled = { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false, barabba: false, angelo: false } as Record<string, boolean>;
     }
 }
 

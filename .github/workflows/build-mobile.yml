@@ -1,4 +1,4 @@
-name: Build Mobile App
+name: Build Android Mobile App
 
 on:
   push:
@@ -35,12 +35,27 @@ jobs:
 
       - name: Verify Capacitor setup
         run: npx cap doctor
+        
+      - name: Debug environment
+        run: |
+          echo "Java version:"
+          java -version
+          echo "JAVA_HOME: $JAVA_HOME"
+          echo "ANDROID_HOME: $ANDROID_HOME"
+          echo "Current directory: $(pwd)"
+          echo "Android directory contents:"
+          ls -la android/
 
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '11'
+        
+      - name: Set Java environment
+        run: |
+          echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
@@ -48,16 +63,18 @@ jobs:
       - name: Build Android APK
         run: |
           cd android
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError"
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
       - name: Build Android AAB
         run: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease -Dorg.gradle.jvmargs="-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError"
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
@@ -67,52 +84,10 @@ jobs:
             android/app/build/outputs/apk/release/*.apk
             android/app/build/outputs/bundle/release/*.aab
 
-  build-ios:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Vue project
-        run: npm run build
-
-      - name: Install iOS platform
-        run: npx cap add ios
-
-      - name: Sync Capacitor
-        run: npx cap sync ios
-
-      - name: Verify Capacitor setup
-        run: npx cap doctor
-
-      - name: Setup Xcode
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.0'
-
-      - name: Build iOS
-        run: |
-          cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination generic/platform=iOS -archivePath App.xcarchive archive
-          xcodebuild -exportArchive -archivePath App.xcarchive -exportOptionsPlist exportOptions.plist -exportPath ./build
-
-      - name: Upload iOS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-builds
-          path: ios/App/build/*.ipa
 
   semantic-release:
-    needs: [build-android, build-ios]
+    needs: [build-android]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:

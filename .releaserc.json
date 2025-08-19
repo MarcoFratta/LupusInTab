@@ -10,9 +10,10 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "npm run build && npx cap sync",
+        "prepareCmd": "npm run build && npx cap sync android",
         "publishCmd": "echo 'Build completed successfully'"
       }
     ]
   ]
 }
+

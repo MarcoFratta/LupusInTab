@@ -52,7 +52,7 @@ const detailEntries = computed(() => {
     // Check if this is a skipped/blocked action - add to blocked/dead list
     if (action.type === 'role_skipped' || action.type === 'group_role_blocked') {
       const reason = action.reason || 'unknown';
-      const isDeadPlayer = reason === 'dead' || reason === 'alive';
+      const isDeadPlayer = reason === 'dead';
       
       console.log(`🔍 NightDetailsGrid: adding blocked/dead entry for ${player.roleId}, reason: ${reason}`);
       blockedOrDeadEntries.push({ 

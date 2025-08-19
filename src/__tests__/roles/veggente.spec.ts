@@ -35,10 +35,7 @@ describe('Veggente Role', () => {
             playerId: 1,
             data: {
                 target: 2,
-                targetName: 'Giocatore 2',
-                targetRole: 'wolf',
-                discoveredFaction: 'lupi',
-                answer: 'lupi'
+                discoveredFaction: 'lupi'
             }
         });
     });

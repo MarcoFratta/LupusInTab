@@ -47,3 +47,4 @@ echo "2. Or transfer APK to your device and install manually"
 echo "3. Test the app functionality"
 echo ""
 echo "💡 To build release APK: ./scripts/build-release-apk.sh"
+

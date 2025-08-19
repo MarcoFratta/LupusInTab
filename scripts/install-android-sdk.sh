@@ -72,3 +72,4 @@ echo "4. Build APK: ./scripts/build-local-apk.sh"
 echo ""
 echo "📁 SDK location: $ANDROID_HOME"
 echo "🔗 Added to PATH in ~/.bashrc"
+

@@ -21,22 +21,24 @@ const dog: RoleDef = {
     getResolveDetailsComponent(gameState: any, action: any) {
         return () => import('../components/resolve-details/DogResolveDetails.vue');
     },
+    passiveEffect(gameState: any, player: any) {
+        // Handle immunity: remove any wolf kills targeting this Lupo Mannaro
+        // This runs every night regardless of blocking status
+        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+        if (pk[player.id]) {
+            // Remove all wolf kills targeting this Lupo Mannaro (wolves can't kill him)
+            pk[player.id] = pk[player.id].filter(kill => kill.role !== 'wolf');
+            
+            // If no kills remain, remove the entry entirely
+            if (pk[player.id].length === 0) {
+                delete pk[player.id];
+            }
+        }
+    },
     resolve(gameState: any, action: any) {
         const targetId = Number(action?.data?.targetId);
         const roleId = String(action?.data?.roleId || '');
         const dogId = action.playerId || 0;
-        
-        // First, handle immunity: remove any wolf kills targeting this Lupo Mannaro
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
-        if (pk[dogId]) {
-            // Remove all wolf kills targeting this Lupo Mannaro (wolves can't kill him)
-            pk[dogId] = pk[dogId].filter(kill => kill.role !== 'wolf');
-            
-            // If no kills remain, remove the entry entirely
-            if (pk[dogId].length === 0) {
-                delete pk[dogId];
-            }
-        }
         
         // Then, handle his own attack if he made a correct guess
         if (!Number.isFinite(targetId) || targetId <= 0 || !roleId) return;
@@ -44,6 +46,7 @@ const dog: RoleDef = {
         if (!target) return;
         const isCorrect = target.roleId === roleId;
         if (isCorrect) {
+            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
             if (!pk[targetId]) pk[targetId] = [];
             pk[targetId].push({ role: 'dog', notSavable: true });
         }

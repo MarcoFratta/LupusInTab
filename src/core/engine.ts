@@ -452,6 +452,19 @@ export function beginNight(state: GameState, roles: RolesRegistry): void {
 		summary: null 
 	} as any;
     
+    // Call passive effects for all players with night actions, regardless of blocking status
+    // This ensures effects like wolf protection always work
+    for (const p of sortedByRole) {
+        const roleDef = roles[p.roleId];
+        if (roleDef?.passiveEffect && typeof roleDef.passiveEffect === 'function') {
+            try {
+                roleDef.passiveEffect(state as any, p);
+            } catch (error) {
+                console.error(`Error in passive effect for ${p.roleId}:`, error);
+            }
+        }
+    }
+    
 	state.phase = 'night';
 }
 

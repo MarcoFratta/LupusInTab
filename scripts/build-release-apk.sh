@@ -63,3 +63,4 @@ echo "🏪 App Bundle: lupus-master-release.aab"
 echo ""
 echo "💡 For Play Store: Upload lupus-master-release.aab"
 echo "💡 For direct distribution: Use lupus-master-release.apk"
+

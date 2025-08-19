@@ -10,10 +10,12 @@ const illusionista: RoleDef = {
     countAs: 'villaggio',
     description: 'Di notte scegli un giocatore da bloccare. Non potrà usare la sua abilità notturna.',
     color: '#06b6d4',
-    phaseOrder: -1, // Acts first to block others
+    phaseOrder: 1, // Acts first to block others
     group: false,
     actsAtNight: "alive",
     usage: 'unlimited',
+    minCount: 1,
+    maxCount: 1,
     getPromptComponent() {
         return () => import('../components/roles/Illusionista/IllusionistaPrompt.vue');
     },

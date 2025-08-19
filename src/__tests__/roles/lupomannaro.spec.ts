@@ -11,8 +11,8 @@ describe('LupoMannaro (Werewolf) Role', () => {
             expect(lupomannaro.countAs).toBe('lupi');
             expect(lupomannaro.color).toBe('#6366f1');
             expect(lupomannaro.phaseOrder).toBe('any');
-            expect(lupomannaro.group).toBe(true);
-            		expect(lupomannaro.actsAtNight).toBe('alive');
+            expect(lupomannaro.group).toBe(false);
+            expect(lupomannaro.actsAtNight).toBe('alive');
         });
 
         it('should have correct usage and count constraints', () => {
@@ -27,10 +27,96 @@ describe('LupoMannaro (Werewolf) Role', () => {
         });
     });
 
+    describe('Passive Effect', () => {
+        it('should have a passive effect function', () => {
+            expect(typeof lupomannaro.passiveEffect).toBe('function');
+        });
+
+        it('should remove wolf kills targeting the Lupo Mannaro', () => {
+            const mockGameState = {
+                night: {
+                    context: {
+                        pendingKills: {
+                            1: [
+                                { role: 'wolf', notSavable: false },
+                                { role: 'other', notSavable: false }
+                            ]
+                        }
+                    }
+                }
+            };
+            const mockPlayer = { id: 1, roleId: 'dog' };
+
+            lupomannaro.passiveEffect(mockGameState, mockPlayer);
+
+            // Wolf kill should be removed
+            expect(mockGameState.night.context.pendingKills[1]).toHaveLength(1);
+            expect(mockGameState.night.context.pendingKills[1][0].role).toBe('other');
+        });
+
+        it('should remove the entire pendingKills entry if only wolf kills remain', () => {
+            const mockGameState = {
+                night: {
+                    context: {
+                        pendingKills: {
+                            1: [
+                                { role: 'wolf', notSavable: false }
+                            ]
+                        }
+                    }
+                }
+            };
+            const mockPlayer = { id: 1, roleId: 'dog' };
+
+            lupomannaro.passiveEffect(mockGameState, mockPlayer);
+
+            // Entry should be completely removed
+            expect(mockGameState.night.context.pendingKills[1]).toBeUndefined();
+        });
+
+        it('should not affect pendingKills if Lupo Mannaro is not targeted', () => {
+            const mockGameState = {
+                night: {
+                    context: {
+                        pendingKills: {
+                            2: [
+                                { role: 'wolf', notSavable: false }
+                            ]
+                        }
+                    }
+                }
+            };
+            const mockPlayer = { id: 1, roleId: 'dog' };
+
+            lupomannaro.passiveEffect(mockGameState, mockPlayer);
+
+            // Other player's pendingKills should remain unchanged
+            expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
+            expect(mockGameState.night.context.pendingKills[2][0].role).toBe('wolf');
+        });
+    });
+
     describe('Resolve Function', () => {
-        it('should do nothing when called', () => {
-            const mockGameState = {};
-            const mockEntry = {};
+        it('should handle role declaration and attack', () => {
+            const mockGameState = {
+                night: {
+                    context: {
+                        pendingKills: {}
+                    },
+                    nightNumber: 1
+                },
+                players: [
+                    { id: 1, roleId: 'dog' },
+                    { id: 2, roleId: 'villager' }
+                ]
+            };
+            const mockEntry = {
+                data: {
+                    targetId: 2,
+                    roleId: 'villager'
+                },
+                playerId: 1
+            };
 
             expect(() => lupomannaro.resolve(mockGameState, mockEntry)).not.toThrow();
         });

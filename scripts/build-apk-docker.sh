@@ -115,3 +115,4 @@ echo ""
 echo "🎯 APK build complete!"
 echo "📱 Install on device: adb install lupus-master-debug.apk"
 echo "💡 Or transfer APK to your device and install manually"
+

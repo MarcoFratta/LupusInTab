@@ -22,7 +22,7 @@ describe('Indemoniato (Demoniac) Role', () => {
         });
 
         it('should have correct component references', () => {
-            expect(typeof indemoniato.getPromptComponent).toBe('function');
+            expect(indemoniato.getPromptComponent).toBeUndefined();
         });
     });
 

@@ -22,7 +22,7 @@ describe('Matto (Crazyman) Role', () => {
         });
 
         it('should have correct component references', () => {
-            expect(typeof crazyman.getPromptComponent).toBe('function');
+            expect(crazyman.getPromptComponent).toBeUndefined();
         });
     });
 
@@ -46,11 +46,8 @@ describe('Matto (Crazyman) Role', () => {
     });
 
     describe('Prompt Component', () => {
-        it('should return a component function since crazyman has no night actions', async () => {
-            const componentPromise = crazyman.getPromptComponent();
-            const component = await componentPromise;
-            
-            expect(typeof component).toBe('function');
+        it('should not have a prompt component since crazyman has no night actions', () => {
+            expect(crazyman.getPromptComponent).toBeUndefined();
         });
     });
 

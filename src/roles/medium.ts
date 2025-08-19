@@ -21,11 +21,16 @@ const witch: RoleDef = {
         return () => import('../components/resolve-details/WitchResolveDetails.vue');
     },
     resolve(gameState: any, action: any) {
-        const id = Number(action?.data?.targetId);
+        // Handle both action.data.targetId and action.result.targetId formats
+        const id = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(id) || id <= 0) return;
         const target = gameState.players.find((p: any) => p.id === id);
         if (!target) return;
         const seenTeam = target.roleState?.visibleAsTeam || target.roleState?.realTeam;
+        // Initialize checks array if it doesn't exist
+        if (!Array.isArray(gameState.night.context.checks)) {
+            gameState.night.context.checks = [];
+        }
         gameState.night.context.checks.push({ by: action.playerId ?? 0, target: id, team: seenTeam });
         // Dog dies if Medium checks his role (special rule)
         if (target.roleId === 'dog') {

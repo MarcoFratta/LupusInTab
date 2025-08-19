@@ -12,15 +12,14 @@ describe('Illusionista Role', () => {
     beforeEach(() => {
         mockGameState = {
             players: [
-                { id: 1, roleId: 'illusionista', alive: true },
-                { id: 2, roleId: 'wolf', alive: true },
-                { id: 3, roleId: 'villager', alive: true }
+                { id: 1, roleId: 'illusionista', alive: true, roleState: { actsAtNight: 'alive' } },
+                { id: 2, roleId: 'wolf', alive: true, roleState: { actsAtNight: 'alive' } },
+                { id: 3, roleId: 'villager', alive: true, roleState: { actsAtNight: 'alive' } }
             ],
             nightNumber: 1,
             night: {
                 context: {
-                    pendingKills: {},
-                    blockedPlayers: new Set()
+                    pendingKills: {}
                 }
             }
         };
@@ -66,7 +65,7 @@ describe('Illusionista Role', () => {
 
             illusionista.resolve(mockGameState, action);
 
-            expect(mockGameState.night.context.blockedPlayers.has(2)).toBe(true);
+            expect(mockGameState.players[1].roleState.actsAtNight).toBe('blocked');
         });
 
         it('should not block when targetId is invalid', () => {
@@ -77,7 +76,7 @@ describe('Illusionista Role', () => {
 
             illusionista.resolve(mockGameState, action);
 
-            expect(mockGameState.night.context.blockedPlayers.size).toBe(0);
+            expect(mockGameState.players[1].roleState.actsAtNight).toBe('alive');
         });
 
         it('should not block when targetId is undefined', () => {
@@ -88,7 +87,7 @@ describe('Illusionista Role', () => {
 
             illusionista.resolve(mockGameState, action);
 
-            expect(mockGameState.night.context.blockedPlayers.size).toBe(0);
+            expect(mockGameState.players[1].roleState.actsAtNight).toBe('alive');
         });
 
         it('should handle multiple blocks correctly', () => {
@@ -98,9 +97,8 @@ describe('Illusionista Role', () => {
             illusionista.resolve(mockGameState, action1);
             illusionista.resolve(mockGameState, action2);
 
-            expect(mockGameState.night.context.blockedPlayers.has(2)).toBe(true);
-            expect(mockGameState.night.context.blockedPlayers.has(3)).toBe(true);
-            expect(mockGameState.night.context.blockedPlayers.size).toBe(2);
+            expect(mockGameState.players[1].roleState.actsAtNight).toBe('blocked');
+            expect(mockGameState.players[2].roleState.actsAtNight).toBe('blocked');
         });
     });
 

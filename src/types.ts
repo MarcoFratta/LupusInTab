@@ -114,6 +114,12 @@ export interface RoleDef {
      */
     restoreFunction?: (gameState: any) => void;
     /**
+     * Optional passive effect that runs every night regardless of blocking status.
+     * Called in phase order but without showing prompts. Useful for automatic protections
+     * or other effects that should always work.
+     */
+    passiveEffect?: (gameState: any, player: any) => void;
+    /**
      * Optional per-role win check. It should return true when this role's faction has met its winning condition.
      */
     checkWin?: (gameState: any) => boolean;

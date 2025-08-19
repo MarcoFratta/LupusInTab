@@ -25,7 +25,8 @@ const wolf: RoleDef = {
     },
     resolve(gameState: any, action: any) {
         const isGroup = action.kind === 'group';
-        const id = Number(action?.data?.targetId);
+        // Handle both action.data.targetId and action.result.targetId formats
+        const id = Number(action?.data?.targetId || action?.result?.targetId);
         if (Number.isFinite(id)) {
             const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
             if (!pk[id]) pk[id] = [];

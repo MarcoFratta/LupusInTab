@@ -10,7 +10,7 @@ const guardia: RoleDef = {
     countAs: 'villaggio',
     description: 'Ogni notte scegli un giocatore da proteggere dai lupi.',
     color: '#3b82f6',
-    	phaseOrder: 0, // Acts early to protect players
+	phaseOrder: "any", // Acts early to protect players
     group: false,
     actsAtNight: "alive",
     usage: 'unlimited',
@@ -22,20 +22,33 @@ const guardia: RoleDef = {
         return () => import('../components/resolve-details/DoctorResolveDetails.vue');
     },
     resolve(gameState: any, action: any) {
-        const id = Number(action?.data?.targetId);
+        // Handle both action.data.targetId and action.result.targetId formats
+        const id = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(id)) return;
         
         // Direct manipulation of pending kills: remove wolf kills from protected target
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
-        if (pk[id]) {
-            // Remove all wolf kills that are savable (not notSavable)
-            pk[id] = pk[id].filter(kill => !(kill.role === 'wolf' && !kill.notSavable));
+        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
+        if (pk && pk[id]) {
+            // Remove all wolf kills (Guardia can only save from wolf kills)
+            pk[id] = pk[id].filter(kill => kill.role !== 'wolf');
             
             // If no kills remain, remove the entry entirely
             if (pk[id].length === 0) {
                 delete pk[id];
             }
         }
+        
+        // Initialize saves array if it doesn't exist
+        if (!Array.isArray(gameState.night.context.saves)) {
+            gameState.night.context.saves = [];
+        }
+        
+        // Add save to saves list
+        gameState.night.context.saves.push({
+            targetId: id,
+            fromRoles: ['wolf'],
+            byRole: 'guardia'
+        });
         
         // Also track who saved whom for display purposes
         if (!Array.isArray(gameState.night.context.savesBy)) {

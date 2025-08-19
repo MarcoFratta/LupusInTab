@@ -21,7 +21,8 @@ const medium: RoleDef = {
         return () => import('../components/resolve-details/MediumResolveDetails.vue');
     },
     resolve(gameState: any, action: any) {
-        const targetId = Number(action?.data?.targetId);
+        // Handle both action.data.targetId and action.result.targetId formats
+        const targetId = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(targetId)) return;
         
         const target = gameState.players.find((p: any) => p.id === targetId);

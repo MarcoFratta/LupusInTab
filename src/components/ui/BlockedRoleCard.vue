@@ -24,7 +24,7 @@ const getReasonText = (reason: string) => {
   <div class="text-center p-2 space-y-1">
     <div class="text-amber-400 text-lg">🚫</div>
     <div>
-      <div class="text-neutral-100 font-medium text-xs">{{ props.player?.name || 'Giocatore' }} bloccato</div>
+      <div class="text-neutral-100 font-medium text-xs">{{ props.player?.name || 'Giocatore' }} {{ reason === 'alive' ? 'vivo' : 'bloccato' }}</div>
       <div class="text-neutral-400 text-xs mt-0">
         {{ getReasonText(reason) }}
       </div>

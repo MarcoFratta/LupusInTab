@@ -56,3 +56,4 @@ echo "3. Build and run: npm run cap:run:android"
 echo ""
 echo "For more information, see MOBILE_SETUP.md"
 
+

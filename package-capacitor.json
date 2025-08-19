@@ -1,0 +1,49 @@
+{
+  "name": "lupus-in-tabula-mobile",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios",
+    "cap:build:android": "npm run build && npx cap sync android",
+    "cap:build:ios": "npm run build && npx cap sync ios",
+    "cap:run:android": "npm run cap:build:android && npx cap run android",
+    "cap:run:ios": "npm run cap:build:ios && npx cap run ios",
+    "cap:serve": "npx cap serve"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "pinia": "^3.0.3",
+    "vue": "^3.3.4",
+    "vue-router": "^4.3.2",
+    "@capacitor/core": "^5.0.0",
+    "@capacitor/cli": "^5.0.0",
+    "@capacitor/android": "^5.0.0",
+    "@capacitor/ios": "^5.0.0",
+    "@capacitor/splash-screen": "^5.0.0",
+    "@capacitor/status-bar": "^5.0.0",
+    "@capacitor/app": "^5.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.2",
+    "vite": "^4.4.5",
+    "vitest": "^1.6.0",
+    "vue-tsc": "^3.0.5"
+  }
+}
+

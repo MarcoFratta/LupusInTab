@@ -41,8 +41,8 @@ function confirm() {
 </script>
 
 <template>
-    <div class="stack">
-        <div class="muted  mb-4">{{ label }}</div>
+    <div class="stack h-full w-full">
+        <div v-if="label" class="muted mb-1">{{ label }}</div>
 		<div class="relative">
 			<select 
 				:disabled="disabled"

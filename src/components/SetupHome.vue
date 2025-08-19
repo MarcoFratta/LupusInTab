@@ -7,6 +7,7 @@ import {
   beginReveal as engineBeginReveal,
   getMaxCountForRole as engineGetMaxCountForRole,
   updateRoleCount as engineUpdateRoleCount,
+  getMinCountForRole as engineGetMinCountForRole,
 } from '../core/engine';
 import RoleCard from './RoleCard.vue';
 
@@ -28,6 +29,10 @@ function getMaxCountForRole(roleId: string): number {
   return engineGetMaxCountForRole(state, roleId);
 }
 
+function getMinCountForRole(roleId: string): number {
+  return engineGetMinCountForRole(state as any, roleId);
+}
+
 function updateRoleCount(roleId: string, count: number) {
   engineUpdateRoleCount(state, roleId, count);
 }
@@ -36,9 +41,8 @@ function beginReveal() {
   engineBeginReveal(state, ROLE_LIST as any, shuffled);
 }
 
-// Sort roles by faction so they appear grouped in the grid
 const factionOrder: Record<string, number> = {
-  'village': 0,
+  'villaggio': 0,
   'lupi': 1,
   'mannari': 2,
   'matti': 3,
@@ -52,7 +56,6 @@ const sortedEnabledRoles = computed(() => {
       const ao = factionOrder[a.team] ?? 99;
       const bo = factionOrder[b.team] ?? 99;
       if (ao !== bo) return ao - bo;
-      // secondary sort: phaseOrder then name
       const ap = Number((a as any).phaseOrder) || 0;
       const bp = Number((b as any).phaseOrder) || 0;
       if (ap !== bp) return ap - bp;
@@ -63,7 +66,6 @@ const sortedEnabledRoles = computed(() => {
 
 <template>
   <div class="space-y-5">
-    <!-- Compact Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2">
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-2">
         <div class="flex items-center justify-between gap-1.5 whitespace-nowrap">
@@ -97,7 +99,6 @@ const sortedEnabledRoles = computed(() => {
       </div>
     </div>
 
-    <!-- Role Selection Section -->
     <div class="space-y-4">
       <div class="text-center">
       <h3 class="text-lg font-semibold text-neutral-100 mb-1">Configura i ruoli</h3>
@@ -111,12 +112,12 @@ const sortedEnabledRoles = computed(() => {
           :role="role"
           :count="state.setup.rolesCounts[role.id] || 0"
           :max-count="getMaxCountForRole(role.id)"
+          :min-count="getMinCountForRole(role.id)"
           :on-count-change="(count:number) => updateRoleCount(role.id, count)"
         />
       </div>
     </div>
 
-    <!-- Start Game Section -->
     <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3"
          :class="canStart ? 'border-emerald-500/20' : 'border-red-500/20'">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

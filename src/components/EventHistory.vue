@@ -1,181 +1,109 @@
-<script setup>
-import { computed, ref, defineAsyncComponent } from 'vue';
+<script setup lang="ts">
+import { computed, ref } from 'vue';
 import EventCard from './ui/EventCard.vue';
-import DetailsCard from './ui/DetailsCard.vue';
-import { ROLES } from '../roles/index';
 import GhostButton from './ui/GhostButton.vue';
+import NightDetailsGrid from './ui/NightDetailsGrid.vue';
 
-// Dynamic imports for role resolve detail components (to match the app's pattern)
-const WolvesResolveDetails = defineAsyncComponent(() => import('./roles/Wolf/WolvesResolveDetails.vue'));
-const DoctorResolveDetails = defineAsyncComponent(() => import('./roles/Doctor/DoctorResolveDetails.vue'));
-const MediumResolveDetails = defineAsyncComponent(() => import('./roles/Medium/MediumResolveDetails.vue'));
-const DogResolveDetails = defineAsyncComponent(() => import('./roles/Dog/DogResolveDetails.vue'));
-const HangmanResolveDetails = defineAsyncComponent(() => import('./roles/Hangman/HangmanResolveDetails.vue'));
-const WitchResolveDetails = defineAsyncComponent(() => import('./roles/Witch/WitchResolveDetails.vue'));
-const JusticerResolveDetails = defineAsyncComponent(() => import('./roles/Justicer/JusticerResolveDetails.vue'));
+interface Props {
+  state: any;
+  onClose: () => void;
+}
 
-const props = defineProps({
-  state: { type: Object, required: true },
-  onClose: { type: Function, required: true }
-});
+const props = defineProps<Props>();
 
-const expandedEvents = ref(new Set());
+const expandedEvents = ref(new Set<string>());
 
-function toggleEventExpansion(eventId) {
-  if (expandedEvents.value.has(eventId)) {
-    expandedEvents.value.delete(eventId);
+const toggleEventExpansion = (eventKey: string) => {
+  if (expandedEvents.value.has(eventKey)) {
+    expandedEvents.value.delete(eventKey);
   } else {
-    expandedEvents.value.add(eventId);
+    expandedEvents.value.add(eventKey);
   }
-}
+};
 
-function isEventExpanded(eventId) {
-  return expandedEvents.value.has(eventId);
-}
-
-// Build detail entries for a specific night (reusing logic from PhaseResolve)
-function buildNightDetailEntries(nightData) {
-  const entries = [];
-  const summary = nightData.summary;
-  const state = props.state;
-  
-  if (!summary) return entries;
-
-  // Wolves (group): show who they killed
-  const wolvesRole = ROLES['wolf'];
-  if (wolvesRole) {
-    const title = props.state.roleMeta?.['wolf']?.name || wolvesRole.name || 'Lupi';
-    entries.push({ key: 'wolf', title, component: WolvesResolveDetails });
-  }
-
-  // Doctor (per-actor): show saves if any
-  const doctorRole = ROLES['doctor'];
-  if (doctorRole) {
-    const doctors = state.players.filter((p) => p.roleId === 'doctor');
-    for (const d of doctors) {
-      const title = props.state.roleMeta?.['doctor']?.name || doctorRole.name || 'Guardia';
-      entries.push({ key: `doctor-${d.id}`, title, component: DoctorResolveDetails, props: { player: d } });
-    }
-  }
-
-  // Medium (per-actor): show checks
-  const mediumRole = ROLES['medium'];
-  if (mediumRole) {
-    const mediums = state.players.filter((p) => p.roleId === 'medium');
-    for (const m of mediums) {
-      const title = props.state.roleMeta?.['medium']?.name || mediumRole.name || 'Medium';
-      entries.push({ key: `medium-${m.id}`, title, component: MediumResolveDetails, props: { player: m } });
-    }
-  }
-
-  // Role-specific results
-  const results = nightData.results || [];
-  
-  // Dog results
-  const dogResults = results.filter((r) => r.roleId === 'dog');
-  for (const result of dogResults) {
-    const player = state.players.find((p) => p.id === result.playerId);
-    if (player) {
-      const title = props.state.roleMeta?.['dog']?.name || 'Lupo Mannaro';
-      entries.push({ 
-        key: `dog-${result.playerId}`, 
-        title, 
-        component: DogResolveDetails, 
-        props: { 
-          gameState: { ...state, night: { ...state.night, results } }, 
-          entry: result,
-          player: player
-        } 
-      });
-    }
-  }
-
-  // Hangman results
-  const hangmanResults = results.filter((r) => r.roleId === 'hangman');
-  for (const result of hangmanResults) {
-    const player = state.players.find((p) => p.id === result.playerId);
-    if (player) {
-      const title = props.state.roleMeta?.['hangman']?.name || 'Boia';
-      entries.push({ 
-        key: `hangman-${result.playerId}`, 
-        title, 
-        component: HangmanResolveDetails, 
-        props: { 
-          gameState: { ...state, night: { ...state.night, results } }, 
-          entry: result,
-          player: player
-        } 
-      });
-    }
-  }
-
-  // Witch results
-  const witchResults = results.filter((r) => r.roleId === 'witch');
-  for (const result of witchResults) {
-    const player = state.players.find((p) => p.id === result.playerId);
-    if (player) {
-      const title = props.state.roleMeta?.['witch']?.name || 'Medium';
-      entries.push({ 
-        key: `witch-${result.playerId}`, 
-        title, 
-        component: WitchResolveDetails, 
-        props: { 
-          gameState: { ...state, night: { ...state.night, results } }, 
-          entry: result,
-          player: player
-        } 
-      });
-    }
-  }
-
-  // Justicer results
-  const justicerResults = results.filter((r) => r.roleId === 'justicer');
-  for (const result of justicerResults) {
-    const player = state.players.find((p) => p.id === result.playerId);
-    if (player) {
-      entries.push({ 
-        key: `justicer-${result.playerId}`, 
-        title: 'Giustiziere', 
-        component: JusticerResolveDetails, 
-        props: { 
-          gameState: { ...state, night: { ...state.night, results } }, 
-          entry: result,
-          player: player
-        } 
-      });
-    }
-  }
-
-  return entries;
-}
+const isEventExpanded = (eventKey: string) => expandedEvents.value.has(eventKey);
 
 // Get variant for role titles
-function getRoleVariant(title) { return 'neutral'; }
+function getRoleVariant(title: string) { return 'neutral'; }
 
 // Combine and sort all events chronologically
 const allEvents = computed(() => {
   const events = [];
-  const nights = props.state.eventHistory?.nights || [];
-  const days = props.state.eventHistory?.days || [];
-
-  // Add night events
-  for (const night of nights) {
-    events.push({
-      type: 'night',
-      order: night.night * 2, // Even numbers for nights
-      night: night.night,
-      data: night
-    });
+  const state = props.state;
+  
+  // Derive night events from history
+  if (state.history) {
+    const nightNumbers = new Set();
+    
+    // Collect all night numbers from history
+    for (const nightNum in state.history) {
+      nightNumbers.add(Number(nightNum));
+    }
+    // Also include nights from nightDeathsByNight map
+    if (state.nightDeathsByNight) {
+      for (const nightNum in state.nightDeathsByNight) {
+        nightNumbers.add(Number(nightNum));
+      }
+    }
+    
+    // Create night events from history
+    for (const nightNum of Array.from(nightNumbers).sort((a, b) => a - b)) {
+      const nightPlayerActions = state.history[nightNum] || {};
+      const nightEvents = Object.values(nightPlayerActions).filter(Boolean);
+      
+      // Create summary
+      const summary = {
+        died: Array.isArray(state.nightDeathsByNight?.[nightNum]) ? [...state.nightDeathsByNight[nightNum]] : [],
+        saved: [],
+        targeted: [],
+        checks: []
+      };
+      
+      // Process events to build additional info
+      for (const event of nightEvents) {
+        if (event.type === 'guardia_save' && event.data?.target && !summary.saved.includes(event.data.target)) {
+          summary.saved.push(event.data.target);
+        }
+      }
+      
+      events.push({
+        type: 'night',
+        order: nightNum * 2, // Even numbers for nights
+        night: nightNum,
+        data: {
+          night: nightNum,
+          summary,
+          results: [] // derived
+        }
+      });
+    }
   }
-
-  // Add day events
-  for (const day of days) {
-    events.push({
-      type: 'day',
-      order: day.day * 2 + 1, // Odd numbers for days
-      day: day.day,
-      data: day
-    });
+  
+  // Add day events from lynchedHistoryByDay, or fallback to lynchedHistory
+  if (state.lynchedHistoryByDay && Object.keys(state.lynchedHistoryByDay).length > 0) {
+    for (const dayKey of Object.keys(state.lynchedHistoryByDay)) {
+      const dayNum = Number(dayKey);
+      const lynchedIds = state.lynchedHistoryByDay[dayNum] || [];
+      for (const pid of lynchedIds) {
+        events.push({
+          type: 'day',
+          order: dayNum * 2 + 1,
+          day: dayNum,
+          data: { day: dayNum, lynched: pid }
+        });
+      }
+    }
+  } else if (state.lynchedHistory) {
+    let dayIndex = 1;
+    for (const pid of state.lynchedHistory) {
+      events.push({
+        type: 'day',
+        order: dayIndex * 2 + 1,
+        day: dayIndex,
+        data: { day: dayIndex, lynched: pid }
+      });
+      dayIndex += 1;
+    }
   }
 
   // Sort chronologically
@@ -187,7 +115,7 @@ const allEvents = computed(() => {
   <div class="h-full flex flex-col space-y-4 text-center">
     <div class="flex items-center justify-between flex-shrink-0">
       <h2 class="text-2xl font-semibold text-slate-100">📋 Storico Eventi</h2>
-      <GhostButton size="sm" @click="onClose">
+      <GhostButton size="sm" @click="props.onClose">
         ✕ Chiudi
       </GhostButton>
     </div>
@@ -240,20 +168,11 @@ const allEvents = computed(() => {
           </GhostButton>
 
           <!-- Detailed Actions (expanded) -->
-          <div v-if="isEventExpanded('night-' + event.night)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-left">
-            <DetailsCard 
-              v-for="entry in buildNightDetailEntries(event.data)" 
-              :key="entry.key" 
-              :title="entry.title" 
-              :color="entry.props?.player ? (props.state.roleMeta[entry.props.player.roleId]?.color) : (entry.key==='wolf' ? props.state.roleMeta['wolf']?.color : '#9ca3af')"
-            >
-              <component 
-                :is="entry.component" 
-                :state="entry.props?.gameState || props.state" 
-                v-bind="entry.props || {}" 
-              />
-            </DetailsCard>
-          </div>
+          <NightDetailsGrid 
+            v-if="isEventExpanded('night-' + event.night)" 
+            :game-state="props.state" 
+            :night-number="event.night" 
+          />
         </EventCard>
 
         <!-- Day Event -->

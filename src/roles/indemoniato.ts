@@ -5,19 +5,16 @@ const demoniac: RoleDef = {
     name: 'Indemoniato',
     team: 'lupi',
     visibleAsTeam: 'lupi',
+    countAs: 'villaggio',
     description: 'Alleato segreto dei lupi. Visto come lupi dagli altri. Nessuna azione notturna. Vince quando vincono i lupi, ma non conta come lupi per la parità.',
     color: '#fb7185',
-    phaseOrder: 98,
+    phaseOrder: "any",
     group: false,
-    actsAtNight: false,
+    actsAtNight: "never",
     usage: 'unlimited',
-    knownToTeams: ['lupi'],
+    knownTo: ['wolf'],
     revealToAllies: 'role',
-    minCount: 1,
-    maxCount: 1,
-    getPromptComponent() {
-        return () => Promise.resolve(() => null as any);
-    },
+
     resolve() {},
     // No custom checkWin: wolves will declare victory; demoniac shares that win
 };

@@ -1,17 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue';
-import { ROLES } from '../roles';
-import DetailsCard from './ui/DetailsCard.vue';
+import { ref } from 'vue';
 import ButtonGroup from './ui/ButtonGroup.vue';
 import GhostButton from './ui/GhostButton.vue';
 import PrimaryButton from './ui/PrimaryButton.vue';
-
-// Use dynamic imports for consistency with role definitions
-const WolvesResolveDetails = defineAsyncComponent(() => import('./roles/Wolf/WolvesResolveDetails.vue'));
-const DoctorResolveDetails = defineAsyncComponent(() => import('./roles/Doctor/DoctorResolveDetails.vue'));
-const MediumResolveDetails = defineAsyncComponent(() => import('./roles/Medium/MediumResolveDetails.vue'));
-const DogResolveDetails = defineAsyncComponent(() => import('./roles/Dog/DogResolveDetails.vue'));
-const HangmanResolveDetails = defineAsyncComponent(() => import('./roles/Hangman/HangmanResolveDetails.vue'));
+import NightDetailsGrid from './ui/NightDetailsGrid.vue';
 
 const props = defineProps<{
   state: any;
@@ -20,84 +12,6 @@ const props = defineProps<{
 }>();
 
 const showDetails = ref(false);
-
-// Build detail entries grouped by role/group
-type DetailEntry = { key: string; title: string; component: any; props?: Record<string, any> };
-const detailEntries = computed(() => {
-  const summary = props.state?.night?.summary;
-  if (!summary) return [] as DetailEntry[]; 
-
-  const entries: DetailEntry[] = [];
-
-  // Wolves (group): show who they killed (targeted minus saved, or targeted list)
-  const wolvesRole = ROLES['wolf'];
-  if (wolvesRole) {
-    const title = props.state.roleMeta?.['wolf']?.name || wolvesRole.name || 'Lupi';
-    entries.push({ key: 'wolf', title, component: WolvesResolveDetails });
-  }
-
-  // Doctor (per-actor): show saves if any
-  const doctorRole = ROLES['doctor'];
-  if (doctorRole) {
-    const doctors = props.state.players.filter((p: any) => p.roleId === 'doctor');
-    for (const d of doctors) {
-      const title = props.state.roleMeta?.['doctor']?.name || doctorRole.name || 'Guardia';
-      entries.push({ key: `doctor-${d.id}` , title, component: DoctorResolveDetails, props: { player: d } });
-    }
-  }
-
-  // Medium (per-actor): show checks
-  const mediumRole = ROLES['medium'];
-  if (mediumRole) {
-    const mediums = props.state.players.filter((p: any) => p.roleId === 'medium');
-    for (const m of mediums) {
-      const title = props.state.roleMeta?.['medium']?.name || mediumRole.name || 'Medium';
-      entries.push({ key: `medium-${m.id}` , title, component: MediumResolveDetails, props: { player: m } });
-    }
-  }
-
-  // Dog (LupoMannaro) results
-  const results = props.state?.night?.results || [];
-  const dogResults = results.filter((r: any) => r.roleId === 'dog');
-  for (const result of dogResults) {
-    const player = props.state.players.find((p: any) => p.id === result.playerId);
-    if (player) {
-      const title = props.state.roleMeta?.['dog']?.name || 'Lupo Mannaro';
-      entries.push({ 
-        key: `dog-${result.playerId}`, 
-        title, 
-        component: DogResolveDetails, 
-        props: { 
-          gameState: props.state, 
-          entry: result,
-          player: player
-        } 
-      });
-    }
-  }
-
-  // Hangman (Boia) results
-  const hangmanResults = results.filter((r: any) => r.roleId === 'hangman');
-  for (const result of hangmanResults) {
-    const player = props.state.players.find((p: any) => p.id === result.playerId);
-    if (player) {
-      const title = props.state.roleMeta?.['hangman']?.name || 'Boia';
-      entries.push({ 
-        key: `hangman-${result.playerId}`, 
-        title, 
-        component: HangmanResolveDetails, 
-        props: { 
-          gameState: props.state, 
-          entry: result,
-          player: player
-        } 
-      });
-    }
-  }
-
-  // Villager: no details
-  return entries;
-});
 </script>
 
 <template>
@@ -137,15 +51,11 @@ const detailEntries = computed(() => {
       </ButtonGroup>
 
       <!-- Details section -->
-      <div v-if="showDetails" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-        <DetailsCard 
-          v-for="e in detailEntries" 
-          :key="e.key" 
-          :title="e.title" 
-          :color="(e.props?.player ? (props.state.roleMeta[e.props.player.roleId]?.color) : (e.key==='wolf' ? props.state.roleMeta['wolf']?.color : undefined)) || '#9ca3af'">
-          <component :is="e.component" :state="props.state" v-bind="e.props || {}" />
-        </DetailsCard>
-      </div>
+      <NightDetailsGrid 
+        v-if="showDetails" 
+        :game-state="props.state" 
+        :night-number="props.state.nightNumber" 
+      />
     </div>
     <div v-else class="bg-white/5 border border-white/10 rounded-lg p-6 text-center">
       <div class="text-slate-400">Risoluzione…</div>

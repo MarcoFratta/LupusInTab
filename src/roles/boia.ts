@@ -1,44 +1,60 @@
 import type { RoleDef } from '../types';
+import {useWinConditions} from "../utils/winConditions";
+import { addToHistory } from '../utils/roleUtils';
 
 const hangman: RoleDef = {
     id: 'hangman',
     name: 'Boia',
     team: 'lupi',
     visibleAsTeam: 'lupi',
-    description: 'Una volta per partita, di notte: dichiara un giocatore e un ruolo. Se indovini, muore; altrimenti muori tu. I lupi ti conoscono; tu non conosci loro.',
-    color: '#f97316',
+    countAs: 'villaggio',
+    description: 'Di notte scegli un giocatore da impiccare. Non può essere salvato.',
+    color: '#7c3aed',
     phaseOrder: 2,
     group: false,
-    actsAtNight: true,
-    usage: 'once',
-    // Wolves should see Hangman as ally including role; Hangman does not see wolves
-    knownToTeams: ['lupi'],
-    revealToAllies: 'role',
-    revealAlliesWithinTeam: false,
-    minCount: 1,
-    maxCount: 1,
+    actsAtNight: "alive",
+    usage: 'unlimited',
     getPromptComponent() {
         return () => import('../components/roles/Hangman/HangmanPrompt.vue');
     },
     getResolveDetailsComponent() {
-        return () => import('../components/roles/Hangman/HangmanResolveDetails.vue');
+        return () => import('../components/resolve-details/HangmanResolveDetails.vue');
     },
-    resolve(gameState: any, entry: any) {
-        const targetId = Number(entry?.result?.targetId);
-        const roleId = String(entry?.result?.roleId || '');
-        if (!Number.isFinite(targetId) || targetId <= 0 || !roleId) return;
-        const target = gameState.players.find((p: any) => p.id === targetId);
-        if (!target) return;
-        if (target.roleId === roleId) {
-            const pk = gameState.night.context.pendingKills as Record<number, string[]>;
-            if (!pk[targetId]) pk[targetId] = [];
-            if (!pk[targetId].includes('hangman')) pk[targetId].push('hangman');
+    resolve(gameState: any, action: any) {
+        const id = Number(action?.data?.targetId);
+        const declaredRoleId = action?.data?.roleId ? String(action.data.roleId) : '';
+        if (!Number.isFinite(id)) return;
+        
+        // Find the target player
+        const targetPlayer = gameState.players.find((p: any) => p.id === id);
+        if (!targetPlayer) return;
+        
+        // Check if the guess is correct
+        const isCorrect = targetPlayer.roleId === declaredRoleId;
+        
+        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+        
+        if (isCorrect) {
+            // Correct guess: kill the target (cannot be saved)
+            if (!pk[id]) pk[id] = [];
+            pk[id].push({ role: 'hangman', notSavable: true });
         } else {
-            const pk = gameState.night.context.pendingKills as Record<number, string[]>;
-            const selfId = (entry as any).playerId as number;
-            if (!pk[selfId]) pk[selfId] = [];
-            if (!pk[selfId].includes('hangman')) pk[selfId].push('hangman');
+            // Incorrect guess: kill the Boia himself
+            const boiaId = action.playerId || 0;
+            if (!pk[boiaId]) pk[boiaId] = [];
+            pk[boiaId].push({ role: 'hangman', notSavable: true });
         }
+
+        // Log to history with the result
+        addToHistory(gameState, action.playerId || 0, gameState.nightNumber, 'hangman_execute', {
+            target: id,
+            roleId: declaredRoleId,
+            correct: isCorrect
+        });
+    },
+    checkWin(gameState: any) {
+        const { villageWin } = useWinConditions();
+        return villageWin(gameState);
     },
 };
 

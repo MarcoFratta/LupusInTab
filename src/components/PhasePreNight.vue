@@ -1,16 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import PlayerRoleList from './ui/PlayerRoleList.vue';
+import { getFactionConfig } from '../factions';
+import { ROLES } from '../roles';
+
 const props = defineProps<{ state: any; onContinue: () => void }>();
+
 const aliveWithRoles = computed(() => props.state.players.filter((p: any) => p.alive).map((p: any) => {
-  const meta = props.state.roleMeta[p.roleId] || {} as any;
-  const fallbackColor = meta.team === 'lupi' ? '#ef4444' : '#22c55e';
+  const roleDef = ROLES[p.roleId];
+  const faction = getFactionConfig(roleDef?.team || 'unknown');
+  const fallbackColor = faction?.color || '#9ca3af';
   return {
     id: p.id,
     name: p.name,
-    roleName: meta.name || p.roleId,
-    team: meta.team || 'unknown',
-    roleColor: meta.color || fallbackColor,
+    roleName: roleDef?.name || p.roleId,
+    team: roleDef?.team || 'unknown',
+    roleColor: roleDef?.color || fallbackColor,
   };
 }));
 </script>

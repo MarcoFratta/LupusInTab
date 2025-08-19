@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, defineAsyncComponent } from 'vue';
+import { ref, reactive, computed, watch, defineAsyncComponent, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ROLES, ROLE_LIST } from './roles/index';
 // @ts-ignore - ambient module declarations provided in env.d.ts
@@ -54,33 +54,15 @@ const PHASES = {
 	END: 'end',
 };
 
-function createEmptyState() {
-	return {
-		phase: PHASES.SETUP,
-		nightNumber: 0,
-		dayNumber: 0,
-		players: [], // { id, name, roleId, alive }
-		roleMeta: {}, // roleId -> { id, name, team, phaseOrder }
-		setup: {
-			numPlayers: 6,
-			players: [], // { name }
-			rolesCounts: {}, // roleId -> count
-		},
-		revealIndex: 0,
-		night: {
-			turns: [], // [{ kind:'single', roleId, playerId } | { kind:'group', roleId, playerIds:[] }]
-			currentIndex: 0,
-			results: [], // { roleId, kind, playerId?, playerIds?, result }
-			context: null, // { kills:[], saves:[], checks:[{by, target, isWolf}] }
-			summary: null, // { targeted:[], saved:[], died:[], checks:[] }
-		},
-        settings: { skipFirstNightActions: true, enableSindaco: false },
-		winner: null, // 'wolves' | 'villagers'
-	};
-}
-
 const savedGameAtBoot = loadGameState();
 const resumeAvailable = ref(!!(savedGameAtBoot && (savedGameAtBoot as any).phase !== PHASES.SETUP));
+
+// Debug logging
+console.log('Boot: savedGameAtBoot:', savedGameAtBoot);
+console.log('Boot: resumeAvailable:', resumeAvailable.value);
+console.log('Boot: savedGameAtBoot?.phase:', savedGameAtBoot?.phase);
+console.log('Boot: PHASES.SETUP:', PHASES.SETUP);
+
 const route = useRoute();
 const router = useRouter();
 const currentPage = ref<'home' | 'roles' | 'players' | 'settings'>('home');
@@ -89,7 +71,7 @@ const store = useGameStore();
 const state = store.state;
 // Ensure settings exist even if state was restored from an older schema
 if (!(state as any).settings) {
-    (state as any).settings = { skipFirstNightActions: true, enableSindaco: false };
+    (state as any).settings = { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false };
 }
 // Ensure rolesEnabled exists in setup for older saved states
 if (!(state as any).setup?.rolesEnabled) {
@@ -140,13 +122,19 @@ if (state.phase === PHASES.SETUP) {
 }
 
 // Persist state: only save a resumable game once it's started (not in setup)
+let isInitialBoot = true;
 watch(
     () => state,
     () => {
         if (state.phase !== PHASES.SETUP) {
+            console.log('Saving game state, phase:', state.phase);
             saveGameState(state);
-        } else {
+            isInitialBoot = false;
+        } else if (!isInitialBoot) {
+            console.log('Clearing saved game, phase is SETUP (not initial boot)');
             clearSavedGame();
+        } else {
+            console.log('Initial boot in SETUP phase, preserving any existing saved game');
         }
     },
     { deep: true }
@@ -176,6 +164,7 @@ const savedSettings0 = loadSettings();
 if (savedSettings0 && typeof savedSettings0 === 'object') {
     state.settings.skipFirstNightActions = !!savedSettings0.skipFirstNightActions;
     state.settings.enableSindaco = !!savedSettings0.enableSindaco;
+    state.settings.discussionTimerEnabled = !!savedSettings0.discussionTimerEnabled;
 }
 watch(
     () => state.settings,
@@ -183,10 +172,131 @@ watch(
         saveSettings({
             skipFirstNightActions: !!state.settings.skipFirstNightActions,
             enableSindaco: !!state.settings.enableSindaco,
+            discussionTimerEnabled: !!state.settings.discussionTimerEnabled,
         });
     },
     { deep: true }
 );
+
+// Make resumeAvailable reactive to state changes and more robust
+watch(() => state.phase, (newPhase) => {
+    console.log('Phase changed to:', newPhase);
+    if (newPhase === PHASES.SETUP) {
+        const saved = loadGameState();
+        const hasSavedGame = !!(saved && saved.phase !== PHASES.SETUP);
+        console.log('Phase is SETUP, checking for saved game:', hasSavedGame, 'saved:', saved);
+        console.log('saved?.phase:', saved?.phase, 'PHASES.SETUP:', PHASES.SETUP);
+        resumeAvailable.value = hasSavedGame;
+    }
+}, { immediate: true });
+
+// Also check for saved games on boot, but defer until after watchers are set up
+const checkForSavedGames = () => {
+    console.log('=== CHECKING FOR SAVED GAMES ===');
+    const saved = loadGameState();
+    console.log('Raw saved data:', saved);
+    
+    if (saved) {
+        console.log('Saved data details:');
+        console.log('- phase:', saved.phase);
+        console.log('- phase type:', typeof saved.phase);
+        console.log('- PHASES.SETUP:', PHASES.SETUP);
+        console.log('- PHASES.SETUP type:', typeof PHASES.SETUP);
+        console.log('- phase === PHASES.SETUP:', saved.phase === PHASES.SETUP);
+        console.log('- phase !== PHASES.SETUP:', saved.phase !== PHASES.SETUP);
+    }
+    
+    const hasSavedGame = !!(saved && saved.phase !== PHASES.SETUP);
+    console.log('Boot check: hasSavedGame:', hasSavedGame, 'saved:', saved);
+    console.log('saved?.phase:', saved?.phase, 'PHASES.SETUP:', PHASES.SETUP);
+    resumeAvailable.value = hasSavedGame;
+    
+    // Also log the current state
+    console.log('Current state.phase:', state.phase);
+    console.log('Current resumeAvailable.value:', resumeAvailable.value);
+    
+    return { hasSavedGame, saved };
+};
+
+// Manual test function for resume
+const testResume = () => {
+    console.log('=== MANUAL RESUME TEST ===');
+    console.log('Current state.phase:', state.phase);
+    console.log('Current isInitialBoot:', isInitialBoot);
+    console.log('Current resumeAvailable.value:', resumeAvailable.value);
+    
+    const result = checkForSavedGames();
+    console.log('Test result:', result);
+    
+    // Check localStorage directly
+    console.log('localStorage keys:', Object.keys(localStorage));
+    console.log('lupus_gm_state_v1:', localStorage.getItem('lupus_gm_state_v1'));
+    
+    if (result.hasSavedGame) {
+        console.log('Found saved game, attempting to resume...');
+        resumeGame();
+    } else {
+        console.log('No saved game found');
+        console.log('This could be because:');
+        console.log('1. No game was ever saved');
+        console.log('2. The saved game was cleared');
+        console.log('3. The saved game is in SETUP phase');
+    }
+};
+
+// Function to manually save a test game state
+const saveTestGame = () => {
+    console.log('=== SAVING TEST GAME ===');
+    const testState = {
+        phase: PHASES.REVEAL,
+        nightNumber: 0,
+        dayNumber: 0,
+        players: [
+            { id: 1, name: 'Test Player 1', roleId: 'wolf', alive: true, roleState: {} },
+            { id: 2, name: 'Test Player 2', roleId: 'villager', alive: true, roleState: {} }
+        ],
+        setup: { numPlayers: 2, players: [], rolesCounts: {}, rolesEnabled: {} },
+        revealIndex: 0,
+        night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
+        settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
+        sindacoId: null,
+        winner: null,
+        lynchedHistory: [],
+        usedPowers: {},
+        eventHistory: { nights: [], days: [] },
+        custom: {},
+        history: {},
+        nightDeathsByNight: {},
+        lynchedHistoryByDay: {}
+    };
+    
+    saveGameState(testState);
+    console.log('Test game saved');
+    
+    // Force a check for saved games
+    setTimeout(() => {
+        checkForSavedGames();
+        console.log('After saving test game - resumeAvailable:', resumeAvailable.value);
+    }, 100);
+};
+
+// Check for saved games after a delay to ensure all watchers are set up
+setTimeout(checkForSavedGames, 100);
+setTimeout(checkForSavedGames, 500);
+setTimeout(checkForSavedGames, 1000);
+
+// Also check after component is mounted
+onMounted(() => {
+    console.log('=== COMPONENT MOUNTED ===');
+    console.log('Current state.phase:', state.phase);
+    console.log('Current isInitialBoot:', isInitialBoot);
+    
+    // Wait a bit more for any async operations to complete
+    setTimeout(() => {
+        console.log('=== FINAL RESUME CHECK AFTER MOUNT ===');
+        checkForSavedGames();
+    }, 200);
+});
 
 function resetAll() {
     // Save current settings before reset
@@ -220,26 +330,56 @@ function resetAll() {
 	}
 	clearSavedGame();
     resumeAvailable.value = false;
+    isInitialBoot = false;
 }
 
 // derive alive groups via engine selectors
 const alivePlayers = computed(() => state.players.filter(p => p.alive));
-const wolvesAlive = computed(() => alivePlayers.value.filter(p => state.roleMeta[p.roleId]?.team === 'lupi'));
-const villagersAlive = computed(() => alivePlayers.value.filter(p => state.roleMeta[p.roleId]?.team !== 'lupi'));
+const wolvesAlive = computed(() => alivePlayers.value.filter(p => p.roleState?.realTeam === 'lupi'));
+const villagersAlive = computed(() => alivePlayers.value.filter(p => p.roleState?.realTeam !== 'lupi'));
 
 // winner computed inside engine flow
 
 function resumeGame() {
+	console.log('resumeGame called');
+	
+	// Debug: check what's in localStorage
+	console.log('localStorage keys:', Object.keys(localStorage));
+	console.log('lupus_gm_state_v1:', localStorage.getItem('lupus_gm_state_v1'));
+	
 	const saved = loadGameState();
+	console.log('saved game state:', saved);
 	if (saved && (saved as any).phase !== PHASES.SETUP) {
-		Object.assign(store.state, saved);
+		console.log('Resuming game from phase:', saved.phase);
+		// Manually update each property to maintain reactivity
+		state.phase = saved.phase;
+		state.nightNumber = saved.nightNumber;
+		state.dayNumber = saved.dayNumber;
+		state.players = saved.players || [];
+		state.setup = saved.setup || { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: {} };
+		state.revealIndex = saved.revealIndex || 0;
+		state.night = saved.night || { turns: [], currentIndex: 0, results: [], context: null, summary: null };
+		state.settings = saved.settings || { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false };
+		state.sindacoId = saved.sindacoId || null;
+		state.winner = saved.winner || null;
+		state.lynchedHistory = saved.lynchedHistory || [];
+		state.usedPowers = saved.usedPowers || {};
+		state.eventHistory = saved.eventHistory || { nights: [], days: [] };
+		state.custom = saved.custom || {};
+		state.history = saved.history || {};
+		state.nightDeathsByNight = saved.nightDeathsByNight || {};
+		state.lynchedHistoryByDay = saved.lynchedHistoryByDay || {};
 		resumeAvailable.value = false;
+		console.log('Game resumed, current state:', state);
+	} else {
+		console.log('No valid saved game found or game is in setup phase');
 	}
 }
 
 function dismissResumeBanner() {
     clearSavedGame();
     resumeAvailable.value = false;
+    isInitialBoot = false;
 }
 
 // Setup helpers
@@ -315,7 +455,7 @@ const currentTurn = computed(() => {
 const currentRole = computed(() => {
 	const entry = currentTurn.value;
 	if (!entry) return null;
-	return state.roleMeta[entry.roleId] || null;
+	return ROLES[entry.roleId] || null;
 });
 
 const currentActor = computed(() => {
@@ -374,7 +514,7 @@ function continueToDay() {
         state.phase = PHASES.END as any;
         return;
     }
-    engineContinueToDay(state as any);
+    engineContinueToDay(state as any, ROLES as any);
 }
 
 function startNextNight() { engineStartNextNight(state as any, ROLES as any); }
@@ -419,22 +559,22 @@ function toggleEventHistory() {
 		<div class="h-px bg-neutral-800/40 mb-6"></div>
 
 		<!-- Resume banner -->
-		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 mb-6">
-			<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-				<div>
-					<div class="font-medium text-neutral-100 text-sm">Riprendere la partita precedente?</div>
-					<div class="text-neutral-400 text-xs">È stata trovata una sessione salvata su questo dispositivo.</div>
+		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 sm:p-4 mb-6 overflow-hidden">
+			<div class="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+				<div class="text-center sm:text-left min-w-0 flex-1">
+					<h3 class="text-base sm:text-lg font-semibold text-neutral-100 mb-1 truncate">Partita in corso</h3>
+					<p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">Hai una partita salvata che puoi riprendere</p>
 				</div>
-				<div class="flex gap-2">
-					<SecondaryButton size="xs" @click="dismissResumeBanner">Chiudi</SecondaryButton>
-					<PrimaryButton size="xs" @click="resumeGame">Riprendi partita</PrimaryButton>
+				<div class="flex gap-1.5 sm:gap-2 w-full sm:w-auto">
+					<button class="btn btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="dismissResumeBanner">Ignora</button>
+					<button class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="resumeGame">Riprendi</button>
 				</div>
 			</div>
 		</div>
 
 		<!-- Setup Phase -->
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center">
-					<!-- Page Navigation -->
+			<!-- Page Navigation -->
 			<div class="grid grid-cols-2 sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
 				<router-link 
 					:to="{ name: 'setup', params: { page: 'home' } }"
@@ -475,7 +615,11 @@ function toggleEventHistory() {
 			</div>
 
 				<!-- Page Content -->
-				<SetupHome v-show="isHome" />
+				<SetupHome v-show="isHome" 
+					@save-test-game="saveTestGame"
+					@test-resume="testResume"
+					@check-saved-games="checkForSavedGames"
+				/>
 				<SetupRoles v-show="isRoles" />
 				<SetupPlayers v-show="isPlayers" />
 				<SetupSettings v-show="isSettings" />
@@ -509,7 +653,7 @@ function toggleEventHistory() {
 							<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
 							<PlayerRoleList 
 								:state="state" 
-								:players="state.players.filter(p => (state.winner === 'matti' ? (state.roleMeta[p.roleId]?.team === 'matti') : (p.alive && state.roleMeta[p.roleId]?.team === state.winner)))" 
+								:players="state.players.filter(p => p.roleState?.realTeam === state.winner)" 
 							/>
 						</div>
 						<div class="text-slate-400">Grazie per aver giocato.</div>

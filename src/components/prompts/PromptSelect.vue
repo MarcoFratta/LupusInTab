@@ -11,6 +11,12 @@ const props = defineProps<{
 	disabled?: boolean;
 }>();
 
+const canSubmit = computed(() => {
+	if (props.disabled) return false;
+	if (props.modelValue === null) return false;
+	return Number.isFinite(Number(props.modelValue)) && Number(props.modelValue) > 0;
+});
+
 const emit = defineEmits<{
 	(e: 'update:modelValue', value: number | null): void;
 	(e: 'confirm'): void;
@@ -42,32 +48,37 @@ function confirm() {
 </script>
 
 <template>
-    <div class="stack">
-        <div class="muted  mb-4">{{ label }}</div>
-		<div class="relative">
-			<select 
-				:disabled="disabled"
-				class="w-full appearance-none rounded-lg border border-neutral-800/60 bg-neutral-900/70 px-2 pr-9 py-2 text-neutral-100 text-sm hover:bg-neutral-900/80 focus:outline-none"
-				:class="accentClasses"
-				@change="onChange"
-				:value="modelValue === null ? 'null' : String(modelValue)"
-			>
-				<option v-if="placeholder" disabled :value="'null'">{{ placeholder }}</option>
-				<option v-for="opt in choices" :key="String(opt.value)" :value="opt.value === null ? 'null' : String(opt.value)">
-					{{ opt.label }}
-				</option>
-			</select>
-			<span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-			</span>
-		</div>
-        <div v-if="buttonText" class="mt-3">
-            <button class="btn btn-primary w-full" :class="{ 'btn-disabled': disabled }" :disabled="disabled" @click="confirm">{{ buttonText }}</button>
-		</div>
-	</div>
-	
+    <div class="stack h-full w-full">
+        <div v-if="label" class="muted mb-1">{{ label }}</div>
+        
+        <div class="relative mb-2">
+            <select 
+                :disabled="disabled"
+                class="w-full appearance-none rounded-lg border border-neutral-800/60 bg-neutral-900/70 px-2 pr-9 py-2 text-neutral-100 text-sm hover:bg-neutral-900/80 focus:outline-none"
+                :class="accentClasses"
+                @change="onChange"
+                :value="modelValue === null ? 'null' : String(modelValue)"
+            >
+                <option v-if="placeholder" disabled :value="'null'">{{ placeholder }}</option>
+                <option v-for="opt in choices" :key="String(opt.value)" :value="opt.value === null ? 'null' : String(opt.value)">
+                    {{ opt.label }}
+                </option>
+            </select>
+            <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </div>
+        
+        <!-- Slot for additional content (e.g., result cards) -->
+        <slot />
+        
+        <!-- Buttons below the slot content -->
+        <div v-if="buttonText" class="mt-2">
+            <button class="btn btn-primary w-full" :class="{ 'btn-disabled': !canSubmit }" :disabled="!canSubmit" @click="confirm">{{ buttonText }}</button>
+        </div>
+    </div>
 </template>
 
 

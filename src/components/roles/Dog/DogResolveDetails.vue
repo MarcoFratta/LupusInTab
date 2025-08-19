@@ -1,44 +1,58 @@
 <script setup>
 import { computed } from 'vue';
-import ComparisonRow from '../../ui/ComparisonRow.vue';
+import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
+import { ROLES } from '../../../roles';
 
 const props = defineProps({
-    gameState: { type: Object, required: true },
-    entry: { type: Object, required: true },
-    player: { type: Object, required: true },
+	gameState: { type: Object, required: true },
+	entry: { type: Object, required: true },
+	player: { type: Object, required: true },
 });
 
-const targetId = Number(props.entry?.result?.targetId);
-const roleId = String(props.entry?.result?.roleId || '');
-const target = Number.isFinite(targetId) ? props.gameState.players.find(p => p.id === targetId) : null;
-const roleName = roleId ? (props.gameState.roleMeta?.[roleId]?.name || roleId) : '';
+const dogEvent = computed(() => {
+    const playerId = props.player?.id;
+    const nightNumber = props.gameState.nightNumber;
+    if (!playerId || !nightNumber) return null;
+    
+    // Access the new night-based history structure (map)
+    const nightEvents = props.gameState.history?.[nightNumber] || {};
+    return nightEvents[playerId] && nightEvents[playerId].type === 'dog_declare' ? nightEvents[playerId] : null;
+});
 
-const playerRole = computed(() => props.player.roleId);
-const playerRoleMeta = computed(() => props.gameState.roleMeta?.[playerRole.value]);
-const targetRoleMeta = computed(() => target ? props.gameState.roleMeta?.[target.roleId] : null);
+const targetId = computed(() => dogEvent.value?.data?.target);
+const target = computed(() => targetId.value ? 
+	props.gameState.players.find((p) => p.id === targetId.value) : null
+);
 
-const hasDeclaration = computed(() => target && roleId);
+const roleId = computed(() => dogEvent.value?.data?.declaredRole);
+const roleName = computed(() => roleId.value ? (ROLES[roleId.value]?.name || roleId.value) : 'N/A');
+const isCorrect = computed(() => dogEvent.value?.data?.correct);
+
+const hasDeclaration = computed(() => target.value && roleId.value);
+
+const centerContent = computed(() => ({
+    action: 'ha dichiarato',
+    declaredRole: {
+        name: roleName.value || 'N/A',
+        color: roleName.value ? (ROLES[roleId.value]?.color || '#9ca3af') : '#9ca3af'
+    },
+    status: {
+        isCorrect: isCorrect.value,
+        text: isCorrect.value ? 'Corretto' : 'Sbagliato'
+    }
+}));
 </script>
 
 <template>
-    <div class="space-y-1 text-sm">
-        <div class="flex items-center gap-2">
-            <template v-if="hasDeclaration">
-                <ComparisonRow
-                    :key="'declare-' + props.player.id + '-' + targetId"
-                    label="dichiarato"
-                    :left-items="[{ 
-                        label: props.player.name, 
-                        color: playerRoleMeta?.color 
-                    }]"
-                    :right-items="[{ 
-                        label: `${target?.name} → ${roleName}`, 
-                        color: targetRoleMeta?.color 
-                    }]"
-                />
-            </template>
-            <span v-else class="text-neutral-400 text-xs">Nessuna dichiarazione</span>
-        </div>
-    </div>
+    <div v-if="!hasDeclaration" class="text-neutral-400 text-center text-xs">Nessuna dichiarazione</div>
+    <RoleComparisonCard
+        v-else
+        :game-state="gameState"
+        :left-player="player"
+        :right-player="target"
+        left-label="Lupo Mannaro"
+        right-label="Bersaglio"
+        :center-content="centerContent"
+    />
 </template>
 

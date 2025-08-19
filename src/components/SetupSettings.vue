@@ -10,6 +10,7 @@ watch(() => state.settings, () => {
   saveSettings({
     skipFirstNightActions: !!state.settings.skipFirstNightActions,
     enableSindaco: !!state.settings.enableSindaco,
+    discussionTimerEnabled: !!state.settings.discussionTimerEnabled,
   });
 }, { deep: true });
 </script>
@@ -30,6 +31,13 @@ watch(() => state.settings, () => {
         <div>
           <div class="text-slate-100 text-sm font-medium">Abilita Sindaco</div>
           <div class="text-slate-400 text-xs">Il voto del sindaco vale doppio durante la votazione quando è in vita.</div>
+        </div>
+      </label>
+      <label class="flex items-start gap-3">
+        <input type="checkbox" v-model="state.settings.discussionTimerEnabled" class="mt-1" />
+        <div>
+          <div class="text-slate-100 text-sm font-medium">Timer discussione (giorno)</div>
+          <div class="text-slate-400 text-xs">Mostra un timer compatto nella fase di linciaggio per la discussione (max 60 minuti).</div>
         </div>
       </label>
     </div>

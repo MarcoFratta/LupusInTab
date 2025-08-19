@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
+import type { GameHistory, Player } from '../types';
 
 export type Phase = 'setup' | 'revealRoles' | 'preNight' | 'night' | 'resolve' | 'day' | 'end';
 
-export interface Player { id: number; name: string; roleId: string; alive: boolean; }
-export interface RoleMeta { id: string; name: string; team: string; visibleAsTeam?: string; phaseOrder: number; usage?: 'unlimited' | 'once' | 'requiredEveryNight'; canTargetDead?: boolean }
+export interface RoleMeta { id: string; name: string; team: string; visibleAsTeam?: string; phaseOrder: number | string; usage?: 'unlimited' | 'once' | 'requiredEveryNight'; canTargetDead?: boolean }
 
 export interface NightTurnSingle { kind: 'single'; roleId: string; playerId: number }
 export interface NightTurnGroup { kind: 'group'; roleId: string; playerIds: number[] }
@@ -24,16 +24,19 @@ export interface GameState {
 	nightNumber: number;
 	dayNumber: number;
 	players: Player[];
-	roleMeta: Record<string, RoleMeta>;
 	setup: { numPlayers: number; players: Array<{ name: string }>; rolesCounts: Record<string, number>; rolesEnabled: Record<string, boolean> };
 	revealIndex: number;
 	night: { turns: NightTurn[]; currentIndex: number; results: any[]; context: any; summary: NightSummary | null };
-	settings: { skipFirstNightActions: boolean; enableSindaco: boolean };
+	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean };
     sindacoId: number | null;
 	winner: string | null;
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
     eventHistory?: EventHistory;
+    custom?: Record<string, any>;
+    history?: GameHistory;
+    nightDeathsByNight?: Record<number, number[]>;
+    lynchedHistoryByDay?: Record<number, number[]>;
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -42,16 +45,17 @@ export const useGameStore = defineStore('game', () => {
 		nightNumber: 0,
 		dayNumber: 0,
 		players: [],
-		roleMeta: {},
-		setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { wolf: true, villager: true, doctor: true, medium: true, lover: false, crazyman: false, justicer: false } },
+		setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false } },
 		revealIndex: 0,
 		night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
-		settings: { skipFirstNightActions: true, enableSindaco: false },
+		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
         sindacoId: null,
 		winner: null,
 		lynchedHistory: [],
 		usedPowers: {},
 		eventHistory: { nights: [], days: [] },
+		nightDeathsByNight: {},
+		lynchedHistoryByDay: {},
 	});
 
 	return { state };

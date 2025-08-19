@@ -9,30 +9,34 @@ const props = defineProps({
 });
 
 const targetId = ref(null);
-const selectable = computed(() => props.gameState.players.filter(p => p.alive && props.gameState.roleMeta[p.roleId]?.team !== 'lupi'));
+const selectable = computed(() => props.gameState.players.filter(p => p.alive && p.roleState?.realTeam !== 'lupi'));
 const choices = computed(() => [
 	{ label: 'Seleziona un giocatore…', value: null },
 	...selectable.value.map((p) => ({ label: p.name, value: p.id }))
 ]);
 
-const canSubmit = computed(() => Number.isFinite(Number(targetId.value)) && Number(targetId.value) > 0);
-
 function submit() {
-	if (!canSubmit.value) return;
 	props.onComplete({ targetId: targetId.value });
 }
 </script>
 
 <template>
-    <PromptSelect
-        label="Lupi, scegliete una vittima"
-		v-model="targetId"
-		:choices="choices"
-        buttonText="Conferma"
-		accent="red"
-		:disabled="!canSubmit && choices.length === 0"
-		@confirm="submit"
-	/>
+    <div class="space-y-4">
+        <div class="text-center">
+            <h3 class="text-lg font-semibold text-neutral-100">Lupi</h3>
+            <p class="text-neutral-400 text-sm">Scegliete una vittima da eliminare questa notte</p>
+        </div>
+        
+        <PromptSelect
+            label="Chi vuoi eliminare?"
+            v-model="targetId"
+            :choices="choices"
+            buttonText="Conferma selezione"
+            accent="red"
+            :disabled="choices.length === 0"
+            @confirm="submit"
+        />
+    </div>
 </template>
 
 

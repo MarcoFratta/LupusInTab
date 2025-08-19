@@ -2,69 +2,88 @@
 import { computed, ref } from 'vue';
 import RoleRevealCard from './RoleRevealCard.vue';
 import { nextReveal as engineNextReveal } from '../core/engine';
+import { getFactionConfig } from '../factions';
+import FactionLabel from './ui/FactionLabel.vue';
+import { ROLES } from '../roles';
 
 const props = defineProps<{ state: any, onStartNight: () => void }>();
 
-// Team mapping for display
-const teamMapping = {
-  'lupi': 'Lupi',
-  'village': 'Villaggio', 
-  'matti': 'Folle',
-  'mannari': 'Mannari'
-};
-
 const showIntro = ref(true);
 const showPreNightInfo = ref(false);
+const showRoleReveal = ref(false);
 
 const currentPlayer = computed(() => props.state.players[props.state.revealIndex]);
-const currentRoleMeta = computed(() => props.state.roleMeta[currentPlayer.value.roleId]);
+const currentRoleDef = computed(() => ROLES[currentPlayer.value?.roleId]);
 
-// Players to show as known allies to wolves etc.
-const knownAllies = computed(() => {
-  const roleMeta = currentRoleMeta.value;
-  if (!roleMeta) return [] as any[];
+// Players to show as known team allies to the current player
+const knownTeamAllies = computed(() => {
+  const me = currentPlayer.value;
+  const myRoleDef = currentRoleDef.value;
+  if (!myRoleDef) return [] as any[];
   const allPlayers = props.state.players as Array<any>;
-  const revealToTeams: string[] = (props.state.roleMeta[roleMeta.id]?.knownToTeams || []) as any;
-  // If any of the current player's teams are in revealToTeams, show players whose roles have knownToTeams including that team
-  // Simpler rule: If current player's team is in another role's knownToTeams, show those players to current player
-  const players = allPlayers.filter(p => {
-    if (p.id === currentPlayer.value.id) return false;
-    const rm = props.state.roleMeta[p.roleId];
-    if (!rm) return false;
-    // Show wolves to wolves unless the current role disables intra-team ally reveal
-    if (rm.team === roleMeta.team && roleMeta.team === 'lupi' && (roleMeta.revealAlliesWithinTeam !== false)) return true;
-    const kt = rm.knownToTeams as string[] | undefined;
-    return Array.isArray(kt) && kt.includes(roleMeta.team);
-  });
-  // Map with label based on role's reveal policy
-  return players.map(p => {
-    const rm = props.state.roleMeta[p.roleId];
-    const showMode = rm.revealToAllies || 'team';
-    const labelText = showMode === 'role' ? rm.name : (teamMapping[rm.team] || rm.team);
-    return { id: p.id, name: p.name, labelText, team: rm.team, color: rm.color };
-  });
+  const result: any[] = [];
+
+  for (const p of allPlayers) {
+    if (p.id === me.id) continue;
+    const otherRoleDef = ROLES[p.roleId];
+    if (!otherRoleDef) continue;
+    let visible = false;
+    
+    // Role-targeted visibility: only show roles that explicitly know the current player
+    // This creates one-way visibility: if Role A knows Role B, only Role B sees Role A
+    const otherKnowsMe = Array.isArray(otherRoleDef.knownTo) && otherRoleDef.knownTo.includes(myRoleDef.id);
+    if (otherKnowsMe) visible = true;
+
+    if (visible) {
+      const showMode = otherRoleDef.revealToAllies || 'team';
+      const labelText = showMode === 'role' ? otherRoleDef.name : (getFactionConfig(otherRoleDef.team)?.displayName || otherRoleDef.team);
+      result.push({ 
+        id: p.id, 
+        name: p.name, 
+        labelText, 
+        team: otherRoleDef.team
+      });
+    }
+  }
+  return result;
 });
 
-// Partners to show (e.g., Lovers). If the current player has a role that lists revealPartnersRoleIds, show others with those roles
-const partnerPlayers = computed(() => {
-  const roleMeta = currentRoleMeta.value;
-  if (!roleMeta) return [] as any[];
-  const ids: string[] = (roleMeta.revealPartnersRoleIds || []) as any;
-  if (!ids.length) return [] as any[];
-  const players = (props.state.players as Array<any>).filter(p => p.id !== currentPlayer.value.id && ids.includes(props.state.roleMeta[p.roleId]?.id));
-  return players.map(p => {
-    const rm = props.state.roleMeta[p.roleId];
-    const showMode = roleMeta.revealToPartners || 'team';
-    const labelText = showMode === 'role' ? rm.name : rm.team.toUpperCase();
-    return { id: p.id, name: p.name, labelText, team: rm.team, color: rm.color };
-  });
+// Players to show as allies with the same role to the current player
+const knownRoleAllies = computed(() => {
+  const me = currentPlayer.value;
+  const myRoleDef = currentRoleDef.value;
+  if (!myRoleDef || !myRoleDef.revealAlliesWithinRole) return [] as any[];
+  const allPlayers = props.state.players as Array<any>;
+  const result: any[] = [];
+
+  for (const p of allPlayers) {
+    if (p.id === me.id) continue;
+    const otherRoleDef = ROLES[p.roleId];
+    if (!otherRoleDef) continue;
+    
+    // Same-role visibility: show if same role and role opts-in
+    if (otherRoleDef.id === myRoleDef.id) {
+      // For allies with the same role, always show the role name
+      const labelText = otherRoleDef.name;
+      result.push({ 
+        id: p.id, 
+        name: p.name, 
+        labelText, 
+        team: otherRoleDef.team
+      });
+    }
+  }
+  return result;
 });
+
+
 
 function continueFromIntro() {
   showIntro.value = false;
 }
 
 function nextReveal() {
+  showRoleReveal.value = false; // Hide role, show next player
   engineNextReveal(props.state, () => {
     // At the end of reveal sequence, show a safety info screen before starting Night 1
     showPreNightInfo.value = true;
@@ -95,52 +114,65 @@ function startNight() {
     <div v-else-if="showPreNightInfo" class="bg-white/5 border border-white/10 rounded-lg p-6 text-left space-y-3">
       <div class="text-slate-100 text-sm font-medium">Prima che inizi la Notte</div>
       <div class="text-slate-400 text-sm">
-        Riporta il dispositivo al moderatore. Premi "Inizia Notte" per continuare. Evita che l’ultimo giocatore veda i lupi per errore.
+        Riporta il dispositivo al narratore. Premi "Inizia Notte" per continuare.
       </div>
       <div class="flex justify-end pt-1">
         <button class="btn btn-primary" @click="startNight">Inizia Notte</button>
       </div>
     </div>
 
-    <!-- Reveal card for current player -->
+    <!-- Reveal flow for current player -->
     <template v-else>
-      <div class="bg-white/5 border border-white/10 rounded-lg p-6 text-center space-y-1">
-        <div class="text-slate-400 text-sm">Passa il telefono a</div>
-        <div class="text-2xl font-bold text-slate-100">{{ currentPlayer.name }}</div>
+      <!-- Step 1: Show who to pass phone to -->
+      <div v-if="!showRoleReveal" class="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-8 text-center">
+        <div class="text-slate-300 text-lg mb-3">Passa il telefono a</div>
+        <div class="text-3xl font-bold text-slate-100 mb-6">{{ currentPlayer.name }}</div>
+        <button 
+          class="btn btn-primary text-lg px-8 py-3 rounded-xl"
+          @click="showRoleReveal = true"
+        >
+          Rivela Ruolo
+        </button>
       </div>
-      <div class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
-        <RoleRevealCard :player="currentPlayer" :roleMeta="props.state.roleMeta[currentPlayer.roleId]" @next="nextReveal">
-          <template>
-            <!-- Known to wolves / allies (confidential) -->
-            <div v-if="knownAllies.length" class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3 text-left">
-              <div class="text-slate-100 text-sm font-medium mb-1">Alleati conosciuti</div>
-              <div class="text-slate-400 text-xs">Questi giocatori sono noti alla tua fazione.</div>
-              <div class="mt-2 flex flex-col gap-1">
-                <div v-for="p in knownAllies" :key="p.id" class="flex items-center justify-between gap-2 px-2 py-1 rounded text-xs font-medium border border-neutral-700/50 bg-neutral-800/50 text-neutral-200 text-left">
-                  <span class="truncate">{{ p.name }}</span>
-                  <span class="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold border"
-                        :style="{ background: (p.color || '#6b7280') + '22', color: p.color || '#e5e7eb' }">
-                    {{ p.labelText }}
-                  </span>
+
+      <!-- Step 2: Show role and allies -->
+      <div v-else class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3">
+        <RoleRevealCard :player="currentPlayer" :roleDef="currentRoleDef" @next="nextReveal">
+          <!-- Unified allies section -->
+          <div v-if="knownRoleAllies.length || knownTeamAllies.length" class="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div class="text-slate-100 text-lg font-semibold mb-6 text-center">I tuoi alleati</div>
+            
+            <!-- Same role allies -->
+            <div v-if="knownRoleAllies.length" class="mb-6 last:mb-0">
+              <div class="text-slate-300 text-sm font-medium mb-3 flex items-center gap-2">
+                <div class="w-1 h-4 rounded-full bg-slate-400"></div>
+                Vi conoscete a vicenda ({{ knownRoleAllies.length }})
+              </div>
+              <div class="space-y-2">
+                <div v-for="p in knownRoleAllies" :key="p.id" class="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
+                  <span class="text-slate-100 font-medium">{{ p.name }}</span>
+                  <FactionLabel :team="p.team" :labelText="p.labelText" />
                 </div>
               </div>
             </div>
 
-            <!-- Partners (e.g., Lovers) (confidential) -->
-            <div v-if="partnerPlayers.length" class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3 text-left">
-              <div class="text-slate-100 text-sm font-medium mb-1">Partner</div>
-              <div class="text-slate-400 text-xs">Sei collegato con:</div>
-              <div class="mt-2 flex flex-col gap-1">
-                <div v-for="p in partnerPlayers" :key="p.id" class="flex items-center justify-between gap-2 px-2 py-1 rounded text-xs font-medium border border-neutral-700/50 bg-neutral-800/50 text-neutral-200 text-left">
-                  <span class="truncate">{{ p.name }}</span>
-                  <span class="inline-flex items-center rounded px-2 py-0.5 text-[10px] font-semibold border"
-                        :style="{ background: (p.color || '#6b7280') + '22', color: p.color || '#e5e7eb' }">
-                    {{ p.labelText }}
-                  </span>
+            <!-- Known allies -->
+            <div v-if="knownTeamAllies.length">
+              <div class="text-slate-300 text-sm font-medium mb-3 flex items-center gap-2">
+                <div class="w-1 h-4 rounded-full bg-slate-400"></div>
+                Tu conosci loro ({{ knownTeamAllies.length }})
+              </div>
+              <div class="space-y-2">
+                <div v-for="p in knownTeamAllies" :key="p.id" class="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
+                  <span class="text-slate-100 font-medium">{{ p.name }}</span>
+                  <FactionLabel :team="p.team" :labelText="p.labelText" />
                 </div>
               </div>
             </div>
-          </template>
+          </div>
+
+
+
         </RoleRevealCard>
       </div>
     </template>

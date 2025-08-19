@@ -3,11 +3,14 @@ import { computed, ref } from 'vue';
 import PromptSelect from './PromptSelect.vue';
 import PromptSelectString from './PromptSelectString.vue';
 import SkipConfirmButtons from '../ui/SkipConfirmButtons.vue';
+import PrimaryButton from '../ui/PrimaryButton.vue';
+import { ROLES } from '../../roles';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
     player: { type: Object, required: true },
     onComplete: { type: Function, required: true },
+    skippable: { type: Boolean, default: true },
 });
 
 const targetId = ref(null);
@@ -21,18 +24,15 @@ const aliveChoices = computed(() => [
 ]);
 
 const roleChoices = computed(() => {
-    const meta = props.gameState.roleMeta || {};
-    // Get only role IDs that are actually assigned to players in the current game
     const playersInGame = props.gameState.players || [];
-    const rolesInGame = [...new Set(playersInGame.map(p => p.roleId))]; // Remove duplicates
+    const rolesInGame = [...new Set(playersInGame.map(p => p.roleId))];
     
-    // Exclude the current player's role (LupoMannaro cannot declare himself)
     const availableRoles = rolesInGame.filter(roleId => roleId !== props.player.roleId);
     
     return [
         { label: 'Ruolo…', value: null }, 
         ...availableRoles.map((roleId) => ({ 
-            label: meta[roleId]?.name || roleId, 
+            label: ROLES[roleId]?.name || roleId, 
             value: roleId 
         }))
     ];
@@ -52,16 +52,34 @@ function skip() {
 
 <template>
     <div class="space-y-3">
-        <div class="grid grid-cols-[1fr_auto_1fr] gap-3 items-end">
-            <PromptSelect label="Giocatore bersaglio" v-model="targetId" :choices="aliveChoices" buttonText="" />
-            <div class="text-neutral-400 text-sm">→</div>
-            <PromptSelectString label="Ruolo" v-model="roleId" :choices="roleChoices" buttonText="" />
+        <div class="grid grid-cols-[1fr_auto_1fr] items-start gap-x-2 gap-y-1">
+            <div class="muted">Giocatore</div>
+            <div></div>
+            <div class="muted">Ruolo</div>
+            <div class="h-full flex items-center w-full">
+                <PromptSelect :label="''" v-model="targetId" :choices="aliveChoices" buttonText="" />
+            </div>
+            <div class="h-full flex items-center justify-center text-neutral-400 text-base leading-none">→</div>
+            <div class="h-full flex items-center w-full">
+                <PromptSelectString :label="''" v-model="roleId" :choices="roleChoices" buttonText="" />
+            </div>
         </div>
+        
         <SkipConfirmButtons
+            v-if="skippable"
             :confirm-disabled="!canSubmit"
             @confirm="submit"
             @skip="skip"
         />
+        
+        <PrimaryButton
+            v-else
+            :disabled="!canSubmit"
+            @click="submit"
+            class="w-full"
+        >
+            Conferma
+        </PrimaryButton>
     </div>
 </template>
 

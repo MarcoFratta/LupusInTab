@@ -4,21 +4,21 @@ const crazyman: RoleDef = {
     id: 'crazyman',
     name: 'Matto',
     team: 'matti',
-    visibleAsTeam: 'village',
-    description: 'Vinci da solo se il villaggio ti lincia. Agli altri appari come un Villico.',
-    color: '#a855f7',
-    phaseOrder: 97,
+    visibleAsTeam: 'matti',
+    countAs: 'matti',
+    description: 'Vinci se vieni linciato. Nessuna azione notturna.',
+    color: '#f59e0b',
+    phaseOrder: "any",
     group: false,
-    actsAtNight: false,
+    actsAtNight: "never",
     usage: 'unlimited',
-    minCount: 1,
     maxCount: 1,
-    getPromptComponent() {
-        // No night action for Crazyman
-        return () => Promise.resolve(() => null as any);
-    },
+
     resolve() {},
-    // Crazyman win is handled at lynch time because they are dead when winning
+    checkWin(gameState: any) {
+        // Crazyman wins if lynched (handled in engine.lynchPlayer)
+        return false;
+    },
 };
 
 export default crazyman;

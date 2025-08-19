@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useGameStore } from '../stores/game';
 import { ROLE_LIST } from '../roles/index';
+import { FACTIONS } from '../factions';
 import { setRoleEnabled as engineSetRoleEnabled, normalizeRoleCounts as engineNormalizeRoleCounts } from '../core/engine';
 
 const store = useGameStore();
@@ -23,34 +24,14 @@ const rolesByFaction = computed(() => {
   });
   
   // Define faction order for consistent display
-  const factionOrder = ['village', 'lupi', 'mannari', 'matti'];
+  const factionOrder = ['villaggio', 'lupi', 'mannari', 'matti'];
   
   return factionOrder.map(factionName => ({
     name: factionName,
-    displayName: getFactionDisplayName(factionName),
+    config: FACTIONS[factionName],
     roles: groups[factionName] || []
   })).filter(group => group.roles.length > 0);
 });
-
-function getFactionDisplayName(faction: string): string {
-  const factionNames: Record<string, string> = {
-    'village': 'Villaggio',
-    'lupi': 'Lupi',
-    'mannari': 'Mannari', 
-    'matti': 'Matti'
-  };
-  return factionNames[faction] || faction;
-}
-
-function getFactionColor(faction: string): string {
-  const factionColors: Record<string, string> = {
-    'village': 'text-emerald-400',
-    'lupi': 'text-red-400',
-    'mannari': 'text-indigo-400',
-    'matti': 'text-violet-400'
-  };
-  return factionColors[faction] || 'text-neutral-400';
-}
 
 function toggleRole(roleId: string): void {
   // Villager and Wolf cannot be disabled
@@ -64,25 +45,9 @@ function isEnabled(roleId: string): boolean {
   return state.setup.rolesEnabled?.[roleId] ?? true;
 }
 
-function roleTeamClass(team: string): string {
-  // Use a subtle ring only; avoid coloring the whole card to prevent clashes with role color name
-  if (team === 'lupi') return 'ring-red-500/40';
-  if (team === 'matti') return 'ring-violet-500/40';
-  if (team === 'mannari') return 'ring-indigo-500/40';
-  return 'ring-emerald-500/40';
-}
-
-function rolePillTeamClass(team: string): string {
-  if (team === 'lupi') return 'bg-red-500/20 text-red-400';
-  if (team === 'matti') return 'bg-violet-500/20 text-violet-400';
-  if (team === 'mannari') return 'bg-indigo-500/20 text-indigo-400';
-  return 'bg-emerald-500/20 text-emerald-400';
-}
-
 function openRoleDetails(roleId: string): void {
   router.push({ name: 'role-details', query: { role: roleId } });
 }
-
 </script>
 
 <template>
@@ -99,9 +64,9 @@ function openRoleDetails(roleId: string): void {
         <!-- Faction header -->
         <div class="flex items-center gap-3">
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full" :class="getFactionColor(faction.name).replace('text-', 'bg-')"></div>
-            <h4 class="text-base font-semibold" :class="getFactionColor(faction.name)">
-              {{ faction.displayName }}
+            <div class="w-3 h-3 rounded-full" :class="faction.config.ringColor.replace('ring-', 'bg-').replace('/40', '')"></div>
+            <h4 class="text-base font-semibold" :style="{ color: faction.config.color }">
+              {{ faction.config.displayName }}
             </h4>
           </div>
           <div class="flex-1 h-px bg-neutral-800/50"></div>
@@ -114,17 +79,12 @@ function openRoleDetails(roleId: string): void {
             v-for="role in faction.roles"
             :key="role.id"
             class="relative rounded-xl border border-neutral-800/40 p-4 transition-all ring-1 ring-inset bg-neutral-900/50 overflow-hidden"
-            :class="[roleTeamClass(role.team), isEnabled(role.id) ? 'opacity-100' : 'opacity-60 grayscale']"
+            :class="[faction.config.ringColor, isEnabled(role.id) ? 'opacity-100' : 'opacity-60 grayscale']"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap md:flex-nowrap min-w-0 md:items-start">
-                  <span class="text-sm font-semibold truncate min-w-0 flex-1 md:text-left" :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</span>
-                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-medium shrink-0"
-                        :class="rolePillTeamClass(role.team)">
-                    <span class="w-1 h-1 rounded-full bg-current"></span>
-                    {{ role.team === 'lupi' ? 'Lupo' : (role.team === 'matti' ? 'Folle' : (role.team === 'mannari' ? 'Mannari' : 'Villaggio')) }}
-                  </span>
+                  <span class="text-sm font-semibold truncate min-w-0" :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</span>
                 </div>
                 <div class="mt-1 text-xs text-neutral-400 line-clamp-2 text-left">{{ role.description }}</div>
                 <div v-if="role.id === 'wolf' || role.id === 'villager'" class="mt-2 text-[10px] text-neutral-400 text-left">Sempre abilitato</div>

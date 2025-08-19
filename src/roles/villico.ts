@@ -4,17 +4,15 @@ import { useWinConditions } from '../utils/winConditions';
 const villager: RoleDef = {
     id: 'villager',
     name: 'Villico',
-    team: 'village',
-    visibleAsTeam: 'village',
-    description: 'Nessun potere notturno. Aiuta il villaggio a scoprire i lupi.',
-    color: '#22c55e',
-    phaseOrder: 99,
+    team: 'villaggio',
+    visibleAsTeam: 'villaggio',
+    countAs: 'villaggio',
+    description: 'Un semplice abitante del villaggio. Nessuna azione notturna.',
+    color: '#6b7280',
+    phaseOrder: "any",
     group: false,
-    actsAtNight: false, // ensure auto-skip at night
+    actsAtNight: "never",
     usage: 'unlimited',
-    minCount: 1,
-    maxCount: (state:any) => state?.setup?.numPlayers || 0,
-    // No prompt component to enforce auto-skip
     getPromptComponent() {
         return () => Promise.resolve(() => null as any);
     },

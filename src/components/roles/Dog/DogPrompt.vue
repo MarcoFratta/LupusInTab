@@ -9,7 +9,8 @@ const props = defineProps({
 </script>
 
 <template>
-    <PromptDeclare 
+    <PromptDeclare
+        :skippable="false"
         :gameState="props.gameState" 
         :player="props.player" 
         :onComplete="props.onComplete" 

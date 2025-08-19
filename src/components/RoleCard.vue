@@ -1,63 +1,82 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { RoleDef } from '../types';
-import { getFaction } from '../factions';
 import { hexToRgba } from '../utils/color';
+import { getFactionConfig } from '../factions';
 
 const props = defineProps<{
   role: RoleDef;
   count: number;
   maxCount: number;
+  minCount?: number;
   onCountChange: (newCount: number) => void;
 }>();
 
-const roleColors = {
-  lupi: 'role-wolf',
-  village: 'role-village'
-};
-
-const roleColor = computed(() => roleColors[(props.role.team as 'lupi'|'village')] || 'role-village');
-
 function incrementCount() {
+  const min = Math.max(0, Number(props.minCount || 0));
+  if (props.count === 0 && min > 0) {
+    if (min <= props.maxCount) props.onCountChange(min);
+    return;
+  }
   if (props.count < props.maxCount) {
     props.onCountChange(props.count + 1);
   }
 }
 
 function decrementCount() {
-  const min = props.role.id === 'lover' ? 2 : (props.role.id === 'villager' ? 0 : (props.role.team === 'lupi' ? 1 : 1));
-  if (props.count > min) {
+  const min = Math.max(0, Number(props.minCount || 0));
+  if (min > 0 && props.count === min) {
+    // Cannot go below minimum count for roles that require it
+    return;
+  }
+  if (props.count > 0) {
     props.onCountChange(props.count - 1);
   }
 }
 
 function handleInputChange(event: Event) {
   const target = event.target as HTMLInputElement;
-  const min = props.role.id === 'lover' ? 2 : (props.role.id === 'villager' ? 0 : (props.role.team === 'lupi' ? 1 : 1));
-  const newCount = Math.max(min, Math.min(props.maxCount, parseInt(target.value) || 0));
-  props.onCountChange(newCount);
+  const min = Math.max(0, Number(props.minCount || 0));
+  let raw = parseInt(target.value);
+  if (!Number.isFinite(raw)) raw = 0;
+  
+  // If role has minCount > 0, cannot set to 0
+  if (raw === 0 && min > 0) {
+    props.onCountChange(min);
+    return;
+  }
+  
+  if (raw === 0) {
+    props.onCountChange(0);
+    return;
+  }
+  
+  const clamped = Math.max(min, Math.min(props.maxCount, raw));
+  props.onCountChange(clamped);
 }
 </script>
 
 <template>
   <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-2 sm:p-3 hover:bg-neutral-900/80 transition-colors"
-       :style="{ borderColor: hexToRgba(getFaction(role.team).color, 0.3) || undefined }">
+       :style="{ borderColor: hexToRgba(getFactionConfig(role.team)?.color || '#9ca3af', 0.3) || undefined }">
     <div class="space-y-1">
-      <!-- Role info and selector -->
-      <div class="flex justify-between gap-2 sm:gap-2">
-        <div class="min-w-0 flex-1 flex items-center gap-2 md:flex-col md:items-start">
-          <h3 class="text-sm font-semibold text-neutral-100 leading-tight truncate text-left md:order-1">{{ role.name }}</h3>
-          <span class="inline-flex w-max items-center gap-1 rounded text-[10px] sm:text-[10px] font-medium px-1.5 py-0.5 md:order-2 md:self-start"
-                :style="{ backgroundColor: hexToRgba(getFaction(role.team).color, 0.2) || undefined, color: getFaction(role.team).color }">
-            <span class="w-1 h-1 rounded-full bg-current"></span>
-            {{ getFaction(role.team).name }}
-          </span>
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0 flex-1 flex flex-col gap-1">
+          <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-2">
+            <h3 class="text-sm font-semibold leading-tight truncate text-left md:order-1"
+                :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</h3>
+            <span class="inline-flex w-max items-center gap-1.5 rounded text-[10px] sm:text-[10px] font-medium px-1.5 py-0.5 md:order-2 md:self-start"
+                 :style="{ backgroundColor: hexToRgba(getFactionConfig(role.team)?.color || '#9ca3af', 0.2) || undefined, color: getFactionConfig(role.team)?.color || '#9ca3af' }">
+              <span class="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span>
+              <span class="leading-none">{{ getFactionConfig(role.team)?.displayName || role.team }}</span>
+            </span>
+          </div>
         </div>
         <div class="shrink-0 self-center flex items-center gap-1 sm:gap-1">
           <button
             type="button"
-            class="w-5 h-5 sm:w-5 sm:h-5 rounded border border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center transition-colors hover:bg-neutral-700/60 hover:text-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
-            :disabled="count <= 0"
+            class="w-5 h-5 sm:w-5 sm:w-5 rounded border border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center transition-colors hover:bg-neutral-700/60 hover:text-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed"
+            :disabled="count <= (minCount || 0)"
             @click="decrementCount"
           >
             <svg width="8" height="8" class="sm:w-2.5 sm:h-2.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -67,7 +86,7 @@ function handleInputChange(event: Event) {
           <input
             type="number"
             :value="count"
-            :min="0"
+            :min="minCount || 0"
             :max="maxCount"
             class="w-8 sm:w-8 h-5 sm:h-5 px-1 py-0 text-center bg-neutral-800/60 border border-neutral-800/50 rounded text-neutral-100 text-xs leading-none focus:outline-none focus:ring-1 focus:ring-neutral-400/40 focus:border-neutral-500/40 appearance-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             @input="handleInputChange"
@@ -85,7 +104,6 @@ function handleInputChange(event: Event) {
         </div>
       </div>
 
-      <!-- Row 2 removed to reduce card height -->
     </div>
   </div>
 </template>

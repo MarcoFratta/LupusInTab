@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps<{
   state: any;
@@ -17,6 +17,108 @@ const hasSindaco = computed(() => typeof props.state.sindacoId === 'number' && p
 const needsSindacoElection = computed(() => isFirstDay.value && sindacoEnabled.value && !hasSindaco.value);
 const isFirstDaySkipped = computed(() => !!props.state.settings?.skipFirstNightActions && isFirstDay.value);
 const showSkipCard = computed(() => isFirstDaySkipped.value && !needsSindacoElection.value);
+
+// Discussion timer settings (enabled via state.settings.discussionTimerEnabled)
+const discussionEnabled = computed(() => !!props.state.settings?.discussionTimerEnabled);
+const discussionSeconds = ref<number>(0);
+// Planned time in seconds (edited via +/- by 30s)
+const plannedSeconds = ref<number>(0);
+const timerInput = ref<string>('');
+const ticking = ref<boolean>(false);
+let intervalId: any = null;
+
+// Default = 30 seconds per alive player, capped to 60 minutes, rounded up to whole minutes
+const defaultMinutes = computed(() => {
+  const players = (props.state?.players || []).filter((p: any) => p.alive).length || 0;
+  const totalSeconds = players * 30;
+  const minutes = Math.ceil(totalSeconds / 60);
+  return Math.min(60, Math.max(0, minutes));
+});
+
+function parseMinutesToSeconds(input: string): number {
+  const str = String(input || '').trim();
+  let m = 0; let s = 0;
+  if (str.includes(':')) {
+    const [mStr, sStr] = str.split(':');
+    m = Math.max(0, Math.floor(Number(mStr) || 0));
+    s = Math.max(0, Math.floor(Number(sStr) || 0));
+  } else {
+    m = Math.max(0, Math.floor(Number(str) || 0));
+    s = 0;
+  }
+  m += Math.floor(s / 60);
+  s = s % 60;
+  if (m > 60) { m = 60; s = 0; }
+  if (m === 60) s = 0;
+  return m * 60 + s;
+}
+
+const mmss = computed(() => {
+  const s = Math.max(0, discussionSeconds.value);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+});
+
+const displayValue = computed(() => ticking.value ? mmss.value : (timerInput.value || ''));
+
+// When entering day or enabling the timer, prefill the input if empty or if day changed
+watch(
+  () => [props.state.dayNumber, discussionEnabled.value],
+  () => {
+    if (!discussionEnabled.value) return;
+    // Reset planned time to default on new day or when enabling
+    plannedSeconds.value = Math.max(0, Math.min(60, defaultMinutes.value)) * 60;
+    timerInput.value = `${String(defaultMinutes.value).padStart(2,'0')}:00`;
+    discussionSeconds.value = 0;
+    ticking.value = false;
+    clearInterval(intervalId);
+  },
+  { immediate: true }
+);
+
+function startDiscussionTimer() {
+  if (ticking.value) return;
+  // Start from plannedSeconds
+  discussionSeconds.value = Math.max(0, Math.min(plannedSeconds.value, 60 * 60));
+  if (discussionSeconds.value <= 0) return;
+  ticking.value = true;
+  clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    if (discussionSeconds.value > 0) {
+      discussionSeconds.value -= 1;
+    }
+    if (discussionSeconds.value <= 0) {
+      clearInterval(intervalId);
+      ticking.value = false;
+    }
+  }, 1000);
+}
+
+function stopDiscussionTimer() {
+  ticking.value = false;
+  clearInterval(intervalId);
+}
+
+function onTimerInput(e: any) {
+  if (ticking.value) return;
+  const raw = String(e?.target?.value ?? '');
+  // normalize to mm:ss as user types
+  const secs = parseMinutesToSeconds(raw);
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  timerInput.value = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function increasePlanned() {
+  if (ticking.value) return;
+  plannedSeconds.value = Math.min(60 * 60, plannedSeconds.value + 30);
+}
+
+function decreasePlanned() {
+  if (ticking.value) return;
+  plannedSeconds.value = Math.max(0, plannedSeconds.value - 30);
+}
 
 function confirmLynch() {
   if (selectedId.value == null) return;
@@ -68,6 +170,33 @@ function confirmSindaco() {
     <!-- Regular lynch voting (or first day lynch if not skipped) -->
     <div v-else class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3 text-left">
       <div class="text-slate-300 text-sm">Seleziona il giocatore con più voti da linciare.</div>
+
+      <!-- Compact discussion timer (if enabled) -->
+      <div v-if="discussionEnabled" class="rounded-md border border-neutral-700/60 bg-neutral-900/50 p-3">
+        <div class="text-xs text-neutral-400">Timer discussione</div>
+        <div class="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
+          <div class="flex items-center gap-2 sm:gap-1 justify-center sm:justify-start">
+            <button class="w-9 h-9 rounded border border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center"
+                    :class="{ 'btn-disabled': ticking || plannedSeconds <= 0 }"
+                    :disabled="ticking || plannedSeconds <= 0"
+                    @click="decreasePlanned">−</button>
+            <div class="w-28 h-9 px-2 rounded bg-neutral-800/60 border text-neutral-100 text-sm font-mono tracking-widest flex items-center justify-center"
+                 :class="ticking ? 'border-emerald-500/50' : 'border-neutral-700/60'">
+              {{ ticking ? mmss : (plannedSeconds > 0 ? `${String(Math.floor(plannedSeconds/60)).padStart(2,'0')}:${String(plannedSeconds%60).padStart(2,'0')}` : '00:00') }}
+            </div>
+            <button class="w-9 h-9 rounded border border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center"
+                    :class="{ 'btn-disabled': ticking || plannedSeconds >= 60*60 }"
+                    :disabled="ticking || plannedSeconds >= 60*60"
+                    @click="increasePlanned">+</button>
+          </div>
+          <div class="flex items-center gap-2 sm:ml-auto">
+            <button class="btn btn-secondary h-9 w-full sm:w-auto" :class="{ 'btn-disabled': !ticking }" :disabled="!ticking" @click="stopDiscussionTimer">Stop</button>
+            <button class="btn btn-primary h-9 w-full sm:w-auto" :class="{ 'btn-disabled': ticking || plannedSeconds <= 0 }"
+                    :disabled="ticking || plannedSeconds <= 0" @click="startDiscussionTimer">Avvia</button>
+          </div>
+        </div>
+        
+      </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <label v-for="p in alivePlayers" :key="p.id" class="flex items-center justify-between gap-3 px-3 py-2 rounded-md border border-neutral-700/60 bg-neutral-900/50 text-neutral-200 cursor-pointer">

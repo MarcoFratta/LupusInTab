@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     { path: '/', redirect: '/setup/home' },
@@ -8,7 +8,7 @@ const routes = [
 ];
 
 export const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes,
     // Add scroll behavior to automatically scroll to top on route changes
     scrollBehavior(to: any, from: any, savedPosition: any) {

@@ -1,3 +1,18 @@
+## [1.2.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.2.0...v1.2.1) (2025-08-20)
+
+
+### Bug Fixes
+
+* release apk ([cee3283](https://github.com/MarcoFratta/LupusInTab/commit/cee32830f3809a9e0feb08338b09ed22e775231e))
+* Update .releaserc.json ([e6c2625](https://github.com/MarcoFratta/LupusInTab/commit/e6c26251df045360eec616996d1ec67dd938d53a))
+* Update .releaserc.json ([e6576d4](https://github.com/MarcoFratta/LupusInTab/commit/e6576d4df43250f3a67f308429fd37180393c2bd))
+* Update .releaserc.json ([2f5e48c](https://github.com/MarcoFratta/LupusInTab/commit/2f5e48cc4a24f9964f9304a8aa0b7e0c51231191))
+* update build-mobile.yml ([2810a66](https://github.com/MarcoFratta/LupusInTab/commit/2810a66a99ea0ef07ceaeaa1909f2b3cc7c5bac7))
+* Update build-mobile.yml ([d987c07](https://github.com/MarcoFratta/LupusInTab/commit/d987c07b20f469a7b8f19fdecfc783057506c397))
+* Update build-mobile.yml ([98bac47](https://github.com/MarcoFratta/LupusInTab/commit/98bac473f0e6649492726d8f0ae338f65358fb2b))
+* Update build-mobile.yml ([3fd5d4b](https://github.com/MarcoFratta/LupusInTab/commit/3fd5d4b1364b80e1297c50806fae86b9fb187975))
+* Update build-mobile.yml ([2a7ddce](https://github.com/MarcoFratta/LupusInTab/commit/2a7ddcedf0f6b17cae74be4daa2e7897e786c0c8))
+
 # [1.2.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.1.4...v1.2.0) (2025-08-20)
 
 

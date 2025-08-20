@@ -5,8 +5,29 @@
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
     "@semantic-release/npm",
-    "@semantic-release/git",
-    "@semantic-release/github"
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "echo 'Preparing release assets...'",
+        "publishCmd": "echo 'Release assets prepared'"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "android/app/build/outputs/apk/release/app-release.apk",
+            "label": "Release APK"
+          },
+          {
+            "path": "android/app/build/outputs/bundle/release/app-release.aab",
+            "label": "App Bundle (Play Store)"
+          }
+        ]
+      }
+    ],
+    "@semantic-release/git"
   ],
   "tagFormat": "v${version}"
 }

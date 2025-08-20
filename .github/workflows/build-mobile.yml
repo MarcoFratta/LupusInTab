@@ -1,5 +1,4 @@
-
-name: Android CI
+name: Build Android APK
 
 on:
   push:
@@ -12,24 +11,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+          node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build Debug APK (always available)
+      - name: Build web app
+        run: npm run build
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build Debug APK
         run: |
           cd android
           ./gradlew assembleDebug
@@ -37,25 +45,5 @@ jobs:
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
+          name: android-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Build Release APK & AAB
-        run: |
-          cd android
-          ./gradlew assembleRelease || echo "Skipping release APK (may lack signing config)"
-          ./gradlew bundleRelease  || echo "Skipping AAB (may lack signing config)"
-
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-          if-no-files-found: ignore
-
-      - name: Upload Release AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: ignore

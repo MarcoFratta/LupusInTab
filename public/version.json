@@ -1,14 +1,11 @@
 {
-  "version": "1.0.0",
-  "timestamp": 1703123456789,
+  "version": "1.1.0",
+  "timestamp": 1755701632000,
   "assets": [
     "/index.html",
-    "/assets/index-123456.js",
-    "/assets/index-123456.css",
-    "/assets/vendor-123456.js"
+    "/assets/index-*.js",
+    "/assets/index-*.css"
   ],
-  "changelog": "Initial release with basic game functionality",
+  "changelog": "Auto-updated by semantic-release",
   "minVersion": "1.0.0"
 }
-
-

@@ -27,8 +27,15 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: '34'
+          build-tools: '34.0.0'
+          platforms: 'android-34'
 
       - name: Install dependencies
         run: npm install
@@ -42,12 +49,29 @@ jobs:
       - name: Sync Capacitor Android
         run: npx cap sync android
 
+      - name: Configure Gradle Properties
+        run: |
+          cd android
+          cat > gradle.properties << 'EOF'
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=true
+          android.useAndroidX=true
+          android.enableJetifier=true
+          EOF
+          echo "Gradle properties configured"
+
       - name: Build Android APK & AAB
         run: |
           cd android
+          chmod +x ./gradlew
+          echo "Building debug APK..."
           ./gradlew assembleDebug
+          echo "Building release APK..."
           ./gradlew assembleRelease
+          echo "Building release AAB..."
           ./gradlew bundleRelease
+          echo "Build completed successfully!"
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4

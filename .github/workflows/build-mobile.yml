@@ -1,9 +1,10 @@
+
 name: Android CI
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -28,13 +29,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Debug APK (always available for testing)
+      - name: Build Debug APK (always available)
         run: |
           cd android
           ./gradlew assembleDebug
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
@@ -42,20 +43,18 @@ jobs:
       - name: Build Release APK & AAB
         run: |
           cd android
-          ./gradlew assembleRelease || echo "Release APK skipped (no signing config)"
-          ./gradlew bundleRelease || echo "AAB skipped (no signing config)"
+          ./gradlew assembleRelease || echo "Skipping release APK (may lack signing config)"
+          ./gradlew bundleRelease  || echo "Skipping AAB (may lack signing config)"
 
       - name: Upload Release APK
-        if: success() || always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: ignore
 
       - name: Upload Release AAB
-        if: success() || always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab

@@ -7,10 +7,7 @@ on:
   pull_request:
 
 permissions:
-  contents: write
-  packages: write
-  issues: write
-  pull-requests: write
+  contents: write  # Needed for semantic-release to push tags and releases
 
 jobs:
   build:
@@ -20,35 +17,56 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Node.js >=20
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: '20'   # Capacitor requires Node >= 20
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build   # Produces ./dist folder for Capacitor
 
       - name: Add Android platform
         run: npx cap add android
 
-      - name: Sync Capacitor
+      - name: Sync Capacitor Android
         run: npx cap sync android
 
       - name: Build Android APK & AAB
         run: |
-          npx cap open android
           cd android
           ./gradlew assembleDebug
           ./gradlew assembleRelease
           ./gradlew bundleRelease
 
-      - name: Run semantic-release
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+
+      - name: Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release

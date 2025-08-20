@@ -4,23 +4,19 @@
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
-    "@semantic-release/npm",
+    [
+      "@semantic-release/npm",
+      {
+        "npmPublish": false
+      }
+    ],
     [
       "@semantic-release/github",
       {
         "assets": [
-          {
-            "path": "android/app/build/outputs/apk/release/app-release.apk",
-            "label": "Release APK"
-          },
-          {
-            "path": "android/app/build/outputs/bundle/release/app-release.aab",
-            "label": "Release AAB"
-          },
-          {
-            "path": "android/app/build/outputs/apk/debug/app-debug.apk",
-            "label": "Debug APK"
-          }
+          "android/app/build/outputs/apk/debug/app-debug.apk",
+          "android/app/build/outputs/apk/release/app-release.apk",
+          "android/app/build/outputs/bundle/release/app-release.aab"
         ]
       }
     ],

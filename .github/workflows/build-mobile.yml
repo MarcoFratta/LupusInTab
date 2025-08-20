@@ -1,4 +1,4 @@
-name: Android CI & Release
+name: Android CI
 
 on:
   push:
@@ -8,14 +8,16 @@ on:
 
 permissions:
   contents: write
-  id-token: write
+  packages: write
+  issues: write
+  pull-requests: write
 
 jobs:
-  build-and-release:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
@@ -24,31 +26,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Node.js 20
+      - name: Install Node.js >=20
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      - name: Install npm dependencies
+      - name: Install dependencies
         run: npm install
 
-      - name: Install Capacitor Android platform
+      - name: Add Android platform
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Build Android Debug APK
-        working-directory: android
-        run: ./gradlew assembleDebug
-
-      - name: Build Android Release APK & AAB
-        working-directory: android
+      - name: Build Android APK & AAB
         run: |
+          npx cap open android
+          cd android
+          ./gradlew assembleDebug
           ./gradlew assembleRelease
           ./gradlew bundleRelease
 
-      - name: Run Semantic Release
+      - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release

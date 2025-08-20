@@ -114,7 +114,14 @@ const shouldShowBlockedPrompt = computed(() => {
     </div>
 
     <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-4 text-left">
-      <div v-if="shouldShowDeadPrompt" class="text-center p-4 space-y-4">
+      <div v-if="isFirstNightSkipped" class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3 text-left">
+        <div class="text-slate-300 text-sm">La prima notte è tranquilla. Gli effetti sono ignorati.</div>
+        <div class="pt-2">
+          <button class="btn btn-primary w-full" @click="props.onPromptComplete({ skipped: true })">Salta</button>
+        </div>
+      </div>
+
+      <div v-else-if="shouldShowDeadPrompt" class="text-center p-4 space-y-4">
         <div class="text-red-400 text-4xl">💀</div>
         <div>
           <div class="text-neutral-100 font-medium text-lg">Il giocatore è morto</div>
@@ -141,12 +148,6 @@ const shouldShowBlockedPrompt = computed(() => {
         <button class="btn btn-primary w-full" @click="props.onPromptComplete({ blocked: true })">Continua</button>
       </div>
 
-      <div v-else-if="isFirstNightSkipped" class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-3 text-left">
-        <div class="text-slate-300 text-sm">La prima notte è tranquilla. Gli effetti sono ignorati.</div>
-        <div class="pt-2">
-          <button class="btn btn-primary w-full" @click="props.onPromptComplete({ skipped: true })">Salta</button>
-        </div>
-      </div>
 
       <component v-else-if="currentPromptComponent"
                  :is="currentPromptComponent"

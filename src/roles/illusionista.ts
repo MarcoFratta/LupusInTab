@@ -14,8 +14,6 @@ const illusionista: RoleDef = {
     group: false,
     actsAtNight: "alive",
     effectType: 'optional',
-    numberOfUsage: 1,
-	startNight: 2,
     getPromptComponent() {
         return () => import('../components/roles/Illusionista/IllusionistaPrompt.vue');
     },

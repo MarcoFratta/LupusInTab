@@ -1,3 +1,15 @@
+# [1.1.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.0.1...v1.1.0) (2025-08-20)
+
+
+### Bug Fixes
+
+* fix illusionista.ts ([a09257f](https://github.com/MarcoFratta/LupusInTab/commit/a09257f395548e6d94a553539200067e47489515))
+
+
+### Features
+
+* better code ([e6779a1](https://github.com/MarcoFratta/LupusInTab/commit/e6779a12c5ebda1cc3129c4f9f1797e9e51bc8a1))
+
 ## [1.0.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.0.0...v1.0.1) (2025-08-20)
 
 

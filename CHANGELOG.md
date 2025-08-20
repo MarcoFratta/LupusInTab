@@ -1,3 +1,13 @@
+## [1.2.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.2.1...v1.2.2) (2025-08-20)
+
+
+### Bug Fixes
+
+* release apk ([c2fe727](https://github.com/MarcoFratta/LupusInTab/commit/c2fe72744333013d4a2c94ea24133cc6c3b92a5f))
+* release apk ([46cb5c7](https://github.com/MarcoFratta/LupusInTab/commit/46cb5c7bee0c9d3b83758a3c61fd85d2c59de7bc))
+* release apk ([565e6c3](https://github.com/MarcoFratta/LupusInTab/commit/565e6c3d14cf5d194dc1881a972009e890067360))
+* release apk ([f46301e](https://github.com/MarcoFratta/LupusInTab/commit/f46301ef0627566bc060362326708d264b160d15))
+
 ## [1.2.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.2.0...v1.2.1) (2025-08-20)
 
 

@@ -87,6 +87,15 @@ jobs:
           EOF
           echo "Created gradle.properties with Java 21 compatible settings"
 
+      - name: Ensure Gradle Wrapper is Executable
+        run: |
+          cd android
+          chmod +x ./gradlew
+          echo "Gradle wrapper permissions:"
+          ls -la gradlew
+          echo "Testing gradle wrapper:"
+          ./gradlew --version
+
       - name: Build Android AAB
         run: |
           cd android
@@ -102,6 +111,16 @@ jobs:
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
           JAVA_HOME: ${{ env.JAVA_HOME }}
+
+      - name: Verify Build Outputs
+        run: |
+          echo "Checking build outputs..."
+          echo "AAB files:"
+          ls -la android/app/build/outputs/bundle/release/ || echo "No AAB files found"
+          echo "APK files:"
+          ls -la android/app/build/outputs/apk/release/ || echo "No APK files found"
+          echo "Build directory contents:"
+          find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" | head -10
 
       - name: Upload Android Artifacts
         uses: actions/upload-artifact@v4

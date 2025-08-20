@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.1.4...v1.2.0) (2025-08-20)
+
+
+### Features
+
+* Update build-mobile.yml ([92fc0f3](https://github.com/MarcoFratta/LupusInTab/commit/92fc0f3b45f3d6d7e4600561efae85bba964e736))
+
 ## [1.1.4](https://github.com/MarcoFratta/LupusInTab/compare/v1.1.3...v1.1.4) (2025-08-20)
 
 

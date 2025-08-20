@@ -1,19 +1,12 @@
 {
-  "branches": ["main"],
+  "branches": ["master"],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     "@semantic-release/changelog",
     "@semantic-release/npm",
     "@semantic-release/git",
-    "@semantic-release/github",
-    [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "npm run build && npx cap sync android",
-        "publishCmd": "echo 'Build completed successfully'"
-      }
-    ]
+    "@semantic-release/github"
   ]
 }
 

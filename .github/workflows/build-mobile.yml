@@ -1,9 +1,9 @@
-name: Build Android APK
+name: Build Android App
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 jobs:
@@ -22,27 +22,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build web app
+      - name: Build web assets
         run: npm run build
 
-      - name: Add Android platform
-        run: npx cap add android
-
-      - name: Sync Capacitor
+      - name: Sync Capacitor Android
         run: npx cap sync android
 
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
-      - name: Build Debug APK
-        run: |
-          cd android
-          ./gradlew assembleDebug
+      - name: Build Android APK
+        working-directory: android
+        run: ./gradlew assembleDebug
 
-      - name: Upload Debug APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk

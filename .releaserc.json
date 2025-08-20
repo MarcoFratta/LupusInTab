@@ -3,28 +3,27 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    ["@semantic-release/changelog", {
-      "changelogFile": "CHANGELOG.md"
-    }],
-    ["@semantic-release/npm", {
-      "npmPublish": false
-    }],
-    ["@semantic-release/git", {
-      "assets": ["package.json", "CHANGELOG.md"],
-      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-    }],
-    ["@semantic-release/github", {
-      "assets": [
-        "android/app/build/outputs/apk/debug/app-debug.apk",
-        "android/app/build/outputs/apk/release/app-release.apk",
-        "android/app/build/outputs/bundle/release/app-release.aab"
-      ]
-    }],
-    ["@semantic-release/exec", {
-      "prepareCmd": "echo 'Preparing release assets...'",
-      "publishCmd": "echo 'Release assets prepared'",
-      "successCmd": "echo 'Release successful!'",
-      "failCmd": "echo 'Release failed!'"
-    }]
+    "@semantic-release/changelog",
+    "@semantic-release/npm",
+    [
+      "@semantic-release/github",
+      {
+        "assets": [
+          {
+            "path": "android/app/build/outputs/apk/release/app-release.apk",
+            "label": "Release APK"
+          },
+          {
+            "path": "android/app/build/outputs/bundle/release/app-release.aab",
+            "label": "Release AAB"
+          },
+          {
+            "path": "android/app/build/outputs/apk/debug/app-debug.apk",
+            "label": "Debug APK"
+          }
+        ]
+      }
+    ],
+    "@semantic-release/git"
   ]
 }

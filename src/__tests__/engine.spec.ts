@@ -12,8 +12,11 @@ import {
   recordNightResult,
   resolveNight,
   continueToDay,
+  initializePlayerRoleState,
+  computeWinner,
 } from '../core/engine';
 import { useWinConditions } from '../utils/winConditions';
+import { ROLES } from '../roles/index';
 
 const ROLE_LIST = [
   { id: 'wolf', name: 'Wolf', team: 'lupi', visibleAsTeam: 'lupi', phaseOrder: 1 },
@@ -22,16 +25,16 @@ const ROLE_LIST = [
   { id: 'villager', name: 'Villager', team: 'villaggio', visibleAsTeam: 'villaggio', phaseOrder: 99 },
 ] as const;
 
-const ROLES = {
+const TEST_ROLES = {
   wolf: {
     id: 'wolf', name: 'Wolf', team: 'lupi', phaseOrder: 1,
     getPromptComponent: () => async () => ({}),
     resolve: (state: any, action: any) => {
       if (action.data?.targetId) {
         const id = action.data.targetId as number;
-        const pk = state.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+        const pk = state.night.context.pendingKills as Record<number, Array<{ role: string }>>;
         if (!pk[id]) pk[id] = [];
-        pk[id].push({ role: 'wolf', notSavable: false });
+        pk[id].push({ role: 'wolf' });
       }
     }
   },
@@ -168,17 +171,20 @@ describe('new roles logic', () => {
     const s = createEmptyState();
     s.settings.skipFirstNightActions = false;
     s.players = [
-      { id: 1, name: 'J', roleId: 'justicer', alive: true },
-      { id: 2, name: 'V', roleId: 'villager', alive: true },
-      { id: 3, name: 'D', roleId: 'guardia', alive: true },
+      { id: 1, name: 'J', roleId: 'justicer', alive: true, roleState: {} },
+      { id: 2, name: 'V', roleId: 'villager', alive: true, roleState: {} },
+      { id: 3, name: 'D', roleId: 'guardia', alive: true, roleState: {} },
     ] as any;
-    s.roleMeta = {
-      justicer: { id: 'justicer', name: 'Justicer', team: 'villaggio', phaseOrder: 2, usage: 'once' } as any,
-      villager: { id: 'villager', name: 'Villager', team: 'villaggio', phaseOrder: 99 } as any,
-      guardia: { id: 'guardia', name: 'Doctor', team: 'villaggio', phaseOrder: 3 } as any,
-    } as any;
-    // Use the global ROLES registry instead of custom rolesReg
-    beginNight(s as any, ROLES);
+    
+    // Initialize role states properly
+    for (const player of s.players) {
+      const roleDef = ROLES[player.roleId];
+      if (roleDef) {
+        initializePlayerRoleState(player, roleDef);
+      }
+    }
+    
+    beginNight(s as any, TEST_ROLES);
     
     // Initialize night context properly
     if (!s.night.context.pendingKills) {
@@ -193,7 +199,7 @@ describe('new roles logic', () => {
     // Guardia tries to save player 2
     recordNightResult(s as any, { targetId: 2, playerId: 3 });
     
-    resolveNight(s as any, ROLES);
+    resolveNight(s as any, TEST_ROLES);
     const victim = s.players.find(p => p.id === 2)!;
     expect(victim.alive).toBe(false); // not saved
   });
@@ -548,6 +554,95 @@ describe('new roles logic', () => {
     // This test is checking test expectations, not game logic
     
     console.log('✅ History filtering correctly excludes skipped actions!');
+  });
+
+  it('Passive effects are called before each role resolves', async () => {
+    const s = createEmptyState();
+    s.settings.skipFirstNightActions = false;
+    s.players = [
+      { id: 1, name: 'W', roleId: 'wolf', alive: true },
+      { id: 2, name: 'D', roleId: 'dog', alive: true }, // LupoMannaro
+    ] as any;
+    
+    // Mock roles with passive effects
+    const rolesReg = {
+      wolf: { 
+        id: 'wolf', 
+        name: 'Wolf', 
+        team: 'lupi', 
+        phaseOrder: 1, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: (state: any, action: any) => {
+          // Wolf adds kill to pendingKills
+          if (action.data?.targetId) {
+            const id = action.data.targetId;
+            const pk = state.night.context.pendingKills as Record<number, Array<{ role: string }>>;
+            if (!pk[id]) pk[id] = [];
+            pk[id].push({ role: 'wolf' });
+          }
+        }
+      },
+      dog: { 
+        id: 'dog', 
+        name: 'LupoMannaro', 
+        team: 'mannari', 
+        phaseOrder: 2, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {},
+        passiveEffect: (state: any, player: any) => {
+          // LupoMannaro passive effect: remove wolf kills targeting him
+          const pk = state.night.context.pendingKills as Record<number, Array<{ role: string }>>;
+          if (pk[player.id]) {
+            pk[player.id] = pk[player.id].filter(kill => kill.role !== 'wolf');
+            if (pk[player.id].length === 0) {
+              delete pk[player.id];
+            }
+          }
+        }
+      }
+    } as any;
+    
+    beginNight(s as any, rolesReg);
+    
+    // Wolf targets LupoMannaro (player 2)
+    recordNightResult(s as any, { targetId: 2 });
+    
+    // LupoMannaro skips (no action)
+    recordNightResult(s as any, { used: false });
+    
+    resolveNight(s as any, rolesReg as any);
+    
+    // Check that LupoMannaro is still alive (wolf kill was blocked by passive effect)
+    expect(s.players[1].alive).toBe(true);
+    
+    // Check that no pending kills remain for LupoMannaro
+    expect(s.night.context.pendingKills[2]).toBeUndefined();
+    
+    console.log('✅ Passive effects correctly protect against incoming actions!');
+  });
+
+  it('should end game with tie when all players die', () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'W', roleId: 'wolf', alive: true, roleState: {} },
+      { id: 2, name: 'V', roleId: 'villager', alive: true, roleState: {} },
+    ] as any;
+    
+    // Initialize role states
+    for (const player of s.players) {
+      const roleDef = ROLES[player.roleId];
+      if (roleDef) {
+        initializePlayerRoleState(player, roleDef);
+      }
+    }
+    
+    // Kill all players
+    s.players[0].alive = false;
+    s.players[1].alive = false;
+    
+    // Check winner
+    const winner = computeWinner(s);
+    expect(winner).toBe('tie');
   });
 });
 

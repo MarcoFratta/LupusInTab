@@ -13,7 +13,8 @@ const guardia: RoleDef = {
 	phaseOrder: "any", // Acts early to protect players
     group: false,
     actsAtNight: "alive",
-    usage: 'unlimited',
+    effectType: 'optional',
+    numberOfUsage: 'unlimited',
     affectedRoles: ['wolf'],
     getPromptComponent() {
         return () => import('../components/roles/Doctor/DoctorPrompt.vue');

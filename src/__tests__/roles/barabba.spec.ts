@@ -39,7 +39,9 @@ describe('Barabba Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(barabba.usage).toBe('once');
+            expect(barabba.effectType).toBe('optional');
+            expect(barabba.numberOfUsage).toBe(1);
+            expect(barabba.startNight).toBeUndefined();
             expect(barabba.minCount).toBeUndefined();
             expect(barabba.maxCount).toBeUndefined();
         });

@@ -88,6 +88,37 @@ const shouldShowBlockedPrompt = computed(() => {
   
   return false;
 });
+
+const shouldShowStartNightPrompt = computed(() => {
+  const entry = currentTurn.value;
+  if (!entry) return false;
+  
+  if (entry.kind === 'single') {
+    const player = props.state.players.find((p: any) => p.id === entry.playerId);
+    return player && player.roleState?.startNight && props.state.nightNumber < player.roleState.startNight;
+  }
+  
+  return false;
+});
+
+const shouldShowUsageLimitPrompt = computed(() => {
+  const entry = currentTurn.value;
+  if (!entry) return false;
+  
+  if (entry.kind === 'single') {
+    const player = props.state.players.find((p: any) => p.id === entry.playerId);
+    if (!player) return false;
+    
+    const numberOfUsage = player.roleState?.numberOfUsage;
+    if (numberOfUsage === 'unlimited' || numberOfUsage === undefined) return false;
+    
+    const usedPowers = props.state.usedPowers?.[player.roleId] || [];
+    const timesUsed = usedPowers.filter((playerId: number) => playerId === player.id).length;
+    return timesUsed >= numberOfUsage;
+  }
+  
+  return false;
+});
 </script>
 
 <template>
@@ -143,9 +174,27 @@ const shouldShowBlockedPrompt = computed(() => {
         <div class="text-amber-400 text-4xl">🚫</div>
         <div>
           <div class="text-neutral-100 font-medium text-lg">Il giocatore non può usare il suo ruolo questa notte</div>
-          <div class="text-neutral-400 text-sm mt-1">Bloccato dall'Illusionista</div>
+          <div class="text-neutral-400 text-sm mt-1">Qualcuno ha bloccato is suo ruolo</div>
         </div>
         <button class="btn btn-primary w-full" @click="props.onPromptComplete({ blocked: true })">Continua</button>
+      </div>
+
+      <div v-else-if="shouldShowStartNightPrompt" class="text-center p-4 space-y-4">
+        <div class="text-blue-400 text-4xl">⏰</div>
+        <div>
+          <div class="text-neutral-100 font-medium text-lg">Il giocatore non può usare il suo ruolo ancora</div>
+          <div class="text-neutral-400 text-sm mt-1">Potrà usare il suo ruolo a partire dalla notte {{ currentActor?.roleState?.startNight || 2 }}</div>
+        </div>
+        <button class="btn btn-primary w-full" @click="props.onPromptComplete({ skipped: true })">Continua</button>
+      </div>
+
+      <div v-else-if="shouldShowUsageLimitPrompt" class="text-center p-4 space-y-4">
+        <div class="text-red-400 text-4xl">🔒</div>
+        <div>
+          <div class="text-neutral-100 font-medium text-lg">Il giocatore ha già usato il suo ruolo</div>
+          <div class="text-neutral-400 text-sm mt-1">Ha raggiunto il limite massimo di utilizzi</div>
+        </div>
+        <button class="btn btn-primary w-full" @click="props.onPromptComplete({ skipped: true })">Continua</button>
       </div>
 
 

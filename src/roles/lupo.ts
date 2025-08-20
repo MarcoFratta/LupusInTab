@@ -13,7 +13,8 @@ const wolf: RoleDef = {
     phaseOrder: 1,
     group: true,
     actsAtNight: "alive",
-    usage: 'requiredEveryNight',
+    effectType: 'required',
+    numberOfUsage: 'unlimited',
     revealAlliesWithinRole: true,
     minCount: 1,
     maxCount: (state: any) => Math.max(1, Math.floor(((state?.setup?.numPlayers || 0) - 1) / 2)),
@@ -33,7 +34,7 @@ const wolf: RoleDef = {
             // Check if this kill is already pending from wolves
             const hasWolfKill = pk[id].some(kill => kill.role === 'wolf');
             if (!hasWolfKill) {
-                pk[id].push({ role: 'wolf', notSavable: false });
+                pk[id].push({ role: 'wolf' });
                 
                 // Only create history entry if this is the first wolf (representative)
                 // This prevents multiple history entries for the same group action

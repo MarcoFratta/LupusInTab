@@ -11,7 +11,8 @@ const crazyman: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "never",
-    usage: 'unlimited',
+    effectType: 'optional',
+    numberOfUsage: 'unlimited',
     maxCount: 1,
 
     resolve() {},

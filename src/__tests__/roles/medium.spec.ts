@@ -35,7 +35,8 @@ describe('Medium (Witch) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(witch.usage).toBe('unlimited');
+            expect(witch.effectType).toBe('optional');
+            expect(witch.numberOfUsage).toBe('unlimited');
             expect(witch.minCount).toBeUndefined();
             expect(witch.maxCount).toBeUndefined();
         });
@@ -159,8 +160,7 @@ describe('Medium (Witch) Role', () => {
             expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
             expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'medium',
-                notSavable: false
+                role: 'medium'
             });
         });
 

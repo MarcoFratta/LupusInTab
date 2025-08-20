@@ -20,7 +20,19 @@ const detailEntries = computed(() => {
   
   // Get the map of player actions for this night
   const nightPlayerActions = props.gameState?.history?.[props.nightNumber] || {};
-  console.log(`🔍 NightDetailsGrid: night ${props.nightNumber} player actions:`, nightPlayerActions);
+  
+  // Create a temporary historical night context for historical nights
+  const isHistoricalNight = props.nightNumber !== props.gameState?.nightNumber;
+  const historicalNightContext = isHistoricalNight ? {
+    turns: Object.entries(nightPlayerActions).map(([playerId, action]) => ({
+      roleId: props.gameState.players.find(p => p.id === Number(playerId))?.roleId || 'unknown',
+      playerId: Number(playerId)
+    })),
+    currentIndex: 0,
+    context: { pendingKills: {}, savesBy: [], targeted: [], checks: [] },
+    summary: null
+  } : null;
+  
   
   const entries: DetailEntry[] = [];
 
@@ -35,19 +47,17 @@ const detailEntries = computed(() => {
     
     const playerIdNum = Number(playerId);
     const player = props.gameState.players.find((p: any) => p.id === playerIdNum);
-    if (!player) {
-      console.log(`🔍 NightDetailsGrid: player not found for ID ${playerIdNum}`);
-      continue;
-    }
+    		if (!player) {
+			continue;
+		}
     
     const roleDef = (ROLES as any)[player.roleId];
-    if (!roleDef) {
-      console.log(`🔍 NightDetailsGrid: role definition not found for ${player.roleId}`);
-      continue;
-    }
+    		if (!roleDef) {
+			continue;
+		}
     
     const title = roleDef.name || player.roleId;
-    console.log(`🔍 NightDetailsGrid: processing ${player.roleId} (${title}) for player ${player.name}, action type: ${action.type}, action data:`, action);
+    
     
     // Check if this is a skipped/blocked action - add to blocked/dead list
     if (action.type === 'role_skipped' || action.type === 'group_role_blocked') {
@@ -88,7 +98,8 @@ const detailEntries = computed(() => {
             entry: action,
             player: player,
             state: props.gameState,
-            nightNumber: props.nightNumber
+            nightNumber: props.nightNumber,
+            historicalNightContext
           } 
         });
         processedGroupRoles.add(player.roleId); // Mark this group role as processed
@@ -111,7 +122,8 @@ const detailEntries = computed(() => {
             entry: action, 
             player: player,
             state: props.gameState,
-            nightNumber: props.nightNumber
+            nightNumber: props.nightNumber,
+            historicalNightContext
           } 
         });
       } else {
@@ -128,7 +140,8 @@ const detailEntries = computed(() => {
           gameState: props.gameState, 
           entry: action, 
           player: player,
-          content: 'Nessun dettaglio disponibile'
+          content: 'Nessun dettaglio disponibile',
+          historicalNightContext
         } 
       });
     }

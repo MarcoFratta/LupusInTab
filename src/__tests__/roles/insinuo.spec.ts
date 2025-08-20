@@ -17,7 +17,8 @@ describe('Insinuo Role', () => {
         expect(insinuo.visibleAsTeam).toBe('villaggio');
         expect(insinuo.countAs).toBe('villaggio');
         expect(insinuo.phaseOrder).toBe(1);
-        expect(insinuo.usage).toBe('unlimited');
+        expect(insinuo.effectType).toBe('optional');
+        expect(insinuo.numberOfUsage).toBe('unlimited');
     });
 
     it('should have correct initial state', () => {

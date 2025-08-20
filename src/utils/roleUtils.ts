@@ -7,7 +7,7 @@
  * @param player The player to check
  * @returns true if the player can act at night, false otherwise
  */
-export function canPlayerActAtNight(player: any): boolean {
+export function canPlayerActAtNight(player: any, gameState?: any): boolean {
     const actsAtNight = player.roleState?.actsAtNight;
     
     // Check all conditions that prevent acting at night
@@ -15,6 +15,11 @@ export function canPlayerActAtNight(player: any): boolean {
     if (actsAtNight === "blocked") return false;
     if (actsAtNight === "alive" && !player.alive) return false;
     if (actsAtNight === "dead" && player.alive) return false;
+    
+    // Check if the player can start using their role yet
+    if (gameState && player.roleState?.startNight) {
+        if (gameState.nightNumber < player.roleState.startNight) return false;
+    }
     
     // If actsAtNight is "always", player can always act
     if (actsAtNight === "always") return true;
@@ -27,6 +32,28 @@ export function canPlayerActAtNight(player: any): boolean {
     
     // For any other value or undefined, default to false
     return false;
+}
+
+/**
+ * Determines if a player has exceeded their usage limit
+ * @param player The player to check
+ * @param gameState The game state to check usage against
+ * @returns true if the player has exceeded their usage limit, false otherwise
+ */
+export function hasPlayerExceededUsageLimit(player: any, gameState: any): boolean {
+    const numberOfUsage = player.roleState?.numberOfUsage;
+    
+    // If unlimited usage, never exceeded
+    if (numberOfUsage === 'unlimited') return false;
+    
+    // If no usage limit specified, default to unlimited
+    if (numberOfUsage === undefined) return false;
+    
+    // Check how many times this player has used this role
+    const usedPowers = gameState.usedPowers?.[player.roleId] || [];
+    const timesUsed = usedPowers.filter((playerId: number) => playerId === player.id).length;
+    
+    return timesUsed >= numberOfUsage;
 }
 
 /**

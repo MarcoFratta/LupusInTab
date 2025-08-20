@@ -40,7 +40,8 @@ describe('Giustiziere (Justicer) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(justicer.usage).toBe('once');
+            expect(justicer.effectType).toBe('optional');
+            expect(justicer.numberOfUsage).toBe(1);
             expect(justicer.minCount).toBeUndefined();
             expect(justicer.maxCount).toBeUndefined();
         });
@@ -63,8 +64,7 @@ describe('Giustiziere (Justicer) Role', () => {
             expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
             expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'justicer',
-                notSavable: true
+                role: 'justicer'
             });
         });
 
@@ -101,16 +101,7 @@ describe('Giustiziere (Justicer) Role', () => {
             expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
         });
 
-        it('should create kills with notSavable flag set to true', () => {
-            const action = {
-                playerId: 1,
-                data: { targetId: 2 }
-            };
 
-            justicer.resolve(mockGameState, action);
-
-            expect(mockGameState.night.context.pendingKills[2][0].notSavable).toBe(true);
-        });
     });
 
     describe('Win Condition', () => {

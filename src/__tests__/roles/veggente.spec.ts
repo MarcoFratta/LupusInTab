@@ -15,7 +15,8 @@ describe('Veggente Role', () => {
         expect(medium.team).toBe('villaggio');
         expect(medium.visibleAsTeam).toBe('villaggio');
         expect(medium.phaseOrder).toBe('any');
-        expect(medium.usage).toBe('unlimited');
+        expect(medium.effectType).toBe('optional');
+        expect(medium.numberOfUsage).toBe('unlimited');
         expect(medium.minCount).toBeUndefined();
         expect(medium.maxCount).toBeUndefined();
     });

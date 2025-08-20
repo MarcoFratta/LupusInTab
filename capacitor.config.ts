@@ -12,7 +12,14 @@ const config: CapacitorConfig = {
       launchShowDuration: 2000,
       backgroundColor: '#1f2937',
       showSpinner: true,
-      spinnerColor: '#3b82f6'
+      spinnerColor: '#3b82f6',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP'
+    },
+    StatusBar: {
+      style: 'DARK',
+      backgroundColor: '#1f2937',
+      overlaysWebView: false
     }
   }
 };

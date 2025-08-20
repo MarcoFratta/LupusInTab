@@ -58,10 +58,7 @@ const savedGameAtBoot = loadGameState();
 const resumeAvailable = ref(!!(savedGameAtBoot && (savedGameAtBoot as any).phase !== PHASES.SETUP));
 
 // Debug logging
-console.log('Boot: savedGameAtBoot:', savedGameAtBoot);
-console.log('Boot: resumeAvailable:', resumeAvailable.value);
-console.log('Boot: savedGameAtBoot?.phase:', savedGameAtBoot?.phase);
-console.log('Boot: PHASES.SETUP:', PHASES.SETUP);
+
 
 const route = useRoute();
 const router = useRouter();
@@ -127,14 +124,10 @@ watch(
     () => state,
     () => {
         if (state.phase !== PHASES.SETUP) {
-            console.log('Saving game state, phase:', state.phase);
             saveGameState(state);
             isInitialBoot = false;
         } else if (!isInitialBoot) {
-            console.log('Clearing saved game, phase is SETUP (not initial boot)');
             clearSavedGame();
-        } else {
-            console.log('Initial boot in SETUP phase, preserving any existing saved game');
         }
     },
     { deep: true }
@@ -180,73 +173,34 @@ watch(
 
 // Make resumeAvailable reactive to state changes and more robust
 watch(() => state.phase, (newPhase) => {
-    console.log('Phase changed to:', newPhase);
     if (newPhase === PHASES.SETUP) {
         const saved = loadGameState();
         const hasSavedGame = !!(saved && saved.phase !== PHASES.SETUP);
-        console.log('Phase is SETUP, checking for saved game:', hasSavedGame, 'saved:', saved);
-        console.log('saved?.phase:', saved?.phase, 'PHASES.SETUP:', PHASES.SETUP);
         resumeAvailable.value = hasSavedGame;
     }
 }, { immediate: true });
 
 // Also check for saved games on boot, but defer until after watchers are set up
 const checkForSavedGames = () => {
-    console.log('=== CHECKING FOR SAVED GAMES ===');
     const saved = loadGameState();
-    console.log('Raw saved data:', saved);
-    
-    if (saved) {
-        console.log('Saved data details:');
-        console.log('- phase:', saved.phase);
-        console.log('- phase type:', typeof saved.phase);
-        console.log('- PHASES.SETUP:', PHASES.SETUP);
-        console.log('- PHASES.SETUP type:', typeof PHASES.SETUP);
-        console.log('- phase === PHASES.SETUP:', saved.phase === PHASES.SETUP);
-        console.log('- phase !== PHASES.SETUP:', saved.phase !== PHASES.SETUP);
-    }
     
     const hasSavedGame = !!(saved && saved.phase !== PHASES.SETUP);
-    console.log('Boot check: hasSavedGame:', hasSavedGame, 'saved:', saved);
-    console.log('saved?.phase:', saved?.phase, 'PHASES.SETUP:', PHASES.SETUP);
     resumeAvailable.value = hasSavedGame;
-    
-    // Also log the current state
-    console.log('Current state.phase:', state.phase);
-    console.log('Current resumeAvailable.value:', resumeAvailable.value);
     
     return { hasSavedGame, saved };
 };
 
 // Manual test function for resume
 const testResume = () => {
-    console.log('=== MANUAL RESUME TEST ===');
-    console.log('Current state.phase:', state.phase);
-    console.log('Current isInitialBoot:', isInitialBoot);
-    console.log('Current resumeAvailable.value:', resumeAvailable.value);
-    
     const result = checkForSavedGames();
-    console.log('Test result:', result);
-    
-    // Check localStorage directly
-    console.log('localStorage keys:', Object.keys(localStorage));
-    console.log('lupus_gm_state_v1:', localStorage.getItem('lupus_gm_state_v1'));
     
     if (result.hasSavedGame) {
-        console.log('Found saved game, attempting to resume...');
         resumeGame();
-    } else {
-        console.log('No saved game found');
-        console.log('This could be because:');
-        console.log('1. No game was ever saved');
-        console.log('2. The saved game was cleared');
-        console.log('3. The saved game is in SETUP phase');
     }
 };
 
 // Function to manually save a test game state
 const saveTestGame = () => {
-    console.log('=== SAVING TEST GAME ===');
     const testState = {
         phase: PHASES.REVEAL,
         nightNumber: 0,
@@ -271,12 +225,10 @@ const saveTestGame = () => {
     };
     
     saveGameState(testState);
-    console.log('Test game saved');
     
     // Force a check for saved games
     setTimeout(() => {
         checkForSavedGames();
-        console.log('After saving test game - resumeAvailable:', resumeAvailable.value);
     }, 100);
 };
 
@@ -287,13 +239,8 @@ setTimeout(checkForSavedGames, 1000);
 
 // Also check after component is mounted
 onMounted(() => {
-    console.log('=== COMPONENT MOUNTED ===');
-    console.log('Current state.phase:', state.phase);
-    console.log('Current isInitialBoot:', isInitialBoot);
-    
     // Wait a bit more for any async operations to complete
     setTimeout(() => {
-        console.log('=== FINAL RESUME CHECK AFTER MOUNT ===');
         checkForSavedGames();
     }, 200);
 });
@@ -341,16 +288,8 @@ const villagersAlive = computed(() => alivePlayers.value.filter(p => p.roleState
 // winner computed inside engine flow
 
 function resumeGame() {
-	console.log('resumeGame called');
-	
-	// Debug: check what's in localStorage
-	console.log('localStorage keys:', Object.keys(localStorage));
-	console.log('lupus_gm_state_v1:', localStorage.getItem('lupus_gm_state_v1'));
-	
 	const saved = loadGameState();
-	console.log('saved game state:', saved);
 	if (saved && (saved as any).phase !== PHASES.SETUP) {
-		console.log('Resuming game from phase:', saved.phase);
 		// Manually update each property to maintain reactivity
 		state.phase = saved.phase;
 		state.nightNumber = saved.nightNumber;
@@ -370,9 +309,6 @@ function resumeGame() {
 		state.nightDeathsByNight = saved.nightDeathsByNight || {};
 		state.lynchedHistoryByDay = saved.lynchedHistoryByDay || {};
 		resumeAvailable.value = false;
-		console.log('Game resumed, current state:', state);
-	} else {
-		console.log('No valid saved game found or game is in setup phase');
 	}
 }
 
@@ -646,10 +582,10 @@ function toggleEventHistory() {
 				<div v-if="!showEventHistory" class="space-y-6">
 					<h2 class="text-xl font-semibold text-slate-100 mb-6">Fine partita</h2>
 					<div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
-						<div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : 'text-emerald-400')">
-							{{ (state.winner || 'Sconosciuto') + ' vincono' }}
+						<div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : (state.winner === 'tie' ? 'text-yellow-400' : 'text-emerald-400'))">
+							{{ state.winner === 'tie' ? 'Pareggio, tutti sono morti' : (state.winner || 'Sconosciuto') + ' vincono' }}
 						</div>
-						<div>
+						<div v-if="state.winner !== 'tie'">
 							<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
 							<PlayerRoleList 
 								:state="state" 

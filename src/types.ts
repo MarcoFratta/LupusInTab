@@ -1,3 +1,5 @@
+import {Phase} from "./stores/game";
+
 export type Team = string;
 
 export interface FactionConfig {
@@ -65,8 +67,31 @@ export interface RoleDef {
      * - 'unlimited': may act any night as allowed
      * - 'once': may act only once per match
      * - 'requiredEveryNight': must act every night (engine will still remain dumb; prompts can enforce)
+     * @deprecated Use effectType and numberOfUsage instead
      */
     usage?: 'unlimited' | 'once' | 'requiredEveryNight';
+    
+    /**
+     * Whether the role effect is optional or required.
+     * - 'optional': Player can choose to use or skip
+     * - 'required': Player must use the effect
+     */
+    effectType?: 'optional' | 'required';
+    
+    /**
+     * Number of times the role can be used per game.
+     * - number: Specific number of uses (e.g., 3)
+     * - 'unlimited': Can be used every night
+     */
+    numberOfUsage?: number | 'unlimited';
+    
+    /**
+     * The night number from which the player can start using the effect.
+     * - 1: Can use from first night (default)
+     * - 2: Can use from second night onwards
+     * - etc.
+     */
+    startNight?: number;
     /**
      * Whether this role is allowed to target dead players.
      */
@@ -139,6 +164,9 @@ export interface PlayerRoleState {
     countAs: Team;
     phaseOrder: number | "any";
     usage: 'unlimited' | 'once' | 'requiredEveryNight';
+    effectType: 'optional' | 'required';
+    numberOfUsage: number | 'unlimited';
+    startNight: number;
     canTargetDead: boolean;
     affectedRoles: string[];
     immuneToKillers: string[];
@@ -167,7 +195,7 @@ export interface GameState {
 	night: { turns: NightTurn[]; currentIndex: number; context: any; summary: NightSummary | null };
 	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean };
     sindacoId: number | null;
-	winner: string | null;
+	    winner: string | null | 'tie';
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
     eventHistory?: EventHistory;
@@ -185,6 +213,7 @@ export interface NightSummary {
     targeted: number[]; 
     saved: number[]; 
     died: number[]; 
+    resurrected: number[];
     checks: Array<{by:number; target:number; team:string}> 
 }
 

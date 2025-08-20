@@ -10,7 +10,8 @@ export const insinuo = {
 	description: 'Durante la notte, può cambiare temporaneamente la fazione visibile di un giocatore.',
 	phaseOrder: 1,
 	actsAtNight: "alive",
-	usage: 'unlimited' as const,
+	effectType: 'optional',
+	numberOfUsage: 'unlimited',
 	getPromptComponent: (gameState: any, player: any) => () => import('../components/roles/Insinuo/InsinuoPrompt.vue'),
 	getResolveDetailsComponent: (gameState: any, entry: any) => () => import('../components/resolve-details/InsinuoResolveDetails.vue'),
 	resolve: (gameState: any, action: any) => {

@@ -37,7 +37,8 @@ describe('Wolf Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(wolf.usage).toBe('requiredEveryNight');
+            expect(wolf.effectType).toBe('required');
+            expect(wolf.numberOfUsage).toBe('unlimited');
             expect(wolf.minCount).toBe(1);
             expect(typeof wolf.maxCount).toBe('function');
         });
@@ -59,8 +60,7 @@ describe('Wolf Role', () => {
             expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
             expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'wolf',
-                notSavable: false
+                role: 'wolf'
             });
         });
 

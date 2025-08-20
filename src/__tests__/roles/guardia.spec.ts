@@ -35,7 +35,8 @@ describe('Guardia (Doctor) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(doctor.usage).toBe('unlimited');
+            expect(doctor.effectType).toBe('optional');
+            expect(doctor.numberOfUsage).toBe('unlimited');
             expect(doctor.minCount).toBeUndefined();
             expect(doctor.maxCount).toBeUndefined();
         });

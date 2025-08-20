@@ -13,9 +13,8 @@ const hangman: RoleDef = {
     phaseOrder: 2,
     group: false,
     actsAtNight: "alive",
-    usage: 'unlimited',
-    minCount: 1,
-    maxCount: (state: any) => state?.setup?.numPlayers || 0,
+    effectType: 'optional',
+    numberOfUsage: 1,
     getPromptComponent() {
         return () => import('../components/roles/Hangman/HangmanPrompt.vue');
     },
@@ -39,12 +38,12 @@ const hangman: RoleDef = {
         if (isCorrect) {
             // Correct guess: kill the target (cannot be saved)
             if (!pk[id]) pk[id] = [];
-            pk[id].push({ role: 'hangman', notSavable: true });
+            pk[id].push({ role: 'hangman' });
         } else {
             // Incorrect guess: kill the Boia himself
             const boiaId = action.playerId || 0;
             if (!pk[boiaId]) pk[boiaId] = [];
-            pk[boiaId].push({ role: 'hangman', notSavable: true });
+            pk[boiaId].push({ role: 'hangman' });
         }
 
         // Log to history with the result

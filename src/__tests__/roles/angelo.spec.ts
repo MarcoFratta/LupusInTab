@@ -39,7 +39,9 @@ describe('Angelo Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(angelo.usage).toBe('once');
+            expect(angelo.effectType).toBe('optional');
+            expect(angelo.numberOfUsage).toBe(1);
+            expect(angelo.startNight).toBeUndefined();
             expect(angelo.minCount).toBeUndefined();
             expect(angelo.maxCount).toBeUndefined();
         });

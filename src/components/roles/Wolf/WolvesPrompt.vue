@@ -9,7 +9,9 @@ const props = defineProps({
 });
 
 const targetId = ref(null);
-const selectable = computed(() => props.gameState.players.filter(p => p.alive && p.roleState?.realTeam !== 'lupi'));
+const selectable = computed(() => {
+	return props.gameState.players.filter(p => p.alive && p.roleId !== 'wolf');
+});
 const choices = computed(() => [
 	{ label: 'Seleziona un giocatore…', value: null },
 	...selectable.value.map((p) => ({ label: p.name, value: p.id }))

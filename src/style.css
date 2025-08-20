@@ -57,3 +57,44 @@ body {
     @apply bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 hover:bg-neutral-900/80 transition-colors;
   }
 }
+
+/* Mobile-specific fixes for Capacitor */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Ensure content doesn't overlap with status bar on mobile */
+@media (max-width: 768px) {
+  body {
+    padding-top: 20px;
+  }
+  
+  /* Add safe area support for modern mobile devices */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    body {
+      padding-top: calc(20px + env(safe-area-inset-top));
+    }
+  }
+}
+
+/* Capacitor-specific mobile optimizations */
+.capacitor-mobile {
+  /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+  
+  /* Ensure proper touch targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Improve mobile scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}

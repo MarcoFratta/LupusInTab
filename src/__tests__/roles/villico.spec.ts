@@ -17,7 +17,8 @@ describe('Villico (Villager) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(villager.usage).toBe('unlimited');
+            expect(villager.effectType).toBe('optional');
+            expect(villager.numberOfUsage).toBe('unlimited');
             expect(villager.minCount).toBeUndefined();
             expect(villager.maxCount).toBeUndefined();
         });

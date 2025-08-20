@@ -11,7 +11,8 @@ const demoniac: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "never",
-    usage: 'unlimited',
+    effectType: 'optional',
+    numberOfUsage: 'unlimited',
     knownTo: ['wolf'],
     revealToAllies: 'role',
 

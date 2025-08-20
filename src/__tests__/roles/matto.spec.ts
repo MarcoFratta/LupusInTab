@@ -16,7 +16,8 @@ describe('Matto (Crazyman) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(crazyman.usage).toBe('unlimited');
+            expect(crazyman.effectType).toBe('optional');
+            expect(crazyman.numberOfUsage).toBe('unlimited');
             expect(crazyman.minCount).toBeUndefined();
             expect(crazyman.maxCount).toBe(1);
         });

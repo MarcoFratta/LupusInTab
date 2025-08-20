@@ -2,10 +2,14 @@
 import { computed } from 'vue';
 import RoleComparisonCard from '../ui/RoleComparisonCard.vue';
 
-const props = defineProps({ gameState: { type: Object, required: true }, player: { type: Object, required: true } });
+const props = defineProps({ 
+  gameState: { type: Object, required: true }, 
+  player: { type: Object, required: true },
+  nightNumber: { type: Number, required: false }
+});
 
 const doctorChoices = computed(() => {
-  const nightNumber = props.gameState?.nightNumber;
+  const nightNumber = props.nightNumber || props.gameState?.nightNumber;
   if (!nightNumber) return [];
   
   // Access the new night-based history structure (map)

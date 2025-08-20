@@ -13,7 +13,8 @@ const barabba: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "dead",
-    usage: 'once',
+    effectType: 'optional',
+    numberOfUsage: 1,
     getPromptComponent() {
         return () => import('../components/roles/Barabba/BarabbaPrompt.vue');
     },

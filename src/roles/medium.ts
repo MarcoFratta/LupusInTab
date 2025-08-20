@@ -13,7 +13,8 @@ const witch: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "alive",
-    usage: 'unlimited',
+    effectType: 'optional',
+    numberOfUsage: 'unlimited',
     getPromptComponent() {
         return () => import('../components/roles/Witch/WitchPrompt.vue');
     },
@@ -34,9 +35,9 @@ const witch: RoleDef = {
         gameState.night.context.checks.push({ by: action.playerId ?? 0, target: id, team: seenTeam });
         // Dog dies if Medium checks his role (special rule)
         if (target.roleId === 'dog') {
-            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
             if (!pk[id]) pk[id] = [];
-            pk[id].push({ role: 'medium', notSavable: false });
+            pk[id].push({ role: 'medium' });
         }
         // Log to history
         addToHistory(gameState, action.playerId || 0, gameState.nightNumber, 'witch_check', {

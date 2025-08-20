@@ -38,6 +38,7 @@
     "vue-router": "^4.3.2"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@semantic-release/changelog": "^6.0.0",
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.0",

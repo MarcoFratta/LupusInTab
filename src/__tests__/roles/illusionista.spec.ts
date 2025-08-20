@@ -33,7 +33,7 @@ describe('Illusionista Role', () => {
             expect(illusionista.visibleAsTeam).toBe('villaggio');
             expect(illusionista.countAs).toBe('villaggio');
             expect(illusionista.color).toBe('#06b6d4');
-            expect(illusionista.phaseOrder).toBe(1);
+            expect(illusionista.phaseOrder).toBe(0);
             expect(illusionista.group).toBe(false);
             expect(illusionista.actsAtNight).toBe('alive');
         });
@@ -45,9 +45,9 @@ describe('Illusionista Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(illusionista.usage).toBe('unlimited');
-            expect(illusionista.minCount).toBe(1);
-            expect(illusionista.maxCount).toBe(1);
+            expect(illusionista.effectType).toBe('optional');
+            expect(illusionista.numberOfUsage).toBe(1);
+            expect(illusionista.startNight).toBe(2);
         });
 
         it('should have correct component references', () => {

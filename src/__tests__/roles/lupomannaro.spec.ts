@@ -16,7 +16,8 @@ describe('LupoMannaro (Werewolf) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(lupomannaro.usage).toBe('requiredEveryNight');
+            expect(lupomannaro.effectType).toBe('required');
+            expect(lupomannaro.numberOfUsage).toBe('unlimited');
             expect(lupomannaro.minCount).toBeUndefined();
             expect(lupomannaro.maxCount).toBeUndefined();
         });
@@ -38,8 +39,8 @@ describe('LupoMannaro (Werewolf) Role', () => {
                     context: {
                         pendingKills: {
                             1: [
-                                { role: 'wolf', notSavable: false },
-                                { role: 'other', notSavable: false }
+                                            { role: 'wolf' },
+            { role: 'other' }
                             ]
                         }
                     }
@@ -60,7 +61,7 @@ describe('LupoMannaro (Werewolf) Role', () => {
                     context: {
                         pendingKills: {
                             1: [
-                                { role: 'wolf', notSavable: false }
+                                { role: 'wolf' }
                             ]
                         }
                     }
@@ -80,7 +81,7 @@ describe('LupoMannaro (Werewolf) Role', () => {
                     context: {
                         pendingKills: {
                             2: [
-                                { role: 'wolf', notSavable: false }
+                                { role: 'wolf' }
                             ]
                         }
                     }

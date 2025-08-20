@@ -13,7 +13,8 @@ const justicer: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "alive",
-    usage: 'once',
+    effectType: 'optional',
+    numberOfUsage: 1,
     getPromptComponent() {
         return () => import('../components/roles/Justicer/JusticerPrompt.vue');
     },

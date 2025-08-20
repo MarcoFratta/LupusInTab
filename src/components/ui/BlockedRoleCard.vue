@@ -14,6 +14,10 @@ const getReasonText = (reason: string) => {
       return 'Non può usare il ruolo';
     case 'alive':
       return 'Deve essere morto per agire';
+    case 'startNight':
+      return `Puoi usare il tuo ruolo a partire dalla notte ${props.player?.roleState?.startNight || 2}`;
+    case 'usageLimit':
+      return 'Hai già usato questo ruolo il massimo numero di volte';
     default:
       return 'Non può usare il ruolo questa notte';
   }

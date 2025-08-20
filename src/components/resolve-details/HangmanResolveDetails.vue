@@ -7,11 +7,12 @@ const props = defineProps({
     gameState: { type: Object, required: true },
     entry: { type: Object, required: true },
     player: { type: Object, required: true },
+    nightNumber: { type: Number, required: false },
 });
 
 const hangmanEvent = computed(() => {
     const playerId = props.player?.id;
-    const nightNumber = props.gameState.nightNumber;
+    const nightNumber = props.nightNumber || props.gameState.nightNumber;
     if (!playerId || !nightNumber) return null;
     
     // Access the new night-based history structure (map)

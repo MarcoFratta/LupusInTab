@@ -2,8 +2,14 @@
 import { computed, ref } from 'vue';
 import PromptSelect from '../../prompts/PromptSelect.vue';
 import DisplayFaction from '../../ui/DisplayFaction.vue';
+import { ROLES } from '../../../roles';
 
 const props = defineProps<{ gameState: any, player: any, onComplete: (r:any)=>void }>();
+
+const roleColor = computed(() => {
+  const role = ROLES[props.player?.roleId];
+  return role?.color || '#8b5cf6'; // Default to the Veggente color if role not found
+});
 
 const targetId = ref<number | null>(null);
 const selectable = computed(() => props.gameState.players.filter((p: any) => p.alive && p.id !== props.player?.id));
@@ -20,7 +26,7 @@ function submit() {
 <template>
 	<div class="space-y-4">
 		<div class="text-center">
-			<h3 class="text-lg font-semibold text-neutral-100">Veggente</h3>
+			<h3 class="text-lg font-semibold" :style="{ color: roleColor }">Veggente</h3>
 			<p class="text-neutral-400 text-sm">Controlla la fazione di un giocatore</p>
 		</div>
 		

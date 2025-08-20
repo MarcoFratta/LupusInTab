@@ -42,6 +42,24 @@ const showDetails = ref(false);
         </div>
       </div>
 
+      <!-- Resurrected Players -->
+      <div v-if="props.state.night.summary.resurrected && props.state.night.summary.resurrected.length > 0" class="bg-white/5 border border-white/10 rounded-lg p-5 w-full text-center">
+        <div class="flex items-center justify-center gap-2 mb-1">
+          <span class="text-emerald-400 text-lg">✨</span>
+          <div class="font-semibold text-emerald-400">Resuscitati<span v-if="props.state.night.summary.resurrected.length"> ({{ props.state.night.summary.resurrected.length }})</span></div>
+        </div>
+        <div class="mt-2 flex flex-wrap justify-center gap-2">
+          <span 
+            v-for="pid in props.state.night.summary.resurrected" 
+            :key="pid"
+            class="inline-flex items-center gap-2 px-2.5 py-1 rounded text-xs font-medium border bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            {{ props.state.players.find((p: any) => p.id === pid)?.name }}
+          </span>
+        </div>
+      </div>
+
       <!-- Controls: two equal buttons, left and right -->
       <ButtonGroup>
         <GhostButton full-width @click="showDetails = !showDetails">

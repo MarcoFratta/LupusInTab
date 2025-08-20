@@ -13,7 +13,8 @@ const medium: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "alive",
-    usage: 'unlimited',
+    effectType: 'optional',
+    numberOfUsage: 'unlimited',
     getPromptComponent() {
         return () => import('../components/roles/Medium/MediumPrompt.vue');
     },

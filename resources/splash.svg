@@ -1,0 +1,23 @@
+<svg width="2732" height="2732" viewBox="0 0 2732 2732" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background matching your app theme -->
+  <rect width="2732" height="2732" fill="#1f2937"/>
+  
+  <!-- Logo centered with padding - scaled up version of your constellation -->
+  <g transform="translate(866, 866) scale(15.6)">
+    <!-- Background rectangle -->
+    <rect width="64" height="64" rx="12" fill="#0f172a"/>
+    
+    <!-- Constellation pattern -->
+    <g fill="#e2e8f0">
+      <circle cx="20" cy="22" r="6"/>
+      <circle cx="32" cy="18" r="6"/>
+      <circle cx="44" cy="22" r="6"/>
+      <circle cx="26" cy="28" r="5" opacity="0.0"/>
+      <circle cx="38" cy="28" r="5" opacity="0.0"/>
+      <circle cx="32" cy="42" r="12"/>
+    </g>
+  </g>
+  
+  <!-- App name below logo -->
+  <text x="1366" y="2000" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="white">Lupus Master</text>
+</svg>

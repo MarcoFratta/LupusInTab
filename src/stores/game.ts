@@ -10,7 +10,7 @@ export interface NightTurnSingle { kind: 'single'; roleId: string; playerId: num
 export interface NightTurnGroup { kind: 'group'; roleId: string; playerIds: number[] }
 export type NightTurn = NightTurnSingle | NightTurnGroup;
 
-export interface NightSummary { targeted: number[]; saved: number[]; died: number[]; checks: Array<{by:number; target:number; team:string}> }
+export interface NightSummary { targeted: number[]; saved: number[]; died: number[]; resurrected: number[]; checks: Array<{by:number; target:number; team:string}> }
 
 export interface DaySummary { lynched: number | null; day: number; }
 

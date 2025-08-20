@@ -12,7 +12,8 @@ const villager: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "never",
-    usage: 'unlimited',
+    effectType: 'optional',
+    numberOfUsage: 'unlimited',
     getPromptComponent() {
         return () => Promise.resolve(() => null as any);
     },

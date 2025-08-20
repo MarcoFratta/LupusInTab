@@ -17,7 +17,8 @@ describe('Massone (Lover) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(lover.usage).toBe('unlimited');
+            expect(lover.effectType).toBe('optional');
+            expect(lover.numberOfUsage).toBe('unlimited');
             expect(lover.minCount).toBe(2);
             expect(lover.maxCount).toBeUndefined();
         });

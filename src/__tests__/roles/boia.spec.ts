@@ -40,7 +40,8 @@ describe('Boia (Hangman) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(hangman.usage).toBe('unlimited');
+            expect(hangman.effectType).toBe('optional');
+            expect(hangman.numberOfUsage).toBe(1);
             expect(hangman.minCount).toBe(1);
             expect(typeof hangman.maxCount).toBe('function');
         });
@@ -63,8 +64,7 @@ describe('Boia (Hangman) Role', () => {
             expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
             expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'hangman',
-                notSavable: true
+                role: 'hangman'
             });
         });
 
@@ -79,8 +79,7 @@ describe('Boia (Hangman) Role', () => {
             expect(mockGameState.night.context.pendingKills[1]).toBeDefined(); // Boia kills himself
             expect(mockGameState.night.context.pendingKills[1]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[1][0]).toEqual({
-                role: 'hangman',
-                notSavable: true
+                role: 'hangman'
             });
             expect(mockGameState.night.context.pendingKills[2]).toBeUndefined(); // Target survives
         });
@@ -107,16 +106,7 @@ describe('Boia (Hangman) Role', () => {
             expect(Object.keys(mockGameState.night.context.pendingKills)).toHaveLength(0);
         });
 
-        it('should create kills with notSavable flag set to true', () => {
-            const action = {
-                playerId: 1,
-                data: { targetId: 2, roleId: 'wolf' }
-            };
 
-            hangman.resolve(mockGameState, action);
-
-            expect(mockGameState.night.context.pendingKills[2][0].notSavable).toBe(true);
-        });
     });
 
     describe('Win Condition', () => {

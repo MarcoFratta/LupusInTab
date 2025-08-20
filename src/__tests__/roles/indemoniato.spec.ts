@@ -16,7 +16,8 @@ describe('Indemoniato (Demoniac) Role', () => {
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(indemoniato.usage).toBe('unlimited');
+            expect(indemoniato.effectType).toBe('optional');
+            expect(indemoniato.numberOfUsage).toBe('unlimited');
             expect(indemoniato.minCount).toBeUndefined();
             expect(indemoniato.maxCount).toBeUndefined();
         });

@@ -13,7 +13,8 @@ const dog: RoleDef = {
     phaseOrder: "any",
     group: false,
     actsAtNight: "alive",
-    usage: 'requiredEveryNight',
+    effectType: 'required',
+    numberOfUsage: 'unlimited',
     immuneToKillers: ['wolf'],
     getPromptComponent() {
         return () => import('../components/roles/Dog/DogPrompt.vue');
@@ -24,7 +25,7 @@ const dog: RoleDef = {
     passiveEffect(gameState: any, player: any) {
         // Handle immunity: remove any wolf kills targeting this Lupo Mannaro
         // This runs every night regardless of blocking status
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
         if (pk[player.id]) {
             // Remove all wolf kills targeting this Lupo Mannaro (wolves can't kill him)
             pk[player.id] = pk[player.id].filter(kill => kill.role !== 'wolf');
@@ -46,9 +47,9 @@ const dog: RoleDef = {
         if (!target) return;
         const isCorrect = target.roleId === roleId;
         if (isCorrect) {
-            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
             if (!pk[targetId]) pk[targetId] = [];
-            pk[targetId].push({ role: 'dog', notSavable: true });
+            pk[targetId].push({ role: 'dog' });
         }
         
         // Log to history

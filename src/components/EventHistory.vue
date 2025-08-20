@@ -31,8 +31,23 @@ const allEvents = computed(() => {
   const events = [];
   const state = props.state;
   
-  // Derive night events from history
-  if (state.history) {
+  // Use event history nights if available, otherwise derive from history
+  if (state.eventHistory && state.eventHistory.nights && state.eventHistory.nights.length > 0) {
+    // Use the actual night summaries from event history
+    for (const nightEvent of state.eventHistory.nights) {
+      events.push({
+        type: 'night',
+        order: nightEvent.night * 2, // Even numbers for nights
+        night: nightEvent.night,
+        data: {
+          night: nightEvent.night,
+          summary: nightEvent.summary,
+          results: nightEvent.results || []
+        }
+      });
+    }
+  } else if (state.history) {
+    // Fallback: derive night events from history (for backward compatibility)
     const nightNumbers = new Set();
     
     // Collect all night numbers from history
@@ -56,6 +71,7 @@ const allEvents = computed(() => {
         died: Array.isArray(state.nightDeathsByNight?.[nightNum]) ? [...state.nightDeathsByNight[nightNum]] : [],
         saved: [],
         targeted: [],
+        resurrected: [], // Add missing field
         checks: []
       };
       
@@ -152,6 +168,27 @@ const allEvents = computed(() => {
                 class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border bg-red-500/15 text-red-300 border-red-500/30"
               >
                 <span class="w-1 h-1 rounded-full bg-red-400"></span>
+                {{ props.state.players.find((p) => p.id === pid)?.name }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Resurrected Players -->
+          <div v-if="event.data.summary.resurrected && event.data.summary.resurrected.length > 0" class="bg-white/5 border border-white/10 rounded-lg p-3 mb-2">
+            <div class="flex items-center justify-center gap-2 mb-2">
+              <span class="text-emerald-400 text-sm">✨</span>
+              <div class="font-medium text-emerald-400 text-sm">
+                Resuscitati
+                <span v-if="event.data.summary.resurrected.length"> ({{ event.data.summary.resurrected.length }})</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap justify-center gap-1">
+              <span 
+                v-for="pid in event.data.summary.resurrected" 
+                :key="pid"
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+              >
+                <span class="w-1 h-1 rounded-full bg-emerald-400"></span>
                 {{ props.state.players.find((p) => p.id === pid)?.name }}
               </span>
             </div>

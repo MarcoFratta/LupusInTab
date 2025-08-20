@@ -20,6 +20,13 @@ const config: CapacitorConfig = {
       style: 'DARK',
       backgroundColor: '#1f2937',
       overlaysWebView: false
+    },
+    LiveUpdate: {
+      appId: 'com.lupus.master',
+      channel: 'production',
+      autoUpdateMethod: 'background',
+      maxVersions: 2,
+      serverUrl: 'https://lupus-in-tabula.vercel.app'
     }
   }
 };

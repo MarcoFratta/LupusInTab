@@ -17,16 +17,8 @@
       {
         "assets": [
           {
-            "path": "android/app/build/outputs/apk/release/app-release.apk",
-            "label": "Release APK (Direct Install)"
-          },
-          {
             "path": "android/app/build/outputs/bundle/release/app-release.aab",
-            "label": "App Bundle (Play Store)"
-          },
-          {
-            "path": "public/**/*",
-            "label": "Public Assets"
+            "label": "Android App Bundle (AAB)"
           }
         ]
       }

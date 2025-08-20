@@ -172,3 +172,66 @@ jobs:
           NODE_ENV: production
         run: npm run release
 
+      - name: Get Release Version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $VERSION"
+
+      - name: Update Version File
+        run: |
+          cat > public/version.json << EOF
+          {
+            "version": "${{ steps.get_version.outputs.version }}",
+            "timestamp": $(date +%s)000,
+            "assets": [
+              "/index.html",
+              "/assets/index-*.js",
+              "/assets/index-*.css"
+            ],
+            "changelog": "Auto-updated by semantic-release",
+            "minVersion": "1.0.0"
+          }
+          EOF
+          echo "Updated version.json with version ${{ steps.get_version.outputs.version }}"
+
+      - name: Commit and Push Version Update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/version.json
+          git commit -m "chore: update version.json to ${{ steps.get_version.outputs.version }} [skip ci]"
+          git push origin master
+
+      - name: Wait for Vercel Deployment
+        run: |
+          echo "Waiting for Vercel to auto-deploy with new version..."
+          echo "Version ${{ steps.get_version.outputs.version }} should be available at:"
+          echo "https://lupus-in-tabula.vercel.app/version.json"
+          sleep 30
+
+      - name: Verify Version Update
+        run: |
+          echo "Verifying version update..."
+          curl -s "https://lupus-in-tabula.vercel.app/version.json" | jq '.version' || echo "Version file not yet available"
+
+      - name: Rebuild Mobile App with Latest Assets
+        run: |
+          echo "Rebuilding mobile app with latest website assets..."
+          npm run build
+          npx cap sync android
+          cd android
+          ./gradlew assembleRelease --parallel
+          ./gradlew bundleRelease --parallel
+          cd ..
+
+      - name: Upload Updated Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-builds-updated
+          path: |
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+

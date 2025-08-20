@@ -263,7 +263,7 @@ watch(roleId, () => {
         </div>
 
         <!-- Abilities Section -->
-        <div v-if="role.actsAtNight !== 'never' || role.usage || role.affectedRoles || role.immuneToKillers" class="space-y-4 sm:space-y-6">
+        		<div v-if="role.actsAtNight !== 'never' || role.usage || role.affectedRoles" class="space-y-4 sm:space-y-6">
           <h3 class="text-xl sm:text-2xl font-bold text-neutral-100 flex items-center gap-2 sm:gap-3">
             <div class="w-1 h-6 sm:h-8 rounded-full bg-gradient-to-b from-orange-500 to-red-500"></div>
             Abilità e Caratteristiche
@@ -300,12 +300,7 @@ watch(roleId, () => {
                 </div>
               </div>
               
-              <div v-if="role.immuneToKillers?.length" class="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg bg-neutral-900/50 border border-neutral-800/30">
-                <div class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-400 mt-1"></div>
-                <div>
-                  <div class="text-xs sm:text-sm font-medium">Immune a: {{ role.immuneToKillers.join(', ') }}</div>
-                </div>
-              </div>
+
             </div>
           </div>
         </div>

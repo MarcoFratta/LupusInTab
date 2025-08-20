@@ -25,7 +25,7 @@ describe('Usage System', () => {
         startNight: 1,
         canTargetDead: false,
         affectedRoles: [],
-        immuneToKillers: [],
+
         knownTo: [],
         revealPartnersRoleIds: [],
         revealAlliesWithinRole: false,

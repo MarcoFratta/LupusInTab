@@ -33,10 +33,47 @@ jobs:
         run: npm run build
 
       - name: Install Android platform
-        run: npx cap add android
+        run: |
+          npx cap add android
+          echo "Android platform added"
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: |
+          npx cap sync android
+          echo "Capacitor synced"
+
+      - name: Verify Android Platform Files
+        run: |
+          echo "Android directory contents:"
+          ls -la android/
+          echo "Android app directory contents:"
+          ls -la android/app/
+          echo "Checking for gradlew:"
+          if [ -f "android/gradlew" ]; then
+            echo "✅ gradlew exists"
+            chmod +x android/gradlew
+          else
+            echo "❌ gradlew missing, creating it..."
+            cd android
+            gradle wrapper
+            chmod +x ./gradlew
+            cd ..
+          fi
+          echo "Final gradlew status:"
+          ls -la android/gradlew*
+
+      - name: Ensure Gradle Wrapper Exists
+        run: |
+          cd android
+          if [ ! -f "./gradlew" ]; then
+            echo "Gradle wrapper missing, generating it..."
+            gradle wrapper
+          fi
+          chmod +x ./gradlew
+          echo "Gradle wrapper status:"
+          ls -la gradlew*
+          ./gradlew --version
+          cd ..
 
       - name: Verify Capacitor setup
         run: npx cap doctor
@@ -56,6 +93,11 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: '8.11.1'
         
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -216,13 +258,37 @@ jobs:
           echo "Verifying version update..."
           curl -s "https://lupus-in-tabula.vercel.app/version.json" | jq '.version' || echo "Version file not yet available"
 
+      - name: Ensure Android Platform Setup
+        run: |
+          echo "Ensuring Android platform is properly set up..."
+          if [ ! -f "android/gradlew" ]; then
+            echo "Gradle wrapper missing, recreating Android platform..."
+            rm -rf android
+            npx cap add android
+          fi
+          npx cap sync android
+
       - name: Rebuild Mobile App with Latest Assets
         run: |
           echo "Rebuilding mobile app with latest website assets..."
           npm run build
+          
+          echo "Verifying Android platform setup..."
+          ls -la android/
+          ls -la android/app/
+          
+          echo "Syncing Capacitor..."
           npx cap sync android
+          
+          echo "Checking Gradle wrapper..."
+          ls -la android/gradlew
+          chmod +x android/gradlew
+          
+          echo "Building APK..."
           cd android
           ./gradlew assembleRelease --parallel
+          
+          echo "Building AAB..."
           ./gradlew bundleRelease --parallel
           cd ..
 

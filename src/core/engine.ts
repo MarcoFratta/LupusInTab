@@ -45,7 +45,7 @@ export function initializePlayerRoleState(player: any, roleDef: any): void {
         startNight: roleDef.startNight || 1,
         canTargetDead: roleDef.canTargetDead || false,
         affectedRoles: roleDef.affectedRoles || [],
-        immuneToKillers: roleDef.immuneToKillers || [],
+
         knownTo: roleDef.knownTo || [],
         revealPartnersRoleIds: roleDef.revealPartnersRoleIds || [],
         revealAlliesWithinRole: roleDef.revealAlliesWithinRole || false,

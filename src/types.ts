@@ -102,7 +102,7 @@ export interface RoleDef {
      */
     affectedRoles?: string[];
     /** If present, killers in this list cannot kill this role (are ignored at resolve) */
-    immuneToKillers?: string[];
+    
     /**
      * Roles that should be able to see this role during the reveal phase.
      * Example: an executioner might set knownTo: ['wolf'] so Wolves see who the executioner is.
@@ -169,7 +169,7 @@ export interface PlayerRoleState {
     startNight: number;
     canTargetDead: boolean;
     affectedRoles: string[];
-    immuneToKillers: string[];
+    
     knownTo: string[];
     revealPartnersRoleIds: string[];
     revealAlliesWithinRole: boolean;

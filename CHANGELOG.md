@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.1.0...v1.1.1) (2025-08-20)
+
+
+### Bug Fixes
+
+* fix lupomannaro.ts ([1c60d05](https://github.com/MarcoFratta/LupusInTab/commit/1c60d054e4017acb7d74b1f440ddd76c03746ead))
+
 # [1.1.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.0.1...v1.1.0) (2025-08-20)
 
 

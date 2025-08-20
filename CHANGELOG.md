@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.0.0...v1.0.1) (2025-08-20)
+
+
+### Bug Fixes
+
+* release workflow ([40c9346](https://github.com/MarcoFratta/LupusInTab/commit/40c93464391ceb0597af0094b2ab5c55780f94df))
+
 # 1.0.0 (2025-08-20)
 
 

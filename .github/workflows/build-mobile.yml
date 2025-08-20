@@ -33,9 +33,11 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-level: '34'
-          build-tools: '34.0.0'
-          platforms: 'android-34'
+          packages: |
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
+          accept-android-sdk-licenses: true
 
       - name: Install dependencies
         run: npm install
@@ -97,6 +99,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Download Android Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug-apk
+          path: android/app/build/outputs/apk/debug/
+
+      - name: Download Release AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release-aab
+          path: android/app/build/outputs/bundle/release/
+
+      - name: Verify Available Files
+        run: |
+          echo "Checking available files for semantic-release..."
+          echo "Debug APK directory:"
+          ls -la android/app/build/outputs/apk/debug/ || echo "Debug directory not found"
+          echo "Release AAB directory:"
+          ls -la android/app/build/outputs/bundle/release/ || echo "Release directory not found"
+          echo "All build outputs:"
+          find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
 
       - name: Setup Node.js
         uses: actions/setup-node@v3

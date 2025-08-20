@@ -7,7 +7,8 @@ on:
   pull_request:
 
 permissions:
-  contents: write  # Needed for semantic-release to push tags and releases
+  contents: write
+  packages: write
 
 jobs:
   build:
@@ -17,26 +18,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'   # Capacitor requires Node >= 20
           cache: 'npm'
 
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build web assets
-        run: npm run build   # Produces ./dist folder for Capacitor
+        run: npm run build
 
-      - name: Add Android platform
-        run: npx cap add android
+      - name: Add Capacitor Android platform
+        run: npx cap add android || echo "Platform already added"
 
       - name: Sync Capacitor Android
         run: npx cap sync android
@@ -66,7 +67,22 @@ jobs:
           name: app-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
 
-      - name: Semantic Release
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release

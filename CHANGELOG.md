@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.1.2...v1.1.3) (2025-08-20)
+
+
+### Bug Fixes
+
+* release apk ([3358a1f](https://github.com/MarcoFratta/LupusInTab/commit/3358a1f6f81a15c8d99047e442e7d54a01178715))
+
 ## [1.1.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.1.1...v1.1.2) (2025-08-20)
 
 

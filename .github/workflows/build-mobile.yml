@@ -1,4 +1,4 @@
-name: Build Android App
+name: Build Android App & Release
 
 on:
   push:
@@ -8,43 +8,63 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write       # needed for semantic-release to push changelog / tags
+  packages: write       # optional, needed if publishing to npm
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
+      # Install dependencies
+      - name: Install npm dependencies
         run: npm ci
 
-      - name: Build web assets
+      # Build web assets
+      - name: Build web app
         run: npm run build
 
+      # Add Android platform if missing
       - name: Add Android platform
-        run: npx cap add android
+        run: npx cap add android || echo "Android platform already exists"
 
+      # Sync Capacitor
       - name: Sync Capacitor Android
         run: npx cap sync android
 
+      # Setup Java 21 for Gradle
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Build Android APK
+      # Build debug APK
+      - name: Build Android Debug APK
         working-directory: android
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      # Upload debug APK artifact
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      # Run Semantic Release
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }} # optional if publishing to npm

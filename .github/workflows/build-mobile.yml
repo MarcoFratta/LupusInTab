@@ -45,6 +45,18 @@ jobs:
       - name: Build web assets
         run: npm run build
 
+      - name: Prepare Icon Assets
+        run: |
+          echo "Preparing icon assets from website logo..."
+          cp public/favicon.svg resources/icon.svg
+          echo "Icon source updated!"
+
+      - name: Generate App Icons and Assets
+        run: |
+          echo "Generating app icons and splash screens..."
+          npx capacitor-assets generate
+          echo "Assets generated successfully!"
+
       - name: Add Capacitor Android platform
         run: npx cap add android || echo "Platform already added"
 

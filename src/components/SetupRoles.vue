@@ -84,7 +84,7 @@ function openRoleDetails(roleId: string): void {
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2 flex-wrap md:flex-nowrap min-w-0 md:items-start">
-                  <span class="text-sm font-semibold truncate min-w-0" :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</span>
+                  <span class="text-sm font-semibold truncate min-w-0" :style="{ color: faction.config.color }">{{ role.name }}</span>
                 </div>
                 <div class="mt-1 text-xs text-neutral-400 line-clamp-2 text-left">{{ role.description }}</div>
                 <div v-if="role.id === 'wolf' || role.id === 'villager'" class="mt-2 text-[10px] text-neutral-400 text-left">Sempre abilitato</div>

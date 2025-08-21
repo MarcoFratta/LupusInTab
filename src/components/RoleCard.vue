@@ -64,8 +64,9 @@ function handleInputChange(event: Event) {
         <div class="min-w-0 flex-1 flex flex-col gap-1">
           <div class="flex flex-col md:flex-row md:items-start gap-1 md:gap-2">
             <h3 class="text-sm font-semibold leading-tight truncate text-left md:order-1"
-                :style="{ color: role.color || '#e5e7eb' }">{{ role.name }}</h3>
-            <span class="inline-flex w-max items-center gap-1.5 rounded text-[10px] sm:text-[10px] font-medium px-1.5 py-0.5 md:order-2 md:self-start"
+                :style="{ color: getFactionConfig(role.team)?.color || '#9ca3af' }">{{ role.name }}</h3>
+            <span class="inline-flex w-max items-center gap-1.5 rounded text-[10px] sm:text-[10px]
+            font-medium px-1.5 py-0.5 md:order-2 md:self-start"
                  :style="{ backgroundColor: hexToRgba(getFactionConfig(role.team)?.color || '#9ca3af', 0.2) || undefined, color: getFactionConfig(role.team)?.color || '#9ca3af' }">
               <span class="w-1.5 h-1.5 rounded-full bg-current flex-shrink-0"></span>
               <span class="leading-none">{{ getFactionConfig(role.team)?.displayName || role.team }}</span>

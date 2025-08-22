@@ -28,6 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build web assets
+        run: npm run build   # <-- important: generates 'dist' or your webDir
+
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
 
@@ -57,12 +60,12 @@ jobs:
         run: |
           cd android
           cat > gradle.properties << 'EOF'
-          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          org.gradle.daemon=false
-          org.gradle.parallel=true
-          android.useAndroidX=true
-          android.enableJetifier=true
-          EOF
+org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
+org.gradle.daemon=false
+org.gradle.parallel=true
+android.useAndroidX=true
+android.enableJetifier=true
+EOF
 
       - name: Clean Gradle build
         run: |

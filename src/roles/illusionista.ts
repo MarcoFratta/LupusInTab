@@ -12,6 +12,8 @@ const illusionista: RoleDef = {
     color: '#06b6d4',
     phaseOrder: 0,
     actsAtNight: "alive",
+    knownTo: ['lupo'],
+    revealWithAllies: 'role',
     effectType: 'optional',
     getPromptComponent: componentFactory('Illusionista', "prompt"),
     getResolveDetailsComponent: componentFactory('Illusionista', "details"),

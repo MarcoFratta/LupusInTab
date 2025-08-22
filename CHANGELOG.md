@@ -1,3 +1,28 @@
+# [1.5.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.4.0...v1.5.0) (2025-08-22)
+
+
+### Bug Fixes
+
+*  release job to GitHub Actions workflow ([0caf6e8](https://github.com/MarcoFratta/LupusInTab/commit/0caf6e8d8e428284be2d7e1d6e5ba5264eb71147))
+* fix workflow ([c7aca14](https://github.com/MarcoFratta/LupusInTab/commit/c7aca14adf89788c76fe7a1e8202530eab1ef022))
+* fix workflow ([9e480f9](https://github.com/MarcoFratta/LupusInTab/commit/9e480f99114b9b036a91494c4d60afadf44f5cac))
+* fix workflow ([67d6461](https://github.com/MarcoFratta/LupusInTab/commit/67d6461f92dbd3c9bfb1ab45fb12ca18ba816d0d))
+* update build-mobile.yml ([f9fbdb1](https://github.com/MarcoFratta/LupusInTab/commit/f9fbdb15098c2d5334b40a5e2c54798792b096e0))
+* update build-mobile.yml ([c5e471a](https://github.com/MarcoFratta/LupusInTab/commit/c5e471a5d08c9fe9eb92f726e7bdab03ef065c73))
+* update build-mobile.yml ([2a620c9](https://github.com/MarcoFratta/LupusInTab/commit/2a620c925e941990bb6cf5f7cb889c4c17945f8f))
+* update build-mobile.yml ([6d22ecf](https://github.com/MarcoFratta/LupusInTab/commit/6d22ecf32f273ef5adeefbb7cc8623a820fb61c3))
+* update build-mobile.yml ([47f3be3](https://github.com/MarcoFratta/LupusInTab/commit/47f3be3be6c9619ebd7d37bbc3f5e6db1cc14fe4))
+* update build-mobile.yml ([e94ea93](https://github.com/MarcoFratta/LupusInTab/commit/e94ea93d7f12c742f6ef71fe33cc3fe0855550bb))
+* update build-mobile.yml ([ffeb778](https://github.com/MarcoFratta/LupusInTab/commit/ffeb7789b99c6228fc60fa403ceba3b396274c74))
+* update build-mobile.yml ([0546b5e](https://github.com/MarcoFratta/LupusInTab/commit/0546b5e83c4522585834c46dcb889576658a5002))
+* update build-mobile.yml ([fa79bc7](https://github.com/MarcoFratta/LupusInTab/commit/fa79bc7364fe9b96dac538dcebb9869c0ccf33a1))
+
+
+### Features
+
+* update build-mobile.yml ([14a1b3c](https://github.com/MarcoFratta/LupusInTab/commit/14a1b3c31cc01c9c1142135a3948a3c9591e607d))
+* update build-mobile.yml ([f82a495](https://github.com/MarcoFratta/LupusInTab/commit/f82a49563b0795a06ce0fc6f646fca911c314104))
+
 # [1.4.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.3.0...v1.4.0) (2025-08-22)
 
 

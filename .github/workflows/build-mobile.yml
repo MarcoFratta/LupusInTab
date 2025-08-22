@@ -29,7 +29,7 @@ jobs:
         run: npm ci
 
       - name: Build web assets
-        run: npm run build   # <-- important: generates 'dist' or your webDir
+        run: npm run build
 
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick

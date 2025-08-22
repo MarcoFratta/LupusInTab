@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 20
 
@@ -98,10 +98,14 @@ EOF
           name: app-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
 
+---
+
+## Release Job
+
   release:
     needs: build
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -130,7 +134,7 @@ EOF
           find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 20
 

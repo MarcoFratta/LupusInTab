@@ -60,41 +60,34 @@ jobs:
         run: |
           cd android
           ./gradlew clean
-      - name: Build Android APK & AAB
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x ./gradlew
           echo "Building debug APK..."
           ./gradlew assembleDebug
-          echo "Building release APK..."
-          ./gradlew assembleRelease
-          echo "Building release AAB..."
-          ./gradlew bundleRelease
-          echo "All builds completed successfully!"
+          echo "Debug APK build completed!"
+          
+          echo "Renaming debug APK to lupusMaster.apk..."
+          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/lupusMaster.apk
+          echo "APK renamed successfully!"
       - name: Verify Build Outputs
         run: |
           echo "Checking build outputs..."
           ls -la android/app/build/outputs/apk/debug/ || echo "Debug APK directory not found"
-          ls -la android/app/build/outputs/apk/release/ || echo "Release APK directory not found"
-          ls -la android/app/build/outputs/bundle/release/ || echo "Release AAB directory not found"
-      - name: Upload Debug APK
+          echo "Looking for lupusMaster.apk..."
+          if [ -f "android/app/build/outputs/apk/debug/lupusMaster.apk" ]; then
+            echo "✅ lupusMaster.apk found and ready for upload!"
+          else
+            echo "❌ lupusMaster.apk not found!"
+          fi
+      - name: Upload lupusMaster.apk
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: lupusMaster-apk
+          path: android/app/build/outputs/apk/debug/lupusMaster.apk
           if-no-files-found: error
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-          if-no-files-found: error
-      - name: Upload Release AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: error
+
           
   release:
     needs: build
@@ -107,25 +100,21 @@ jobs:
         run: |
           echo "Checking available artifacts from build job..."
           gh run list --limit 1 --json artifacts --jq '.[0].artifacts[].name' || echo "No artifacts found"
-      - name: Download Debug APK
+      - name: Download lupusMaster.apk
         uses: actions/download-artifact@v4
         with:
-          name: app-debug-apk
+          name: lupusMaster-apk
           path: android/app/build/outputs/apk/debug/
-      - name: Download Release APK
-        uses: actions/download-artifact@v4
-        with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/
-      - name: Download Release AAB
-        uses: actions/download-artifact@v4
-        with:
-          name: app-release-aab
-          path: android/app/build/outputs/bundle/release/
       - name: Verify Available Files
         run: |
-          echo "Listing built files..."
-          find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
+          echo "Listing available files..."
+          ls -la android/app/build/outputs/apk/debug/ || echo "Debug directory not found"
+          echo "Looking for lupusMaster.apk..."
+          if [ -f "android/app/build/outputs/apk/debug/lupusMaster.apk" ]; then
+            echo "✅ lupusMaster.apk found and ready for use!"
+          else
+            echo "❌ lupusMaster.apk not found!"
+          fi
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:

@@ -7,7 +7,7 @@ const lupomannaro: RoleDef = {
     team: 'mannari',
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
-    countAs: 'lupi',
+    countAs: 'villaggio',
     description: 'Gioca da solo. Vince se restate in due (tu e un altro). I lupi non possono ucciderti. Di notte dichiara un giocatore e un ruolo: se indovini, muore. Se il Veggente indaga il tuo ruolo, muori.',
     color: '#6366f1',
     phaseOrder: "any",

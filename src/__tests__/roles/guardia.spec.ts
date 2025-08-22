@@ -9,8 +9,8 @@ describe('Guardia (Doctor) Role', () => {
         mockGameState = {
             players: [
                 { id: 1, roleId: 'doctor', alive: true },
-                { id: 2, roleId: 'wolf', alive: true },
-                { id: 3, roleId: 'villager', alive: true }
+                { id: 2, roleId: 'lupo', alive: true },
+                { id: 3, roleId: 'villico', alive: true }
             ],
             night: {
                 context: {
@@ -30,7 +30,7 @@ describe('Guardia (Doctor) Role', () => {
             expect(doctor.countAs).toBe('villaggio');
             expect(doctor.color).toBe('#3b82f6');
             expect(doctor.phaseOrder).toBe('any');
-            expect(doctor.group).toBe(false);
+            
             		expect(doctor.actsAtNight).toBe('alive');
         });
 
@@ -42,12 +42,7 @@ describe('Guardia (Doctor) Role', () => {
         });
 
         it('should have correct affected roles', () => {
-            expect(doctor.affectedRoles).toEqual(['wolf']);
-        });
-
-        it('should have correct component references', () => {
-            expect(typeof doctor.getPromptComponent).toBe('function');
-            expect(typeof doctor.getResolveDetailsComponent).toBe('function');
+            expect(doctor.affectedRoles).toEqual(['lupo']);
         });
     });
 
@@ -63,7 +58,7 @@ describe('Guardia (Doctor) Role', () => {
             expect(mockGameState.night.context.saves).toHaveLength(1);
             expect(mockGameState.night.context.saves[0]).toEqual({
                 targetId: 3,
-                fromRoles: ['wolf'],
+                fromRoles: ['lupo'],
                 byRole: 'guardia'
             });
         });
@@ -80,7 +75,7 @@ describe('Guardia (Doctor) Role', () => {
             expect(mockGameState.night.context.savesBy[0]).toEqual({
                 by: 1,
                 target: 3,
-                fromRoles: ['wolf']
+                fromRoles: ['lupo']
             });
         });
 
@@ -130,7 +125,7 @@ describe('Guardia (Doctor) Role', () => {
 
             doctor.resolve(mockGameState, entry);
 
-            expect(mockGameState.night.context.saves[0].fromRoles).toEqual(['wolf']);
+            expect(mockGameState.night.context.saves[0].fromRoles).toEqual(['lupo']);
         });
     });
 

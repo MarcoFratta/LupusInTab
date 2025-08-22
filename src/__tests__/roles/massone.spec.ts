@@ -1,51 +1,61 @@
-import { describe, it, expect, vi } from 'vitest';
-import lover from '../../roles/massone';
-import { useWinConditions } from '../../utils/winConditions';
+import { describe, it, expect } from 'vitest';
+import massone from '../../roles/massone';
 
 describe('Massone (Lover) Role', () => {
-    describe('Role Properties', () => {
-        it('should have correct basic properties', () => {
-            expect(lover.id).toBe('lover');
-            expect(lover.name).toBe('Massone');
-            expect(lover.team).toBe('villaggio');
-            expect(lover.visibleAsTeam).toBe('villaggio');
-            expect(lover.countAs).toBe('villaggio');
-            expect(lover.color).toBe('#ec4899');
-            expect(lover.phaseOrder).toBe('any');
-            expect(lover.group).toBe(false);
-            		expect(lover.actsAtNight).toBe('never');
-        });
+	describe('Role Properties', () => {
+		it('should have correct basic properties', () => {
+			expect(massone.id).toBe('massone');
+			expect(massone.name).toBe('Massone');
+			expect(massone.team).toBe('villaggio');
+			expect(massone.visibleAsTeam).toBe('villaggio');
+			expect(massone.countAs).toBe('villaggio');
+			expect(massone.color).toBe('#ec4899');
+			expect(massone.phaseOrder).toBe('any');
+			
+			expect(massone.actsAtNight).toBe('never');
+		});
 
-        it('should have correct usage and count constraints', () => {
-            expect(lover.effectType).toBe('optional');
-            expect(lover.numberOfUsage).toBe('unlimited');
-            expect(lover.minCount).toBe(2);
-            expect(lover.maxCount).toBeUndefined();
-        });
+		it('should have correct usage and count constraints', () => {
+			expect(massone.effectType).toBe('optional');
+			expect(massone.numberOfUsage).toBe('unlimited');
+			expect(massone.minCount).toBe(2);
+			expect(massone.maxCount).toBeUndefined();
+		});
 
-        it('should have correct component references', () => {
-            expect(lover.getPromptComponent).toBeUndefined();
-        });
-    });
+		it('should have correct team visibility settings', () => {
+			expect(massone.revealAlliesWithinRole).toBe(true);
+		});
+	});
 
-    describe('Resolve Function', () => {
-        it('should do nothing when called', () => {
-            const mockGameState = {};
-            const mockEntry = {};
+	describe('Resolve Function', () => {
+		it('should do nothing when called', () => {
+			const mockGameState = {};
+			const mockEntry = {};
 
-            expect(() => lover.resolve(mockGameState, mockEntry)).not.toThrow();
-        });
-    });
+			expect(() => massone.resolve(mockGameState, mockEntry)).not.toThrow();
+		});
+	});
 
-    describe('Win Condition', () => {
-        it('should have a checkWin function', () => {
-            expect(typeof lover.checkWin).toBe('function');
-        });
-    });
+	describe('Win Condition', () => {
+		it('should use village win condition', () => {
+			expect(typeof massone.checkWin).toBe('function');
+		});
+	});
 
-    describe('Prompt Component', () => {
-        it('should not have a prompt component since it never acts at night', () => {
-            expect(lover.getPromptComponent).toBeUndefined();
-        });
-    });
+	describe('Count Constraints', () => {
+		it('should have minimum count of 2', () => {
+			expect(massone.minCount).toBe(2);
+		});
+
+		it('should have no max count limit', () => {
+			expect(massone.maxCount).toBeUndefined();
+		});
+	});
+
+	describe('Team vs CountAs', () => {
+		it('should play for villaggio team and count as villaggio for wins', () => {
+			expect(massone.team).toBe('villaggio');
+			expect(massone.countAs).toBe('villaggio');
+		});
+	});
 });

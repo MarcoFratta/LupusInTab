@@ -43,6 +43,7 @@ import {
     setSindaco as engineSetSindaco,
     evaluateWinner as engineEvaluateWinner,
 } from './core/engine';
+import { getPromptComponent } from './utils/roleUtils';
 
 const PHASES = {
 	SETUP: 'setup',
@@ -72,13 +73,10 @@ if (!(state as any).settings) {
 }
 // Ensure rolesEnabled exists in setup for older saved states
 if (!(state as any).setup?.rolesEnabled) {
-    // Default active roles: only Villager and Wolf
-    (state as any).setup.rolesEnabled = { wolf: true, villager: true } as any;
+    		// Default active roles: only Villico and Lupo
+		(state as any).setup.rolesEnabled = { lupo: true, villico: true } as any;
 }
-// Ensure eventHistory exists for older saved states
-if (!state.eventHistory) {
-    state.eventHistory = { nights: [], days: [] };
-}
+
 const routePage = computed(() => {
     const p = route.params.page as string | undefined;
     return (p === 'players' || p === 'settings' || p === 'roles') ? p : 'home';
@@ -206,8 +204,8 @@ const saveTestGame = () => {
         nightNumber: 0,
         dayNumber: 0,
         players: [
-            { id: 1, name: 'Test Player 1', roleId: 'wolf', alive: true, roleState: {} },
-            { id: 2, name: 'Test Player 2', roleId: 'villager', alive: true, roleState: {} }
+            		{ id: 1, name: 'Test Player 1', roleId: 'lupo', alive: true, roleState: {} },
+            		{ id: 2, name: 'Test Player 2', roleId: 'villico', alive: true, roleState: {} }
         ],
         setup: { numPlayers: 2, players: [], rolesCounts: {}, rolesEnabled: {} },
         revealIndex: 0,
@@ -217,7 +215,7 @@ const saveTestGame = () => {
         winner: null,
         lynchedHistory: [],
         usedPowers: {},
-        eventHistory: { nights: [], days: [] },
+
         custom: {},
         history: {},
         nightDeathsByNight: {},
@@ -303,7 +301,7 @@ function resumeGame() {
 		state.winner = saved.winner || null;
 		state.lynchedHistory = saved.lynchedHistory || [];
 		state.usedPowers = saved.usedPowers || {};
-		state.eventHistory = saved.eventHistory || { nights: [], days: [] };
+		
 		state.custom = saved.custom || {};
 		state.history = saved.history || {};
 		state.nightDeathsByNight = saved.nightDeathsByNight || {};
@@ -372,7 +370,7 @@ const roleCounts = computed(() => ({ ...state.setup.rolesCounts }));
 
 const totalRolesSelected = computed(() => Object.values(roleCounts.value).reduce((a: number, b: number) => a + (b || 0), 0));
 const canStart = computed(() => {
-    const numWolves = roleCounts.value['wolf'] || 0;
+    		const numWolves = roleCounts.value['lupo'] || 0;
     return state.setup.players.length >= 4 && numWolves >= 1 && totalRolesSelected.value === state.setup.numPlayers;
 });
 
@@ -400,18 +398,16 @@ const currentActor = computed(() => {
 	if (entry.kind === 'single') {
 		return state.players.find(p => p.id === entry.playerId) || null;
 	}
-	return { id: 0, name: currentRole.value?.name, roleId: entry.roleId, group: true };
+	return { id: 0, name: currentRole.value?.name, roleId: entry.roleId };
 });
 
 const currentPromptComponent = computed(() => {
-	const entry = currentTurn.value;
-	if (!entry) return null;
-	const role = ROLES[entry.roleId];
-	if (!role) return null;
-	const factory = entry.kind === 'group' && typeof role.getGroupPromptComponent === 'function'
-		? role.getGroupPromptComponent(state, entry)
-		: role.getPromptComponent?.(state, currentActor.value);
-	return factory ? defineAsyncComponent(factory) : null;
+    if (!currentActor.value || !currentActor.value.roleId) return null;
+    
+    const role = ROLES.find(r => r.id === currentActor.value.roleId);
+    if (!role || role.actsAtNight === 'never') return null;
+    
+    return role.getPromptComponent();
 });
 
 const isFirstNightSkipped = computed(() => !!state.settings?.skipFirstNightActions && state.nightNumber === 1);
@@ -419,18 +415,14 @@ const isFirstNightSkipped = computed(() => !!state.settings?.skipFirstNightActio
 const shouldShowDeadPrompt = computed(() => {
 	const entry = currentTurn.value;
 	if (!entry) return false;
-	if (entry.kind === 'single') {
-		const player = state.players.find(p => p.id === entry.playerId);
-		return !player || player.alive === false;
-	}
-	// group: show dead prompt if no alive members of the group
+	// For all roles, show dead prompt if no alive members of the group
 	const anyAlive = alivePlayers.value.some(p => p.roleId === entry.roleId);
 	return !anyAlive;
 });
 
 const currentGroupNames = computed(() => {
 	const entry = currentTurn.value;
-	if (!entry || entry.kind !== 'group') return null as string[] | null;
+	if (!entry) return null as string[] | null;
 	return entry.playerIds
 		.map(id => state.players.find(p => p.id === id)?.name)
 		.filter((n): n is string => !!n);
@@ -467,12 +459,7 @@ function onLynch(playerId: number) {
 }
 
 function onSkipDay() {
-    // No lynch: record empty day event and complete the day
-    if (!state.eventHistory) state.eventHistory = { nights: [], days: [] };
-    state.eventHistory.days.push({
-        day: state.dayNumber,
-        lynched: null
-    });
+    // No lynch: complete the day
     engineCompleteDay(state as any, ROLES as any);
 }
 

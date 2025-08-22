@@ -13,14 +13,13 @@ const roleDef = computed(() => ROLES[props.roleId]);
 const faction = computed(() => getFactionConfig(roleDef.value?.team || 'unknown'));
 
 const roleName = computed(() => roleDef.value?.name || props.roleId);
-const roleColor = computed(() => roleDef.value?.color || faction.value?.color || '#9ca3af');
 const factionColor = computed(() => faction.value?.color || '#9ca3af');
 const factionName = computed(() => faction.value?.displayName || roleDef.value?.team || 'unknown');
 
 const chipStyle = computed(() => ({
-  color: roleColor.value,
+  color: factionColor.value,
   borderColor: hexToRgba(factionColor.value, 0.5) || factionColor.value,
-  backgroundColor: hexToRgba(roleColor.value, 0.15) || undefined,
+  backgroundColor: hexToRgba(factionColor.value, 0.15) || undefined,
 }));
 </script>
 

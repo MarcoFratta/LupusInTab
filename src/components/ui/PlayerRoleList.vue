@@ -15,7 +15,7 @@ const items = computed(() => props.players.map((p: any) => {
     name: p.name,
     roleName: roleDef?.name || p.roleId,
     team: roleDef?.team || 'unknown',
-    roleColor: roleDef?.color || factionColor,
+    roleColor: factionColor,
     factionColor: factionColor,
   };
 }));

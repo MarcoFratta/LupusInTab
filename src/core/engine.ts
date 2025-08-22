@@ -8,7 +8,7 @@ export function createEmptyState(): GameState {
 		nightNumber: 0,
 		dayNumber: 0,
 		players: [],
-        setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false, barabba: false, angelo: false } },
+        setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { lupo: true, villico: true, guardia: true, veggente: true, massone: false, matto: false, giustiziere: false, boia: false, medium: false, lupomannaro: false, indemoniato: false, insinuo: false, barabba: false, angelo: false } },
 		revealIndex: 0,
 		night: { turns: [], currentIndex: 0, context: null, summary: null },
 		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
@@ -16,7 +16,7 @@ export function createEmptyState(): GameState {
 		winner: null,
         lynchedHistory: [],
         usedPowers: {},
-        eventHistory: { nights: [], days: [] },
+
         custom: {},
         history: {},
         nightDeathsByNight: {},
@@ -62,16 +62,19 @@ export function initSetupPlayers(state: GameState): void {
 
 export function initDefaultRolesCounts(state: GameState): void {
 	const n = state.setup.numPlayers;
-	const wolves = Math.max(getMinCountForRole(state, 'wolf'), Math.floor(n / 4));
+	const lupi = Math.max(getMinCountForRole(state, 'lupo'), Math.floor(n / 4));
 	const guardia = n >= 5 ? Math.max(getMinCountForRole(state, 'guardia'), 1) : 0;
-	const medium = n >= 6 ? Math.max(getMinCountForRole(state, 'medium'), 1) : 0;
+	const veggente = n >= 6 ? Math.max(getMinCountForRole(state, 'veggente'), 1) : 0;
 	const insinuo = n >= 7 ? Math.max(getMinCountForRole(state, 'insinuo'), 1) : 0;
-	const used = wolves + guardia + medium + insinuo;
-	const villager = Math.max(0, n - used);
-    state.setup.rolesCounts = { wolf: wolves, guardia, medium, insinuo, villager } as Record<string, number>;
+	const used = lupi + guardia + veggente + insinuo;
+	const villico = Math.max(0, n - used);
+    state.setup.rolesCounts = { lupo: lupi, guardia, veggente, insinuo, villico } as Record<string, number>;
     if (!state.setup.rolesEnabled) {
-        state.setup.rolesEnabled = { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false, barabba: false, angelo: false } as Record<string, boolean>;
+        state.setup.rolesEnabled = { lupo: true, villico: true, guardia: true, veggente: true, massone: false, matto: false, giustiziere: false, boia: false, medium: false, lupomannaro: false, indemoniato: false, insinuo: false, barabba: false, angelo: false, genio: false } as Record<string, boolean>;
     }
+    
+    // Normalize role counts to respect rolesEnabled setting
+    normalizeRoleCounts(state);
 }
 
 export function resizePlayers(state: GameState, nextCount: number): void {
@@ -163,8 +166,7 @@ export function getMaxCountForRole(state: GameState, roleId: string): number {
 
 export function setRoleEnabled(state: GameState, roleId: string, enabled: boolean): void {
     if (!state.setup.rolesEnabled) state.setup.rolesEnabled = {} as any;
-    // wolves and villagers cannot be disabled
-    if (roleId === 'wolf' || roleId === 'villager') {
+    if (roleId === 'lupo' || roleId === 'villico') {
         state.setup.rolesEnabled[roleId] = true;
         normalizeRoleCounts(state);
         return;
@@ -174,7 +176,6 @@ export function setRoleEnabled(state: GameState, roleId: string, enabled: boolea
     if (!enabled) {
         state.setup.rolesCounts[roleId] = 0;
     } else {
-        // When enabling a role, ensure it meets the minimum requirement
         const min = getMinCountForRole(state, roleId);
         if (min > 0) {
             state.setup.rolesCounts[roleId] = min;
@@ -261,21 +262,19 @@ export function validateAndFixRoleCounts(state: GameState): void {
 	if (totalRoles !== numPlayers) {
 		console.warn(`Role count mismatch: ${totalRoles} roles for ${numPlayers} players`);
 		
-		// Calculate how many villager roles we need
-		const currentVillagers = state.setup.rolesCounts['villager'] || 0;
-		const neededVillagers = numPlayers - totalRoles + currentVillagers;
+		const currentVillici = state.setup.rolesCounts['villico'] || 0;
+		const neededVillici = numPlayers - totalRoles + currentVillici;
 		
-		if (neededVillagers > 0) {
-			console.log(`Adjusting villager count from ${currentVillagers} to ${neededVillagers}`);
-			state.setup.rolesCounts['villager'] = neededVillagers;
-		} else if (neededVillagers < 0) {
+		if (neededVillici > 0) {
+			console.log(`Adjusting villico count from ${currentVillici} to ${neededVillici}`);
+			state.setup.rolesCounts['villico'] = neededVillici;
+		} else if (neededVillici < 0) {
 			console.warn(`Too many roles (${totalRoles}) for ${numPlayers} players. This shouldn't happen.`);
 		}
 	}
 }
 
 export function beginReveal(state: GameState, roleList: any[], shuffled: (a: string[]) => string[]): void {
-	// Validate and fix role counts before proceeding
 	validateAndFixRoleCounts(state);
 	
 	const pool: string[] = [];
@@ -287,7 +286,6 @@ export function beginReveal(state: GameState, roleList: any[], shuffled: (a: str
 		numPlayers: state.setup.numPlayers
 	});
 	
-	// Only use roles that are enabled and have counts > 0
 	for (const role of roleList) {
 		const count = state.setup.rolesCounts[role.id] || 0;
 		const isEnabled = state.setup.rolesEnabled?.[role.id] !== false;
@@ -298,18 +296,16 @@ export function beginReveal(state: GameState, roleList: any[], shuffled: (a: str
 	
 	console.log('Role pool created:', pool);
 	
-	// Validate that we have enough roles for all players
 	if (pool.length !== state.setup.numPlayers) {
 		console.error(`Critical error: Role pool size (${pool.length}) doesn't match player count (${state.setup.numPlayers})`);
 		console.error('Role counts:', state.setup.rolesCounts);
 		console.error('Roles enabled:', state.setup.rolesEnabled);
 		
-		// Try to fix by filling with villager roles
 		const missingRoles = state.setup.numPlayers - pool.length;
 		if (missingRoles > 0) {
-			console.warn(`Attempting to fix by adding ${missingRoles} villager roles`);
+			console.warn(`Attempting to fix by adding ${missingRoles} villico roles`);
 			for (let i = 0; i < missingRoles; i++) {
-				pool.push('villager');
+				pool.push('villico');
 			}
 		}
 	}
@@ -327,7 +323,7 @@ export function beginReveal(state: GameState, roleList: any[], shuffled: (a: str
 		return { 
 			id: idx + 1, 
 			name: p.name?.trim() || `Giocatore ${idx + 1}`, 
-			roleId: roleId || 'villager', // Fallback to villager if no role available
+			roleId: roleId || 'villico',
 			alive: true,
 			roleState: {} as any
 		};
@@ -364,106 +360,76 @@ export function nextReveal(state: GameState, onEnd: () => void): void {
 
 export function beginNight(state: GameState, roles: RolesRegistry): void {
 	state.nightNumber += 1;
-    // Reset per-night context and ensure usedPowers map exists
     if (!(state as any).usedPowers) (state as any).usedPowers = {};
     
-    // Track which players are dead at the start of this night for resurrection detection
     if (!(state as any).deadAtNightStart) (state as any).deadAtNightStart = {};
     (state as any).deadAtNightStart[state.nightNumber] = state.players.filter(p => !p.alive).map(p => p.id);
     
 
     
-		const sortedByRole = state.players
-		.filter(p => {
-			// Check if player has a prompt component
-			const hasPrompt = typeof roles[p.roleId]?.getPromptComponent === 'function' || typeof roles[p.roleId]?.getGroupPromptComponent === 'function';
-			
-			if (!hasPrompt) return false;
-			
-			// Check if player should be skipped (can't act at all)
-			const actsAtNight = p.roleState?.actsAtNight;
-			
-			// Skip players who can never act
-			if (actsAtNight === 'never') return false;
-			
-			// ALL other players should be called at night, regardless of alive/dead/blocked status
-			// The UI will show appropriate messages based on their state
-			return true;
-		})
-				.sort((a, b) => {
-					// Get phase order from player roleState (runtime state)
-		const aOrder = a.roleState?.phaseOrder;
-		const bOrder = b.roleState?.phaseOrder;
-			
-			// Handle "any" phase order - roles with "any" can act in any order
-			if (aOrder === "any" && bOrder === "any") {
-				return a.id - b.id;
-			}
-			
-			// If one is "any", put it after numbered roles
-			if (aOrder === "any") return 1;
-			if (bOrder === "any") return -1;
-			
-			// Both are numbers, sort from lowest to highest (including negative numbers)
-			const aNum = Number(aOrder);
-			const bNum = Number(bOrder);
-			
-			// If both are valid numbers, sort numerically
-			if (Number.isFinite(aNum) && Number.isFinite(bNum)) {
-				return aNum - bNum;
-			}
-			
-			// If only one is a valid number, put the valid one first
-			if (Number.isFinite(aNum)) return -1;
-			if (Number.isFinite(bNum)) return 1;
-			
-			// If neither is a valid number, maintain stable order
-			return a.id - b.id;
-		});
+    const uniqueRoles = new Set(state.players.map(p => p.roleId));
     
-    console.log('Filtered and sorted players:', sortedByRole.map(p => ({
-        id: p.id,
-        name: p.name,
-        roleId: p.roleId,
-        phaseOrder: p.roleState?.phaseOrder
-    })));
-	const visitedGroup = new Set<string>();
-	const turns: any[] = [];
-	const aliveIds = new Set(getAlivePlayers(state).map(p => p.id));
-	for (const p of sortedByRole) {
-		const roleDef = roles[p.roleId];
-		if (roleDef?.group) {
-			if (!visitedGroup.has(p.roleId)) {
-				const groupPlayersAlive = state.players.filter(x => x.roleId === p.roleId && aliveIds.has(x.id));
-				
-				// For group roles, we always create a turn even if all are blocked
-				// The UI will show a blocked message
-				const playerIds = groupPlayersAlive.map(x => x.id);
-				turns.push({ kind: 'group', roleId: p.roleId, playerIds: playerIds });
-				
-
-				visitedGroup.add(p.roleId);
-			}
-			continue;
-		}
-		
-		// For once-per-game roles, skip if they've already acted in a previous night based on history
-		if (rolesUsageOf(state, p.roleId) === 'once' && hasNonUndefinedHistoryBefore(state, p.id)) {
-			continue;
-		}
-		
-		// Always create turns for single roles, even if blocked
-		// The UI will show a blocked message
-		turns.push({ kind: 'single', roleId: p.roleId, playerId: p.id });
-	}
+    // Separate roles that can act at night from those that only have passive effects
+    const rolesWithPrompts = [];
+    const rolesWithPassiveOnly = [];
+    
+    for (const roleId of uniqueRoles) {
+        const roleDef = roles[roleId];
+        if (!roleDef) continue;
+        
+        const rolePlayers = state.players.filter(p => p.roleId === roleId);
+        const roleInfo = {
+            roleId,
+            roleDef,
+            players: rolePlayers,
+            phaseOrder: roleDef.phaseOrder !== undefined ? roleDef.phaseOrder : 'any'
+        };
+        
+        if (roleDef.actsAtNight !== "never") {
+            // Roles that can act at night (show prompts)
+            rolesWithPrompts.push(roleInfo);
+        } else if (typeof roleDef.passiveEffect === 'function') {
+            // Roles that can't act but have passive effects
+            rolesWithPassiveOnly.push(roleInfo);
+        }
+    }
+    
+    // Sort roles with prompts by phase order
+    rolesWithPrompts.sort((a, b) => {
+        const aOrder = a.phaseOrder;
+        const bOrder = b.phaseOrder;
+        
+        if (aOrder === "any" && bOrder === "any") {
+            return a.roleId.localeCompare(b.roleId);
+        }
+        
+        if (aOrder === "any") return 1;
+        if (bOrder === "any") return -1;
+        
+        const aNum = Number(aOrder);
+        const bNum = Number(bOrder);
+        
+        if (Number.isFinite(aNum) && Number.isFinite(bNum)) {
+            return aNum - bNum;
+        }
+        
+        if (Number.isFinite(aNum)) return -1;
+        if (Number.isFinite(bNum)) return 1;
+        
+        return a.roleId.localeCompare(b.roleId);
+    });
+    
+    const turns = rolesWithPrompts.map(role => ({
+        kind: 'group' as const,
+        roleId: role.roleId,
+        playerIds: role.players.map(p => p.id)
+    }));
     
     const nightContext = { 
 		pendingKills: {}, 
 		savesBy: [], 
 		checks: []
 	};
-    
-
     
     state.night = { 
 		turns, 
@@ -472,8 +438,21 @@ export function beginNight(state: GameState, roles: RolesRegistry): void {
 		summary: null 
 	} as any;
     
-    // Passive effects are now called before each individual role resolution in recordNightResult
-    // This ensures they run in the correct order: passive -> resolve -> next player passive -> next player resolve
+    // Apply passive effects to roles that can't act at night
+    for (const roleInfo of rolesWithPassiveOnly) {
+        const { roleDef, players } = roleInfo;
+        if (typeof roleDef.passiveEffect === 'function') {
+            for (const player of players) {
+                if (player.alive) {
+                    try {
+                        roleDef.passiveEffect(state as any, player);
+                    } catch (error) {
+                        console.error(`Error in passive effect for ${roleInfo.roleId} (player ${player.id}):`, error);
+                    }
+                }
+            }
+        }
+    }
     
 	state.phase = 'night';
 }
@@ -482,112 +461,18 @@ export function recordNightResult(state: GameState, result: any): void {
 	const entry = state.night.turns[state.night.currentIndex];
 	if (!entry) return;
 
-			// Handle single roles
-		if (entry.kind === 'single') {
-			const roleDef = ROLES[entry.roleId];
-			const playerId = (entry as any).playerId;
-			
-			// Check if player can act at night using utility function
-			const player = state.players.find(p => p.id === playerId);
-			const canAct = player ? canPlayerActAtNight(player, state) && !hasPlayerExceededUsageLimit(player, state) : false;
-			
-			// ALWAYS apply passive effects before role resolution (even if blocked)
-			if (roleDef && typeof roleDef.passiveEffect === 'function') {
-				try {
-					roleDef.passiveEffect(state as any, player);
-				} catch (error) {
-					console.error(`Error in passive effect for ${entry.roleId}:`, error);
-				}
-			}
-			
-			if (canAct) {
-				// Player can act, proceed with normal role execution
-				// Track usage if the role was used
-				if (result?.used === true) {
-					if (!(state as any).usedPowers) (state as any).usedPowers = {};
-					if (!(state as any).usedPowers[entry.roleId]) (state as any).usedPowers[entry.roleId] = [];
-					(state as any).usedPowers[entry.roleId].push(playerId);
-				}
-				
-				// Create the action object for the role to resolve
-				const action = {
-					roleId: entry.roleId,
-					kind: entry.kind,
-					playerId: playerId,
-					playerIds: (entry as any).playerIds,
-					data: result
-				};
-				
-				// Call the role's resolve function immediately
-				if (roleDef && typeof roleDef.resolve === 'function') {
-					roleDef.resolve(state as any, action);
-				}
-			
-			// Record a skip marker in history when the player explicitly did not act
-			if (result && result.used === false) {
-				if (!state.history) (state as any).history = {} as any;
-				if (!(state as any).history[state.nightNumber]) (state as any).history[state.nightNumber] = {};
-				(state as any).history[state.nightNumber][playerId] = undefined as any;
-			}
-		} else {
-			// Player cannot act, but we still need to record this in history
-			// This allows the UI to show appropriate messages (dead, blocked, wrong state)
-			if (!state.history) (state as any).history = {} as any;
-			if (!(state as any).history[state.nightNumber]) (state as any).history[state.nightNumber] = {};
-			
-			// Determine why the player cannot act
-			let reason = 'unknown';
-			if (player) {
-				const actsAtNight = player.roleState?.actsAtNight;
-				if (actsAtNight === 'blocked') reason = 'blocked';
-				else if (actsAtNight === 'alive' && !player.alive) reason = 'dead';
-				else if (actsAtNight === 'dead' && player.alive) reason = 'alive';
-				else if (player.roleState?.startNight && state.nightNumber < player.roleState.startNight) reason = 'startNight';
-				else if (hasPlayerExceededUsageLimit(player, state)) reason = 'usageLimit';
-			}
-			
-			(state as any).history[state.nightNumber][playerId] = {
-				type: 'role_skipped',
-				nightNumber: state.nightNumber,
-				playerId: playerId,
-				reason: reason,
-				roleId: entry.roleId
-			};
-		}
-	}
-	
-	// Handle group roles
 	if (entry.kind === 'group') {
 		const roleDef = ROLES[entry.roleId];
 		const playerIds = (entry as any).playerIds || [];
 		
-		// Check if ALL alive members of the group are blocked
-		const aliveMembers = state.players.filter(p => playerIds.includes(p.id) && p.alive);
-		const allBlocked = aliveMembers.length > 0 && aliveMembers.every(player => 
-			player.roleState?.actsAtNight === 'blocked'
-		);
+		// Check if this is the first night and first night actions are skipped
+		const isFirstNightSkipped = state.settings?.skipFirstNightActions && state.nightNumber === 1;
 		
-		if (allBlocked) {
-			// All alive members are blocked - record this in history
-			// This allows the UI to show appropriate blocked message
-			if (!state.history) (state as any).history = {} as any;
-			if (!(state as any).history[state.nightNumber]) (state as any).history[state.nightNumber] = {};
+		if (!isFirstNightSkipped) {
+			// Only run passive effects if not first night skipped
+			const aliveMembers = state.players.filter(p => playerIds.includes(p.id) && p.alive);
 			
-			// Record blocked group action
-			(state as any).history[state.nightNumber][playerIds[0]] = {
-				type: 'group_role_blocked',
-				nightNumber: state.nightNumber,
-				playerId: playerIds[0],
-				playerIds: playerIds,
-				roleId: entry.roleId,
-				reason: 'blocked'
-			};
-		} else {
-			// At least one member can act - proceed with normal group role execution
-			
-			// ALWAYS apply passive effects before group role resolution (even if blocked)
 			if (roleDef && typeof roleDef.passiveEffect === 'function') {
-				// For group roles, apply passive effect to all alive members
 				for (const playerId of playerIds) {
 					const player = state.players.find(p => p.id === playerId);
 					if (player && player.alive) {
@@ -599,20 +484,75 @@ export function recordNightResult(state: GameState, result: any): void {
 					}
 				}
 			}
-			
-			const action = {
-				roleId: entry.roleId,
-				kind: entry.kind,
-				playerId: playerIds[0], // Use first player as representative
-				playerIds: playerIds,
-				data: result
-			};
-			
-			// Call the group role's resolve function immediately
-			if (roleDef && typeof roleDef.resolve === 'function') {
-				roleDef.resolve(state as any, action);
+
+			if (!state.history) (state as any).history = {} as any;
+			if (!(state as any).history[state.nightNumber]) (state as any).history[state.nightNumber] = {};
+
+			if (result?.skipped === true) {
+				// Role was explicitly skipped by player choice
+				(state as any).history[state.nightNumber][entry.roleId] = "skipped";
+			} else if (result?.blocked === true) {
+				// Role was blocked by another role
+				(state as any).history[state.nightNumber][entry.roleId] = "blocked";
+			} else {
+				// Check if role can act based on constraints
+				const constraintCheck = checkRoleConstraints(state, entry.roleId, playerIds);
+				
+				if (constraintCheck !== null) {
+					// Role cannot act due to constraints
+					(state as any).history[state.nightNumber][entry.roleId] = constraintCheck;
+				} else if (isRoleUsed(result)) {
+					// Role was actually used (has meaningful data)
+					if (!(state as any).usedPowers) (state as any).usedPowers = {};
+					if (!(state as any).usedPowers[entry.roleId]) (state as any).usedPowers[entry.roleId] = [];
+					for (const playerId of playerIds) {
+						(state as any).usedPowers[entry.roleId].push(playerId);
+					}
+						
+					const action = {
+						roleId: entry.roleId,
+						kind: entry.kind,
+						playerId: playerIds[0],
+						playerIds: playerIds,
+						data: result
+					};
+						
+					if (roleDef && typeof roleDef.resolve === 'function') {
+						// Each role's resolve function returns its own history object
+						const roleHistory = roleDef.resolve(state as any, action);
+						
+						if (roleHistory) {
+							// Store the role's history object
+							(state as any).history[state.nightNumber][entry.roleId] = roleHistory;
+						} else {
+							// Fallback to generic history if role doesn't return anything
+							(state as any).history[state.nightNumber][entry.roleId] = {
+								type: `${entry.roleId}_action`,
+								nightNumber: state.nightNumber,
+								roleId: entry.roleId,
+								playerIds: playerIds,
+								data: result,
+								groupAction: true
+							};
+						}
+					} else {
+						// Role has no resolve function, create generic history
+						(state as any).history[state.nightNumber][entry.roleId] = {
+							type: `${entry.roleId}_action`,
+							nightNumber: state.nightNumber,
+							roleId: entry.roleId,
+							playerIds: playerIds,
+							data: result,
+							groupAction: true
+						};
+					}
+				} else {
+					// Role can act but wasn't used (no meaningful data provided)
+					(state as any).history[state.nightNumber][entry.roleId] = "skipped";
+				}
 			}
 		}
+		// If first night is skipped, we don't add anything to history - the role is processed but no history entry is created
 	}
 	
 	if (state.night.currentIndex < state.night.turns.length - 1) {
@@ -620,6 +560,79 @@ export function recordNightResult(state: GameState, result: any): void {
 	} else {
 		state.phase = 'resolve';
 	}
+}
+
+function isRoleUsed(result: any): boolean {
+	if (!result || typeof result !== 'object') return false;
+	
+	// Explicit used/skipped flags - these take priority
+	if (result.used === true) return true;
+	if (result.used === false || result.skipped === true) return false;
+	
+	// Check for meaningful data that indicates the role was used
+	const hasTargetId = result.targetId !== null && result.targetId !== undefined;
+	const hasTarget = result.target !== null && result.target !== undefined;
+	const hasAction = result.action && result.action !== 'none';
+	const hasChoice = result.choice !== null && result.choice !== undefined;
+	const hasRoleId = result.roleId !== null && result.roleId !== undefined;
+	
+	// If any meaningful data is present, consider the role used
+	return hasTargetId || hasTarget || hasAction || hasChoice || hasRoleId;
+}
+
+function checkRoleConstraints(state: GameState, roleId: string, playerIds: number[]): string | null {
+	const roleDef = ROLES[roleId];
+	if (!roleDef) return null;
+
+	const aliveMembers = state.players.filter(p => playerIds.includes(p.id) && p.alive);
+	const deadMembers = state.players.filter(p => playerIds.includes(p.id) && !p.alive);
+
+	// Check if all players with this role are blocked
+	if (aliveMembers.length > 0 && aliveMembers.every(player => 
+		player.roleState?.actsAtNight === 'blocked'
+	)) {
+		return "blocked";
+	}
+
+	// Check if all players with this role are dead and role requires alive players
+	if (aliveMembers.length === 0 && roleDef.actsAtNight === 'alive') {
+		return "dead";
+	}
+
+	// Check if all players with this role are alive and role requires dead players
+	if (deadMembers.length === 0 && roleDef.actsAtNight === 'dead') {
+		return "alive";
+	}
+
+	// Check if role has reached usage limit
+	const rolePlayers = state.players.filter(p => playerIds.includes(p.id));
+	const hasUsageLimit = rolePlayers.some(player => {
+		const numberOfUsage = player.roleState?.numberOfUsage;
+		if (numberOfUsage === 'unlimited' || numberOfUsage === undefined) return false;
+		
+		const usedPowers = (state as any).usedPowers?.[roleId] || [];
+		const timesUsed = usedPowers.filter((playerId: number) => playerId === player.id).length;
+		return timesUsed >= numberOfUsage;
+	});
+	
+	if (hasUsageLimit) {
+		return "usageLimit";
+	}
+
+	// Check if role cannot be used yet due to startNight restriction
+	const hasStartNightRestriction = rolePlayers.some(player => {
+		// Check both the role definition and the player's role state
+		const roleStartNight = roleDef.startNight;
+		const playerStartNight = player.roleState?.startNight;
+		const startNight = playerStartNight || roleStartNight;
+		return startNight && typeof startNight === 'number' && state.nightNumber < startNight;
+	});
+	
+	if (hasStartNightRestriction) {
+		return "startNight";
+	}
+
+	return null;
 }
 
 function rolesUsageOf(state: GameState, roleId: string): 'unlimited' | 'once' | 'requiredEveryNight' | undefined {
@@ -704,15 +717,7 @@ export function continueToDay(state: GameState, roles: RolesRegistry): void {
 		return;
 	}
 	
-	// Save the current night summary to event history before moving to day
-	if (state.night && state.night.summary) {
-		if (!state.eventHistory) state.eventHistory = { nights: [], days: [] } as any;
-		(state.eventHistory as any).nights.push({
-			night: state.nightNumber,
-			summary: { ...state.night.summary }, // Copy the summary
-			results: []
-		});
-	}
+
 	
 	// Call restore functions for all roles that have them, in reverse order of night phase execution
 	if (state.night && state.night.turns && state.night.turns.length > 0) {
@@ -738,6 +743,7 @@ export function startNextNight(state: GameState, roles: RolesRegistry): void {
 		state.phase = 'end';
 		return;
 	}
+	
 	beginNight(state, roles);
 }
 
@@ -745,15 +751,14 @@ export function createTestState(): GameState {
 	const state = createEmptyState();
 	state.players = [
 		{ id: 1, name: 'Giocatore 1', roleId: 'insinuo', alive: true, roleState: {} as any },
-		{ id: 2, name: 'Giocatore 2', roleId: 'wolf', alive: true, roleState: {} as any },
-		{ id: 3, name: 'Giocatore 3', roleId: 'villager', alive: true, roleState: {} as any },
-		{ id: 4, name: 'Giocatore 4', roleId: 'villager', alive: true, roleState: {} as any },
+		{ id: 2, name: 'Giocatore 2', roleId: 'lupo', alive: true, roleState: {} as any },
+		{ id: 3, name: 'Giocatore 3', roleId: 'villico', alive: true, roleState: {} as any },
+		{ id: 4, name: 'Giocatore 4', roleId: 'villico', alive: true, roleState: {} as any },
 		{ id: 5, name: 'Giocatore 5', roleId: 'guardia', alive: true, roleState: {} as any },
 		{ id: 6, name: 'Giocatore 6', roleId: 'guardia', alive: true, roleState: {} as any },
-		{ id: 7, name: 'Giocatore 7', roleId: 'medium', alive: true, roleState: {} as any },
+		{ id: 7, name: 'Giocatore 7', roleId: 'veggente', alive: true, roleState: {} as any },
 	];
 	
-	// Initialize role states for each player
 	for (const player of state.players) {
 		const roleDef = ROLES[player.roleId];
 		if (roleDef) {
@@ -763,13 +768,11 @@ export function createTestState(): GameState {
 	
 	state.setup.numPlayers = state.players.length;
 	state.setup.players = state.players.map(p => ({ name: p.name }));
-	state.setup.rolesCounts = { insinuo: 1, wolf: 1, villager: 2, guardia: 2, medium: 1 };
+	state.setup.rolesCounts = { insinuo: 1, lupo: 1, villico: 2, guardia: 2, veggente: 1 };
 	
-	// Ensure custom and history are initialized
 	state.custom = {};
 	state.history = {};
 	
-	// Set night number for history testing
 	state.nightNumber = 1;
 	
 	return state;
@@ -820,20 +823,13 @@ export function lynchPlayer(state: GameState, playerId: number): void {
     
     // Store day event in history
     if (!state.history) state.history = {} as any;
-    if (!state.eventHistory) state.eventHistory = { nights: [], days: [] } as any;
-    if (state.eventHistory) {
-        state.eventHistory.days.push({
-            day: state.dayNumber,
-            lynched: playerId
-        });
-    }
     
-    // Immediate win for Crazyman if lynched
-    const roleTeam = target.roleState?.realTeam;
-    if (roleTeam === 'matti') {
-        state.winner = 'matti';
-        state.phase = 'end';
-    }
+    // Immediate win for Matto if lynched
+	const roleTeam = target.roleState?.realTeam;
+	if (roleTeam === 'matti') {
+		state.winner = 'matti';
+		state.phase = 'end';
+	}
 }
 
 export function completeDay(state: GameState, roles: RolesRegistry): void {

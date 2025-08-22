@@ -3,6 +3,7 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
   fullWidth: { type: Boolean, default: false },
   size: { type: String, default: 'default' }, // 'xs', 'sm', 'default'
+  class: { type: String, default: '' }
 });
 
 const emit = defineEmits(['click']);
@@ -20,7 +21,8 @@ const sizeClasses = {
     :class="[
       { 'w-full': fullWidth },
       { 'btn-disabled': disabled },
-      sizeClasses[size]
+      sizeClasses[size],
+      props.class
     ]"
     :disabled="disabled"
     @click="emit('click')"

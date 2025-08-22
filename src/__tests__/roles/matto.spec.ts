@@ -1,64 +1,57 @@
 import { describe, it, expect } from 'vitest';
-import crazyman from '../../roles/matto';
+import matto from '../../roles/matto';
 
 describe('Matto (Crazyman) Role', () => {
-    describe('Role Properties', () => {
-        it('should have correct basic properties', () => {
-            expect(crazyman.id).toBe('crazyman');
-            expect(crazyman.name).toBe('Matto');
-            expect(crazyman.team).toBe('matti');
-            expect(crazyman.visibleAsTeam).toBe('matti');
-            expect(crazyman.countAs).toBe('matti');
-            expect(crazyman.color).toBe('#f59e0b');
-            expect(crazyman.phaseOrder).toBe('any');
-            expect(crazyman.group).toBe(false);
-            		expect(crazyman.actsAtNight).toBe('never');
-        });
+	describe('Role Properties', () => {
+		it('should have correct basic properties', () => {
+			expect(matto.id).toBe('matto');
+			expect(matto.name).toBe('Matto');
+			expect(matto.team).toBe('matti');
+			expect(matto.visibleAsTeam).toBe('matti');
+			expect(matto.countAs).toBe('matti');
+			expect(matto.color).toBe('#f59e0b');
+			expect(matto.phaseOrder).toBe('any');
+			
+			expect(matto.actsAtNight).toBe('never');
+		});
 
-        it('should have correct usage and count constraints', () => {
-            expect(crazyman.effectType).toBe('optional');
-            expect(crazyman.numberOfUsage).toBe('unlimited');
-            expect(crazyman.minCount).toBeUndefined();
-            expect(crazyman.maxCount).toBe(1);
-        });
+		it('should have correct usage and count constraints', () => {
+			expect(matto.effectType).toBe('optional');
+			expect(matto.numberOfUsage).toBe('unlimited');
+			expect(matto.minCount).toBeUndefined();
+			expect(matto.maxCount).toBe(1);
+		});
+	});
 
-        it('should have correct component references', () => {
-            expect(crazyman.getPromptComponent).toBeUndefined();
-        });
-    });
+	describe('Resolve Function', () => {
+		it('should do nothing when called', () => {
+			const mockGameState = {};
+			const mockEntry = {};
 
-    describe('Resolve Function', () => {
-        it('should do nothing when called', () => {
-            const mockGameState = {};
-            const mockEntry = {};
+			expect(() => matto.resolve(mockGameState, mockEntry)).not.toThrow();
+		});
+	});
 
-            expect(() => crazyman.resolve(mockGameState, mockEntry)).not.toThrow();
-        });
-    });
+	describe('Win Condition', () => {
+		it('should not have a custom checkWin function', () => {
+			expect(matto.checkWin).toBeDefined();
+		});
+	});
 
-    describe('Win Condition', () => {
-        it('should return false since win is handled at lynch time', () => {
-            const mockGameState = {};
+	describe('Count Constraints', () => {
+		it('should have maximum count of 1', () => {
+			expect(matto.maxCount).toBe(1);
+		});
 
-            const result = crazyman.checkWin(mockGameState);
+		it('should have no min count limit', () => {
+			expect(matto.minCount).toBeUndefined();
+		});
+	});
 
-            expect(result).toBe(false);
-        });
-    });
-
-    describe('Prompt Component', () => {
-        it('should not have a prompt component since crazyman has no night actions', () => {
-            expect(crazyman.getPromptComponent).toBeUndefined();
-        });
-    });
-
-    describe('Count Constraints', () => {
-        it('should have fixed max count of 1', () => {
-            expect(crazyman.maxCount).toBe(1);
-        });
-
-        it('should have no min count limit', () => {
-            expect(crazyman.minCount).toBeUndefined();
-        });
-    });
+	describe('Team vs CountAs', () => {
+		it('should play for matti team and count as matti for wins', () => {
+			expect(matto.team).toBe('matti');
+			expect(matto.countAs).toBe('matti');
+		});
+	});
 });

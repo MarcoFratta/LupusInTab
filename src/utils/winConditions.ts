@@ -1,4 +1,5 @@
 import type { GameState } from '../stores/game';
+import { ROLES } from '../roles';
 
 export type WinCheck = (state: GameState) => boolean;
 
@@ -6,43 +7,79 @@ function countAlive(state: GameState, predicate: (p: { roleId: string; alive: bo
     return state.players.reduce((acc, p) => acc + ((p.alive && predicate(p)) ? 1 : 0), 0);
 }
 
-function isWolfForWin(state: GameState, roleId: string): boolean {
-    const player = state.players.find(p => p.roleId === roleId);
-    if (!player || !player.roleState) return false;
-    return (player.roleState.countAs || player.roleState.realTeam) === 'lupi';
+function isLupoForWin(state: GameState, roleId: string): boolean {
+	const roleDef = ROLES[roleId];
+	if (!roleDef) return false;
+	
+	// Check if Lupomannaro is alive - if so, it blocks lupo wins unless exactly 2 players remain
+	const lupomannaroAlive = countAlive(state, (p) => p.roleId === 'lupomannaro');
+	const totalAlive = countAlive(state, (p) => p.alive);
+	
+	// If Lupomannaro is alive and more than 2 players remain, it blocks lupo wins
+	if (lupomannaroAlive > 0 && totalAlive > 2) {
+		return false;
+	}
+	
+	// Use countAs if defined, otherwise fall back to team
+	const effectiveTeamForWin = roleDef.countAs || roleDef.team;
+	return effectiveTeamForWin === 'lupi';
+}
+
+export function wolvesWin(state: GameState): boolean {
+	const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
+	const nonLupiAlive = countAlive(state, (p) => !isLupoForWin(state, p.roleId));
+	
+	// Wolves win by parity: lupi >= non-lupi
+	return lupiAlive >= nonLupiAlive;
+}
+
+export function villageWin(state: GameState): boolean {
+	// Check if Lupomannaro is alive - if so, it blocks village wins unless exactly 2 players remain
+	const lupomannaroAlive = countAlive(state, (p) => p.roleId === 'lupomannaro');
+	const totalAlive = countAlive(state, (p) => p.alive);
+	
+	if (lupomannaroAlive > 0 && totalAlive > 2) {
+		return false;
+	}
+	
+	const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
+	const nonLupiAlive = countAlive(state, (p) => !isLupoForWin(state, p.roleId));
+	
+	// Village wins when no lupi remain
+	return lupiAlive === 0;
 }
 
 export function useWinConditions() {
     const wolvesWin: WinCheck = (state) => {
-        // Check if LupoMannaro is alive - if so, it blocks wolf wins unless exactly 2 players remain
-        const dogAlive = countAlive(state, (p) => p.roleId === 'dog');
+        // Check if Lupomannaro is alive - if so, it blocks lupo wins unless exactly 2 players remain
+        const lupomannaroAlive = countAlive(state, (p) => p.roleId === 'lupomannaro');
         const totalAlive = countAlive(state, (p) => true);
         
-        // If LupoMannaro is alive and more than 2 players remain, wolves cannot win
-        if (dogAlive > 0 && totalAlive > 2) {
+        // If Lupomannaro is alive and more than 2 players remain, lupi cannot win
+        if (lupomannaroAlive > 0 && totalAlive > 2) {
             return false;
         }
         
         // For wolves parity calculation, count roles that count as lupi for win conditions
-        const wolvesAlive = countAlive(state, (p) => isWolfForWin(state, p.roleId));
-        const nonWolvesAlive = countAlive(state, (p) => !isWolfForWin(state, p.roleId));
+        const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
+        const nonLupiAlive = countAlive(state, (p) => !isLupoForWin(state, p.roleId));
         // Wolves win if wolves are in equal number with non-wolves (parity) or greater
-        return wolvesAlive > 0 && wolvesAlive >= nonWolvesAlive;
+        return lupiAlive > 0 && lupiAlive >= nonLupiAlive;
     };
 
     const villageWin: WinCheck = (state) => {
-        // Check if LupoMannaro is alive - if so, it blocks village wins unless exactly 2 players remain
-        const dogAlive = countAlive(state, (p) => p.roleId === 'dog');
+        // Check if Lupomannaro is alive - if so, it blocks village wins unless exactly 2 players remain
+        const lupomannaroAlive = countAlive(state, (p) => p.roleId === 'lupomannaro');
         const totalAlive = countAlive(state, (p) => true);
         
-        // If LupoMannaro is alive and more than 2 players remain, village cannot win
-        if (dogAlive > 0 && totalAlive > 2) {
+        // If Lupomannaro is alive and more than 2 players remain, village cannot win
+        if (lupomannaroAlive > 0 && totalAlive > 2) {
             return false;
         }
         
         // Village-aligned roles win when no roles that count as lupi for win conditions remain
-        const wolvesAlive = countAlive(state, (p) => isWolfForWin(state, p.roleId));
-        return wolvesAlive === 0;
+        const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
+        return lupiAlive === 0;
     };
 
     return {

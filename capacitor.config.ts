@@ -5,6 +5,8 @@ const config: CapacitorConfig = {
   appName: 'Lupus Master',
   webDir: 'dist',
   server: {
+    url: 'https://lupus-in-tabula.vercel.app',
+    cleartext: true,
     androidScheme: 'https'
   },
   plugins: {
@@ -21,13 +23,7 @@ const config: CapacitorConfig = {
       backgroundColor: '#1f2937',
       overlaysWebView: false
     },
-    LiveUpdate: {
-      appId: 'com.lupus.master',
-      channel: 'production',
-      autoUpdateMethod: 'background',
-      maxVersions: 2,
-      serverUrl: 'https://lupus-in-tabula.vercel.app'
-    }
+
   }
 };
 

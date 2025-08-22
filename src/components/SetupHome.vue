@@ -20,7 +20,7 @@ const totalRolesSelected = computed(() => {
   return values.reduce((a: number, b: number) => a + (Number(b) || 0), 0);
 });
 const canStart = computed(() => {
-  const numWolves = roleCounts.value['wolf'] || 0;
+  	const numWolves = roleCounts.value['lupo'] || 0;
   const totalsMatch = totalRolesSelected.value === state.setup.numPlayers;
   return state.setup.players.length >= 4 && numWolves >= 1 && totalsMatch;
 });

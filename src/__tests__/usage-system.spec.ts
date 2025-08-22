@@ -98,29 +98,29 @@ describe('Skip First Night Actions', () => {
           { name: 'Player 1' },
           { name: 'Player 2' }
         ],
-        rolesCounts: { illusionista: 1, villager: 1 },
-        rolesEnabled: { illusionista: true, villager: true }
+        rolesCounts: { genio: 1, villico: 1 },
+        rolesEnabled: { genio: true, villico: true }
       },
       settings: { skipFirstNightActions: true },
       players: []
     };
 
     const roleList = [
-      { id: 'illusionista', name: 'Illusionista' },
-      { id: 'villager', name: 'Villager' }
+      { id: 'genio', name: 'Genio della Lampada' },
+      { id: 'villico', name: 'Villico' }
     ];
 
     const shuffled = (arr: string[]) => arr;
 
     beginReveal(gameState as any, roleList, shuffled);
 
-    // Find the illusionista player
-    const illusionistaPlayer = gameState.players.find(p => p.roleId === 'illusionista');
-    expect(illusionistaPlayer).toBeDefined();
+    // Find the genio player
+    const genioPlayer = gameState.players.find(p => p.roleId === 'genio');
+    expect(genioPlayer).toBeDefined();
     
-    // The illusionista role has startNight: 2, but it should be adjusted to 3
+    // The genio role has startNight: 2, but it should be adjusted to 3
     // because skipFirstNightActions is enabled (night 1 is skipped)
-    expect(illusionistaPlayer?.roleState?.startNight).toBe(3);
+    expect(genioPlayer?.roleState?.startNight).toBe(3);
   });
 
   it('should not adjust startNight values when skipFirstNightActions is disabled', () => {
@@ -131,28 +131,28 @@ describe('Skip First Night Actions', () => {
           { name: 'Player 1' },
           { name: 'Player 2' }
         ],
-        rolesCounts: { illusionista: 1, villager: 1 },
-        rolesEnabled: { illusionista: true, villager: true }
+        rolesCounts: { genio: 1, villico: 1 },
+        rolesEnabled: { genio: true, villico: true }
       },
       settings: { skipFirstNightActions: false },
       players: []
     };
 
     const roleList = [
-      { id: 'illusionista', name: 'Illusionista' },
-      { id: 'villager', name: 'Villager' }
+      { id: 'genio', name: 'Genio della Lampada' },
+      { id: 'villico', name: 'Villico' }
     ];
 
     const shuffled = (arr: string[]) => arr;
 
     beginReveal(gameState as any, roleList, shuffled);
 
-    // Find the illusionista player
-    const illusionistaPlayer = gameState.players.find(p => p.roleId === 'illusionista');
-    expect(illusionistaPlayer).toBeDefined();
+    // Find the genio player
+    const genioPlayer = gameState.players.find(p => p.roleId === 'genio');
+    expect(genioPlayer).toBeDefined();
     
-    // The illusionista role should keep its original startNight: 2
+    // The genio role should keep its original startNight: 2
     // because skipFirstNightActions is disabled
-    expect(illusionistaPlayer?.roleState?.startNight).toBe(2);
+    expect(genioPlayer?.roleState?.startNight).toBe(2);
   });
 });

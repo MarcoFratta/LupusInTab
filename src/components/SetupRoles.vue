@@ -34,14 +34,14 @@ const rolesByFaction = computed(() => {
 });
 
 function toggleRole(roleId: string): void {
-  // Villager and Wolf cannot be disabled
-  if (roleId === 'wolf' || roleId === 'villager') return;
+  		// Villico and Lupo cannot be disabled
+		if (roleId === 'lupo' || roleId === 'villico') return;
   const current = !!(state.setup.rolesEnabled?.[roleId]);
   engineSetRoleEnabled(state, roleId, !current);
 }
 
 function isEnabled(roleId: string): boolean {
-  if (roleId === 'wolf' || roleId === 'villager') return true;
+  		if (roleId === 'lupo' || roleId === 'villico') return true;
   return state.setup.rolesEnabled?.[roleId] ?? true;
 }
 
@@ -87,7 +87,7 @@ function openRoleDetails(roleId: string): void {
                   <span class="text-sm font-semibold truncate min-w-0" :style="{ color: faction.config.color }">{{ role.name }}</span>
                 </div>
                 <div class="mt-1 text-xs text-neutral-400 line-clamp-2 text-left">{{ role.description }}</div>
-                <div v-if="role.id === 'wolf' || role.id === 'villager'" class="mt-2 text-[10px] text-neutral-400 text-left">Sempre abilitato</div>
+                				<div v-if="role.id === 'lupo' || role.id === 'villico'" class="mt-2 text-[10px] text-neutral-400 text-left">Sempre abilitato</div>
               </div>
               
               <div class="shrink-0 flex flex-col items-end gap-2">
@@ -97,7 +97,7 @@ function openRoleDetails(roleId: string): void {
                   class="w-10 h-6 rounded-full border border-neutral-800/50 bg-neutral-900/60 relative transition-colors hover:bg-neutral-800/70"
                   :class="isEnabled(role.id) ? 'bg-neutral-800/60' : 'bg-neutral-900/60'"
                   @click="toggleRole(role.id)"
-                  :disabled="role.id === 'wolf' || role.id === 'villager'"
+                  					:disabled="role.id === 'lupo' || role.id === 'villico'"
                 >
                   <div class="absolute top-1/2 -translate-y-1/2 transition-all w-4 h-4 rounded-full"
                        :class="isEnabled(role.id) ? 'translate-x-6 bg-emerald-400' : 'translate-x-1 bg-neutral-600'" />

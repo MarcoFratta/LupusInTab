@@ -15,13 +15,16 @@ const aliveChoices = computed(() => [
     { label: 'Seleziona un giocatore...', value: null },
     ...props.gameState.players
         .filter(p => {
-            if (!p.alive || p.id === props.player.id) return false;
+            // Only show alive players
+            if (!p.alive) return false;
             
-            // Check if player's role can act at night
-            const role = ROLES[p.roleId];
-            if (!role) return false;
+            // Don't show the current player (Illusionista)
+            if (p.id === props.player.id) return false;
             
-            return role.actsAtNight === 'always' || role.actsAtNight === 'alive';
+            // Don't show other players with the Illusionista role
+            if (p.roleId === 'illusionista') return false;
+            
+            return true;
         })
         .map(p => ({ label: p.name, value: p.id }))
 ]);

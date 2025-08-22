@@ -3,7 +3,8 @@ import angelo from '../../roles/angelo';
 import { useWinConditions } from '../../utils/winConditions';
 
 vi.mock('../../utils/roleUtils', () => ({
-    addToHistory: vi.fn()
+    addToHistory: vi.fn(),
+    addGroupHistory: vi.fn()
 }));
 
 describe('Angelo Role', () => {
@@ -13,8 +14,8 @@ describe('Angelo Role', () => {
         mockGameState = {
             players: [
                 { id: 1, roleId: 'angelo', alive: true },
-                { id: 2, roleId: 'wolf', alive: false },
-                { id: 3, roleId: 'villager', alive: false }
+                { id: 2, roleId: 'lupo', alive: false },
+                { id: 3, roleId: 'villico', alive: false }
             ],
             nightNumber: 1,
             night: {
@@ -34,7 +35,7 @@ describe('Angelo Role', () => {
             expect(angelo.countAs).toBe('villaggio');
             expect(angelo.color).toBe('#fbbf24');
             expect(angelo.phaseOrder).toBe('any');
-            expect(angelo.group).toBe(false);
+            
             expect(angelo.actsAtNight).toBe('alive');
         });
 
@@ -44,11 +45,6 @@ describe('Angelo Role', () => {
             expect(angelo.startNight).toBeUndefined();
             expect(angelo.minCount).toBeUndefined();
             expect(angelo.maxCount).toBeUndefined();
-        });
-
-        it('should have correct component references', () => {
-            expect(typeof angelo.getPromptComponent).toBe('function');
-            expect(typeof angelo.getResolveDetailsComponent).toBe('function');
         });
     });
 

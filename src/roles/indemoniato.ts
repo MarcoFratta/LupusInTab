@@ -1,26 +1,29 @@
 import type { RoleDef } from '../types';
+import {componentFactory} from "../utils/roleUtils";
 
-const demoniac: RoleDef = {
-    id: 'demoniac',
+const indemoniato: RoleDef = {
+    id: 'indemoniato',
     name: 'Indemoniato',
     team: 'lupi',
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Alleato segreto dei lupi. Visto come lupi dagli altri. Nessuna azione notturna. Vince quando vincono i lupi, ma non conta come lupi per la parità.',
+    description: 'Un indemoniato che appare come lupo ma conta per il villaggio.',
     color: '#fb7185',
     phaseOrder: "any",
-    group: false,
+    
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
-    knownTo: ['wolf'],
+    knownTo: ['lupo'],
     revealToAllies: 'role',
 
+    getPromptComponent: componentFactory('Indemoniato', "prompt"),
+    getResolveDetailsComponent: componentFactory('Indemoniato', "details"),
+
     resolve() {},
-    // No custom checkWin: wolves will declare victory; demoniac shares that win
 };
 
-export default demoniac;
+export default indemoniato;
 
 
 

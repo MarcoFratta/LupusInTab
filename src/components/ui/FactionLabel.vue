@@ -3,11 +3,14 @@ import { computed } from 'vue';
 import { getFactionConfig } from '../../factions';
 import { hexToRgba } from '../../utils/color';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   team: string;
   labelText: string;
   size?: 'sm' | 'md' | 'lg';
-}>();
+}>(), {
+  team: 'villaggio',
+  size: 'md'
+});
 
 const faction = computed(() => getFactionConfig(props.team));
 const factionColor = computed(() => faction.value?.color || '#9ca3af');

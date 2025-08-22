@@ -4,15 +4,15 @@ import indemoniato from '../../roles/indemoniato';
 describe('Indemoniato (Demoniac) Role', () => {
     describe('Role Properties', () => {
         it('should have correct basic properties', () => {
-            expect(indemoniato.id).toBe('demoniac');
+            expect(indemoniato.id).toBe('indemoniato');
             expect(indemoniato.name).toBe('Indemoniato');
             expect(indemoniato.team).toBe('lupi');
             expect(indemoniato.visibleAsTeam).toBe('lupi');
             expect(indemoniato.countAs).toBe('villaggio');
             expect(indemoniato.color).toBe('#fb7185');
             expect(indemoniato.phaseOrder).toBe('any');
-            expect(indemoniato.group).toBe(false);
-            		expect(indemoniato.actsAtNight).toBe('never');
+            
+            expect(indemoniato.actsAtNight).toBe('never');
         });
 
         it('should have correct usage and count constraints', () => {
@@ -20,10 +20,6 @@ describe('Indemoniato (Demoniac) Role', () => {
             expect(indemoniato.numberOfUsage).toBe('unlimited');
             expect(indemoniato.minCount).toBeUndefined();
             expect(indemoniato.maxCount).toBeUndefined();
-        });
-
-        it('should have correct component references', () => {
-            expect(indemoniato.getPromptComponent).toBeUndefined();
         });
     });
 

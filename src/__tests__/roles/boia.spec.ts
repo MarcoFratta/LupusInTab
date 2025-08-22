@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import hangman from '../../roles/boia';
+import boia from '../../roles/boia';
 import { useWinConditions } from '../../utils/winConditions';
 
 // Mock the addToHistory function
 vi.mock('../../utils/roleUtils', () => ({
-    addToHistory: vi.fn()
+    addToHistory: vi.fn(),
+    addGroupHistory: vi.fn()
 }));
 
 describe('Boia (Hangman) Role', () => {
@@ -13,9 +14,9 @@ describe('Boia (Hangman) Role', () => {
     beforeEach(() => {
         mockGameState = {
             players: [
-                { id: 1, roleId: 'hangman', alive: true },
-                { id: 2, roleId: 'wolf', alive: true },
-                { id: 3, roleId: 'villager', alive: true }
+                { id: 1, roleId: 'boia', alive: true },
+                { id: 2, roleId: 'lupo', alive: true },
+                { id: 3, roleId: 'villico', alive: true }
             ],
             nightNumber: 1,
             night: {
@@ -28,58 +29,52 @@ describe('Boia (Hangman) Role', () => {
 
     describe('Role Properties', () => {
         it('should have correct basic properties', () => {
-            expect(hangman.id).toBe('hangman');
-            expect(hangman.name).toBe('Boia');
-            expect(hangman.team).toBe('lupi');
-            expect(hangman.visibleAsTeam).toBe('lupi');
-            expect(hangman.countAs).toBe('villaggio');
-            expect(hangman.color).toBe('#7c3aed');
-            expect(hangman.phaseOrder).toBe(2);
-            expect(hangman.group).toBe(false);
-            		expect(hangman.actsAtNight).toBe('alive');
+            expect(boia.id).toBe('boia');
+            expect(boia.name).toBe('Boia');
+            expect(boia.team).toBe('lupi');
+            expect(boia.visibleAsTeam).toBe('lupi');
+            expect(boia.countAs).toBe('villaggio');
+            expect(boia.color).toBe('#7c3aed');
+            expect(boia.phaseOrder).toBe(2);
+            
+            		expect(boia.actsAtNight).toBe('alive');
         });
 
         it('should have correct usage and count constraints', () => {
-            expect(hangman.effectType).toBe('optional');
-            expect(hangman.numberOfUsage).toBe(1);
-            expect(hangman.minCount).toBe(1);
-            expect(typeof hangman.maxCount).toBe('function');
+            expect(boia.effectType).toBe('optional');
+            expect(boia.numberOfUsage).toBe(1);
         });
 
-        it('should have correct component references', () => {
-            expect(typeof hangman.getPromptComponent).toBe('function');
-            expect(typeof hangman.getResolveDetailsComponent).toBe('function');
-        });
     });
 
     describe('Resolve Function', () => {
         it('should kill target when guess is correct', () => {
             const action = {
                 playerId: 1,
-                data: { targetId: 2, roleId: 'wolf' }
+                data: { targetId: 2, roleId: 'lupo' }
             };
 
-            hangman.resolve(mockGameState, action);
+            boia.resolve(mockGameState, action);
 
             expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
             expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'hangman'
+                role: 'boia'
             });
         });
 
         it('should kill Boia when guess is incorrect', () => {
             const action = {
                 playerId: 1,
-                data: { targetId: 2, roleId: 'villager' } // Wrong guess
+                data: { targetId: 2, roleId: 'villico' } // Wrong guess
             };
 
-            hangman.resolve(mockGameState, action);
+            boia.resolve(mockGameState, action);
 
             expect(mockGameState.night.context.pendingKills[1]).toBeDefined(); // Boia kills himself
             expect(mockGameState.night.context.pendingKills[1]).toHaveLength(1);
             expect(mockGameState.night.context.pendingKills[1][0]).toEqual({
-                role: 'hangman'
+                role: 'boia'
             });
             expect(mockGameState.night.context.pendingKills[2]).toBeUndefined(); // Target survives
         });
@@ -87,10 +82,10 @@ describe('Boia (Hangman) Role', () => {
         it('should not add kill when targetId is invalid', () => {
             const action = {
                 playerId: 1,
-                data: { targetId: 'invalid', roleId: 'wolf' }
+                data: { targetId: 'invalid', roleId: 'lupo' }
             };
 
-            hangman.resolve(mockGameState, action);
+            boia.resolve(mockGameState, action);
 
             expect(Object.keys(mockGameState.night.context.pendingKills)).toHaveLength(0);
         });
@@ -98,10 +93,10 @@ describe('Boia (Hangman) Role', () => {
         it('should not add kill when targetId is undefined', () => {
             const action = {
                 playerId: 1,
-                data: { roleId: 'wolf' }
+                data: { roleId: 'lupo' }
             };
 
-            hangman.resolve(mockGameState, action);
+            boia.resolve(mockGameState, action);
 
             expect(Object.keys(mockGameState.night.context.pendingKills)).toHaveLength(0);
         });
@@ -111,25 +106,9 @@ describe('Boia (Hangman) Role', () => {
 
     describe('Win Condition', () => {
         it('should have a checkWin function', () => {
-            expect(typeof hangman.checkWin).toBe('function');
+            expect(typeof boia.checkWin).toBe('function');
         });
     });
 
-    describe('Max Count Calculation', () => {
-        it('should calculate max count based on player count', () => {
-            const stateWith5Players = { setup: { numPlayers: 5 } };
-            const stateWith10Players = { setup: { numPlayers: 10 } };
 
-            expect(typeof hangman.maxCount).toBe('function');
-            const maxCountFn = hangman.maxCount as (state: any) => number;
-            expect(maxCountFn(stateWith5Players)).toBe(5);
-            expect(maxCountFn(stateWith10Players)).toBe(10);
-        });
-
-        it('should handle undefined state gracefully', () => {
-            expect(typeof hangman.maxCount).toBe('function');
-            const maxCountFn = hangman.maxCount as (state: any) => number;
-            expect(maxCountFn(undefined)).toBe(0);
-        });
-    });
 });

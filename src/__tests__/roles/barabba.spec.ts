@@ -3,7 +3,8 @@ import barabba from '../../roles/barabba';
 import { useWinConditions } from '../../utils/winConditions';
 
 vi.mock('../../utils/roleUtils', () => ({
-    addToHistory: vi.fn()
+    addToHistory: vi.fn(),
+    addGroupHistory: vi.fn()
 }));
 
 describe('Barabba Role', () => {
@@ -13,8 +14,8 @@ describe('Barabba Role', () => {
         mockGameState = {
             players: [
                 { id: 1, roleId: 'barabba', alive: true },
-                { id: 2, roleId: 'wolf', alive: true },
-                { id: 3, roleId: 'villager', alive: true }
+                { id: 2, roleId: 'lupo', alive: true },
+                { id: 3, roleId: 'villico', alive: true }
             ],
             nightNumber: 1,
             night: {
@@ -34,7 +35,7 @@ describe('Barabba Role', () => {
             expect(barabba.countAs).toBe('villaggio');
             expect(barabba.color).toBe('#29bb46');
             expect(barabba.phaseOrder).toBe('any');
-            expect(barabba.group).toBe(false);
+            
             expect(barabba.actsAtNight).toBe('dead');
         });
 
@@ -46,10 +47,6 @@ describe('Barabba Role', () => {
             expect(barabba.maxCount).toBeUndefined();
         });
 
-        it('should have correct component references', () => {
-            expect(typeof barabba.getPromptComponent).toBe('function');
-            expect(typeof barabba.getResolveDetailsComponent).toBe('function');
-        });
     });
 
     describe('Resolve Function', () => {

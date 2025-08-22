@@ -18,8 +18,8 @@ function handleNext() {
 
 <template>
   <div class="space-y-4" v-if="roleDef">
-    <div class="rounded-xl p-4 border border-white/10" :style="{ background: (roleDef.color || '#111827') + '22' }">
-      <div class="text-2xl font-extrabold tracking-tight" :style="{ color: roleDef.color || '#e5e7eb' }">{{ roleDef.name }}</div>
+    <div class="rounded-xl p-4 border border-white/10" :style="{ background: (getFactionConfig(roleDef.team)?.color || '#111827') + '22' }">
+      <div class="text-2xl font-extrabold tracking-tight" :style="{ color: getFactionConfig(roleDef.team)?.color || '#e5e7eb' }">{{ roleDef.name }}</div>
       <div v-if="roleDef.description" class="mt-2 text-sm text-neutral-300 leading-snug">{{ roleDef.description }}</div>
     </div>
 

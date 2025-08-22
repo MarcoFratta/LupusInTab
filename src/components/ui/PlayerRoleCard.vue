@@ -10,7 +10,8 @@ const props = defineProps({
     align: { type: String, default: 'left' }
 });
 
-const playerRoleDef = computed(() => ROLES[props.player.roleId]);
+const playerRoleDef = computed(() => props.player ? ROLES[props.player.roleId] : null);
+const factionConfig = computed(() => playerRoleDef.value ? getFactionConfig(playerRoleDef.value.team) : null);
 
 const alignmentClasses = computed(() => {
     if (props.align === 'right') return 'text-right';
@@ -23,24 +24,29 @@ const roleAlignmentClasses = computed(() => {
     if (props.align === 'center') return 'justify-center';
     return 'justify-start';
 });
+
+const playerNames = computed(() => {
+    if (!props.player?.name) return [];
+    return props.player.name.split(',').map(name => name.trim());
+});
 </script>
 
 <template>
-    <div :class="['w-full flex-grow min-w-0 flex flex-col', alignmentClasses.value]">
-        <div class="text-xs text-neutral-400 mb-1"
-             :class="align === 'right' ? 'text-right' : ''">{{ label }}</div>
-        <div class="px-2 py-1.5 rounded border text-sm h-full font-medium bg-transparent"
-             :class="align === 'right' ? 'text-right' : ''"
-             :style="{ borderColor: getFactionConfig(playerRoleDef?.team)?.color || '#9ca3af' }">
-            <div class="text-neutral-200">{{ player.name }}</div>
-            <div class="flex items-center gap-1 mt-0.5" 
-                 :class="[
-                     roleAlignmentClasses.value,
-                     align === 'right' ? 'flex-row-reverse' : ''
-                 ]">
-                <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: playerRoleDef?.color }"></div>
-                <span class="text-xs" :style="{ color: playerRoleDef?.color }">{{ playerRoleDef?.name || player.roleId }}</span>
-            </div>
-        </div>
+  <div class="w-full h-full flex flex-col">
+    <div v-if="player" class="flex-1 font-medium bg-transparent flex flex-col">
+      <div class="flex flex-wrap gap-1 justify-center">
+        <span v-for="name in playerNames" :key="name" 
+              class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200">
+          {{ name.trim() }}
+        </span>
+      </div>
+      <div class="flex items-center justify-center gap-2 mt-2">
+        <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: factionConfig?.color || '#9ca3af' }"></div>
+        <span class="text-xs" :style="{ color: factionConfig?.color || '#9ca3af' }">{{ playerRoleDef?.name || player.roleId }}</span>
+      </div>
     </div>
+    <div v-else class="flex-1 font-medium bg-transparent flex flex-col justify-center items-center text-neutral-400 text-xs">
+      {{ label || 'N/A' }}
+    </div>
+  </div>
 </template>

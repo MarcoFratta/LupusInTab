@@ -31,23 +31,8 @@ const allEvents = computed(() => {
   const events = [];
   const state = props.state;
   
-  // Use event history nights if available, otherwise derive from history
-  if (state.eventHistory && state.eventHistory.nights && state.eventHistory.nights.length > 0) {
-    // Use the actual night summaries from event history
-    for (const nightEvent of state.eventHistory.nights) {
-      events.push({
-        type: 'night',
-        order: nightEvent.night * 2, // Even numbers for nights
-        night: nightEvent.night,
-        data: {
-          night: nightEvent.night,
-          summary: nightEvent.summary,
-          results: nightEvent.results || []
-        }
-      });
-    }
-  } else if (state.history) {
-    // Fallback: derive night events from history (for backward compatibility)
+  // Get night events from state.history
+  if (state.history) {
     const nightNumbers = new Set();
     
     // Collect all night numbers from history
@@ -71,7 +56,7 @@ const allEvents = computed(() => {
         died: Array.isArray(state.nightDeathsByNight?.[nightNum]) ? [...state.nightDeathsByNight[nightNum]] : [],
         saved: [],
         targeted: [],
-        resurrected: [], // Add missing field
+        resurrected: [],
         checks: []
       };
       
@@ -89,13 +74,13 @@ const allEvents = computed(() => {
         data: {
           night: nightNum,
           summary,
-          results: [] // derived
+          results: nightEvents
         }
       });
     }
   }
   
-  // Add day events from lynchedHistoryByDay, or fallback to lynchedHistory
+  // Add day events from lynchedHistoryByDay
   if (state.lynchedHistoryByDay && Object.keys(state.lynchedHistoryByDay).length > 0) {
     for (const dayKey of Object.keys(state.lynchedHistoryByDay)) {
       const dayNum = Number(dayKey);
@@ -110,6 +95,7 @@ const allEvents = computed(() => {
       }
     }
   } else if (state.lynchedHistory) {
+    // Fallback: derive day events from lynchedHistory
     let dayIndex = 1;
     for (const pid of state.lynchedHistory) {
       events.push({

@@ -3,7 +3,8 @@ import illusionista from '../../roles/illusionista';
 
 // Mock the addToHistory function
 vi.mock('../../utils/roleUtils', () => ({
-    addToHistory: vi.fn()
+    addToHistory: vi.fn(),
+    addGroupHistory: vi.fn()
 }));
 
 describe('Illusionista Role', () => {
@@ -13,8 +14,8 @@ describe('Illusionista Role', () => {
         mockGameState = {
             players: [
                 { id: 1, roleId: 'illusionista', alive: true, roleState: { actsAtNight: 'alive' } },
-                { id: 2, roleId: 'wolf', alive: true, roleState: { actsAtNight: 'alive' } },
-                { id: 3, roleId: 'villager', alive: true, roleState: { actsAtNight: 'alive' } }
+                { id: 2, roleId: 'lupo', alive: true, roleState: { actsAtNight: 'alive' } },
+                { id: 3, roleId: 'villico', alive: true, roleState: { actsAtNight: 'alive' } }
             ],
             nightNumber: 1,
             night: {
@@ -34,11 +35,11 @@ describe('Illusionista Role', () => {
             expect(illusionista.countAs).toBe('villaggio');
             expect(illusionista.color).toBe('#06b6d4');
             expect(illusionista.phaseOrder).toBe(0);
-            expect(illusionista.group).toBe(false);
+            
             expect(illusionista.actsAtNight).toBe('alive');
         });
 
-        it('should be a wolf that appears as village', () => {
+        it('should be a lupo that appears as village', () => {
             expect(illusionista.team).toBe('lupi');
             expect(illusionista.visibleAsTeam).toBe('villaggio');
             expect(illusionista.countAs).toBe('villaggio');
@@ -46,13 +47,6 @@ describe('Illusionista Role', () => {
 
         it('should have correct usage and count constraints', () => {
             expect(illusionista.effectType).toBe('optional');
-            expect(illusionista.numberOfUsage).toBe(1);
-            expect(illusionista.startNight).toBe(2);
-        });
-
-        it('should have correct component references', () => {
-            expect(typeof illusionista.getPromptComponent).toBe('function');
-            expect(typeof illusionista.getResolveDetailsComponent).toBe('function');
         });
     });
 

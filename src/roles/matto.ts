@@ -1,28 +1,31 @@
 import type { RoleDef } from '../types';
+import {componentFactory} from "../utils/roleUtils";
 
-const crazyman: RoleDef = {
-    id: 'crazyman',
+const matto: RoleDef = {
+    id: 'matto',
     name: 'Matto',
     team: 'matti',
     visibleAsTeam: 'matti',
     countAs: 'matti',
-    description: 'Vinci se vieni linciato. Nessuna azione notturna.',
+    description: 'Un matto che vince immediatamente se viene linciato.',
     color: '#f59e0b',
     phaseOrder: "any",
-    group: false,
+    
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
     maxCount: 1,
 
+    getPromptComponent: componentFactory('Matto', "prompt"),
+    getResolveDetailsComponent: componentFactory('Matto', "details"),
+
     resolve() {},
     checkWin(gameState: any) {
-        // Crazyman wins if lynched (handled in engine.lynchPlayer)
         return false;
     },
 };
 
-export default crazyman;
+export default matto;
 
 
 

@@ -52,7 +52,7 @@ const knownTeamAllies = computed(() => {
 const knownRoleAllies = computed(() => {
   const me = currentPlayer.value;
   const myRoleDef = currentRoleDef.value;
-  if (!myRoleDef || !myRoleDef.revealAlliesWithinRole) return [] as any[];
+  if (!myRoleDef) return [] as any[];
   const allPlayers = props.state.players as Array<any>;
   const result: any[] = [];
 
@@ -61,16 +61,21 @@ const knownRoleAllies = computed(() => {
     const otherRoleDef = ROLES[p.roleId];
     if (!otherRoleDef) continue;
     
-    // Same-role visibility: show if same role and role opts-in
     if (otherRoleDef.id === myRoleDef.id) {
-      // For allies with the same role, always show the role name
-      const labelText = otherRoleDef.name;
-      result.push({ 
-        id: p.id, 
-        name: p.name, 
-        labelText, 
-        team: otherRoleDef.team
-      });
+      const myRoleState = me.roleState;
+      const otherRoleState = p.roleState;
+      
+      if (myRoleState && otherRoleState && 
+          myRoleState.actsAtNight !== "never" && 
+          otherRoleState.actsAtNight !== "never") {
+        const labelText = otherRoleDef.name;
+        result.push({ 
+          id: p.id, 
+          name: p.name, 
+          labelText, 
+          team: otherRoleDef.team
+        });
+      }
     }
   }
   return result;

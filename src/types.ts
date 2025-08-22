@@ -14,16 +14,18 @@ export interface FactionConfig {
 export interface RoleEvent {
 	type: string;
 	nightNumber: number;
-	playerId: number;
-	data: any;
+	roleId: string;
+	playerIds: number[];
+	data?: any;
+	groupAction?: boolean;
 }
 
-export interface PlayerHistory {
-	[nightNumber: number]: RoleEvent[];
+export interface NightHistory {
+	[roleId: string]: RoleEvent;
 }
 
 export interface GameHistory {
-	[playerId: number]: PlayerHistory;
+	[nightNumber: number]: NightHistory;
 }
 
 export interface RoleDef {
@@ -31,7 +33,7 @@ export interface RoleDef {
 	name: string;
 	team: Team;
     /**
-     * How this role is seen by investigative roles (e.g., medium).
+     * How this role is seen by investigative roles (e.g., veggente).
      * Defaults to `team` when not provided.
      */
     visibleAsTeam?: Team;
@@ -53,7 +55,7 @@ export interface RoleDef {
 	 * Critical for roles with causal dependencies (e.g., wolves must act before doctors).
 	 */
 	phaseOrder: number | "any";
-	group?: boolean;
+
 	/** 
 	 * When this role can act during the night phase:
 	 * - "always": can use the role always at night
@@ -98,20 +100,20 @@ export interface RoleDef {
     canTargetDead?: boolean;
     /**
      * For roles that interact with other roles' actions (e.g., Doctor), which roleIds are affected by this role's power.
-     * Example: ['wolf'] means it can counter kills initiated by wolves.
+     * Example: ['lupo'] means it can counter kills initiated by lupi.
      */
     affectedRoles?: string[];
     /** If present, killers in this list cannot kill this role (are ignored at resolve) */
     
     /**
      * Roles that should be able to see this role during the reveal phase.
-     * Example: an executioner might set knownTo: ['wolf'] so Wolves see who the executioner is.
+     * Example: an executioner might set knownTo: ['lupo'] so Lupi see who the executioner is.
      * Values are roleIds, not teams.
      */
     knownTo?: string[];
     /**
      * During reveal, show other players who have any of these roleIds as partners/allies to the current player.
-     * Example: lovers could set revealPartnersRoleIds: ['lover'] so each lover sees the other lover.
+     * Example: massoni could set revealPartnersRoleIds: ['massone'] so each massone sees the other massone.
      */
     revealPartnersRoleIds?: string[];
     /** How this role should be displayed to faction allies during reveal ('role' shows role name, 'team' shows only faction) */
@@ -126,13 +128,7 @@ export interface RoleDef {
     maxCount?: number | ((state: any) => number);
     /** If provided, the allowed counts must be one of these values (computed dynamically). */
     allowedCounts?: number[] | ((state: any) => number[]);
-    getPromptComponent?: (gameState: any, player: any) => () => Promise<any>;
-    getGroupPromptComponent?: (gameState: any, entry: any) => () => Promise<any>;
-    /** Optional component factory to render per-actor resolve details (single roles) */
-    getResolveDetailsComponent?: (gameState: any, entry: any) => () => Promise<any>;
-    /** Optional component factory to render grouped resolve details (group roles) */
-    getGroupResolveDetailsComponent?: (gameState: any, entry: any) => () => Promise<any>;
-    resolve: (gameState: any, entry: any) => void;
+    resolve: (gameState: any, entry: any) => any | void;
     /**
      * Optional function to restore any temporary state changes made during the night phase.
      * Called during the day phase in reverse order of night phase execution.
@@ -149,9 +145,11 @@ export interface RoleDef {
      */
     checkWin?: (gameState: any) => boolean;
     /**
-     * Optional per-role blocker. Return true if this role blocks declaring any winner (e.g., Dog alive blocks wins).
+     * Optional per-role blocker. Return true if this role blocks declaring any winner (e.g., Lupomannaro alive blocks wins).
      */
     checkWinConstraint?: (gameState: any) => boolean;
+    getPromptComponent: () => Promise<any>;
+    getResolveDetailsComponent: () => Promise<any>;
 }
 
 export interface PlayerRoleState {
@@ -198,16 +196,14 @@ export interface GameState {
 	    winner: string | null | 'tie';
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
-    eventHistory?: EventHistory;
+
     custom?: Record<string, any>;
     history?: GameHistory;
     nightDeathsByNight?: Record<number, number[]>;
     lynchedHistoryByDay?: Record<number, number[]>;
 }
 
-export interface NightTurnSingle { kind: 'single'; roleId: string; playerId: number }
-export interface NightTurnGroup { kind: 'group'; roleId: string; playerIds: number[] }
-export type NightTurn = NightTurnSingle | NightTurnGroup;
+export interface NightTurn { kind: 'group'; roleId: string; playerIds: number[] }
 
 export interface NightSummary { 
     targeted: number[]; 
@@ -219,10 +215,7 @@ export interface NightSummary {
 
 export interface DaySummary { lynched: number | null; day: number; }
 
-export interface EventHistory {
-    nights: Array<{ night: number; summary: NightSummary; results: any[] }>;
-    days: Array<DaySummary>;
-}
+
 
 export type RolesRegistry = Record<string, RoleDef>;
 

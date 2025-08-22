@@ -1,49 +1,49 @@
 import type { RoleDef } from '../types';
-import { addToHistory } from '../utils/roleUtils';
 import {useWinConditions} from "../utils/winConditions";
+import {componentFactory} from "../utils/roleUtils";
 
-const witch: RoleDef = {
-    id: 'witch',
+const medium: RoleDef = {
+    id: 'medium',
     name: 'Medium',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Ogni notte scegli un giocatore per scoprire il suo ruolo.',
+    description: 'Ogni notte scegli un giocatore morto per scoprire la sua fazione.',
     color: '#eab308',
     phaseOrder: "any",
-    group: false,
+    
     actsAtNight: "alive",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
-    getPromptComponent() {
-        return () => import('../components/roles/Witch/WitchPrompt.vue');
-    },
-    getResolveDetailsComponent() {
-        return () => import('../components/resolve-details/WitchResolveDetails.vue');
-    },
+    getPromptComponent: componentFactory('Strega', "prompt"),
+    getResolveDetailsComponent: componentFactory('Strega', "details"),
     resolve(gameState: any, action: any) {
-        // Handle both action.data.targetId and action.result.targetId formats
         const id = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(id) || id <= 0) return;
         const target = gameState.players.find((p: any) => p.id === id);
         if (!target) return;
         const seenTeam = target.roleState?.visibleAsTeam || target.roleState?.realTeam;
-        // Initialize checks array if it doesn't exist
+        
         if (!Array.isArray(gameState.night.context.checks)) {
             gameState.night.context.checks = [];
         }
         gameState.night.context.checks.push({ by: action.playerId ?? 0, target: id, team: seenTeam });
-        // Dog dies if Medium checks his role (special rule)
-        if (target.roleId === 'dog') {
+        
+        if (target.roleId === 'lupomannaro') {
             const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
             if (!pk[id]) pk[id] = [];
             pk[id].push({ role: 'medium' });
         }
-        // Log to history
-        addToHistory(gameState, action.playerId || 0, gameState.nightNumber, 'witch_check', {
-            target: id,
-            discoveredFaction: seenTeam
-        });
+        
+        return {
+            type: 'medium_action',
+            nightNumber: gameState.nightNumber,
+            roleId: 'medium',
+            playerIds: action.playerIds || [],
+            targetId: id,
+            discoveredFaction: seenTeam,
+            data: action.data
+        };
     },
     checkWin(gameState: any) {
         const { villageWin } = useWinConditions();
@@ -51,7 +51,7 @@ const witch: RoleDef = {
     },
 };
 
-export default witch;
+export default medium;
 
 
 

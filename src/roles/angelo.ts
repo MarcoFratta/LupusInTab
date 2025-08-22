@@ -1,6 +1,6 @@
 import type { RoleDef } from '../types';
 import { useWinConditions } from '../utils/winConditions';
-import { addToHistory } from '../utils/roleUtils';
+import {componentFactory} from "../utils/roleUtils";
 
 const angelo: RoleDef = {
     id: 'angelo',
@@ -11,16 +11,11 @@ const angelo: RoleDef = {
     description: 'Una volta per partita, scegli un giocatore morto da riportare in vita.',
     color: '#fbbf24',
     phaseOrder: "any",
-    group: false,
     actsAtNight: "alive",
     effectType: 'optional',
     numberOfUsage: 1,
-    getPromptComponent() {
-        return () => import('../components/roles/Angelo/AngeloPrompt.vue');
-    },
-    getResolveDetailsComponent() {
-        return () => import('../components/resolve-details/AngeloResolveDetails.vue');
-    },
+    getPromptComponent: componentFactory('Angelo', "prompt"),
+    getResolveDetailsComponent: componentFactory('Angelo', "details"),
     resolve(gameState: any, action: any) {
         const id = Number(action?.data?.targetId);
         if (!Number.isFinite(id)) return;
@@ -30,9 +25,14 @@ const angelo: RoleDef = {
             target.alive = true;
         }
 
-        addToHistory(gameState, action.playerId || 0, gameState.nightNumber, 'angelo_resurrect', {
-            target: id
-        });
+        return {
+            type: 'angelo_action',
+            nightNumber: gameState.nightNumber,
+            roleId: 'angelo',
+            playerIds: action.playerIds || [],
+            targetId: id,
+            data: action.data
+        };
     },
     checkWin(gameState: any) {
         const { villageWin } = useWinConditions();

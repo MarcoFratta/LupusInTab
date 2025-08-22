@@ -1,36 +1,38 @@
 import type { RoleDef } from '../types';
-import wolf from './lupo';
-import villager from './villico';
-import lover from './massone';
-import medium from './veggente';
-import justicer from './giustiziere';
+import lupo from './lupo';
+import villico from './villico';
+import massone from './massone';
+import veggente from './veggente';
+import giustiziere from './giustiziere';
 import barabba from './barabba';
 import angelo from './angelo';
-import crazyman from './matto';
+import matto from './matto';
 import guardia from './guardia';
-import hangman from './boia';
-import witch from './medium';
-import dog from './lupomannaro';
-import demoniac from './indemoniato';
+import boia from './boia';
+import medium from './medium';
+import lupomannaro from './lupomannaro';
+import indemoniato from './indemoniato';
 import { insinuo } from './insinuo';
 import illusionista from './illusionista';
+import { genio } from './genio';
 
 const rolesArray: RoleDef[] = [
-	wolf,
-	villager,
-	lover,
-	medium,
-	justicer,
+	lupo,
+	villico,
+	massone,
+	veggente,
+	giustiziere,
 	barabba,
 	angelo,
-	crazyman,
+	matto,
 	guardia,
-	hangman,
-	witch,
-	dog,
-	demoniac,
+	boia,
+	medium,
+	lupomannaro,
+	indemoniato,
 	insinuo as any,
 	illusionista,
+	genio,
 ];
 
 export const ROLES: Record<string, RoleDef> = rolesArray.reduce((acc, role) => {

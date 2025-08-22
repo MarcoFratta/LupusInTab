@@ -3,18 +3,18 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import './style.css';
 import { router } from './router';
-import { liveUpdateService } from './services/LiveUpdateService';
+import { cacheService } from './services/CacheService';
 
 const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.mount('#app');
 
-// Initialize Live Update Service
-liveUpdateService.initialize().then(() => {
-  console.log('Live Update Service initialized successfully');
+// Initialize Cache Service for offline support (mobile only)
+cacheService.cacheWebsiteContent().then(() => {
+  console.log('Cache service initialized');
 }).catch(error => {
-  console.error('Failed to initialize Live Update Service:', error);
+  console.error('Failed to initialize cache service:', error);
 });
 
 

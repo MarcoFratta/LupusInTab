@@ -35,7 +35,8 @@ export const FACTIONS: Record<string, FactionConfig> = {
 	}
 };
 
-export function getFactionConfig(team: string): FactionConfig | undefined {
+export function getFactionConfig(team: string | undefined): FactionConfig | undefined {
+	if (!team) return undefined;
 	return FACTIONS[team];
 }
 

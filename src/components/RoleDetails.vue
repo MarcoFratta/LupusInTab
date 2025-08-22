@@ -133,7 +133,7 @@ watch(roleId, () => {
           <div class="relative">
             <div class="space-y-4 sm:space-y-6">
               <!-- Role name -->
-              <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold" :style="{ color: role.color || '#e5e7eb' }">
+              <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold" :style="{ color: getFactionConfig(role.team)?.color || '#e5e7eb' }">
                 {{ role.name }}
               </h2>
               
@@ -276,7 +276,7 @@ watch(roleId, () => {
                 <span class="text-xs sm:text-sm font-medium">{{ getActsAtNightText(role.actsAtNight) }}</span>
               </div>
               
-              <div v-if="role.group" class="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg bg-neutral-900/50 border border-neutral-800/30">
+              <div class="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-lg bg-neutral-900/50 border border-neutral-800/30">
                 <div class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-400"></div>
                 <span class="text-xs sm:text-sm font-medium">Azione di gruppo</span>
               </div>

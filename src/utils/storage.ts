@@ -4,8 +4,7 @@ const SETTINGS_KEY = 'lupus_settings_v1';
 
 // Role ID migration map for old saved games
 const ROLE_ID_MIGRATIONS: Record<string, string> = {
-	'doctor': 'guardia',
-	'justicer': 'justicer', // Keep as is
+	'giustiziere': 'giustiziere',
 };
 
 function migrateRoleIds(data: any): any {

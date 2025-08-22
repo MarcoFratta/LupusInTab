@@ -1,22 +1,25 @@
 import type { RoleDef } from '../types';
 import { useWinConditions } from '../utils/winConditions';
-import {vi} from "vitest";
+import {componentFactory} from "../utils/roleUtils";
 
-const lover: RoleDef = {
-    id: 'lover',
+const massone: RoleDef = {
+    id: 'massone',
     name: 'Massone',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Tutti i massoni si conoscono durante la prima notte. Vince quando vince il villaggio.',
+    description: 'Un massone che può comunicare con altri massoni.',
     color: '#ec4899',
     phaseOrder: "any",
-    group: false,
+    
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
     revealAlliesWithinRole: true,
     minCount: 2,
+
+    getPromptComponent: componentFactory('Massone', "prompt"),
+    getResolveDetailsComponent: componentFactory('Massone', "details"),
 
     resolve() {},
     checkWin(gameState: any) {
@@ -25,6 +28,6 @@ const lover: RoleDef = {
     },
 };
 
-export default lover;
+export default massone;
 
 

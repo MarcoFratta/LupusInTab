@@ -15,7 +15,7 @@ const aliveWithRoles = computed(() => props.state.players.filter((p: any) => p.a
     name: p.name,
     roleName: roleDef?.name || p.roleId,
     team: roleDef?.team || 'unknown',
-    roleColor: roleDef?.color || fallbackColor,
+    roleColor: fallbackColor,
   };
 }));
 </script>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue';
 import { ROLES } from '../../roles';
+import { getFactionConfig } from '../../factions';
 import DetailsCard from './DetailsCard.vue';
 import BlockedRoleCard from './BlockedRoleCard.vue';
-import DeadRoleCard from './DeadRoleCard.vue';
+import EventCard from './EventCard.vue';
 
 interface Props {
   gameState: any;
@@ -15,166 +16,190 @@ const props = defineProps<Props>();
 // Build detail entries dynamically by asking roles for their detail components
 type DetailEntry = { key: string; title: string; component: any; props?: Record<string, any> };
 
-const detailEntries = computed(() => {
-  if (!props.nightNumber) return [];
+const nightPlayerActions = computed(() => {
+  const nightNumber = props.nightNumber;
+  if (!nightNumber) return {};
   
-  // Get the map of player actions for this night
-  const nightPlayerActions = props.gameState?.history?.[props.nightNumber] || {};
-  
-  // Create a temporary historical night context for historical nights
-  const isHistoricalNight = props.nightNumber !== props.gameState?.nightNumber;
-  const historicalNightContext = isHistoricalNight ? {
-    turns: Object.entries(nightPlayerActions).map(([playerId, action]) => ({
-      roleId: props.gameState.players.find(p => p.id === Number(playerId))?.roleId || 'unknown',
-      playerId: Number(playerId)
-    })),
-    currentIndex: 0,
-    context: { pendingKills: {}, savesBy: [], targeted: [], checks: [] },
-    summary: null
-  } : null;
-  
-  
-  const entries: DetailEntry[] = [];
+  return props.gameState.history?.[nightNumber] || {};
+});
 
-  // Process each player that acted this night
-  const processedGroupRoles = new Set(); // Track which group roles we've already processed
+const roleActions = computed(() => {
+  const actions = new Map();
   
-  const activeEntries: DetailEntry[] = [];
-  const blockedOrDeadEntries: DetailEntry[] = [];
+  for (const [roleId, action] of Object.entries(nightPlayerActions.value)) {
+    if (!action) continue;
+    
+    const roleDef = (ROLES as any)[roleId];
+    if (!roleDef) continue;
+    
+    let rolePlayers: any[] = [];
+    
+    // For historical actions, use the player IDs from the action data
+    if (action && typeof action === 'object' && action.playerIds) {
+      rolePlayers = props.gameState.players.filter((p: any) => action.playerIds.includes(p.id));
+    } else if (action && typeof action === 'object' && action.playerId) {
+      // Fallback to single playerId
+      const player = props.gameState.players.find((p: any) => p.id === action.playerId);
+      if (player) rolePlayers = [player];
+    } else {
+      // Last resort: find players by current roleId
+      rolePlayers = props.gameState.players.filter((p: any) => p.roleId === roleId);
+    }
+    
+    if (!actions.has(roleId)) {
+      actions.set(roleId, { roleId, action, players: rolePlayers });
+    }
+  }
   
-  for (const [playerId, action] of Object.entries(nightPlayerActions)) {
-    if (!action) continue; // Skip undefined entries (skipped actions)
+  return actions;
+});
+
+const getRoleColor = (roleId: string) => {
+  if (!roleId || roleId === 'none') return '#9ca3af';
+  
+  const roleDef = (ROLES as any)[roleId];
+  if (!roleDef) return '#9ca3af';
+  
+  return getFactionConfig(roleDef.team)?.color || '#9ca3af';
+};
+
+const detailEntries = computed(() => {
+  const entries: DetailEntry[] = [];
+  
+  for (const [roleId, roleData] of roleActions.value) {
+    const roleDef = (ROLES as any)[roleId];
+    if (!roleDef) continue;
     
-    const playerIdNum = Number(playerId);
-    const player = props.gameState.players.find((p: any) => p.id === playerIdNum);
-    		if (!player) {
-			continue;
-		}
+    const title = roleDef.name || roleId;
+    const action = roleData.action;
+    const firstPlayer = roleData.players[0];
     
-    const roleDef = (ROLES as any)[player.roleId];
-    		if (!roleDef) {
-			continue;
-		}
-    
-    const title = roleDef.name || player.roleId;
-    
-    
-    // Check if this is a skipped/blocked action - add to blocked/dead list
-    if (action.type === 'role_skipped' || action.type === 'group_role_blocked') {
-      const reason = action.reason || 'unknown';
-      const isDeadPlayer = reason === 'dead';
+    // Handle special string values for blocked/skipped roles
+    if (typeof action === 'string') {
+      const reason = action;
       
-      console.log(`🔍 NightDetailsGrid: adding blocked/dead entry for ${player.roleId}, reason: ${reason}`);
-      blockedOrDeadEntries.push({ 
-        key: `${player.roleId}-${isDeadPlayer ? 'dead' : 'blocked'}-${playerIdNum}`, 
+      // Never show skipped entries
+      if (reason === 'skipped') continue;
+      
+      // Use BlockedRoleCard for all constraint reasons (blocked, dead, alive, startNight, usageLimit)
+      entries.push({ 
+        key: `${roleId}-${reason}`, 
         title, 
-        component: isDeadPlayer ? DeadRoleCard : BlockedRoleCard, 
+        component: BlockedRoleCard, 
         props: { 
           reason: reason,
-          player: player
+          player: firstPlayer,
+          roleId
         } 
       });
       continue;
     }
     
-    // Check if this is a group role
-    if (roleDef.group && typeof roleDef.getGroupResolveDetailsComponent === 'function') {
-      // Only process each group role once
-      if (processedGroupRoles.has(player.roleId)) {
-        console.log(`🔍 NightDetailsGrid: skipping duplicate group role ${player.roleId} for player ${playerId}`);
-        continue;
-      }
+    // Handle object-based actions (roles that actually acted)
+    if (action && typeof action === 'object' && action.type) {
+      const componentFactory = roleDef.getResolveDetailsComponent;
       
-      console.log(`🔍 NightDetailsGrid: found group component for ${player.roleId}`);
-      const factory = roleDef.getGroupResolveDetailsComponent(props.gameState, action);
-      if (factory) {
-        const component = defineAsyncComponent(factory);
-        activeEntries.push({ 
-          key: `${player.roleId}-group`, 
-          title, 
-          component, 
+      if (componentFactory && typeof componentFactory === 'function') {
+        entries.push({
+          key: `${roleId}-details`,
+          title,
+          component: defineAsyncComponent({
+            loader: componentFactory,
+            errorComponent: EventCard,
+            onError: (error, retry, fail, attempts) => {
+              console.error(`Failed to load component for role ${roleId}:`, error);
+              if (attempts <= 3) {
+                retry();
+              } else {
+                fail();
+              }
+            }
+          }),
           props: { 
             gameState: props.gameState, 
             entry: action,
-            player: player,
-            state: props.gameState,
-            nightNumber: props.nightNumber,
-            historicalNightContext
-          } 
-        });
-        processedGroupRoles.add(player.roleId); // Mark this group role as processed
-      }
-    }
-    
-    // Check if this is a single role
-    if (!roleDef.group && typeof roleDef.getResolveDetailsComponent === 'function') {
-      console.log(`🔍 NightDetailsGrid: found single component for ${player.roleId}, factory:`, roleDef.getResolveDetailsComponent);
-      const factory = roleDef.getResolveDetailsComponent(props.gameState, action);
-      if (factory) {
-        console.log(`🔍 NightDetailsGrid: factory returned:`, factory);
-        const component = defineAsyncComponent(factory);
-        activeEntries.push({ 
-          key: `${player.roleId}-${playerIdNum}`, 
-          title, 
-          component, 
-          props: { 
-            gameState: props.gameState, 
-            entry: action, 
-            player: player,
-            state: props.gameState,
-            nightNumber: props.nightNumber,
-            historicalNightContext
-          } 
+            players: roleData.players,
+            player: roleData.players[0],
+            roleId
+          }
         });
       } else {
-        console.log(`🔍 NightDetailsGrid: factory returned null/undefined for ${player.roleId}`);
+        entries.push({
+          key: `${roleId}-summary`,
+          title,
+          component: EventCard,
+          props: { 
+            title: title,
+            event: action, 
+            roleId 
+          }
+        });
       }
-    } else if (!roleDef.group) {
-      console.log(`🔍 NightDetailsGrid: no resolve details component for ${player.roleId}`);
-      // Add a fallback component for roles without resolve details
-      activeEntries.push({ 
-        key: `${player.roleId}-${playerIdNum}`, 
-        title, 
-        component: 'div', 
-        props: { 
-          gameState: props.gameState, 
-          entry: action, 
-          player: player,
-          content: 'Nessun dettaglio disponibile',
-          historicalNightContext
-        } 
-      });
     }
   }
   
-  // Combine active entries first, then blocked/dead entries at the bottom
-  entries.push(...activeEntries, ...blockedOrDeadEntries);
-
-  console.log(`🔍 NightDetailsGrid: final entries for night ${props.nightNumber}:`, entries.length, 'active:', activeEntries.length, 'blocked/dead:', blockedOrDeadEntries.length);
-  console.log(`🔍 NightDetailsGrid: active entries:`, activeEntries.map(e => ({ key: e.key, title: e.title, component: e.component })));
-  console.log(`🔍 NightDetailsGrid: blocked/dead entries:`, blockedOrDeadEntries.map(e => ({ key: e.key, title: e.title, component: e.component })));
-  return entries;
+  // If no entries, show a message
+  if (entries.length === 0) {
+    entries.push({
+      key: 'no-actions',
+      title: 'Nessuna Azione',
+      component: 'div',
+      props: { 
+        content: 'Nessun ruolo ha utilizzato i suoi poteri questa notte.',
+        roleId: 'none'
+      }
+    });
+  }
+  
+  // Sort entries by faction
+  return entries.sort((a, b) => {
+    const roleIdA = a.props?.roleId || a.key.split('-')[0];
+    const roleIdB = b.props?.roleId || b.key.split('-')[0];
+    
+    const roleDefA = (ROLES as any)[roleIdA];
+    const roleDefB = (ROLES as any)[roleIdB];
+    
+    if (!roleDefA || !roleDefB) return 0;
+    
+    const factionA = roleDefA.team || 'unknown';
+    const factionB = roleDefB.team || 'unknown';
+    
+    // Define faction priority (you can adjust this order as needed)
+    const factionOrder = ['villaggio', 'lupi', 'matti', 'mannari'];
+    const priorityA = factionOrder.indexOf(factionA);
+    const priorityB = factionOrder.indexOf(factionB);
+    
+    // If faction is not in the order list, put it at the end
+    const finalPriorityA = priorityA === -1 ? factionOrder.length : priorityA;
+    const finalPriorityB = priorityB === -1 ? factionOrder.length : priorityB;
+    
+    if (finalPriorityA !== finalPriorityB) {
+      return finalPriorityA - finalPriorityB;
+    }
+    
+    // If same faction, sort by role name
+    return (roleDefA.name || roleIdA).localeCompare(roleDefB.name || roleIdB);
+  });
 });
 </script>
 
 <template>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
-    <DetailsCard 
-      v-for="e in detailEntries" 
-      :key="e.key" 
-      :title="e.title" 
-      :color="ROLES[e.props?.player?.roleId]?.color || '#9ca3af'">
-      <component 
-        v-if="e.component !== 'div'" 
-        :is="e.component" 
-        :state="props.gameState" 
-        :gameState="props.gameState" 
-        v-bind="e.props || {}" 
-        @vue:mounted="() => console.log('🔍 NightDetailsGrid: component mounted:', e.key, e.component, e.props)"
-      />
-      <div v-else class="text-center p-2 text-neutral-400 text-xs">
-        {{ e.props?.content || 'Nessun dettaglio disponibile' }}
-      </div>
-    </DetailsCard>
-  </div>
+      <DetailsCard 
+        v-for="e in detailEntries" 
+        :key="e.key" 
+        :title="e.title" 
+        :color="getRoleColor(e.props?.roleId || e.key.split('-')[0])">
+        <component 
+          v-if="e.component !== 'div'" 
+          :is="e.component" 
+          :state="props.gameState" 
+          :gameState="props.gameState" 
+          v-bind="e.props || {}" 
+        />
+        <div v-else class="text-center p-2 text-neutral-400 text-xs">
+          {{ e.props?.content || 'Nessun dettaglio disponibile' }}
+        </div>
+      </DetailsCard>
+    </div>
 </template>

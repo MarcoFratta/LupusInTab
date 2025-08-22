@@ -1,7 +1,6 @@
 <template>
     <div class="space-y-4">
         <div class="text-center">
-            <h3 class="text-lg font-semibold text-neutral-100">Insinuo</h3>
             <p class="text-neutral-400 text-sm">Scegli un giocatore da far apparire come lupo agli occhi di altri ruoli investigativi per questa notte.</p>
         </div>
         
@@ -38,7 +37,7 @@ const props = defineProps<{ gameState: any, player: any, onComplete: (r:any)=>vo
 const selectedTargetId = ref<number | null>(null);
 
 const alivePlayers = computed(() => 
-    props.gameState.players.filter((p: any) => p.alive && p.id !== props.player.id)
+    props.gameState.players.filter((p: any) => p.alive && p.roleId !== 'insinuo')
 );
 
 const playerChoices = computed(() => 

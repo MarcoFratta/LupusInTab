@@ -14,10 +14,7 @@ export interface NightSummary { targeted: number[]; saved: number[]; died: numbe
 
 export interface DaySummary { lynched: number | null; day: number; }
 
-export interface EventHistory {
-    nights: Array<{ night: number; summary: NightSummary; results: any[] }>;
-    days: Array<DaySummary>;
-}
+
 
 export interface GameState {
 	phase: Phase;
@@ -32,7 +29,7 @@ export interface GameState {
 	winner: string | null;
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
-    eventHistory?: EventHistory;
+
     custom?: Record<string, any>;
     history?: GameHistory;
     nightDeathsByNight?: Record<number, number[]>;
@@ -45,7 +42,7 @@ export const useGameStore = defineStore('game', () => {
 		nightNumber: 0,
 		dayNumber: 0,
 		players: [],
-		setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { wolf: true, villager: true, guardia: true, medium: true, lover: false, crazyman: false, justicer: false, hangman: false, witch: false, dog: false, demoniac: false, insinuo: false } },
+		setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { lupo: true, villico: true, guardia: true, veggente: true, massone: false, matto: false, giustiziere: false, boia: false, medium: false, lupomannaro: false, indemoniato: false, insinuo: false } },
 		revealIndex: 0,
 		night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
 		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
@@ -53,7 +50,7 @@ export const useGameStore = defineStore('game', () => {
 		winner: null,
 		lynchedHistory: [],
 		usedPowers: {},
-		eventHistory: { nights: [], days: [] },
+
 		nightDeathsByNight: {},
 		lynchedHistoryByDay: {},
 	});

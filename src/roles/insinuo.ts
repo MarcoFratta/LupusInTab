@@ -1,6 +1,7 @@
-import { getPlayerCustomDataIfAlive, cleanupPlayerCustomData, addToHistory } from '../utils/roleUtils';
+import type { RoleDef } from '../types';
+import { getRoleCustomData, setRoleCustomData, clearRoleCustomData, componentFactory } from '../utils/roleUtils';
 
-export const insinuo = {
+export const insinuo: RoleDef = {
 	id: 'insinuo',
 	name: 'Insinuo',
 	team: 'lupi',
@@ -12,56 +13,68 @@ export const insinuo = {
 	actsAtNight: "alive",
 	effectType: 'optional',
 	numberOfUsage: 'unlimited',
-	getPromptComponent: (gameState: any, player: any) => () => import('../components/roles/Insinuo/InsinuoPrompt.vue'),
-	getResolveDetailsComponent: (gameState: any, entry: any) => () => import('../components/resolve-details/InsinuoResolveDetails.vue'),
 	resolve: (gameState: any, action: any) => {
 		const targetId = action.data?.targetId;
 		if (!targetId) return;
 
 		const target = gameState.players.find((p: any) => p.id === targetId);
-		if (!target || !target.alive) return;
+		if (!target) return;
 
-		const insinuoData = getPlayerCustomDataIfAlive(gameState, targetId, 'insinuo');
-		if (!insinuoData) return; // Player is dead, don't proceed
+		const insinuoData = getRoleCustomData(gameState, 'insinuo');
+		
+		if (!insinuoData.targets) insinuoData.targets = [];
+		
+		if (target.alive) {
+			const existingTarget = insinuoData.targets.find((t: any) => t.playerId === targetId);
+			if (!existingTarget) {
+				insinuoData.targets.push({
+					playerId: targetId,
+					originalVisibleAsTeam: target.roleState.visibleAsTeam,
+					originalTeam: target.roleState.realTeam
+				});
+			}
 
-		// Store the original visible team
-		insinuoData.originalVisibleAsTeam = target.roleState.visibleAsTeam;
-		insinuoData.originalTeam = target.roleState.realTeam;
+			const currentVisible = target.roleState.visibleAsTeam || target.roleState.realTeam;
+			let nextVisible: string;
 
-		// Determine what the target should appear as
-		const currentVisible = target.roleState.visibleAsTeam || target.roleState.realTeam;
-		let nextVisible: string;
+			if (currentVisible === 'lupi') {
+				nextVisible = 'villaggio';
+			} else {
+				nextVisible = 'lupi';
+			}
 
-		if (currentVisible === 'lupi') {
-			nextVisible = 'villaggio';
-		} else {
-			nextVisible = 'lupi';
+			target.roleState.visibleAsTeam = nextVisible;
+			
+			const targetDataRef = insinuoData.targets.find((t: any) => t.playerId === targetId);
+			if (targetDataRef) {
+				targetDataRef.newFaction = nextVisible;
+			}
+
+			return {
+				type: 'insinuo_action',
+				nightNumber: gameState.nightNumber,
+				roleId: 'insinuo',
+				playerIds: action.playerIds || [],
+				targetId: targetId,
+				previousFaction: currentVisible,
+				newFaction: nextVisible,
+				data: action.data
+			};
 		}
-
-		// Apply the change to the target player's role state
-		target.roleState.visibleAsTeam = nextVisible;
-
-		// Store in history for the acting player
-		addToHistory(gameState, action.playerId || 0, gameState.nightNumber, 'insinuo_effect', {
-			target: targetId,
-			previousFaction: currentVisible,
-			newFaction: nextVisible
-		});
 	},
 	restoreFunction: (gameState: any) => {
-		// Restore all affected players' visibleAsTeam to their original values
-		if (!gameState.custom) return;
+		const insinuoData = getRoleCustomData(gameState, 'insinuo');
+		if (!insinuoData.targets) return;
 
-		for (const playerId in gameState.custom) {
-			const playerCustom = gameState.custom[playerId];
-			if (playerCustom.insinuo) {
-				const player = gameState.players.find((p: any) => p.id === Number(playerId));
-				if (player && playerCustom.insinuo.originalVisibleAsTeam !== undefined) {
-					player.roleState.visibleAsTeam = playerCustom.insinuo.originalVisibleAsTeam;
-				}
-				// Clean up the custom data
-				cleanupPlayerCustomData(gameState, Number(playerId), 'insinuo');
+		for (const targetData of insinuoData.targets) {
+			const player = gameState.players.find((p: any) => p.id === targetData.playerId);
+			if (player && targetData.originalVisibleAsTeam !== undefined) {
+				player.roleState.visibleAsTeam = targetData.originalVisibleAsTeam;
 			}
 		}
-	}
+
+		clearRoleCustomData(gameState, 'insinuo');
+	},
+	getPromptComponent: componentFactory('Insinuo', "prompt"),
+	getResolveDetailsComponent: componentFactory('Insinuo', "details"),
 };

@@ -30,7 +30,8 @@ jobs:
 
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
-       - name: Add Capacitor Android platform (if missing)
+
+      - name: Add Capacitor Android platform (if missing)
         run: npx cap add android || echo "Android platform already exists"
 
       - name: Prepare Icon & Splash Assets
@@ -97,6 +98,7 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

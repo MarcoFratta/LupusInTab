@@ -15,37 +15,28 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build web assets
         run: npm run build
-
       - name: Install ImageMagick
         run: sudo apt-get update && sudo apt-get install -y imagemagick
-
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
       - name: Add Capacitor Android platform (if missing)
         run: npx cap add android || echo "Android platform already exists"
-
       - name: Prepare Icon & Splash Assets
         run: |
           echo "Converting favicon.svg to PNG..."
@@ -55,7 +46,6 @@ jobs:
           npx capacitor-assets generate
           npx cap sync android
           echo "Assets generated & synced!"
-
       - name: Configure Gradle Properties
         run: |
           cd android
@@ -66,12 +56,10 @@ org.gradle.parallel=true
 android.useAndroidX=true
 android.enableJetifier=true
 EOF
-
       - name: Clean Gradle build
         run: |
           cd android
           ./gradlew clean
-
       - name: Build Android APK & AAB
         run: |
           cd android
@@ -79,29 +67,22 @@ EOF
           ./gradlew assembleDebug
           ./gradlew assembleRelease
           ./gradlew bundleRelease
-
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
-
       - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
           name: app-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
-
----
-
-## Release Job
-
+          
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -109,38 +90,31 @@ EOF
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Download Debug APK
         uses: actions/download-artifact@v4
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/
-
       - name: Download Release APK
         uses: actions/download-artifact@v4
         with:
           name: app-release-apk
           path: android/app/build/outputs/apk/release/
-
       - name: Download Release AAB
         uses: actions/download-artifact@v4
         with:
           name: app-release-aab
           path: android/app/build/outputs/bundle/release/
-
       - name: Verify Available Files
         run: |
           echo "Listing built files..."
           find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
       - name: Install dependencies
         run: npm ci
-
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

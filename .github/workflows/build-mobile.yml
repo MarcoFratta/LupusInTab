@@ -64,24 +64,37 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
+          echo "Building debug APK..."
           ./gradlew assembleDebug
+          echo "Building release APK..."
           ./gradlew assembleRelease
+          echo "Building release AAB..."
           ./gradlew bundleRelease
+          echo "All builds completed successfully!"
+      - name: Verify Build Outputs
+        run: |
+          echo "Checking build outputs..."
+          ls -la android/app/build/outputs/apk/debug/ || echo "Debug APK directory not found"
+          ls -la android/app/build/outputs/apk/release/ || echo "Release APK directory not found"
+          ls -la android/app/build/outputs/bundle/release/ || echo "Release AAB directory not found"
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: android/app/build/outputs/apk/release/app-release.apk
+          if-no-files-found: error
       - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
           name: app-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
           
   release:
     needs: build
@@ -90,6 +103,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Check Available Artifacts
+        run: |
+          echo "Checking available artifacts from build job..."
+          gh run list --limit 1 --json artifacts --jq '.[0].artifacts[].name' || echo "No artifacts found"
       - name: Download Debug APK
         uses: actions/download-artifact@v4
         with:

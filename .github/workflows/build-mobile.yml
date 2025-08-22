@@ -129,14 +129,6 @@ EOF
           echo "Listing built files..."
           find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
       - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

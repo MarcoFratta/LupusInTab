@@ -3,7 +3,7 @@ name: Android CI
 on:
   push:
     branches:
-      - master
+      - master  # or "master" if that's your release branch
   pull_request:
 
 permissions:
@@ -21,7 +21,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'   # Capacitor requires Node >= 20
+          node-version: '20'
           cache: 'npm'
 
       - name: Set up JDK
@@ -36,8 +36,6 @@ jobs:
       - name: Install Android SDK packages
         run: |
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
       - name: Install dependencies
         run: npm install
@@ -45,23 +43,18 @@ jobs:
       - name: Build web assets
         run: npm run build
 
-      - name: Prepare Icon Assets
+      - name: Prepare Icon & Splash Assets
         run: |
-          echo "Preparing icon assets from website logo..."
-          cp public/favicon.svg resources/icon.svg
-          echo "Icon source updated!"
-
-      - name: Generate App Icons and Assets
-        run: |
-          echo "Generating app icons and splash screens..."
+          echo "Converting favicon.svg to PNG..."
+          mkdir -p resources
+          convert -background none public/favicon.svg -resize 1024x1024 resources/icon.png
+          echo "Generating app icons and splash..."
           npx capacitor-assets generate
-          echo "Assets generated successfully!"
+          npx cap sync android
+          echo "Assets generated & synced!"
 
       - name: Add Capacitor Android platform
         run: npx cap add android || echo "Platform already added"
-
-      - name: Sync Capacitor Android
-        run: npx cap sync android
 
       - name: Configure Gradle Properties
         run: |
@@ -74,6 +67,11 @@ jobs:
           android.enableJetifier=true
           EOF
           echo "Gradle properties configured"
+
+      - name: Clean Gradle build
+        run: |
+          cd android
+          ./gradlew clean
 
       - name: Build Android APK & AAB
         run: |
@@ -112,11 +110,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download Android Artifacts
+      - name: Download Debug APK
         uses: actions/download-artifact@v4
         with:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/
+
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: app-release-apk
+          path: android/app/build/outputs/apk/release/
 
       - name: Download Release AAB
         uses: actions/download-artifact@v4
@@ -126,12 +130,7 @@ jobs:
 
       - name: Verify Available Files
         run: |
-          echo "Checking available files for semantic-release..."
-          echo "Debug APK directory:"
-          ls -la android/app/build/outputs/apk/debug/ || echo "Debug directory not found"
-          echo "Release AAB directory:"
-          ls -la android/app/build/outputs/bundle/release/ || echo "Release directory not found"
-          echo "All build outputs:"
+          echo "Listing built files..."
           find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
 
       - name: Setup Node.js

@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.2.3...v1.3.0) (2025-08-22)
+
+
+### Bug Fixes
+
+* update illusionista ([726c504](https://github.com/MarcoFratta/LupusInTab/commit/726c5045d27d3a9bee8fba283853b49eca46aa7e))
+
+
+### Features
+
+* update indemoniato role ([aafc83a](https://github.com/MarcoFratta/LupusInTab/commit/aafc83ab59ee5ea72d96f73fc2ab9ab6c8a3dd7a))
+
 ## [1.2.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.2.2...v1.2.3) (2025-08-21)
 
 

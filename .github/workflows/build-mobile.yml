@@ -1,52 +1,49 @@
-name: Android CI
+name: Build Android APK
 
 on:
   push:
     branches:
-      - master   # or "master" if that's your release branch
+      - master
   pull_request:
-
-permissions:
-  contents: write
-  packages: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Ensure Android platform exists
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Adding Android platform..."
+            npx cap add android
+          else
+            echo "Android platform already exists."
+          fi
 
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 21
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK packages
-        run: |
-          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build web assets
+      - name: Build Web App
         run: npm run build
 
-      - name: Install ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
-
-      - name: Prepare Icon & Splash Assets
+      - name: Generate Capacitor assets
         run: |
           echo "Converting favicon.svg to PNG..."
           mkdir -p resources
@@ -56,95 +53,12 @@ jobs:
           npx cap sync android
           echo "Assets generated & synced!"
 
-      - name: Add Capacitor Android platform
-        run: npx cap add android || echo "Platform already added"
+      - name: Build Android APK
+        working-directory: android
+        run: ./gradlew assembleDebug
 
-      - name: Configure Gradle Properties
-        run: |
-          cd android
-          cat > gradle.properties << 'EOF'
-          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          org.gradle.daemon=false
-          org.gradle.parallel=true
-          android.useAndroidX=true
-          android.enableJetifier=true
-          EOF
-          echo "Gradle properties configured"
-
-      - name: Clean Gradle build
-        run: |
-          cd android
-          ./gradlew clean
-
-      - name: Build Android APK & AAB
-        run: |
-          cd android
-          chmod +x ./gradlew
-          echo "Building debug APK..."
-          ./gradlew assembleDebug
-          echo "Building release APK..."
-          ./gradlew assembleRelease
-          echo "Building release AAB..."
-          ./gradlew bundleRelease
-          echo "Build completed successfully!"
-
-      - name: Upload Debug APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug-apk
+          name: android-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Upload Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
-
-      - name: Upload Release AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Debug APK
-        uses: actions/download-artifact@v4
-        with:
-          name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/
-
-      - name: Download Release APK
-        uses: actions/download-artifact@v4
-        with:
-          name: app-release-apk
-          path: android/app/build/outputs/apk/release/
-
-      - name: Download Release AAB
-        uses: actions/download-artifact@v4
-        with:
-          name: app-release-aab
-          path: android/app/build/outputs/bundle/release/
-
-      - name: Verify Available Files
-        run: |
-          echo "Listing built files..."
-          find android/app/build/outputs/ -name "*.apk" -o -name "*.aab" 2>/dev/null || echo "No build outputs found"
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Semantic Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release

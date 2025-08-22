@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.3.0...v1.4.0) (2025-08-22)
+
+
+### Features
+
+* update lupomannaro ([fb5eb02](https://github.com/MarcoFratta/LupusInTab/commit/fb5eb02a24c3b0991a1f7e26c682c964cfc9514c))
+
 # [1.3.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.2.3...v1.3.0) (2025-08-22)
 
 

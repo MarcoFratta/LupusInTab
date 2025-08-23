@@ -12,7 +12,7 @@ function titleStyle(color) {
 </script>
 
 <template>
-  <div class="bg-white/5 border border-white/10 rounded-lg py-2 px-3 w-full">
+  <div class="bg-white/5 border border-white/10 rounded-lg py-3 px-2 w-full">
     <div class="flex items-center justify-center mb-2">
       <div class="font-semibold" :style="titleStyle(color)">{{ title }}</div>
     </div>

@@ -11,7 +11,6 @@ const barabba: RoleDef = {
     description: 'Una volta per partita, quando morto, scegli un giocatore da uccidere. Non può essere salvato.',
     color: '#29bb46',
     phaseOrder: "any",
-    
     actsAtNight: "dead",
     effectType: 'optional',
     numberOfUsage: 1,

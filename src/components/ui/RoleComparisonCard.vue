@@ -14,7 +14,7 @@ const centerContent = props.centerContent;
 </script>
 
 <template>
-  <div class="w-full bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-4 space-y-4">
+  <div class="w-full bg-neutral-900/60 border border-neutral-800/40 rounded-lg py-2 px-1 space-y-4">
     <!-- Player Cards with Clear Relationship -->
     <div class="flex items-center gap-2">
       <!-- Left Player (Actor) -->
@@ -30,8 +30,8 @@ const centerContent = props.centerContent;
       
       <!-- Action Flow Indicator -->
       <div class="flex items-center justify-center">
-        <div class="flex items-center gap-2 px-3 py-1 rounded-full text-center bg-neutral-800/60 border border-neutral-700/40">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-neutral-400">
+        <div class="flex items-center gap-1 px-1.5 py-1 rounded-full text-center bg-neutral-800/60 border border-neutral-700/40">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-neutral-400">
             <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <span class="text-xs font-medium text-neutral-300">{{ centerContent.action }}</span>

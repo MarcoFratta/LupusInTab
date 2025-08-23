@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue';
-import PromptSelect from '../../prompts/PromptSelect.vue';
+import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import { ROLES } from '../../../roles/index';
 
 const props = defineProps({

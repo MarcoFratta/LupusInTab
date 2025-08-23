@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { getFactionConfig } from '../factions';
-import FactionLabel from './ui/FactionLabel.vue';
+import { getFactionConfig } from '../../factions';
+import FactionLabel from '../ui/FactionLabel.vue';
 
 const props = defineProps<{
   player: any;

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import PromptSelect from '../../prompts/PromptSelect.vue';
+import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 
 const props = defineProps({

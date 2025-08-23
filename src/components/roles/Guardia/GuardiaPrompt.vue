@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import PromptSelect from '../../prompts/PromptSelect.vue';
+import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 
 const props = defineProps<{ gameState: any, player: any, onComplete: (r:any)=>void }>();
 

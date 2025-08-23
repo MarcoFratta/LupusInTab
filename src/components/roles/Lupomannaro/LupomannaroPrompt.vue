@@ -1,5 +1,5 @@
 <script setup>
-import PromptDeclare from '../../prompts/PromptDeclare.vue';
+import PromptDeclare from '../../ui/prompts/PromptDeclare.vue';
 
 const props = defineProps({
     gameState: { type: Object, required: true },

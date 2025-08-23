@@ -1,4 +1,5 @@
 import { GameState } from '../types';
+import { RoleConstraintManager, GameStateManager } from '../core/managers';
 
 export function getRoleById(roleId: string, roles: any[]): any {
     return roles.find(role => role.id === roleId);
@@ -33,34 +34,11 @@ export function getRolesByCustomData(gameState: any, roleId: string): any[] {
 }
 
 export function canPlayerActAtNight(player: any, gameState?: any): boolean {
-    const actsAtNight = player.roleState?.actsAtNight;
-    
-    if (actsAtNight === "never") return false;
-    if (actsAtNight === "blocked") return false;
-    if (actsAtNight === "alive" && !player.alive) return false;
-    if (actsAtNight === "dead" && player.alive) return false;
-    
-    if (gameState && player.roleState?.startNight) {
-        if (gameState.nightNumber < player.roleState.startNight) return false;
-    }
-    
-    if (actsAtNight === "always") return true;
-    if (actsAtNight === "alive" && player.alive) return true;
-    if (actsAtNight === "dead" && !player.alive) return true;
-    
-    return false;
+    return RoleConstraintManager.canPlayerActAtNight(player);
 }
 
 export function hasPlayerExceededUsageLimit(player: any, gameState: any): boolean {
-    const numberOfUsage = player.roleState?.numberOfUsage;
-    
-    if (numberOfUsage === 'unlimited') return false;
-    if (numberOfUsage === undefined) return false;
-    
-    const usedPowers = gameState.usedPowers?.[player.roleId] || [];
-    const timesUsed = usedPowers.filter((playerId: number) => playerId === player.id).length;
-    
-    return timesUsed >= numberOfUsage;
+    return RoleConstraintManager.hasPlayerExceededUsageLimit(gameState, player);
 }
 
 export function getPlayerVisibleTeam(gameState: any, playerId: number): string | undefined {
@@ -72,10 +50,7 @@ export function getPlayerVisibleTeam(gameState: any, playerId: number): string |
 }
 
 export function getPlayerRealTimeVisibleTeam(gameState: any, playerId: number): string | undefined {
-    const player = gameState.players.find((p: any) => p.id === playerId);
-    if (!player || !player.roleState) return undefined;
-    
-    return player.roleState.visibleAsTeam || player.roleState.realTeam;
+    return GameStateManager.getPlayerRealTimeVisibleTeam(gameState, playerId);
 }
 
 export function getPlayerCustomData(gameState: any, playerId: number, roleId: string): any {
@@ -123,7 +98,7 @@ export function addGroupHistory(gameState: any, roleId: string, nightNumber: num
     if (!gameState.history) gameState.history = {};
     if (!gameState.history[nightNumber]) gameState.history[nightNumber] = {};
     
-    const rolePlayers = gameState.players.filter(p => p.roleId === roleId);
+    const rolePlayers = gameState.players.filter((p: any) => p.roleId === roleId);
     
     for (const player of rolePlayers) {
         gameState.history[nightNumber][player.id] = {
@@ -133,7 +108,7 @@ export function addGroupHistory(gameState: any, roleId: string, nightNumber: num
             roleId: roleId,
             data: eventData,
             groupAction: true,
-            playerIds: rolePlayers.map(p => p.id)
+            playerIds: rolePlayers.map((p: any) => p.id)
         };
     }
 }
@@ -229,6 +204,10 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
         'Massone': {
             prompt: () => import('../components/roles/Massone/MassonePrompt.vue'),
             details: () => import('../components/roles/Massone/MassoneResolveDetails.vue')
+        },
+        'Medium': {
+            prompt: () => import('../components/roles/Medium/MediumPrompt.vue'),
+            details: () => import('../components/roles/Medium/MediumResolveDetails.vue')
         },
         'Matto': {
             prompt: () => import('../components/roles/Matto/MattoPrompt.vue'),

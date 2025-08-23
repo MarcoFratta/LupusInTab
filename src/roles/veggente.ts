@@ -11,9 +11,8 @@ const veggente: RoleDef = {
     description: 'Ogni notte scegli un giocatore per scoprire il suo ruolo.',
     color: '#8b5cf6',
     phaseOrder: "any",
-    
     actsAtNight: "alive",
-    effectType: 'optional',
+    effectType: 'required',
     numberOfUsage: 'unlimited',
     getPromptComponent: componentFactory('Veggente', "prompt"),
     getResolveDetailsComponent: componentFactory('Veggente', "details"),

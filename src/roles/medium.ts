@@ -11,12 +11,11 @@ const medium: RoleDef = {
     description: 'Ogni notte scegli un giocatore morto per scoprire la sua fazione.',
     color: '#eab308',
     phaseOrder: "any",
-    
     actsAtNight: "alive",
-    effectType: 'optional',
+    effectType: 'required',
     numberOfUsage: 'unlimited',
-    getPromptComponent: componentFactory('Strega', "prompt"),
-    getResolveDetailsComponent: componentFactory('Strega', "details"),
+    getPromptComponent: componentFactory('Medium', "prompt"),
+    getResolveDetailsComponent: componentFactory('Medium', "details"),
     resolve(gameState: any, action: any) {
         const id = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(id) || id <= 0) return;

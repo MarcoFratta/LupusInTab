@@ -14,6 +14,8 @@ const boia: RoleDef = {
     actsAtNight: "alive",
     effectType: 'optional',
     numberOfUsage: 1,
+    knownTo: ['lupo'],
+    revealToAllies: "role",
     getPromptComponent: componentFactory('Boia', "prompt"),
     getResolveDetailsComponent: componentFactory('Boia', "details"),
     resolve(gameState: any, action: any) {

@@ -11,7 +11,6 @@ const villico: RoleDef = {
     description: 'Un semplice abitante del villaggio. Nessuna azione notturna.',
     color: '#6b7280',
     phaseOrder: "any",
-    
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',

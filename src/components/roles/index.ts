@@ -1,0 +1,50 @@
+export { default as AngeloPrompt } from './Angelo/AngeloPrompt.vue';
+export { default as AngeloResolveDetails } from './Angelo/AngeloResolveDetails.vue';
+
+export { default as BarabbaPrompt } from './Barabba/BarabbaPrompt.vue';
+export { default as BarabbaResolveDetails } from './Barabba/BarabbaResolveDetails.vue';
+
+export { default as BoiaPrompt } from './Boia/BoiaPrompt.vue';
+export { default as BoiaResolveDetails } from './Boia/BoiaResolveDetails.vue';
+
+export { default as GenioPrompt } from './Genio/GenioPrompt.vue';
+export { default as GenioResolveDetails } from './Genio/GenioResolveDetails.vue';
+
+export { default as GiustizierePrompt } from './Giustiziere/GiustizierePrompt.vue';
+export { default as GiustiziereResolveDetails } from './Giustiziere/GiustiziereResolveDetails.vue';
+
+export { default as GuardiaPrompt } from './Guardia/GuardiaPrompt.vue';
+export { default as GuardiaResolveDetails } from './Guardia/GuardiaResolveDetails.vue';
+
+export { default as IllusionistaPrompt } from './Illusionista/IllusionistaPrompt.vue';
+export { default as IllusionistaResolveDetails } from './Illusionista/IllusionistaResolveDetails.vue';
+
+export { default as IndemoniatoPrompt } from './Indemoniato/IndemoniatoPrompt.vue';
+export { default as IndemoniatoResolveDetails } from './Indemoniato/IndemoniatoResolveDetails.vue';
+
+export { default as InsinuoPrompt } from './Insinuo/InsinuoPrompt.vue';
+export { default as InsinuoResolveDetails } from './Insinuo/InsinuoResolveDetails.vue';
+
+export { default as LupoPrompt } from './Lupo/LupoPrompt.vue';
+export { default as LupoResolveDetails } from './Lupo/LupoResolveDetails.vue';
+
+export { default as LupomannaroPrompt } from './Lupomannaro/LupomannaroPrompt.vue';
+export { default as LupomannaroResolveDetails } from './Lupomannaro/LupomannaroResolveDetails.vue';
+
+export { default as MassonePrompt } from './Massone/MassonePrompt.vue';
+export { default as MassoneResolveDetails } from './Massone/MassoneResolveDetails.vue';
+
+export { default as MediumPrompt } from './Medium/MediumPrompt.vue';
+export { default as MediumResolveDetails } from './Medium/MediumResolveDetails.vue';
+
+export { default as MattoPrompt } from './Matto/MattoPrompt.vue';
+export { default as MattoResolveDetails } from './Matto/MattoResolveDetails.vue';
+
+export { default as StregaPrompt } from './Strega/StregaPrompt.vue';
+export { default as StregaResolveDetails } from './Strega/StregaResolveDetails.vue';
+
+export { default as VeggentePrompt } from './Veggente/VeggentePrompt.vue';
+export { default as VeggenteResolveDetails } from './Veggente/VeggenteResolveDetails.vue';
+
+export { default as VillicoPrompt } from './Villico/VillicoPrompt.vue';
+export { default as VillicoResolveDetails } from './Villico/VillicoResolveDetails.vue';

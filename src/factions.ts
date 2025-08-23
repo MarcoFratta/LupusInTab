@@ -5,7 +5,7 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		id: 'villaggio',
 		name: 'villaggio',
 		displayName: 'Villaggio',
-		color: '#34d399',
+		color: '#10b981',
 		ringColor: 'ring-emerald-500/40',
 		winConditionDescription: 'I villici vincono quando tutti i lupi sono stati eliminati'
 	},
@@ -13,7 +13,7 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		id: 'lupi',
 		name: 'lupi',
 		displayName: 'Lupi',
-		color: '#f87171',
+		color: '#ef4444',
 		ringColor: 'ring-red-500/40',
 		winConditionDescription: 'I lupi vincono quando raggiungono la parità numerica con i villici o li superano'
 	},
@@ -21,16 +21,16 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		id: 'mannari',
 		name: 'mannari',
 		displayName: 'Mannari',
-		color: '#818cf8',
-		ringColor: 'ring-indigo-500/40',
+		color: '#8b5cf6',
+		ringColor: 'ring-violet-500/40',
 		winConditionDescription: 'Il lupo mannaro vince se restano solo in due (lui e un altro giocatore)'
 	},
 	matti: {
 		id: 'matti',
 		name: 'matti',
 		displayName: 'Matti',
-		color: '#a78bfa',
-		ringColor: 'ring-violet-500/40',
+		color: '#f59e0b',
+		ringColor: 'ring-amber-500/40',
 		winConditionDescription: 'Il matto vince se viene eliminato durante il giorno (votazione)'
 	}
 };

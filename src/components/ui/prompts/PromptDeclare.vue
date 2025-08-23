@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue';
 import PromptSelect from './PromptSelect.vue';
 import PromptSelectString from './PromptSelectString.vue';
-import SkipConfirmButtons from '../ui/SkipConfirmButtons.vue';
-import PrimaryButton from '../ui/PrimaryButton.vue';
-import { ROLES } from '../../roles';
+import SkipConfirmButtons from '../SkipConfirmButtons.vue';
+import PrimaryButton from '../PrimaryButton.vue';
+import { ROLES } from '../../../roles';
 
 const props = defineProps({
     gameState: { type: Object, required: true },

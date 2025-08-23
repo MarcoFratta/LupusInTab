@@ -11,7 +11,6 @@ const giustiziere: RoleDef = {
     description: 'Una volta per partita, di notte scegli un giocatore da giustiziare. Non può essere salvato.',
     color: '#dc2626',
     phaseOrder: "any",
-    
     actsAtNight: "alive",
     effectType: 'optional',
     numberOfUsage: 1,

@@ -26,8 +26,7 @@ jobs:
         run: npm ci
       - name: Build web assets
         run: npm run build
-      - name: Install ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -37,15 +36,15 @@ jobs:
         uses: android-actions/setup-android@v3
       - name: Add Capacitor Android platform (if missing)
         run: npx cap add android || echo "Android platform already exists"
-      - name: Prepare Icon & Splash Assets
+      - name: Prepare Custom App Icon
         run: |
-          echo "Converting favicon.svg to PNG..."
+          echo "Using custom app icon..."
           mkdir -p resources
-          convert -background none public/favicon.svg -resize 1024x1024 resources/icon.png
-          echo "Generating app icons and splash..."
+          echo "Custom icon should be placed in resources/icon.png before building"
+          echo "Generating app icons and splash from custom icon..."
           npx capacitor-assets generate
           npx cap sync android
-          echo "Assets generated & synced!"
+          echo "Custom assets generated & synced!"
       - name: Configure Gradle Properties
         run: |
           cd android

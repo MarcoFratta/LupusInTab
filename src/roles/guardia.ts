@@ -12,7 +12,7 @@ const guardia: RoleDef = {
     color: '#3b82f6',
 	phaseOrder: "any",
     actsAtNight: "alive",
-    effectType: 'optional',
+    effectType: 'required',
     numberOfUsage: 'unlimited',
     affectedRoles: ['lupo'],
     getPromptComponent: componentFactory('Guardia', "prompt"),

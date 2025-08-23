@@ -1,0 +1,120 @@
+<script setup lang="ts">
+import { computed, defineAsyncComponent } from 'vue';
+import { useNightPhase } from '../../composables/useNightPhase';
+import RoleHeader from '../ui/RoleHeader.vue';
+import {
+  FirstNightSkippedPrompt,
+  DeadPrompt,
+  AlivePrompt,
+  BlockedPrompt,
+  StartNightPrompt,
+  UsageLimitPrompt,
+  NoActionPrompt
+} from '../ui/prompts';
+
+interface Props {
+  state: any;
+  onPromptComplete: (result: any) => void;
+}
+
+const props = defineProps<Props>();
+
+const {
+  currentPromptComponent,
+  currentActor,
+  isFirstNightSkipped,
+  shouldShowDeadPrompt,
+  shouldShowAlivePrompt,
+  shouldShowBlockedPrompt,
+  shouldShowStartNightPrompt,
+  shouldShowUsageLimitPrompt,
+  currentGroupNames,
+  roleDisplayInfo,
+  getEarliestStartNight,
+  onPromptComplete
+} = useNightPhase({
+  state: props.state,
+  onPromptComplete: props.onPromptComplete
+});
+
+const asyncPromptComponent = computed(() => {
+  if (!currentPromptComponent.value) return null;
+  return defineAsyncComponent(currentPromptComponent.value);
+});
+</script>
+
+<template>
+  <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+    <div class="w-full max-w-2xl space-y-6 text-center">
+      <RoleHeader 
+        v-if="roleDisplayInfo" 
+        :role-info="roleDisplayInfo" 
+        :group-names="currentGroupNames" 
+      />
+
+      <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-6 text-left">
+        <FirstNightSkippedPrompt 
+          v-if="isFirstNightSkipped" 
+          :on-complete="onPromptComplete" 
+        />
+
+        <DeadPrompt 
+          v-else-if="shouldShowDeadPrompt" 
+          :on-complete="onPromptComplete" 
+        />
+
+        <AlivePrompt 
+          v-else-if="shouldShowAlivePrompt" 
+          :on-complete="onPromptComplete" 
+        />
+
+        <BlockedPrompt 
+          v-else-if="shouldShowBlockedPrompt" 
+          :on-complete="onPromptComplete" 
+        />
+
+        <StartNightPrompt 
+          v-else-if="shouldShowStartNightPrompt" 
+          :earliest-start-night="getEarliestStartNight()"
+          :on-complete="onPromptComplete" 
+        />
+
+        <UsageLimitPrompt 
+          v-else-if="shouldShowUsageLimitPrompt" 
+          :on-complete="onPromptComplete" 
+        />
+
+        <component 
+          v-else-if="asyncPromptComponent" 
+          :is="asyncPromptComponent"
+          :gameState="props.state" 
+          :player="currentActor" 
+          :onComplete="onPromptComplete" 
+        />
+
+        <NoActionPrompt 
+          v-else 
+          :on-complete="onPromptComplete" 
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* Mobile-specific fixes for night phase */
+@media (max-width: 768px) {
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+  
+  /* Prevent horizontal overflow */
+  .w-full {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
+</style>
+
+

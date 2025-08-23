@@ -4,14 +4,6 @@ const props = defineProps({
   subtitle: { type: String, default: '' },
   variant: { type: String, default: 'neutral' }, // 'lupi' | 'villaggio' | 'violet' | 'emerald' | 'neutral'
 });
-
-function headerAccentClass(variant) {
-  const v = String(variant || 'neutral');
-  if (v === 'lupi') return 'bg-red-500/20 text-red-300 border-red-500/30';
-  if (v === 'villaggio' || v === 'emerald') return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-  if (v === 'violet') return 'bg-violet-500/20 text-violet-300 border-violet-500/30';
-  return 'text-neutral-300 border-neutral-600/40';
-}
 </script>
 
 <template>

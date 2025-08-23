@@ -4,22 +4,16 @@ import { useRoute, useRouter } from 'vue-router';
 import { ROLES, ROLE_LIST } from './roles/index';
 // @ts-ignore - ambient module declarations provided in env.d.ts
 import { saveGameState, loadGameState, clearSavedGame, savePlayersSetup, loadPlayersSetup, saveSettings, loadSettings } from './utils/storage';
-import PhaseReveal from './components/PhaseReveal.vue';
-import PhaseNight from './components/PhaseNight.vue';
-import PhaseResolve from './components/PhaseResolve.vue';
-import PhasePreNight from './components/PhasePreNight.vue';
-import PhaseDay from './components/PhaseDay.vue';
-import SetupHome from './components/SetupHome.vue';
-import SetupPlayers from './components/SetupPlayers.vue';
-import SetupRoles from './components/SetupRoles.vue';
-import SetupSettings from './components/SetupSettings.vue';
+import { PhaseReveal, PhaseNight, PhaseResolve, PhasePreNight, PhaseDay } from './components';
+import { SetupHome, SetupPlayers, SetupRoles, SetupSettings } from './components';
 import PlayerRoleList from './components/ui/PlayerRoleList.vue';
-import RoleDetails from './components/RoleDetails.vue';
-import EventHistory from './components/EventHistory.vue';
+import { RoleDetails } from './components';
+import { EventHistory } from './components';
 import SecondaryButton from './components/ui/SecondaryButton.vue';
 import PrimaryButton from './components/ui/PrimaryButton.vue';
 import GhostButton from './components/ui/GhostButton.vue';
 import ButtonGroup from './components/ui/ButtonGroup.vue';
+
 // @ts-ignore - ambient module declarations provided in env.d.ts
 import { shuffled } from './utils/random';
 import { useGameStore } from './stores/game';
@@ -43,7 +37,6 @@ import {
     setSindaco as engineSetSindaco,
     evaluateWinner as engineEvaluateWinner,
 } from './core/engine';
-import { getPromptComponent } from './utils/roleUtils';
 
 const PHASES = {
 	SETUP: 'setup',
@@ -242,6 +235,25 @@ onMounted(() => {
         checkForSavedGames();
     }, 200);
 });
+
+// Handle bottom navigation conditional CSS classes
+watch(
+    () => state.phase,
+    (newPhase) => {
+        const hasBottomNav = newPhase === PHASES.SETUP;
+        const body = document.body;
+        const app = document.querySelector('#app');
+        
+        if (hasBottomNav) {
+            body.classList.add('has-bottom-nav');
+            app?.classList.add('has-bottom-nav');
+        } else {
+            body.classList.remove('has-bottom-nav');
+            app?.classList.remove('has-bottom-nav');
+        }
+    },
+    { immediate: true }
+);
 
 function resetAll() {
     // Save current settings before reset
@@ -477,12 +489,10 @@ function toggleEventHistory() {
 	<RoleDetails v-if="isRoleDetails" />
 	
 	<!-- Main Game Container -->
-	<div v-else class="w-full max-w-4xl mx-auto bg-neutral-950/95 border border-neutral-800/40 rounded-2xl backdrop-blur-sm shadow-xl p-4 sm:p-6 md:p-8 text-neutral-200">
-		<h1 class="text-2xl md:text-3xl font-semibold text-neutral-100 mb-6 text-center">Lupus in Tabula</h1>
-		<div class="h-px bg-neutral-800/40 mb-6"></div>
+	<div v-if="!isRoleDetails" class="w-full min-h-screen bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200" :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-y-auto' : 'overflow-hidden'">
 
 		<!-- Resume banner -->
-		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 sm:p-4 mb-6 overflow-hidden">
+		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-900/60 sm:border sm:border-neutral-800/40 rounded-none sm:rounded-xl p-3 sm:p-4 mb-6 mx-4 sm:mx-0 overflow-hidden">
 			<div class="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
 				<div class="text-center sm:text-left min-w-0 flex-1">
 					<h3 class="text-base sm:text-lg font-semibold text-neutral-100 mb-1 truncate">Partita in corso</h3>
@@ -496,9 +506,9 @@ function toggleEventHistory() {
 		</div>
 
 		<!-- Setup Phase -->
-		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center">
-			<!-- Page Navigation -->
-			<div class="grid grid-cols-2 sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
+		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center px-4 sm:px-0  sm:pb-0">
+			<!-- Desktop Page Navigation (hidden on mobile) -->
+			<div class="hidden sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
 				<router-link 
 					:to="{ name: 'setup', params: { page: 'home' } }"
 					class="flex-1 text-center py-1"
@@ -537,67 +547,140 @@ function toggleEventHistory() {
 				</router-link>
 			</div>
 
-				<!-- Page Content -->
-				<SetupHome v-show="isHome" 
-					@save-test-game="saveTestGame"
-					@test-resume="testResume"
-					@check-saved-games="checkForSavedGames"
-				/>
-				<SetupRoles v-show="isRoles" />
-				<SetupPlayers v-show="isPlayers" />
-				<SetupSettings v-show="isSettings" />
-			</div>
+			<!-- Page Content -->
+			<SetupHome v-show="isHome" 
+				@save-test-game="saveTestGame"
+				@test-resume="testResume"
+				@check-saved-games="checkForSavedGames"
+			/>
+			<SetupRoles v-show="isRoles" />
+			<SetupPlayers v-show="isPlayers" />
+			<SetupSettings v-show="isSettings" />
+		</div>
 
-			<!-- Reveal Roles Phase -->
-			<PhaseReveal v-else-if="state.phase === PHASES.REVEAL" :state="state" :onStartNight="beginNight" />
+		<!-- Game Phases (outside setup) -->
+		<!-- Reveal Roles Phase -->
+		<PhaseReveal v-else-if="state.phase === PHASES.REVEAL" :state="state" :onStartNight="beginNight" />
 
-			<!-- Pre-Night Phase -->
-			<PhasePreNight v-else-if="state.phase === PHASES.PRE_NIGHT" :state="state" :onContinue="beginNight" />
+		<!-- Pre-Night Phase -->
+		<PhasePreNight v-else-if="state.phase === PHASES.PRE_NIGHT" :state="state" :onContinue="beginNight" />
 
-			<!-- Night Phase -->
-			<PhaseNight v-else-if="state.phase === PHASES.NIGHT" :state="state" :onPromptComplete="onPromptComplete" />
+		<!-- Night Phase -->
+		<PhaseNight v-else-if="state.phase === PHASES.NIGHT" :state="state" :onPromptComplete="onPromptComplete" />
 
-			<!-- Resolve Phase -->
-			<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDay" :onReset="quitAndReset" />
+		<!-- Resolve Phase -->
+		<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDay" :onReset="quitAndReset" />
 
-			<!-- Day Phase -->
-			<PhaseDay v-else-if="state.phase === PHASES.DAY" :state="state" :onLynch="onLynch" :onElectSindaco="onElectSindaco" :onSkipDay="onSkipDay" :onReset="quitAndReset" />
+		<!-- Day Phase -->
+		<PhaseDay v-else-if="state.phase === PHASES.DAY" :state="state" :onLynch="onLynch" :onElectSindaco="onElectSindaco" :onSkipDay="onSkipDay" :onReset="quitAndReset" />
 
-			<!-- End Phase -->
-			<div v-else-if="state.phase === PHASES.END" class="space-y-4 text-center">
-				<!-- Main End Game Content -->
-				<div v-if="!showEventHistory" class="space-y-6">
-					<h2 class="text-xl font-semibold text-slate-100 mb-6">Fine partita</h2>
-					<div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
-						<div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : (state.winner === 'tie' ? 'text-yellow-400' : 'text-emerald-400'))">
-							{{ state.winner === 'tie' ? 'Pareggio, tutti sono morti' : (state.winner || 'Sconosciuto') + ' vincono' }}
-						</div>
-						<div v-if="state.winner !== 'tie'">
-							<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
-							<PlayerRoleList 
-								:state="state" 
-								:players="state.players.filter(p => p.roleState?.realTeam === state.winner)" 
-							/>
-						</div>
-						<div class="text-slate-400">Grazie per aver giocato.</div>
+		<!-- End Phase -->
+		<div v-else-if="state.phase === PHASES.END" class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+			<!-- Main End Game Content -->
+			<div v-if="!showEventHistory" class="w-full max-w-2xl space-y-6 text-center">
+				<h2 class="text-xl font-semibold text-slate-100">Fine partita</h2>
+				<div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
+					<div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : (state.winner === 'tie' ? 'text-yellow-400' : 'text-emerald-400'))">
+						{{ state.winner === 'tie' ? 'Pareggio, tutti sono morti' : (state.winner || 'Sconosciuto') + ' vincono' }}
 					</div>
-					
-					<!-- Action Buttons with consistent styling -->
-					<ButtonGroup class="mt-6">
-						<GhostButton full-width @click="toggleEventHistory">
-							📋 Eventi
-						</GhostButton>
-						<PrimaryButton full-width @click="quitAndReset">
-							Nuova partita
-						</PrimaryButton>
-					</ButtonGroup>
+					<div v-if="state.winner !== 'tie'">
+						<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
+						<PlayerRoleList 
+							:state="state" 
+							:players="state.players.filter(p => p.roleState?.realTeam === state.winner)" 
+						/>
+					</div>
+					<div class="text-slate-400">Grazie per aver giocato.</div>
 				</div>
+				
+				<!-- Action Buttons with consistent styling -->
+				<ButtonGroup class="mt-6">
+					<GhostButton full-width @click="toggleEventHistory">
+						📋 Eventi
+					</GhostButton>
+					<PrimaryButton full-width @click="quitAndReset">
+						Nuova partita
+					</PrimaryButton>
+				</ButtonGroup>
 			</div>
+		</div>
+	</div>
+
+	<!-- Mobile Bottom Navigation Bar - Moved outside main container for proper fixed positioning -->
+	<div v-if="state.phase === PHASES.SETUP" class="fixed bottom-0 left-0 right-0 bg-neutral-950/98 border-t border-neutral-800/20 backdrop-blur-xl sm:hidden z-50 pb-safe shadow-2xl">
+		<div class="grid grid-cols-4 px-2 py-1">
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'home' } }"
+				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
+				:class="isHome 
+					? 'text-blue-400' 
+					: 'text-neutral-500'"
+			>
+				<div class="relative">
+					<svg class="w-6 h-6" viewBox="0 0 24 24">
+						<path v-if="isHome" fill="currentColor" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+					</svg>
+					<div v-if="isHome" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-current rounded-full"></div>
+				</div>
+				<span class="text-[10px] font-medium mt-1" :class="isHome ? 'text-blue-400' : 'text-neutral-500'">Home</span>
+			</router-link>
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'roles' } }"
+				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
+				:class="isRoles 
+					? 'text-blue-400' 
+					: 'text-neutral-500'"
+			>
+				<div class="relative">
+					<svg class="w-6 h-6" viewBox="0 0 24 24">
+						<path v-if="isRoles" fill="currentColor" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+					</svg>
+					<div v-if="isRoles" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-current rounded-full"></div>
+				</div>
+				<span class="text-[10px] font-medium mt-1" :class="isRoles ? 'text-blue-400' : 'text-neutral-500'">Ruoli</span>
+			</router-link>
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'players' } }"
+				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
+				:class="isPlayers 
+					? 'text-blue-400' 
+					: 'text-neutral-500'"
+			>
+				<div class="relative">
+					<svg class="w-6 h-6" viewBox="0 0 24 24">
+						<path v-if="isPlayers" fill="currentColor" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+					</svg>
+					<div v-if="isPlayers" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-current rounded-full"></div>
+				</div>
+				<span class="text-[10px] font-medium mt-1" :class="isPlayers ? 'text-blue-400' : 'text-neutral-500'">Giocatori</span>
+			</router-link>
+			<router-link 
+				:to="{ name: 'setup', params: { page: 'settings' } }"
+				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
+				:class="isSettings 
+					? 'text-blue-400' 
+					: 'text-neutral-500'"
+			>
+				<div class="relative">
+					<svg class="w-6 h-6" viewBox="0 0 24 24">
+						<path v-if="isSettings" fill="currentColor" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+						<path v-if="isSettings" fill="currentColor" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001 1.51H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15a3 3 0 100-6 3 3 0 000 6z"/>
+						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001 1.51H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+					</svg>
+					<div v-if="isSettings" class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-current rounded-full"></div>
+				</div>
+				<span class="text-[10px] font-medium mt-1" :class="isSettings ? 'text-blue-400' : 'text-neutral-500'">Impostazioni</span>
+			</router-link>
+		</div>
 	</div>
 
 	<!-- Full Screen Event History Modal -->
-	<div v-if="showEventHistory && state.phase === PHASES.END" class="fixed inset-0 bg-neutral-950 z-50 overflow-hidden">
-		<div class="w-full max-w-6xl mx-auto h-full bg-neutral-950/95 border-x border-neutral-800/40 backdrop-blur-sm shadow-xl p-4 sm:p-6 md:p-8 text-neutral-200">
+	<div v-if="showEventHistory && state.phase === PHASES.END" class="fixed inset-0 bg-neutral-950 z-50 overflow-y-auto">
+		<div class="w-full max-w-none sm:max-w-6xl sm:mx-auto min-h-full bg-neutral-950/95 sm:border-x sm:border-neutral-800/40 backdrop-blur-sm shadow-xl text-neutral-200">
 			<EventHistory 
 				:state="state" 
 				:onClose="() => showEventHistory = false" 

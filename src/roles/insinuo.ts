@@ -11,7 +11,7 @@ export const insinuo: RoleDef = {
 	description: 'Durante la notte, può cambiare temporaneamente la fazione visibile di un giocatore.',
 	phaseOrder: 1,
 	actsAtNight: "alive",
-	effectType: 'optional',
+	effectType: 'required',
 	numberOfUsage: 'unlimited',
 	resolve: (gameState: any, action: any) => {
 		const targetId = action.data?.targetId;

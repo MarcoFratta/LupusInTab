@@ -10,7 +10,6 @@ const matto: RoleDef = {
     description: 'Un matto che vince immediatamente se viene linciato.',
     color: '#f59e0b',
     phaseOrder: "any",
-    
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',

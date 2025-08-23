@@ -11,12 +11,13 @@ const massone: RoleDef = {
     description: 'Un massone che può comunicare con altri massoni.',
     color: '#ec4899',
     phaseOrder: "any",
-    
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
     revealAlliesWithinRole: true,
     minCount: 2,
+    knownTo: ['massone'],
+    revealToAllies: "role",
 
     getPromptComponent: componentFactory('Massone', "prompt"),
     getResolveDetailsComponent: componentFactory('Massone', "details"),

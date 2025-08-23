@@ -11,7 +11,6 @@ const lupo: RoleDef = {
     description: 'Di notte i lupi scelgono una vittima. Vincono quando restano solo loro o raggiungono la parità con gli altri.',
     color: '#ef4444',
     phaseOrder: 1,
-    
     actsAtNight: "alive",
     effectType: 'required',
     numberOfUsage: 'unlimited',

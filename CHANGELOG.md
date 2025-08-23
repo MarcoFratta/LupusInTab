@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.5.1...v1.5.2) (2025-08-23)
+
+
+### Bug Fixes
+
+* update genio.ts ([fdcf400](https://github.com/MarcoFratta/LupusInTab/commit/fdcf4000a1e4bd474aead5eb85fd1646c5090b14))
+
 ## [1.5.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.5.0...v1.5.1) (2025-08-23)
 
 

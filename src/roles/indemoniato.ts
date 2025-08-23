@@ -5,7 +5,7 @@ const indemoniato: RoleDef = {
     id: 'indemoniato',
     name: 'Indemoniato',
     team: 'lupi',
-    visibleAsTeam: 'lupi',
+    visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Un indemoniato che appare come lupo ma conta per il villaggio.',
     color: '#fb7185',

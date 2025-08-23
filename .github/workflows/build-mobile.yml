@@ -115,6 +115,12 @@ jobs:
           else
             echo "❌ lupusMaster.apk not found!"
           fi
+      - name: Prepare APK for Release
+        run: |
+          echo "Preparing APK for semantic-release..."
+          ls -la android/app/build/outputs/apk/debug/
+          echo "APK file size:"
+          du -h android/app/build/outputs/apk/debug/lupusMaster.apk || echo "APK not found"
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:

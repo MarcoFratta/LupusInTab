@@ -17,12 +17,8 @@
       {
         "assets": [
           {
-            "path": "android/app/build/outputs/apk/debug/app-debug.apk",
-            "label": "Debug APK (Testing)"
-          },
-          {
-            "path": "android/app/build/outputs/bundle/release/app-release.aab",
-            "label": "Android App Bundle (AAB)"
+            "path": "android/app/build/outputs/apk/debug/lupusMaster.apk",
+            "label": "LupusMaster APK (Testing)"
           }
         ]
       }

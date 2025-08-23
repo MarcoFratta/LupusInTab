@@ -5,6 +5,7 @@ import {componentFactory} from "../utils/roleUtils";
 export const genio: RoleDef = {
     id: 'genio',
     name: 'Genio',
+
     team: 'villaggio',
     description: 'A partire dalla 3ª notte, puoi scegliere un ruolo tra 3 ruoli selezionati casualmente e diventare immediatamente parte di quel ruolo.',
     actsAtNight: 'alive',

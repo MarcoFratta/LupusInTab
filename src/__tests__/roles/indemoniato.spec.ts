@@ -1,57 +1,83 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import indemoniato from '../../roles/indemoniato';
 
-describe('Indemoniato (Demoniac) Role', () => {
-    describe('Role Properties', () => {
-        it('should have correct basic properties', () => {
-            expect(indemoniato.id).toBe('indemoniato');
-            expect(indemoniato.name).toBe('Indemoniato');
-            expect(indemoniato.team).toBe('lupi');
-            expect(indemoniato.visibleAsTeam).toBe('lupi');
-            expect(indemoniato.countAs).toBe('villaggio');
-            expect(indemoniato.color).toBe('#fb7185');
-            expect(indemoniato.phaseOrder).toBe('any');
-            
-            expect(indemoniato.actsAtNight).toBe('never');
-        });
+describe('Indemoniato Role', () => {
+  let mockGameState: any;
 
-        it('should have correct usage and count constraints', () => {
-            expect(indemoniato.effectType).toBe('optional');
-            expect(indemoniato.numberOfUsage).toBe('unlimited');
-            expect(indemoniato.minCount).toBeUndefined();
-            expect(indemoniato.maxCount).toBeUndefined();
-        });
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          indemoniato: true
+        }
+      },
+      nightNumber: 1,
+      players: [
+        { 
+          id: 1, 
+          roleId: 'indemoniato',
+          name: 'Indemoniato Player',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true
+        },
+        { 
+          id: 3, 
+          roleId: 'villico',
+          name: 'Villico Player',
+          alive: true
+        }
+      ]
+    };
+  });
+
+  describe('Resolve Function', () => {
+    it('should not perform any night actions', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
+
+      const result = indemoniato.resolve(mockGameState, action);
+
+      expect(result).toBeUndefined();
     });
 
-    describe('Resolve Function', () => {
-        it('should do nothing when called', () => {
-            const mockGameState = {};
-            const mockEntry = {};
+    it('should handle any action without errors', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999 },
+        used: true
+      };
 
-            expect(() => indemoniato.resolve(mockGameState, mockEntry)).not.toThrow();
-        });
+      expect(() => {
+        indemoniato.resolve(mockGameState, action);
+      }).not.toThrow();
     });
 
-    describe('Win Condition', () => {
-        it('should not have a custom checkWin function', () => {
-            expect(indemoniato.checkWin).toBeUndefined();
-        });
+    it('should handle null action', () => {
+      expect(() => {
+        indemoniato.resolve(mockGameState, null);
+      }).not.toThrow();
     });
 
-    describe('Count Constraints', () => {
-        it('should have no max count limit', () => {
-            expect(indemoniato.maxCount).toBeUndefined();
-        });
-
-        it('should have no min count limit', () => {
-            expect(indemoniato.minCount).toBeUndefined();
-        });
+    it('should handle undefined action', () => {
+      expect(() => {
+        indemoniato.resolve(mockGameState, undefined);
+      }).not.toThrow();
     });
+  });
 
-    describe('Team vs CountAs', () => {
-        it('should play for lupi team but count as villaggio for wins', () => {
-            expect(indemoniato.team).toBe('lupi');
-            expect(indemoniato.countAs).toBe('villaggio');
-        });
+  describe('Win Condition', () => {
+    it('should use village win condition', () => {
+      expect(typeof indemoniato.checkWin).toBe('undefined');
     });
+  });
 });

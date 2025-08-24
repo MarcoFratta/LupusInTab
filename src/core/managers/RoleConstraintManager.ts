@@ -36,7 +36,7 @@ export class RoleConstraintManager {
       return "alive";
     }
 
-    // Check if role has reached usage limit
+    // Check if role has reached usage limit for ALL players
     const hasUsageLimit = RoleConstraintManager.checkUsageLimitConstraint(state, roleId, playerIds);
     if (hasUsageLimit) {
       return "usageLimit";
@@ -52,21 +52,6 @@ export class RoleConstraintManager {
   }
 
   /**
-   * Check if role has exceeded usage limit
-   */
-  private static checkUsageLimitConstraint(state: GameState, roleId: string, playerIds: number[]): boolean {
-    const rolePlayers = state.players.filter(p => playerIds.includes(p.id));
-    
-    return rolePlayers.some(player => {
-      const numberOfUsage = player.roleState?.numberOfUsage;
-      if (numberOfUsage === 'unlimited' || numberOfUsage === undefined) return false;
-      
-      const timesUsed = GameStateManager.getPowerUsageCount(state, roleId, player.id);
-      return timesUsed >= numberOfUsage;
-    });
-  }
-
-  /**
    * Check if role cannot be used due to startNight restriction
    */
   private static checkStartNightConstraint(state: GameState, roleId: string, playerIds: number[], roleDef: any): boolean {
@@ -77,6 +62,69 @@ export class RoleConstraintManager {
       const playerStartNight = player.roleState?.startNight;
       const startNight = playerStartNight || roleStartNight;
       return startNight && typeof startNight === 'number' && state.nightNumber < startNight;
+    });
+  }
+
+  /**
+   * Check if role has exceeded usage limit for ALL players
+   * Returns true only if ALL players with this role have exceeded their usage limit
+   */
+  private static checkUsageLimitConstraint(state: GameState, roleId: string, playerIds: number[]): boolean {
+    const rolePlayers = state.players.filter(p => playerIds.includes(p.id));
+    
+    // If no players, they can't act
+    if (rolePlayers.length === 0) return true;
+    
+    // Check if ALL players have exceeded their usage limit
+    return rolePlayers.every(player => {
+      const numberOfUsage = player.roleState?.numberOfUsage;
+      if (numberOfUsage === 'unlimited' || numberOfUsage === undefined) return false;
+      
+      // Check usage against the player's CURRENT role ID, not the original roleId parameter
+      // This handles cases where genio transforms into a different role
+      const currentRoleId = player.roleId;
+      const timesUsed = GameStateManager.getPowerUsageCount(state, currentRoleId, player.id);
+      return timesUsed >= numberOfUsage;
+    });
+  }
+
+  /**
+   * Check if a role can act considering all constraints including usage limits
+   * This is a more comprehensive check that considers if ANY player can act
+   */
+  static canRoleAct(state: GameState, roleId: string, playerIds: number[]): boolean {
+    const roleDef = ROLES[roleId];
+    if (!roleDef) return false;
+
+    const rolePlayers = state.players.filter(p => playerIds.includes(p.id));
+    if (rolePlayers.length === 0) return false;
+
+    // Check if ANY player can act (not blocked, alive if required, and hasn't exceeded usage)
+    return rolePlayers.some(player => {
+      // Check if player is blocked
+      if (player.roleState?.actsAtNight === 'blocked') return false;
+      
+      // Check if player is alive/dead as required by role
+      if (roleDef.actsAtNight === 'alive' && !player.alive) return false;
+      if (roleDef.actsAtNight === 'dead' && player.alive) return false;
+      
+      // Check if player has exceeded usage limit
+      const numberOfUsage = player.roleState?.numberOfUsage;
+      if (numberOfUsage !== 'unlimited' && numberOfUsage !== undefined) {
+        // Check usage against the player's CURRENT role ID, not the original roleId parameter
+        // This handles cases where genio transforms into a different role
+        const currentRoleId = player.roleId;
+        const timesUsed = GameStateManager.getPowerUsageCount(state, currentRoleId, player.id);
+        if (timesUsed >= numberOfUsage) return false;
+      }
+      
+      // Check if player can act due to startNight restriction
+      const roleStartNight = roleDef.startNight;
+      const playerStartNight = player.roleState?.startNight;
+      const startNight = playerStartNight || roleStartNight;
+      if (startNight && typeof startNight === 'number' && state.nightNumber < startNight) return false;
+      
+      return true;
     });
   }
 

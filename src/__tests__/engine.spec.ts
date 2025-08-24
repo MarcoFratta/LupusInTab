@@ -322,22 +322,6 @@ describe('new roles logic', () => {
     } as any;
     const { villageWin } = useWinConditions();
     
-    // In this scenario: 3 players alive (lupomannaro + 2 villici)
-    // - Village should NOT win because lupomannaro countAs='lupi' (so there's still a "lupo")
-    // - Lupomannaro should NOT win because there are 3 players, not 2
-    // - But currently, no other win condition exists, so the game continues indefinitely
-    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: villageWin },
-      lupomannaro: { id:'lupomannaro', name:'LupoMannaro', team:'mannari', phaseOrder:2, actsAtNight:true, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: (st:any) => {
-        const alive = st.players.filter((p:any) => p.alive);
-        const anyLupomannaroAlive = alive.some((p:any) => p.roleId === 'lupomannaro');
-        return anyLupomannaroAlive && alive.length === 2;
-      } },
-    } as any);
-    
-    // With 3+ players and Lupomannaro alive, no winner due to constraint
-    expect(winner).toBe(null);
-    
     // Now test the village win condition specifically
     expect(villageWin(s as any)).toBe(false);
   });

@@ -75,6 +75,179 @@ body {
   }
 }
 
+/* Simple, clean mobile scrolling solution */
+@media (max-width: 768px) {
+  /* Basic mobile setup */
+  body, html {
+    overflow-x: hidden;
+    height: 100vh;
+  }
+  
+  #app {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  /* Bottom navigation spacing */
+  body.has-bottom-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+  
+  #app.has-bottom-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+  }
+  
+  /* Game phases - use natural Tailwind behavior */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  
+  /* Allow natural scrolling when content extends beyond viewport */
+  .w-full.max-w-2xl {
+    height: auto;
+  }
+  
+  /* Preserve scrollable content */
+  .max-h-96.overflow-y-auto,
+  .overflow-y-auto {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Hide all scrollbars across the entire app */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Hide scrollbars for specific elements that might need scrolling */
+html, body, #app, .min-h-screen, .w-full, .space-y-6, .space-y-4, .max-h-96 {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#app::-webkit-scrollbar,
+.min-h-screen::-webkit-scrollbar,
+.w-full::-webkit-scrollbar,
+.space-y-6::-webkit-scrollbar,
+.space-y-4::-webkit-scrollbar,
+.max-h-96::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* Ensure scrolling still works on mobile */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+  
+  /* Prevent scrolling when content fits within viewport */
+  body:not(.needs-scroll) {
+    overflow: hidden !important;
+  }
+  
+  /* Only allow scrolling when explicitly needed */
+  body.needs-scroll {
+    overflow-y: auto !important;
+  }
+  
+  /* Override any inline styles for body overflow */
+  body.needs-scroll {
+    overflow: hidden auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Force the needs-scroll class to work */
+  body.needs-scroll,
+  body.needs-scroll * {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Try to override the specific overflow: hidden auto */
+@media (max-width: 768px) {
+  body[style*="overflow"] {
+    overflow: auto !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+}
+
+  /* Fix mobile scrolling issues */
+  @media (max-width: 768px) {
+    body, html {
+      overflow-x: hidden;
+      overflow-y: auto;
+      height: auto;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    #app {
+      overflow: visible;
+      height: auto;
+      min-height: 100vh;
+      position: relative;
+    }
+    
+    /* Prevent unnecessary scrolling when content fits */
+    .space-y-6.text-center.px-4,
+    .space-y-4.px-4.sm\\:px-0 {
+      overflow: visible;
+      height: auto;
+    }
+    
+    /* Fix for setup phase content */
+    .space-y-6.text-center.px-4.sm\\:px-0.sm\\:pb-0 {
+      overflow: visible;
+      height: auto;
+    }
+    
+    /* Ensure main container doesn't cause scrolling */
+    .w-full.bg-neutral-950\\/95 {
+      overflow: visible;
+      height: auto;
+    }
+    
+    /* Fix bottom navigation spacing */
+    .fixed.bottom-0 {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 9999 !important;
+    }
+    
+      /* Prevent body from having extra height due to fixed elements */
+  body.has-bottom-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    position: relative;
+  }
+    
+    /* Ensure app container respects bottom navigation */
+    #app.has-bottom-nav {
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+      overflow: visible;
+      height: auto;
+      min-height: calc(100vh - 5rem - env(safe-area-inset-bottom));
+    }
+  }
+
 
 
 
@@ -117,13 +290,7 @@ body {
     max-width: 100vw;
     overflow-x: hidden;
   }
-  
-  /* Mobile-specific touch optimizations */
-  /* Improve touch targets for general interactive elements */
-  button:not(.role-counter-btn), a:not(.role-counter-btn), [role="button"]:not(.role-counter-btn), input:not(.role-counter-input), select:not(.role-counter-select), textarea:not(.role-counter-textarea) {
-    min-height: 44px;
-    min-width: 44px;
-  }
+
   
   /* Role counter elements should maintain their intended size */
   .role-counter-btn, .role-counter-display {
@@ -133,8 +300,6 @@ body {
   
   /* Bottom navigation touch optimizations */
   .fixed.bottom-0 a, .fixed.bottom-0 button {
-    min-height: 44px;
-    min-width: 44px;
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
@@ -144,11 +309,7 @@ body {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }
-  
-  /* Remove focus outlines on mobile for cleaner look */
-  button:focus, a:focus, input:focus, select:focus, textarea:focus {
-    outline: none;
-  }
+
   
   /* Optimize text selection for mobile */
   ::selection {
@@ -161,12 +322,7 @@ body {
 .capacitor-mobile {
   /* Prevent horizontal scrolling */
   overflow-x: hidden;
-  
-  /* Ensure proper touch targets */
-  button, a, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
+
   
   /* Improve mobile scrolling */
   * {
@@ -204,12 +360,12 @@ body {
     width: 100% !important;
     height: auto !important;
   }
-  
+
   /* Prevent body scrolling when bottom nav is active - only during setup */
   body.has-bottom-nav {
     padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
-  
+
   /* Ensure the main content area respects the bottom navigation - only during setup */
   #app.has-bottom-nav {
     min-height: calc(100vh - 5rem - env(safe-area-inset-bottom));
@@ -235,4 +391,15 @@ body {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }
+}
+
+/* Consistent icon styling for navigation */
+.navigation-icon {
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.navigation-icon[fill="currentColor"] {
+  stroke: none;
 }

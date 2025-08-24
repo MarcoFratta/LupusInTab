@@ -1,119 +1,184 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import veggente from '../../roles/veggente';
-import { createTestState } from '../../core/engine';
-
-vi.mock('../../utils/roleUtils', () => ({
-    addGroupHistory: vi.fn()
-}));
 
 describe('Veggente Role', () => {
-    let mockGameState: any;
+  let mockGameState: any;
 
-    beforeEach(() => {
-        mockGameState = createTestState();
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          veggente: true,
+          lupomannaro: true
+        }
+      },
+      nightNumber: 1,
+      night: {
+        context: {
+          checks: []
+        }
+      },
+      players: [
+        { 
+          id: 1, 
+          roleId: 'veggente',
+          name: 'Veggente Player',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true,
+          roleState: { realTeam: 'lupi', visibleAsTeam: 'lupi' }
+        },
+        { 
+          id: 3, 
+          roleId: 'villico',
+          name: 'Villico Player',
+          alive: true,
+          roleState: { realTeam: 'villaggio', visibleAsTeam: 'villaggio' }
+        },
+        { 
+          id: 4, 
+          roleId: 'lupomannaro',
+          name: 'Lupomannaro Player',
+          alive: true,
+          roleState: { realTeam: 'lupi', visibleAsTeam: 'villaggio' }
+        }
+      ]
+    };
+  });
+
+  describe('Resolve Function', () => {
+    it('should investigate alive player faction', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(mockGameState.night.context.checks).toHaveLength(0);
+      expect(result).toBeDefined();
+      expect(result.type).toBe('veggente_action');
+      expect(result.discoveredFaction).toBe('villaggio');
     });
 
-    it('should have correct properties', () => {
-        expect(veggente.id).toBe('veggente');
-        expect(veggente.name).toBe('Veggente');
-        expect(veggente.team).toBe('villaggio');
-        expect(veggente.visibleAsTeam).toBe('villaggio');
-        expect(veggente.phaseOrder).toBe('any');
-        expect(veggente.effectType).toBe('optional');
-        expect(veggente.numberOfUsage).toBe('unlimited');
-        expect(veggente.minCount).toBeUndefined();
-        expect(veggente.maxCount).toBeUndefined();
+    it('should handle lupomannaro special rule', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 4 },
+        used: true
+      };
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(mockGameState.night.context.checks).toHaveLength(0);
+      expect(result).toBeDefined();
+      expect(result.discoveredFaction).toBe('villaggio');
     });
 
-    it('should add investigation event to history when target is valid', () => {
-        const entry = {
-            result: { targetId: 2 },
-            playerId: 1
-        };
+    it('should handle invalid target ID', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 'invalid' },
+        used: true
+      };
 
-        veggente.resolve(mockGameState, entry);
+      const result = veggente.resolve(mockGameState, action);
 
-        // Since we're mocking addGroupHistory, we can't easily verify the call
-        // This test now just ensures the resolve function doesn't crash
-        expect(true).toBe(true);
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.checks).toHaveLength(0);
     });
 
-    it('should handle missing target gracefully', () => {
-        const entry = {
-            result: { targetId: 999 },
-            playerId: 1
-        };
+    it('should handle missing target ID', () => {
+      const action = {
+        playerId: 1,
+        data: {},
+        used: true
+      };
 
-        veggente.resolve(mockGameState, entry);
+      const result = veggente.resolve(mockGameState, action);
 
-        // Since we're mocking addGroupHistory, we can't easily verify the call
-        // This test now just ensures the resolve function doesn't crash
-        expect(true).toBe(true);
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.checks).toHaveLength(0);
     });
 
-    it('should handle multiple investigations correctly', () => {
-        const entry1 = {
-            result: { targetId: 2 },
-            playerId: 1
-        };
-        const entry2 = {
-            result: { targetId: 3 },
-            playerId: 2
-        };
+    it('should handle non-existent target', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999 },
+        used: true
+      };
 
-        veggente.resolve(mockGameState, entry1);
-        veggente.resolve(mockGameState, entry2);
+      const result = veggente.resolve(mockGameState, action);
 
-        // Since we're mocking addGroupHistory, we can't easily verify the calls
-        // This test now just ensures the resolve function doesn't crash
-        expect(true).toBe(true);
+      expect(result).toBeDefined();
+      expect(mockGameState.night.context.checks).toHaveLength(0);
     });
 
-    it('should use visibleAsTeam from role state when available', () => {
-        const targetPlayer = mockGameState.players.find((p: any) => p.id === 3);
-        targetPlayer.roleState.visibleAsTeam = 'lupi';
+    it('should use visibleAsTeam when available', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 2 },
+        used: true
+      };
 
-        const entry = {
-            result: { targetId: 3 },
-            playerId: 1
-        };
+      const result = veggente.resolve(mockGameState, action);
 
-        veggente.resolve(mockGameState, entry);
-
-        // Since we're mocking addGroupHistory, we can't easily verify the call
-        // This test now just ensures the resolve function doesn't crash
-        expect(true).toBe(true);
+      expect(result.discoveredFaction).toBe('lupi');
     });
 
-    it('should fallback to realTeam when visibleAsTeam is not available', () => {
-        const targetPlayer = mockGameState.players.find((p: any) => p.id === 3);
-        targetPlayer.roleState.visibleAsTeam = undefined;
+    it('should fallback to realTeam when visibleAsTeam not available', () => {
+      const playerWithOnlyRealTeam = {
+        id: 5,
+        roleId: 'villico',
+        name: 'Player 5',
+        alive: true,
+        roleState: { realTeam: 'villaggio' }
+      };
+      mockGameState.players.push(playerWithOnlyRealTeam);
 
-        const entry = {
-            result: { targetId: 3 },
-            playerId: 1
-        };
+      const action = {
+        playerId: 1,
+        data: { targetId: 5 },
+        used: true
+      };
 
-        veggente.resolve(mockGameState, entry);
+      const result = veggente.resolve(mockGameState, action);
 
-        // Since we're mocking addGroupHistory, we can't easily verify the call
-        // This test now just ensures the resolve function doesn't crash
-        expect(true).toBe(true);
+      expect(result.discoveredFaction).toBe('villaggio');
     });
 
-    it('should handle missing role state gracefully', () => {
-        const targetPlayer = mockGameState.players.find((p: any) => p.id === 3);
-        targetPlayer.roleState = undefined;
+    it('should handle target with no roleState', () => {
+      const playerWithoutRoleState = {
+        id: 6,
+        roleId: 'villico',
+        name: 'Player 6',
+        alive: true
+      };
+      mockGameState.players.push(playerWithoutRoleState);
 
-        const entry = {
-            result: { targetId: 3 },
-            playerId: 1
-        };
+      const action = {
+        playerId: 1,
+        data: { targetId: 6 },
+        used: true
+      };
 
-        veggente.resolve(mockGameState, entry);
+      const result = veggente.resolve(mockGameState, action);
 
-        // Since we're mocking addGroupHistory, we can't easily verify the call
-        // This test now just ensures the resolve function doesn't crash
-        expect(true).toBe(true);
+      expect(result).toBeDefined();
+      expect(result.discoveredFaction).toBeUndefined();
     });
+  });
+
+  describe('Win Condition', () => {
+    it('should use village win condition', () => {
+      expect(typeof veggente.checkWin).toBe('function');
+    });
+  });
 });

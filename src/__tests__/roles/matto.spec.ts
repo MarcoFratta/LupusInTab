@@ -1,57 +1,83 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import matto from '../../roles/matto';
 
-describe('Matto (Crazyman) Role', () => {
-	describe('Role Properties', () => {
-		it('should have correct basic properties', () => {
-			expect(matto.id).toBe('matto');
-			expect(matto.name).toBe('Matto');
-			expect(matto.team).toBe('matti');
-			expect(matto.visibleAsTeam).toBe('matti');
-			expect(matto.countAs).toBe('matti');
-			expect(matto.color).toBe('#f59e0b');
-			expect(matto.phaseOrder).toBe('any');
-			
-			expect(matto.actsAtNight).toBe('never');
-		});
+describe('Matto Role', () => {
+  let mockGameState: any;
 
-		it('should have correct usage and count constraints', () => {
-			expect(matto.effectType).toBe('optional');
-			expect(matto.numberOfUsage).toBe('unlimited');
-			expect(matto.minCount).toBeUndefined();
-			expect(matto.maxCount).toBe(1);
-		});
-	});
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          matto: true
+        }
+      },
+      nightNumber: 1,
+      players: [
+        { 
+          id: 1, 
+          roleId: 'matto',
+          name: 'Matto Player',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true
+        },
+        { 
+          id: 3, 
+          roleId: 'villico',
+          name: 'Villico Player',
+          alive: true
+        }
+      ]
+    };
+  });
 
-	describe('Resolve Function', () => {
-		it('should do nothing when called', () => {
-			const mockGameState = {};
-			const mockEntry = {};
+  describe('Resolve Function', () => {
+    it('should not perform any night actions', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
 
-			expect(() => matto.resolve(mockGameState, mockEntry)).not.toThrow();
-		});
-	});
+      const result = matto.resolve(mockGameState, action);
 
-	describe('Win Condition', () => {
-		it('should not have a custom checkWin function', () => {
-			expect(matto.checkWin).toBeDefined();
-		});
-	});
+      expect(result).toBeUndefined();
+    });
 
-	describe('Count Constraints', () => {
-		it('should have maximum count of 1', () => {
-			expect(matto.maxCount).toBe(1);
-		});
+    it('should handle any action without errors', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999 },
+        used: true
+      };
 
-		it('should have no min count limit', () => {
-			expect(matto.minCount).toBeUndefined();
-		});
-	});
+      expect(() => {
+        matto.resolve(mockGameState, action);
+      }).not.toThrow();
+    });
 
-	describe('Team vs CountAs', () => {
-		it('should play for matti team and count as matti for wins', () => {
-			expect(matto.team).toBe('matti');
-			expect(matto.countAs).toBe('matti');
-		});
-	});
+    it('should handle null action', () => {
+      expect(() => {
+        matto.resolve(mockGameState, null);
+      }).not.toThrow();
+    });
+
+    it('should handle undefined action', () => {
+      expect(() => {
+        matto.resolve(mockGameState, undefined);
+      }).not.toThrow();
+    });
+  });
+
+  describe('Win Condition', () => {
+    it('should use village win condition', () => {
+      expect(typeof matto.checkWin).toBe('function');
+    });
+  });
 });

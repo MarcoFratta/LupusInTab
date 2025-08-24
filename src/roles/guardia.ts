@@ -6,9 +6,10 @@ const guardia: RoleDef = {
     id: 'guardia',
     name: 'Guardia',
     team: 'villaggio',
+    score: 4,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Ogni notte scegli un giocatore da proteggere dai lupi.',
+    description: 'Ogni notte protegge un giocatore dagli attacchi dei lupi. Deve sempre proteggere.',
     color: '#3b82f6',
 	phaseOrder: "any",
     actsAtNight: "alive",
@@ -23,31 +24,34 @@ const guardia: RoleDef = {
         
         const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
         if (pk && pk[id]) {
+            const lupoKills = pk[id].filter(kill => kill.role === 'lupo');
             pk[id] = pk[id].filter(kill => kill.role !== 'lupo');
             
             if (pk[id].length === 0) {
                 delete pk[id];
             }
+            
+            // Record the save action in context
+            if (lupoKills.length > 0) {
+                if (!gameState.night.context.saves) {
+                    gameState.night.context.saves = [];
+                }
+                if (!gameState.night.context.savesBy) {
+                    gameState.night.context.savesBy = [];
+                }
+                
+                gameState.night.context.saves.push({
+                    targetId: id,
+                    fromRoles: lupoKills.map(kill => kill.role)
+                });
+                
+                gameState.night.context.savesBy.push({
+                    by: action.playerId,
+                    target: id,
+                    fromRoles: lupoKills.map(kill => kill.role)
+                });
+            }
         }
-        
-        if (!Array.isArray(gameState.night.context.saves)) {
-            gameState.night.context.saves = [];
-        }
-        
-        gameState.night.context.saves.push({
-            targetId: id,
-            fromRoles: ['lupo'],
-            byRole: 'guardia'
-        });
-        
-        if (!Array.isArray(gameState.night.context.savesBy)) {
-            gameState.night.context.savesBy = [];
-        }
-        gameState.night.context.savesBy.push({ 
-            by: action.playerId ?? 0, 
-            target: id,
-            fromRoles: ['lupo']
-        });
         
         return {
             type: 'guardia_action',

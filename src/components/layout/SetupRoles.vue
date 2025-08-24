@@ -48,7 +48,7 @@ function openRoleDetails(roleId: string): void {
 </script>
 
 <template>
-  <div class="space-y-4 px-4 sm:px-0">
+  <div class="space-y-4 px-2 sm:px-0 overflow-visible">
     <!-- Header Section -->
     <div class="text-center space-y-3">
       <div class="space-y-2">

@@ -11,9 +11,16 @@ interface Props {
 const props = defineProps<Props>();
 
 const targetId = ref<number | null>(null);
-const deadPlayers = computed(() => 
-    props.gameState.players.filter((p: any) => p.isDead)
-);
+const deadPlayers = computed(() => {
+    const allPlayers = props.gameState.players || [];
+    const dead = allPlayers.filter((p: any) => !p.alive);
+    console.log('Medium Prompt Debug:', {
+        totalPlayers: allPlayers.length,
+        allPlayers: allPlayers.map(p => ({ id: p.id, name: p.name, alive: p.alive })),
+        deadPlayers: dead.map(p => ({ id: p.id, name: p.name, alive: p.alive }))
+    });
+    return dead;
+});
 
 const choices = computed(() => [
     { label: 'Seleziona un giocatore morto…', value: null },
@@ -24,12 +31,23 @@ function submit() {
     props.onComplete({ targetId: targetId.value });
 }
 
+function submitNoAction() {
+    props.onComplete({ skipped: true });
+}
 </script>
 
 <template>
   <div class="space-y-4">
+    <!-- Debug info -->
+    
     <div v-if="deadPlayers.length === 0" class="text-center text-gray-500">
       <p>Nessun giocatore morto da investigare</p>
+      <button 
+        class="btn btn-primary w-full mt-4" 
+        @click="submitNoAction"
+      >
+        Continua
+      </button>
     </div>
     
     <div v-else class="space-y-4">

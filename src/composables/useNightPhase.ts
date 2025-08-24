@@ -1,11 +1,12 @@
 import { computed } from 'vue';
-import type { GameState, NightTurn, RoleDef, Player } from '../types';
+import type { Player } from '../types';
 import { ROLES } from '../roles';
 import { getFactionConfig } from '../factions';
 import { GAME_CONSTANTS } from '../constants/game';
+import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 
 export interface UseNightPhaseOptions {
-  state: GameState;
+  state: any;
   onPromptComplete: (result: any) => void;
 }
 
@@ -13,7 +14,7 @@ export function useNightPhase({ state, onPromptComplete }: UseNightPhaseOptions)
   const alivePlayers = computed(() => state.players.filter((p: Player) => p.alive));
   
   const currentTurn = computed(() => 
-    state.night.turns[state.night.currentIndex] || null
+    NightPhaseManager.getCurrentTurn(state)
   );
   
   const currentRole = computed(() => 
@@ -108,9 +109,13 @@ export function useNightPhase({ state, onPromptComplete }: UseNightPhaseOptions)
     const entry = currentTurn.value;
     if (!entry) return false;
     
-    const exceededMembers = state.players.filter((p: Player) => {
-      if (!entry.playerIds.includes(p.id) || !p.alive) return false;
-      
+    const aliveMembers = state.players.filter((p: Player) => 
+      entry.playerIds.includes(p.id) && p.alive
+    );
+    
+    if (aliveMembers.length === 0) return false;
+    
+    const exceededMembers = aliveMembers.filter((p: Player) => {
       const numberOfUsage = p.roleState?.numberOfUsage;
       if (numberOfUsage === 'unlimited' || numberOfUsage === undefined) return false;
       
@@ -119,7 +124,8 @@ export function useNightPhase({ state, onPromptComplete }: UseNightPhaseOptions)
       return timesUsed >= numberOfUsage;
     });
     
-    return exceededMembers.length > 0;
+    // Only show usage limit prompt if ALL alive players have exceeded their usage limit
+    return exceededMembers.length > 0 && exceededMembers.length === aliveMembers.length;
   });
 
   const currentGroupNames = computed(() => {

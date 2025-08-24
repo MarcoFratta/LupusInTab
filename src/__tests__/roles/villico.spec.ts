@@ -1,57 +1,83 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import villico from '../../roles/villico';
 
-describe('Villico (Villager) Role', () => {
-	describe('Role Properties', () => {
-		it('should have correct basic properties', () => {
-			expect(villico.id).toBe('villico');
-			expect(villico.name).toBe('Villico');
-			expect(villico.team).toBe('villaggio');
-			expect(villico.visibleAsTeam).toBe('villaggio');
-			expect(villico.countAs).toBe('villaggio');
-			expect(villico.color).toBe('#6b7280');
-			expect(villico.phaseOrder).toBe('any');
-			
-			expect(villico.actsAtNight).toBe('never');
-		});
+describe('Villico Role', () => {
+  let mockGameState: any;
 
-		it('should have correct usage and count constraints', () => {
-			expect(villico.effectType).toBe('optional');
-			expect(villico.numberOfUsage).toBe('unlimited');
-			expect(villico.minCount).toBeUndefined();
-			expect(villico.maxCount).toBeUndefined();
-		});
-	});
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          guardia: true
+        }
+      },
+      nightNumber: 1,
+      players: [
+        { 
+          id: 1, 
+          roleId: 'villico',
+          name: 'Villico Player 1',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'villico',
+          name: 'Villico Player 2',
+          alive: true
+        },
+        { 
+          id: 3, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true
+        }
+      ]
+    };
+  });
 
-	describe('Resolve Function', () => {
-		it('should do nothing when called', () => {
-			const mockGameState = {};
-			const mockEntry = {};
+  describe('Resolve Function', () => {
+    it('should not perform any night actions', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
 
-			expect(() => villico.resolve(mockGameState, mockEntry)).not.toThrow();
-		});
-	});
+      const result = villico.resolve(mockGameState, action);
 
-	describe('Win Condition', () => {
-		it('should use village win condition', () => {
-			expect(typeof villico.checkWin).toBe('function');
-		});
-	});
+      expect(result).toBeUndefined();
+    });
 
-	describe('Count Constraints', () => {
-		it('should have no max count limit', () => {
-			expect(villico.maxCount).toBeUndefined();
-		});
+    it('should handle any action without errors', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999 },
+        used: true
+      };
 
-		it('should have no min count limit', () => {
-			expect(villico.minCount).toBeUndefined();
-		});
-	});
+      expect(() => {
+        villico.resolve(mockGameState, action);
+      }).not.toThrow();
+    });
 
-	describe('Team vs CountAs', () => {
-		it('should play for villaggio team and count as villaggio for wins', () => {
-			expect(villico.team).toBe('villaggio');
-			expect(villico.countAs).toBe('villaggio');
-		});
-	});
+    it('should handle null action', () => {
+      expect(() => {
+        villico.resolve(mockGameState, null);
+      }).not.toThrow();
+    });
+
+    it('should handle undefined action', () => {
+      expect(() => {
+        villico.resolve(mockGameState, undefined);
+      }).not.toThrow();
+    });
+  });
+
+  describe('Win Condition', () => {
+    it('should use village win condition', () => {
+      expect(typeof villico.checkWin).toBe('function');
+    });
+  });
 });

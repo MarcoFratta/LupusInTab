@@ -13,7 +13,7 @@
     <div class="grid gap-4 mb-6">
       <div
         v-for="(role, index) in availableRoles"
-        :key="role.id"
+        :key="`${role.id}-${shuffleKey}`"
         @click="selectRole(role)"
         :class="getRoleCardClasses(role.factionConfig)"
         class="rounded-lg p-4 cursor-pointer transition-all duration-200"
@@ -40,11 +40,21 @@
         </div>
       </div>
     </div>
+
+    <div class="text-center">
+      <button
+        @click="reshuffleRoles"
+        class="px-4 py-2 bg-neutral-700/60 hover:bg-neutral-700/80 border border-neutral-600/40 hover:border-neutral-500/60 rounded-lg text-neutral-300 text-sm font-medium transition-all duration-200 flex items-center gap-2 mx-auto"
+      >
+        <span>🔄</span>
+        Rimescola i ruoli
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { ROLES } from '../../../roles';
 import { getFactionConfig } from '../../../factions';
 
@@ -54,11 +64,14 @@ const props = defineProps<{
   onComplete: (result: any) => void;
 }>();
 
+const shuffleKey = ref(0);
+const selectedRoles = ref<any[]>([]);
+
 const genioFaction = computed(() => {
   return getFactionConfig('villaggio'); // Genio is part of villaggio faction
 });
 
-const availableRoles = computed(() => {
+const getAvailableRoleIds = () => {
   const enabledRoles = props.gameState.setup.rolesEnabled;
   const allRoles = ROLES;
   
@@ -80,19 +93,36 @@ const availableRoles = computed(() => {
   }).map(roleId => roleId === 'strega' ? 'medium' : roleId); // Convert strega to medium
   
   console.log('Available role IDs after filtering:', availableRoleIds);
+  return availableRoleIds;
+};
+
+const generateRandomRoles = () => {
+  const availableRoleIds = getAvailableRoleIds();
   
-  const shuffled = availableRoleIds.sort(() => Math.random() - 0.5);
+  // Shuffle and select 3 random roles
+  const shuffled = [...availableRoleIds].sort(() => Math.random() - 0.5);
   const selected = shuffled.slice(0, 3);
   
   console.log('Selected roles for Genio:', selected);
   
-  return selected.map(roleId => ({
+  selectedRoles.value = selected.map(roleId => ({
     id: roleId,
-    name: allRoles[roleId]?.name || roleId,
-    team: allRoles[roleId]?.team || 'unknown',
-    factionConfig: getFactionConfig(allRoles[roleId]?.team)
+    name: ROLES[roleId]?.name || roleId,
+    team: ROLES[roleId]?.team || 'unknown',
+    factionConfig: getFactionConfig(ROLES[roleId]?.team)
   }));
+};
+
+const availableRoles = computed(() => {
+  // This computed property now just returns the reactive selectedRoles
+  return selectedRoles.value;
 });
+
+const reshuffleRoles = () => {
+  shuffleKey.value++;
+  generateRandomRoles();
+  console.log('Roles reshuffled, new shuffle key:', shuffleKey.value);
+};
 
 const getRoleIcon = (roleId: string) => {
   const icons: Record<string, string> = {
@@ -227,8 +257,11 @@ const selectRole = (role: any) => {
 };
 
 onMounted(() => {
+  // Generate initial random roles
+  generateRandomRoles();
+  
   // Ensure we have 3 random roles
-  if (availableRoles.value.length < 3) {
+  if (selectedRoles.value.length < 3) {
     console.warn('Not enough available roles for Genio della Lampada');
   }
 });

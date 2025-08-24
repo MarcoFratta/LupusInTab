@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.6.0...v1.6.1) (2025-08-24)
+
+
+### Bug Fixes
+
+* update package.json ([95d560d](https://github.com/MarcoFratta/LupusInTab/commit/95d560d46ce9a7c4887a65a72140863162927d3b))
+
 # [1.6.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.5.2...v1.6.0) (2025-08-23)
 
 

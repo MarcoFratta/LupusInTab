@@ -29,14 +29,6 @@ const openGitHubIssue = () => {
 
 <template>
   <div class="space-y-6 text-center px-2 sm:px-0 sm:pb-0 overflow-visible">
-    <!-- Desktop Page Navigation (hidden on mobile) -->
-    <div class="hidden sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
-      <a href="/setup/home" class="flex-1 text-center py-1 btn btn-ghost"> Home </a>
-      <a href="/setup/roles" class="flex-1 text-center py-1 btn btn-ghost"> Ruoli </a>
-      <a href="/setup/players" class="flex-1 text-center py-1 btn btn-ghost"> Giocatori </a>
-      <a href="/setup/settings" class="flex-1 text-center py-1 btn btn-primary shadow-sm" aria-current="page"> Impostazioni </a>
-    </div>
-
     <!-- Page Content -->
     <div class="space-y-4 sm:px-0">
       <!-- Header Section -->

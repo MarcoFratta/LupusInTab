@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.6.1...v1.6.2) (2025-08-24)
+
+
+### Bug Fixes
+
+* update ui in settings ([0cf9d88](https://github.com/MarcoFratta/LupusInTab/commit/0cf9d88db6161afb16fc733b487bd02afc271510))
+
 ## [1.6.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.6.0...v1.6.1) (2025-08-24)
 
 

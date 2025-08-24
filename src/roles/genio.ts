@@ -1,16 +1,19 @@
 import { RoleDef } from '../types';
 import { ROLES } from './index';
 import {componentFactory} from "../utils/roleUtils";
+import { PlayerManager } from '../core/managers/PlayerManager';
 
 export const genio: RoleDef = {
     id: 'genio',
     name: 'Genio',
-
     team: 'villaggio',
-    description: 'A partire dalla 3ª notte, puoi scegliere un ruolo tra 3 ruoli selezionati casualmente e diventare immediatamente parte di quel ruolo.',
+    description: 'Dalla 3ª notte può trasformarsi in un altro ruolo a scelta tra 3 a caso',
     actsAtNight: 'alive',
     effectType: 'required',
     numberOfUsage: 1,
+    countAs: 'villaggio',
+    visibleAsTeam: 'villaggio',
+    score: 1,
     startNight: 3,
     phaseOrder: 0,
     canTargetDead: false,
@@ -41,22 +44,18 @@ export const genio: RoleDef = {
         
         if (newRoleDef) {
             player.roleId = target.roleId;
-            player.roleState = {
-                realTeam: newRoleDef.team,
-                countAs: newRoleDef.countAs || newRoleDef.team,
-                phaseOrder: newRoleDef.phaseOrder !== undefined ? newRoleDef.phaseOrder : 'any',
-                usage: newRoleDef.usage || 'unlimited',
-                effectType: newRoleDef.effectType || 'optional',
-                numberOfUsage: newRoleDef.numberOfUsage || 'unlimited',
-                startNight: newRoleDef.startNight || 1,
-                canTargetDead: newRoleDef.canTargetDead || false,
-                affectedRoles: newRoleDef.affectedRoles || [],
-                knownTo: newRoleDef.knownTo || [],
-                revealPartnersRoleIds: newRoleDef.revealPartnersRoleIds || [],
-                revealAlliesWithinRole: newRoleDef.revealAlliesWithinRole || false,
-                revealToAllies: newRoleDef.revealToAllies || 'team',
-                revealToPartners: newRoleDef.revealToPartners || 'role'
-            };
+            
+            // Use the proper utility function to initialize role state
+            // This ensures all properties including numberOfUsage are set correctly
+            PlayerManager.initializePlayerRoleState(player, newRoleDef);
+            
+            // Clear any existing power usage records for this player
+            // This ensures the transformed player starts with a fresh usage count
+            if (gameState.usedPowers && gameState.usedPowers[target.roleId]) {
+                gameState.usedPowers[target.roleId] = gameState.usedPowers[target.roleId].filter(
+                    (playerId: number) => playerId !== player.id
+                );
+            }
             
             // Return history object for display
             const historyObject = {

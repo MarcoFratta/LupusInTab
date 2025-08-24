@@ -31,28 +31,44 @@ function submit() {
 function skip() {
     props.onComplete({ targetId: null, used: false });
 }
+
+function submitNoAction() {
+    props.onComplete({ skipped: true });
+}
 </script>
 
 <template>
     <div class="space-y-3">
         <div v-if="hasActed" class="text-xs text-neutral-400">Hai già usato il tuo potere in questa partita.</div>
-        <PromptSelect
-            v-else
-            label="Angelo, scegli un giocatore morto da riportare in vita (una volta per partita)"
-            v-model="targetId"
-            :choices="choices"
-            buttonText=""
-            accent="yellow"
-            :disabled="choices.length === 0"
-        />
-        <SkipConfirmButtons
-            v-if="!hasActed"
-            confirm-text="Resuscita"
-            :confirm-disabled="!canSubmit"
-            @confirm="submit"
-            @skip="skip"
-        />
-        <div v-else>
+        
+        <div v-else-if="selectable.length === 0" class="text-center text-gray-500">
+            <p>Nessun giocatore da resuscitare</p>
+            <button 
+                class="btn btn-primary w-full mt-4" 
+                @click="submitNoAction"
+            >
+                Continua
+            </button>
+        </div>
+        
+        <div v-else class="space-y-3">
+            <PromptSelect
+                label="Angelo, scegli un giocatore morto da riportare in vita (una volta per partita)"
+                v-model="targetId"
+                :choices="choices"
+                buttonText=""
+                accent="yellow"
+                :disabled="choices.length === 0"
+            />
+            <SkipConfirmButtons
+                confirm-text="Resuscita"
+                :confirm-disabled="!canSubmit"
+                @confirm="submit"
+                @skip="skip"
+            />
+        </div>
+        
+        <div v-if="hasActed">
             <SkipConfirmButtons
                 :showSkip="false"
                 confirm-text="Continua"

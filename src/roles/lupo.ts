@@ -4,11 +4,12 @@ import {componentFactory} from "../utils/roleUtils";
 
 const lupo: RoleDef = {
     id: 'lupo',
-    name: 'Lupi',
+    name: 'Lupo',
     team: 'lupi',
+    score: 10,
     visibleAsTeam: 'lupi',
     countAs: 'lupi',
-    description: 'Di notte i lupi scelgono una vittima. Vincono quando restano solo loro o raggiungono la parità con gli altri.',
+    description: 'Di notte sceglie una vittima da sbranare.',
     color: '#ef4444',
     phaseOrder: 1,
     actsAtNight: "alive",

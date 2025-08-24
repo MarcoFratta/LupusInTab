@@ -32,6 +32,12 @@ export interface RoleDef {
 	id: string;
 	name: string;
 	team: Team;
+	/**
+	 * Power score of this role for team balance calculations.
+	 * Higher scores indicate more powerful/influential roles.
+	 * Used to calculate weighted variance between teams.
+	 */
+	score: number;
     /**
      * How this role is seen by investigative roles (e.g., veggente).
      * Defaults to `team` when not provided.

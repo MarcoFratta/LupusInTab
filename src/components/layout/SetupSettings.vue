@@ -13,10 +13,22 @@ watch(() => state.settings, () => {
     discussionTimerEnabled: !!state.settings.discussionTimerEnabled,
   });
 }, { deep: true });
+
+const openBuyMeACoffee = () => {
+  window.open('https://buymeacoffee.com/frattarolaf', '_blank');
+};
+
+const openGitHubStar = () => {
+  window.open('https://github.com/MarcoFratta/LupusInTab', '_blank');
+};
+
+const openGitHubIssue = () => {
+  window.open('https://github.com/MarcoFratta/LupusInTab/issues/new', '_blank');
+};
 </script>
 
 <template>
-  <div class="space-y-6 text-center px-4 sm:px-0 sm:pb-0">
+  <div class="space-y-6 text-center px-2 sm:px-0 sm:pb-0 overflow-visible">
     <!-- Desktop Page Navigation (hidden on mobile) -->
     <div class="hidden sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
       <a href="/setup/home" class="flex-1 text-center py-1 btn btn-ghost"> Home </a>
@@ -26,7 +38,7 @@ watch(() => state.settings, () => {
     </div>
 
     <!-- Page Content -->
-    <div class="space-y-4 px-4 sm:px-0">
+    <div class="space-y-4 sm:px-0">
       <!-- Header Section -->
       <div class="text-center space-y-3">
         <div class="space-y-2">
@@ -150,10 +162,54 @@ watch(() => state.settings, () => {
         </div>
       </div>
 
-      <!-- Note -->
-      <div class="text-center p-3 rounded-lg bg-neutral-800/30 border border-neutral-700/30">
-        <div class="flex items-center justify-center gap-2 text-xs text-neutral-400">
-          <span>Le impostazioni vengono salvate automaticamente e si applicano a tutte le partite future.</span>
+      <!-- Support Section -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <h3 class="text-sm font-medium text-neutral-300">Supporta il Progetto</h3>
+          <div class="flex-1 h-px bg-neutral-800/50"></div>
+        </div>
+        
+        <div class="space-y-2.5">
+          <!-- Donation Section -->
+          <div class="relative rounded-lg border border-neutral-800/40 p-3 transition-all duration-300 bg-neutral-900/50 overflow-hidden hover:bg-neutral-900/70 hover:border-neutral-700/50 active:scale-[0.98] touch-manipulation">
+            <div class="flex flex-col space-y-3">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-sm font-semibold text-neutral-200">Offrimi un caffè</span>
+              </div>
+              <div class="text-xs text-neutral-400 leading-relaxed text-left">
+                Se ti piace il progetto, considera di supportarlo con una donazione per mantenere il progetto attivo.
+              </div>
+              <button 
+                @click="openBuyMeACoffee"
+                class="w-full py-2 px-3 bg-amber-800 hover:bg-amber-900 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation">
+                ☕ Offri un caffè
+              </button>
+            </div>
+          </div>
+
+          <!-- GitHub Section -->
+          <div class="relative rounded-lg border border-neutral-800/40 p-3 transition-all duration-300 bg-neutral-900/50 overflow-hidden hover:bg-neutral-900/70 hover:border-neutral-700/50 active:scale-[0.98] touch-manipulation">
+            <div class="flex flex-col space-y-3">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-sm font-semibold text-neutral-200">Contribuisci su GitHub</span>
+              </div>
+              <div class="text-xs text-neutral-400 leading-relaxed text-left">
+                Dai una stella al progetto e segnala eventuali problemi o suggerimenti per miglioramenti.
+              </div>
+              <div class="flex flex-col sm:flex-row gap-2">
+                <button 
+                  @click="openGitHubStar"
+                  class="flex-1 py-2 px-3 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation">
+                  Dai una stella
+                </button>
+                <button 
+                  @click="openGitHubIssue"
+                  class="flex-1 py-2 px-3 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation">
+                  Segnala un problema
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

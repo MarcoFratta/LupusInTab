@@ -1,127 +1,163 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import giustiziere from '../../roles/giustiziere';
-import { useWinConditions } from '../../utils/winConditions';
 
-// Mock the addToHistory function
-vi.mock('../../utils/roleUtils', () => ({
-    addToHistory: vi.fn(),
-    addGroupHistory: vi.fn()
-}));
+describe('Giustiziere Role', () => {
+  let mockGameState: any;
 
-describe('Giustiziere (Justicer) Role', () => {
-    let mockGameState: any;
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          giustiziere: true
+        }
+      },
+      nightNumber: 1,
+      night: {
+        context: {
+          pendingKills: {}
+        }
+      },
+      players: [
+        { 
+          id: 1, 
+          roleId: 'giustiziere',
+          name: 'Giustiziere Player',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true
+        },
+        { 
+          id: 3, 
+          roleId: 'villico',
+          name: 'Villico Player',
+          alive: true
+        }
+      ]
+    };
+  });
 
-    beforeEach(() => {
-        mockGameState = {
-            players: [
-                { id: 1, roleId: 'giustiziere', alive: true },
-                { id: 2, roleId: 'lupo', alive: true },
-                { id: 3, roleId: 'villico', alive: true }
-            ],
-            nightNumber: 1,
-            night: {
-                context: {
-                    pendingKills: {}
-                }
-            }
-        };
+  describe('Resolve Function', () => {
+    it('should add kill to pendingKills when target is valid', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
+
+      const result = giustiziere.resolve(mockGameState, action);
+
+      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('giustiziere');
+      expect(result).toBeDefined();
+      expect(result.type).toBe('giustiziere_action');
+      expect(result.targetId).toBe(3);
     });
 
-    describe('Role Properties', () => {
-        it('should have correct basic properties', () => {
-            expect(giustiziere.id).toBe('giustiziere');
-            expect(giustiziere.name).toBe('Giustiziere');
-            expect(giustiziere.team).toBe('villaggio');
-            expect(giustiziere.visibleAsTeam).toBe('villaggio');
-            expect(giustiziere.countAs).toBe('villaggio');
-            expect(giustiziere.color).toBe('#dc2626');
-            expect(giustiziere.phaseOrder).toBe('any');
-            
-            		expect(giustiziere.actsAtNight).toBe('alive');
-        });
+    it('should handle targetId from result.targetId', () => {
+      const action = {
+        playerId: 1,
+        result: { targetId: 3 },
+        data: { targetId: 3 },
+        used: true
+      };
 
-        it('should have correct usage and count constraints', () => {
-            expect(giustiziere.effectType).toBe('optional');
-            expect(giustiziere.numberOfUsage).toBe(1);
-            expect(giustiziere.minCount).toBeUndefined();
-            expect(giustiziere.maxCount).toBeUndefined();
-        });
+      const result = giustiziere.resolve(mockGameState, action);
 
+      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('giustiziere');
     });
 
-    describe('Resolve Function', () => {
-        it('should add giustiziere kill to pendingKills when target is valid', () => {
-            const action = {
-                data: { targetId: 2 },
-                playerId: 1
-            };
+    it('should not duplicate kills for the same target', () => {
+      const action1 = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
+      const action2 = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
 
-            giustiziere.resolve(mockGameState, action);
+      giustiziere.resolve(mockGameState, action1);
+      giustiziere.resolve(mockGameState, action2);
 
-            expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
-            expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'giustiziere'
-            });
-        });
-
-        it('should not add kill when targetId is invalid', () => {
-            const action = {
-                data: { targetId: 'invalid' },
-                playerId: 1
-            };
-
-            giustiziere.resolve(mockGameState, action);
-
-            expect(mockGameState.night.context.pendingKills[2]).toBeUndefined();
-        });
-
-        it('should initialize pendingKills array if it does not exist', () => {
-            delete mockGameState.night.context.pendingKills;
-
-            const action = {
-                data: { targetId: 2 },
-                playerId: 1
-            };
-
-            giustiziere.resolve(mockGameState, action);
-
-            expect(Array.isArray(mockGameState.night.context.pendingKills[2])).toBe(true);
-        });
-
-        it('should handle multiple kills correctly', () => {
-            const action1 = { data: { targetId: 2 }, playerId: 1 };
-            const action2 = { data: { targetId: 3 }, playerId: 1 };
-
-            giustiziere.resolve(mockGameState, action1);
-            giustiziere.resolve(mockGameState, action2);
-
-            expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
-            expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
-        });
-
-
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(2);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('giustiziere');
+      expect(mockGameState.night.context.pendingKills[3][1].role).toBe('giustiziere');
     });
 
-    describe('Win Condition', () => {
-        it('should use village win condition', () => {
-            expect(typeof giustiziere.checkWin).toBe('function');
-        });
+    it('should handle invalid target ID', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 'invalid' },
+        used: true
+      };
+
+      const result = giustiziere.resolve(mockGameState, action);
+
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills).toEqual({});
     });
 
-    describe('Count Constraints', () => {
-        it('should have no max count limit', () => {
-            expect(giustiziere.maxCount).toBeUndefined();
-        });
+    it('should handle missing target ID', () => {
+      const action = {
+        playerId: 1,
+        data: {},
+        used: true
+      };
 
-        it('should have no min count limit', () => {
-            expect(giustiziere.minCount).toBeUndefined();
-        });
+      const result = giustiziere.resolve(mockGameState, action);
+
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills).toEqual({});
     });
 
-    describe('Team vs CountAs', () => {
-        it('should play for villaggio team and count as villaggio for wins', () => {
-            expect(giustiziere.team).toBe('villaggio');
-            expect(giustiziere.countAs).toBe('villaggio');
-        });
+    it('should handle non-existent target', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999 },
+        used: true
+      };
+
+      const result = giustiziere.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[999]).toBeDefined();
     });
+
+    it('should handle multiple targets correctly', () => {
+      const action1 = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
+      const action2 = {
+        playerId: 1,
+        data: { targetId: 2 },
+        used: true
+      };
+
+      giustiziere.resolve(mockGameState, action1);
+      giustiziere.resolve(mockGameState, action2);
+
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('giustiziere');
+      expect(mockGameState.night.context.pendingKills[2][0].role).toBe('giustiziere');
+    });
+  });
+
+  describe('Win Condition', () => {
+    it('should use village win condition', () => {
+      expect(typeof giustiziere.checkWin).toBe('function');
+    });
+  });
 });

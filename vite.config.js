@@ -53,6 +53,7 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         include: ['src/**/*.spec.ts'],
+        setupFiles: ['src/__tests__/setup.ts'],
     },
 });
 

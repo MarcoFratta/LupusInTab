@@ -147,12 +147,8 @@ export class NightPhaseManager {
       // If first night is skipped, we don't add anything to history
     }
     
-    // Move to next turn or resolve phase
-    if (state.night.currentIndex < state.night.turns.length - 1) {
-      state.night.currentIndex += 1;
-    } else {
-      state.phase = 'resolve';
-    }
+    // Move to next turn, recomputing based on current state
+    NightPhaseManager.moveToNextTurn(state);
   }
 
   /**
@@ -324,5 +320,86 @@ export class NightPhaseManager {
    */
   static startNextNight(state: GameState, roles: RolesRegistry): void {
     NightPhaseManager.beginNight(state, roles);
+  }
+
+
+
+  /**
+   * Get the next turn based on current player roles and phase order
+   */
+  static getNextTurn(state: GameState): any {
+    if (!state.night) return null;
+    
+    // Get all unique roles from current players
+    const uniqueRoles = new Set(state.players.map(p => p.roleId));
+    
+    // Build current night turns based on actual player roles
+    const rolesWithPrompts = [];
+    
+    for (const roleId of uniqueRoles) {
+      const roleDef = ROLES[roleId];
+      if (!roleDef || roleDef.actsAtNight === 'never') continue;
+      
+      const rolePlayers = state.players.filter(p => p.roleId === roleId);
+      if (rolePlayers.length === 0) continue;
+      
+      const roleInfo = {
+        roleId,
+        roleDef,
+        players: rolePlayers,
+        phaseOrder: roleDef.phaseOrder !== undefined ? roleDef.phaseOrder : 'any'
+      };
+      
+      rolesWithPrompts.push(roleInfo);
+    }
+    
+    // Sort by phase order
+    rolesWithPrompts.sort(NightPhaseManager.compareRolesByPhaseOrder);
+    
+    // Convert to turn format
+    const turns = rolesWithPrompts.map(role => ({
+      kind: 'group' as const,
+      roleId: role.roleId,
+      playerIds: role.players.map(p => p.id)
+    }));
+    
+    return turns;
+  }
+
+  /**
+   * Get the current turn based on the current index and recomputed turns
+   */
+  static getCurrentTurn(state: GameState): any {
+    if (!state.night) return null;
+    
+    const turns = NightPhaseManager.getNextTurn(state);
+    if (!turns || turns.length === 0) return null;
+    
+    // Ensure currentIndex is within bounds
+    if (state.night.currentIndex >= turns.length) {
+      state.night.currentIndex = turns.length - 1;
+    }
+    
+    return turns[state.night.currentIndex] || null;
+  }
+
+  /**
+   * Move to the next turn, recomputing if needed
+   */
+  static moveToNextTurn(state: GameState): void {
+    if (!state.night) return;
+    
+    const turns = NightPhaseManager.getNextTurn(state);
+    if (!turns) return;
+    
+    // Update the night turns to reflect current state
+    state.night.turns = turns;
+    
+    // Move to next turn or resolve phase
+    if (state.night.currentIndex < turns.length - 1) {
+      state.night.currentIndex += 1;
+    } else {
+      state.phase = 'resolve';
+    }
   }
 }

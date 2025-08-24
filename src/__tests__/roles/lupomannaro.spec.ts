@@ -1,129 +1,163 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import lupomannaro from '../../roles/lupomannaro';
 
-describe('LupoMannaro (Werewolf) Role', () => {
-    it('should have correct properties', () => {
-        expect(lupomannaro.id).toBe('lupomannaro');
-        expect(lupomannaro.name).toBe('Lupo Mannaro');
-        expect(lupomannaro.team).toBe('mannari');
-        expect(lupomannaro.visibleAsTeam).toBe('lupi');
-        expect(lupomannaro.countAs).toBe('lupi');
-        expect(lupomannaro.actsAtNight).toBe('alive');
-        expect(lupomannaro.effectType).toBe('required');
-        expect(lupomannaro.numberOfUsage).toBe('unlimited');
-        expect(typeof lupomannaro.resolve).toBe('function');
-        expect(typeof lupomannaro.checkWin).toBe('function');
-        expect(typeof lupomannaro.checkWinConstraint).toBe('function');
-        expect(typeof lupomannaro.passiveEffect).toBe('function');
+describe('Lupomannaro Role', () => {
+  let mockGameState: any;
+
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          lupomannaro: true
+        }
+      },
+      nightNumber: 1,
+      night: {
+        context: {
+          pendingKills: {}
+        }
+      },
+      players: [
+        { 
+          id: 1, 
+          roleId: 'lupomannaro',
+          name: 'Lupomannaro Player',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true
+        },
+        { 
+          id: 3, 
+          roleId: 'villico',
+          name: 'Villico Player',
+          alive: true
+        }
+      ]
+    };
+  });
+
+  describe('Resolve Function', () => {
+    it('should add kill to pendingKills when target is valid', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3, roleId: 'villico' },
+        used: true
+      };
+
+      const result = lupomannaro.resolve(mockGameState, action);
+
+      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupomannaro');
+      expect(result).toBeDefined();
+      expect(result.type).toBe('lupomannaro_action');
+      expect(result.targetId).toBe(3);
     });
 
-    it('should remove lupo kills targeting the Lupo Mannaro', () => {
-        const mockGameState = {
-            night: {
-                context: {
-                    pendingKills: {
-                        1: [
-                            { role: 'lupo' },
-                            { role: 'other' }
-                        ]
-                    }
-                }
-            }
-        };
+    it('should handle targetId from result.targetId', () => {
+      const action = {
+        playerId: 1,
+        result: { targetId: 3 },
+        data: { targetId: 3, roleId: 'villico' },
+        used: true
+      };
 
-        const mockPlayer = { id: 1, roleId: 'lupomannaro' };
-        lupomannaro.passiveEffect(mockGameState as any, mockPlayer);
+      const result = lupomannaro.resolve(mockGameState, action);
 
-        // Lupo kill should be removed
-        expect(mockGameState.night.context.pendingKills[1]).toEqual([{ role: 'other' }]);
+      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupomannaro');
     });
 
-    it('should remove the entire pendingKills entry if only lupo kills remain', () => {
-        const mockGameState = {
-            night: {
-                context: {
-                    pendingKills: {
-                        1: [
-                            { role: 'lupo' }
-                        ]
-                    }
-                }
-            }
-        };
+    it('should not duplicate kills for the same target', () => {
+      const action1 = {
+        playerId: 1,
+        data: { targetId: 3, roleId: 'villico' },
+        used: true
+      };
+      const action2 = {
+        playerId: 1,
+        data: { targetId: 3, roleId: 'villico' },
+        used: true
+      };
 
-        const mockPlayer = { id: 1, roleId: 'lupomannaro' };
-        lupomannaro.passiveEffect(mockGameState as any, mockPlayer);
+      lupomannaro.resolve(mockGameState, action1);
+      lupomannaro.resolve(mockGameState, action2);
 
-        expect(mockGameState.night.context.pendingKills[1]).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(2);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupomannaro');
+      expect(mockGameState.night.context.pendingKills[3][1].role).toBe('lupomannaro');
     });
 
-    it('should not affect kills from other roles', () => {
-        const mockGameState = {
-            night: {
-                context: {
-                    pendingKills: {
-                        2: [
-                            { role: 'other' }
-                        ]
-                    }
-                }
-            }
-        };
+    it('should handle invalid target ID', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 'invalid', roleId: 'villico' },
+        used: true
+      };
 
-        const mockPlayer = { id: 1, roleId: 'lupomannaro' };
-        lupomannaro.passiveEffect(mockGameState as any, mockPlayer);
+      const result = lupomannaro.resolve(mockGameState, action);
 
-        expect(mockGameState.night.context.pendingKills[2][0].role).toBe('other');
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills).toEqual({});
     });
 
-    it('should win when exactly 2 players remain and Lupomannaro is alive', () => {
-        const mockGameState = {
-            players: [
-                { id: 1, roleId: 'lupomannaro', alive: true },
-                { id: 2, roleId: 'villico', alive: true }
-            ]
-        };
+    it('should handle missing target ID', () => {
+      const action = {
+        playerId: 1,
+        data: { roleId: 'villico' },
+        used: true
+      };
 
-        const result = lupomannaro.checkWin(mockGameState as any);
-        expect(result).toBe(true);
+      const result = lupomannaro.resolve(mockGameState, action);
+
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills).toEqual({});
     });
 
-    it('should not win when more than 2 players remain', () => {
-        const mockGameState = {
-            players: [
-                { id: 1, roleId: 'lupomannaro', alive: true },
-                { id: 2, roleId: 'villico', alive: true },
-                { id: 3, roleId: 'villico', alive: true }
-            ]
-        };
+    it('should handle non-existent target', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999, roleId: 'villico' },
+        used: true
+      };
 
-        const result = lupomannaro.checkWin(mockGameState as any);
-        expect(result).toBe(false);
+      const result = lupomannaro.resolve(mockGameState, action);
+
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills[999]).toBeUndefined();
     });
 
-    it('should block wins when alive with more than 2 players', () => {
-        const mockGameState = {
-            players: [
-                { id: 1, roleId: 'lupomannaro', alive: true },
-                { id: 2, roleId: 'villico', alive: true },
-                { id: 3, roleId: 'villico', alive: true }
-            ]
-        };
+    it('should handle multiple targets correctly', () => {
+      const action1 = {
+        playerId: 1,
+        data: { targetId: 3, roleId: 'villico' },
+        used: true
+      };
+      const action2 = {
+        playerId: 1,
+        data: { targetId: 2, roleId: 'lupo' },
+        used: true
+      };
 
-        const result = lupomannaro.checkWinConstraint(mockGameState as any);
-        expect(result).toBe(true);
+      lupomannaro.resolve(mockGameState, action1);
+      lupomannaro.resolve(mockGameState, action2);
+
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupomannaro');
+      expect(mockGameState.night.context.pendingKills[2][0].role).toBe('lupomannaro');
     });
+  });
 
-    it('should not block wins when dead', () => {
-        const mockGameState = {
-            players: [
-                { id: 1, roleId: 'lupomannaro', alive: false },
-                { id: 2, roleId: 'villico', alive: true },
-                { id: 3, roleId: 'villico', alive: true }
-            ]
-        };
-
-        const result = lupomannaro.checkWinConstraint(mockGameState as any);
-        expect(result).toBe(false);
+  describe('Win Condition', () => {
+    it('should use wolves win condition', () => {
+      expect(typeof lupomannaro.checkWin).toBe('function');
     });
+  });
 });

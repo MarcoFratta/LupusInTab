@@ -10,9 +10,11 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "release": "semantic-release",
     "release:dry-run": "semantic-release --dry-run",
     "mobile:setup": "./scripts/setup-capacitor.sh",
+    "mobile:setup:playstore": "./scripts/setup-play-store.sh",
     "mobile:build:android": "npm run build && npx cap sync android",
     "mobile:build:ios": "npm run build && npx cap sync ios",
     "mobile:run:android": "npm run mobile:build:android && npx cap run android",
@@ -39,6 +41,7 @@
     "vue-router": "^4.3.2"
   },
   "devDependencies": {
+    "@capacitor/android": "^7.4.2",
     "@capacitor/assets": "^3.0.5",
     "@semantic-release/changelog": "^6.0.0",
     "@semantic-release/exec": "^6.0.3",

@@ -7,8 +7,9 @@ const medium: RoleDef = {
     name: 'Medium',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
+    score: 3,
     countAs: 'villaggio',
-    description: 'Ogni notte scegli un giocatore morto per scoprire la sua fazione.',
+    description: 'Ogni notte comunica con un morto per scoprirne la fazione. Deve sempre investigare. Muore se interroga un lupomannaro.',
     color: '#eab308',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -23,15 +24,25 @@ const medium: RoleDef = {
         if (!target) return;
         const seenTeam = target.roleState?.visibleAsTeam || target.roleState?.realTeam;
         
-        if (!Array.isArray(gameState.night.context.checks)) {
+        // Record the check action in context
+        if (!gameState.night.context.checks) {
             gameState.night.context.checks = [];
         }
-        gameState.night.context.checks.push({ by: action.playerId ?? 0, target: id, team: seenTeam });
         
+        gameState.night.context.checks.push({
+            by: action.playerId,
+            target: id,
+            discoveredFaction: seenTeam
+        });
+        
+        // Special rule: Medium dies if investigating lupomannaro
         if (target.roleId === 'lupomannaro') {
-            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-            if (!pk[id]) pk[id] = [];
-            pk[id].push({ role: 'medium' });
+            if (!gameState.night.context.pendingKills[action.playerId]) {
+                gameState.night.context.pendingKills[action.playerId] = [];
+            }
+            gameState.night.context.pendingKills[action.playerId].push({
+                role: 'medium'
+            });
         }
         
         return {

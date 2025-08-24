@@ -57,7 +57,7 @@ function movePlayerDown(index: number) {
 </script>
 
 <template>
-  <div class="space-y-4 px-4 sm:px-0">
+  <div class="space-y-4 px-2 sm:px-0 overflow-visible">
     <!-- Header Section -->
     <div class="text-center space-y-3">
       <div class="space-y-2">
@@ -104,7 +104,7 @@ function movePlayerDown(index: number) {
         <span class="text-xs text-neutral-500 font-medium">{{ playerCount }} giocator{{ playerCount === 1 ? 'e' : 'i' }}</span>
       </div>
       
-      <div class="space-y-2 max-h-96 overflow-y-auto overflow-x-hidden px-1">
+      <div class="space-y-2 max-h-96 overflow-y-auto overflow-x-hidden">
         <div 
           v-for="(player, index) in state.setup.players" 
           :key="index" 

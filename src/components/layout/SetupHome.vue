@@ -22,6 +22,34 @@ const totalRolesSelected = computed(() => {
   const values = Object.values(roleCounts.value as Record<string, number>);
   return values.reduce((a: number, b: number) => a + (Number(b) || 0), 0);
 });
+
+const disadvantagedTeam = computed(() => {
+  const teamData = teamBalance.value.teamData;
+  if (!teamData || Object.keys(teamData).length === 0) return null;
+  
+  let minPower = Infinity;
+  let disadvantagedTeamName = '';
+  
+  Object.entries(teamData).forEach(([teamName, team]) => {
+    if (team.players > 0 && team.power < minPower) {
+      minPower = team.power;
+      disadvantagedTeamName = teamName;
+    }
+  });
+  
+  return disadvantagedTeamName;
+});
+
+const getTeamDisplayName = (teamName: string) => {
+  const teamNames: Record<string, string> = {
+    'villaggio': 'Villaggio',
+    'lupi': 'Lupi',
+    'mannari': 'Mannari',
+    'matti': 'Matti'
+  };
+  return teamNames[teamName] || teamName;
+};
+
 const canStart = computed(() => {
   	const numWolves = roleCounts.value['lupo'] || 0;
   const totalsMatch = totalRolesSelected.value === state.setup.numPlayers;
@@ -68,7 +96,7 @@ const sortedEnabledRoles = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-4 px-4 sm:px-0">
+  <div class="space-y-4 px-2 sm:px-0 overflow-visible">
 
 
     <!-- Header Section with Role Summary -->
@@ -138,15 +166,11 @@ const sortedEnabledRoles = computed(() => {
           </div>
         </div>
         <div class="text-xs text-neutral-500 mt-2 text-center space-y-1">
-          <div>Lupi: {{ teamBalance.lupiCount }} | Villaggio: {{ teamBalance.villaggioCount }}</div>
-          <div v-if="teamBalance.otherRolesCount > 0" class="text-xs text-neutral-600">
-            Altri ruoli: {{ teamBalance.otherRolesCount }}
-            <span v-if="teamBalance.otherRolesBonus !== 0" class="ml-1" :class="teamBalance.otherRolesBonus > 0 ? 'text-green-400' : 'text-red-400'">
-              ({{ teamBalance.otherRolesBonus > 0 ? '+' : '' }}{{ teamBalance.otherRolesBonus }}%)
-            </span>
+          <div v-if="disadvantagedTeam && teamBalance.fairness < 100" class="text-xs">
+            Fazione più debole: {{ getTeamDisplayName(disadvantagedTeam) }}
           </div>
           <div class="text-xs text-neutral-600">
-            Totale: {{ teamBalance.totalCount }}/{{ state.setup.numPlayers }} giocatori
+            Totale: {{ teamBalance.totalPlayers }}/{{ state.setup.numPlayers }} giocatori
           </div>
         </div>
       </div>

@@ -74,7 +74,16 @@ function getStartNightDisplay(startNight?: number): string {
 }
 
 // Get faction display info
-function getFactionInfo(team: string) {
+function getFactionInfo(team: string | undefined) {
+  if (!team) {
+    return {
+      name: 'Sconosciuto',
+      color: 'text-neutral-400',
+      bgColor: 'bg-neutral-400',
+      ringColor: 'ring-neutral-500/40'
+    };
+  }
+  
   const faction = getFactionConfig(team);
   
   // Convert hex color to Tailwind background class
@@ -186,7 +195,7 @@ watch(roleId, () => {
             <div class="flex-1 h-px bg-neutral-800/50"></div>
           </div>
           
-          <div class="grid gap-3 grid-cols-1 md:grid-cols-2">
+          <div class="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <!-- Real faction -->
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
@@ -204,15 +213,29 @@ watch(roleId, () => {
             <!-- Visible faction -->
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
-                <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getFactionConfig(role.visibleAsTeam || role.team)?.color || '#9ca3af' }"></div>
+                <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getFactionConfig(role.visibleAsTeam || role.team || 'villaggio')?.color || '#9ca3af' }"></div>
                 <span class="text-sm font-medium text-neutral-200">Come Appare</span>
               </div>
               <div class="flex items-center gap-2 mb-1">
-                <span class="font-semibold text-sm" :style="{ color: getFactionConfig(role.visibleAsTeam || role.team)?.color || '#e5e7eb' }">
-                  {{ getFactionInfo(role.visibleAsTeam || role.team).name }}
+                <span class="font-semibold text-sm" :style="{ color: getFactionConfig(role.visibleAsTeam || role.team || 'villaggio')?.color || '#e5e7eb' }">
+                  {{ getFactionInfo(role.visibleAsTeam || role.team || 'villaggio').name }}
                 </span>
               </div>
               <p class="text-xs text-neutral-400">Come appare agli altri giocatori</p>
+            </div>
+
+            <!-- Counts as faction -->
+            <div v-if="role.countAs" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getFactionConfig(role.countAs)?.color || '#9ca3af' }"></div>
+                <span class="text-sm font-medium text-neutral-200">Conta Come</span>
+              </div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="font-semibold text-sm" :style="{ color: getFactionConfig(role.countAs)?.color || '#e5e7eb' }">
+                  {{ getFactionInfo(role.countAs).name }}
+                </span>
+              </div>
+              <p class="text-xs text-neutral-400">Fazione per cui conta nelle condizioni di vittoria</p>
             </div>
           </div>
         </div>
@@ -226,7 +249,7 @@ watch(roleId, () => {
             <div class="flex-1 h-px bg-neutral-800/50"></div>
           </div>
           
-          <div class="grid gap-3 grid-cols-1 md:grid-cols-2">
+          <div class="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <!-- Player count constraints -->
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
@@ -255,6 +278,39 @@ watch(roleId, () => {
                 {{ getWinCondition(role.team) }}
               </p>
             </div>
+
+            <!-- When can act at night -->
+            <div v-if="role.actsAtNight && role.actsAtNight !== 'never'" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
+                <span class="text-sm font-medium text-neutral-200">Azione Notturna</span>
+              </div>
+              <p class="text-xs text-neutral-400 leading-relaxed">
+                {{ getActsAtNightText(role.actsAtNight) }}
+              </p>
+            </div>
+
+            <!-- Usage count -->
+            <div v-if="role.usage || role.numberOfUsage" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                <span class="text-sm font-medium text-neutral-200">Utilizzi</span>
+              </div>
+              <p class="text-xs text-neutral-400 leading-relaxed">
+                {{ getUsageDisplay(role) }}
+              </p>
+            </div>
+
+            <!-- Start night -->
+            <div v-if="role.startNight && role.startNight > 1" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-2.5 h-2.5 rounded-full bg-cyan-500"></div>
+                <span class="text-sm font-medium text-neutral-200">Inizio Abilità</span>
+              </div>
+              <p class="text-xs text-neutral-400 leading-relaxed">
+                {{ getStartNightDisplay(role.startNight) }}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -269,28 +325,10 @@ watch(roleId, () => {
           
           <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-4">
             <div class="grid gap-3 grid-cols-1">
-              <!-- When can act at night -->
-              <div v-if="role.actsAtNight && role.actsAtNight !== 'never'" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
-                <div class="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span class="text-xs font-medium text-neutral-200">{{ getActsAtNightText(role.actsAtNight) }}</span>
-              </div>
-              
-              <!-- Usage count -->
-              <div v-if="role.usage || role.numberOfUsage" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
-                <div class="w-2 h-2 rounded-full bg-purple-400"></div>
-                <span class="text-xs font-medium text-neutral-200">{{ getUsageDisplay(role) }}</span>
-              </div>
-              
               <!-- Effect type (required/optional) -->
               <div v-if="role.effectType" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
                 <div class="w-2 h-2 rounded-full bg-amber-400"></div>
                 <span class="text-xs font-medium text-neutral-200">{{ getEffectTypeDisplay(role.effectType) }}</span>
-              </div>
-              
-              <!-- Start night -->
-              <div v-if="role.startNight && role.startNight > 1" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
-                <div class="w-2 h-2 rounded-full bg-cyan-400"></div>
-                <span class="text-xs font-medium text-neutral-200">{{ getStartNightDisplay(role.startNight) }}</span>
               </div>
               
 

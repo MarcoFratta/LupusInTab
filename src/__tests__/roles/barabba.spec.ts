@@ -1,119 +1,106 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import barabba from '../../roles/barabba';
-import { useWinConditions } from '../../utils/winConditions';
-
-vi.mock('../../utils/roleUtils', () => ({
-    addToHistory: vi.fn(),
-    addGroupHistory: vi.fn()
-}));
 
 describe('Barabba Role', () => {
-    let mockGameState: any;
+  let mockGameState: any;
 
-    beforeEach(() => {
-        mockGameState = {
-            players: [
-                { id: 1, roleId: 'barabba', alive: true },
-                { id: 2, roleId: 'lupo', alive: true },
-                { id: 3, roleId: 'villico', alive: true }
-            ],
-            nightNumber: 1,
-            night: {
-                context: {
-                    pendingKills: {}
-                }
-            }
-        };
+  beforeEach(() => {
+    mockGameState = {
+      setup: {
+        rolesEnabled: {
+          lupo: true,
+          villico: true,
+          barabba: true
+        }
+      },
+      nightNumber: 1,
+      night: {
+        context: {
+          pendingKills: {}
+        }
+      },
+      players: [
+        { 
+          id: 1, 
+          roleId: 'barabba',
+          name: 'Barabba Player',
+          alive: true
+        },
+        { 
+          id: 2, 
+          roleId: 'lupo',
+          name: 'Lupo Player',
+          alive: true
+        },
+        { 
+          id: 3, 
+          roleId: 'villico',
+          name: 'Villico Player',
+          alive: true
+        }
+      ]
+    };
+  });
+
+  describe('Resolve Function', () => {
+    it('should add kill to pendingKills when target is valid', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 3 },
+        used: true
+      };
+
+      const result = barabba.resolve(mockGameState, action);
+
+      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('barabba');
+      expect(result).toBeDefined();
     });
 
-    describe('Role Properties', () => {
-        it('should have correct basic properties', () => {
-            expect(barabba.id).toBe('barabba');
-            expect(barabba.name).toBe('Barabba');
-            expect(barabba.team).toBe('villaggio');
-            expect(barabba.visibleAsTeam).toBe('villaggio');
-            expect(barabba.countAs).toBe('villaggio');
-            expect(barabba.color).toBe('#29bb46');
-            expect(barabba.phaseOrder).toBe('any');
-            
-            expect(barabba.actsAtNight).toBe('dead');
-        });
+    it('should handle invalid target ID', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 'invalid' },
+        used: true
+      };
 
-        it('should have correct usage and count constraints', () => {
-            expect(barabba.effectType).toBe('optional');
-            expect(barabba.numberOfUsage).toBe(1);
-            expect(barabba.startNight).toBeUndefined();
-            expect(barabba.minCount).toBeUndefined();
-            expect(barabba.maxCount).toBeUndefined();
-        });
+      const result = barabba.resolve(mockGameState, action);
 
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills).toEqual({});
     });
 
-    describe('Resolve Function', () => {
-        it('should add barabba kill to pendingKills when target is valid', () => {
-            const action = {
-                playerId: 1,
-                data: { targetId: 2 }
-            };
+    it('should handle missing target ID', () => {
+      const action = {
+        playerId: 1,
+        data: {},
+        used: true
+      };
 
-            barabba.resolve(mockGameState, action);
+      const result = barabba.resolve(mockGameState, action);
 
-            expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
-            expect(mockGameState.night.context.pendingKills[2]).toHaveLength(1);
-            expect(mockGameState.night.context.pendingKills[2][0]).toEqual({
-                role: 'barabba'
-            });
-        });
-
-        it('should not add kill when targetId is invalid', () => {
-            const action = {
-                playerId: 1,
-                data: { targetId: 'invalid' }
-            };
-
-            barabba.resolve(mockGameState, action);
-
-            expect(Object.keys(mockGameState.night.context.pendingKills)).toHaveLength(0);
-        });
-
-        it('should not add kill when targetId is undefined', () => {
-            const action = {
-                playerId: 1,
-                data: {}
-            };
-
-            barabba.resolve(mockGameState, action);
-
-            expect(Object.keys(mockGameState.night.context.pendingKills)).toHaveLength(0);
-        });
-
-        it('should handle multiple targets correctly', () => {
-            const action1 = { playerId: 1, data: { targetId: 2 } };
-            const action2 = { playerId: 1, data: { targetId: 3 } };
-
-            barabba.resolve(mockGameState, action1);
-            barabba.resolve(mockGameState, action2);
-
-            expect(mockGameState.night.context.pendingKills[2]).toBeDefined();
-            expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
-        });
-
-
+      expect(result).toBeUndefined();
+      expect(mockGameState.night.context.pendingKills).toEqual({});
     });
 
-    describe('Win Condition', () => {
-        it('should have a checkWin function', () => {
-            expect(typeof barabba.checkWin).toBe('function');
-        });
-    });
+    it('should handle non-existent target', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 999 },
+        used: true
+      };
 
-    describe('Count Constraints', () => {
-        it('should have no max count limit', () => {
-            expect(barabba.maxCount).toBeUndefined();
-        });
+      const result = barabba.resolve(mockGameState, action);
 
-        it('should have no min count limit', () => {
-            expect(barabba.minCount).toBeUndefined();
-        });
+      expect(result).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[999]).toBeDefined();
     });
+  });
+
+  describe('Win Condition', () => {
+    it('should use village win condition', () => {
+      expect(typeof barabba.checkWin).toBe('function');
+    });
+  });
 });

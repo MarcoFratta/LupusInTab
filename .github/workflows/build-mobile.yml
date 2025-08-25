@@ -64,6 +64,16 @@ jobs:
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
 
+      - name: Verify keystore and signing properties
+        run: |
+          cd android
+          echo "=== Keystore file info ==="
+          ls -la app/keystore.jks
+          echo "=== Signing properties content ==="
+          cat app/signing.properties
+          echo "=== Testing keystore with keytool ==="
+          keytool -list -keystore app/keystore.jks -storepass "${{ secrets.KEYSTORE_PASSWORD }}" -alias "${{ secrets.KEY_ALIAS }}" || echo "Failed to read keystore with provided credentials"
+
       - name: Add signing configuration to build.gradle
         run: |
           cd android/app

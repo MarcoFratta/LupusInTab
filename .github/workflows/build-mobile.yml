@@ -58,7 +58,7 @@ jobs:
         run: |
           cd android
           cat > app/signing.properties << EOF
-          storeFile=app/keystore.jks
+          storeFile=keystore.jks
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
           keyPassword=${{ secrets.KEY_PASSWORD }}

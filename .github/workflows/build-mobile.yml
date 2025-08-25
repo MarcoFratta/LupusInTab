@@ -70,6 +70,33 @@ jobs:
           echo "Renaming debug APK to lupusMaster.apk..."
           cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/lupusMaster.apk
           echo "APK renamed successfully!"
+
+      - name: Setup signing configuration
+        run: |
+          cd android
+          echo "Setting up signing configuration..."
+          cat > app/signing.properties << 'EOF'
+          storeFile=keystore.jks
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          EOF
+
+      - name: Create keystore file
+        run: |
+          cd android
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
+
+      - name: Build Release AAB
+        run: |
+          cd android
+          echo "Building release AAB..."
+          ./gradlew bundleRelease
+          echo "AAB build completed!"
+          
+          echo "Renaming AAB to lupusMaster.aab..."
+          cp app/build/outputs/bundle/release/app-release.aab app/build/outputs/bundle/release/lupusMaster.aab
+          echo "AAB renamed successfully!"
       - name: Verify Build Outputs
         run: |
           echo "Checking build outputs..."
@@ -80,11 +107,27 @@ jobs:
           else
             echo "❌ lupusMaster.apk not found!"
           fi
+          
+          echo "Checking AAB build outputs..."
+          ls -la android/app/build/outputs/bundle/release/ || echo "Release AAB directory not found"
+          echo "Looking for lupusMaster.aab..."
+          if [ -f "android/app/build/outputs/bundle/release/lupusMaster.aab" ]; then
+            echo "✅ lupusMaster.aab found and ready for upload!"
+          else
+            echo "❌ lupusMaster.aab not found!"
+          fi
       - name: Upload lupusMaster.apk
         uses: actions/upload-artifact@v4
         with:
           name: lupusMaster-apk
           path: android/app/build/outputs/apk/debug/lupusMaster.apk
+          if-no-files-found: error
+
+      - name: Upload lupusMaster.aab
+        uses: actions/upload-artifact@v4
+        with:
+          name: lupusMaster-aab
+          path: android/app/build/outputs/bundle/release/lupusMaster.aab
           if-no-files-found: error
 
           
@@ -104,6 +147,12 @@ jobs:
         with:
           name: lupusMaster-apk
           path: android/app/build/outputs/apk/debug/
+
+      - name: Download lupusMaster.aab
+        uses: actions/download-artifact@v4
+        with:
+          name: lupusMaster-aab
+          path: android/app/build/outputs/bundle/release/
       - name: Verify Available Files
         run: |
           echo "Listing available files..."

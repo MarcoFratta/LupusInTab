@@ -71,9 +71,10 @@ jobs:
           apply plugin: 'com.android.application'
           
           android {
+            namespace "com.lupus.master"
             compileSdkVersion 34
             defaultConfig {
-              applicationId "com.example.lupus"
+              applicationId "com.lupus.master"
               minSdkVersion 24
               targetSdkVersion 34
               versionCode 1

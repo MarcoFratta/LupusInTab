@@ -39,7 +39,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Add Capacitor Android platform (if missing)
+      - name: Add Capacitor Android platform
         run: npx cap add android || echo "Android platform already exists"
 
       - name: Patch build.gradle for signing
@@ -47,57 +47,31 @@ jobs:
           cd android/app
           echo "Patching app/build.gradle for signing..."
           sed -i '/android {/i\
-def keystorePropertiesFile = rootProject.file("app/signing.properties")\n\
-def keystoreProperties = new Properties()\n\
-if (keystorePropertiesFile.exists()) {\n\
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))\n\
-}\n' build.gradle
-
-          sed -i '/buildTypes {/i\
-    signingConfigs {\n\
-        release {\n\
-            if (keystoreProperties[\"storeFile\"]) {\n\
-                storeFile file(keystoreProperties[\"storeFile\"])\n\
-                storePassword keystoreProperties[\"storePassword\"]\n\
-                keyAlias keystoreProperties[\"keyAlias\"]\n\
-                keyPassword keystoreProperties[\"keyPassword\"]\n\
-            }\n\
-        }\n\
-    }\n' build.gradle
-
-          sed -i '/release {/a\
+            def keystorePropertiesFile = rootProject.file("app/signing.properties")\n\
+            def keystoreProperties = new Properties()\n\
+            if (keystorePropertiesFile.exists()) {\n\
+            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))\n\
+          }\n' build.gradle
+  
+            sed -i '/buildTypes {/i\
+            signingConfigs {\n\
+            release {\n\
+            if (keystoreProperties["storeFile"]) {\n\
+            storeFile file(keystoreProperties["storeFile"])\n\
+            storePassword keystoreProperties["storePassword"]\n\
+            keyAlias keystoreProperties["keyAlias"]\n\
+            keyPassword keystoreProperties["keyPassword"]\n\
+          }\n\
+          }\n\
+          }\n' build.gradle
+            
+            sed -i '/release {/a\
             signingConfig signingConfigs.release' build.gradle
 
-      - name: Prepare Custom App Icon
-        run: |
-          echo "Using custom app icon..."
-          mkdir -p resources
-          echo "Custom icon should be placed in resources/icon.png before building"
-          echo "Generating app icons and splash from custom icon..."
-          npx capacitor-assets generate
-          npx cap sync android
-          echo "Custom assets generated & synced!"
-
-      - name: Configure Gradle Properties
+      - name: Prepare signing properties and keystore
         run: |
           cd android
-          cat > gradle.properties << 'EOF'
-          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
-          org.gradle.daemon=false
-          org.gradle.parallel=true
-          android.useAndroidX=true
-          android.enableJetifier=true
-          EOF
-
-      - name: Clean Gradle build
-        run: |
-          cd android
-          ./gradlew clean
-
-      - name: Setup signing configuration
-        run: |
-          cd android
-          echo "Setting up signing configuration..."
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
           cat > app/signing.properties << EOF
           storeFile=app/keystore.jks
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
@@ -105,54 +79,38 @@ if (keystorePropertiesFile.exists()) {\n\
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
 
-      - name: Create keystore file
+      - name: Generate app icons and sync
+        run: |
+          mkdir -p resources
+          echo "Place resources/icon.png before running this if needed"
+          npx capacitor-assets generate
+          npx cap sync android
+
+      - name: Configure Gradle
         run: |
           cd android
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/keystore.jks
+          cat > gradle.properties << EOF
+          org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -Dfile.encoding=UTF-8
+          org.gradle.daemon=false
+          org.gradle.parallel=true
+          android.useAndroidX=true
+          android.enableJetifier=true
+          EOF
+          ./gradlew clean
 
       - name: Build Release AAB
         run: |
           cd android
           chmod +x ./gradlew
-          echo "Building release AAB..."
           ./gradlew bundleRelease
-          echo "AAB build completed!"
-          
-          echo "Renaming AAB to lupusMaster.aab..."
           cp app/build/outputs/bundle/release/app-release.aab app/build/outputs/bundle/release/lupusMaster.aab
-          echo "AAB renamed successfully!"
 
       - name: Verify AAB Signature
         run: |
           cd android
           jarsigner -verify -verbose -certs app/build/outputs/bundle/release/lupusMaster.aab
 
-      - name: Build Debug APK
-        run: |
-          cd android
-          chmod +x ./gradlew
-          echo "Building debug APK..."
-          ./gradlew assembleDebug
-          echo "Debug APK build completed!"
-          
-          echo "Renaming debug APK to lupusMaster.apk..."
-          cp app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/lupusMaster.apk
-          echo "APK renamed successfully!"
-
-      - name: Verify Build Outputs
-        run: |
-          echo "Checking build outputs..."
-          ls -la android/app/build/outputs/apk/debug/
-          ls -la android/app/build/outputs/bundle/release/
-
-      - name: Upload lupusMaster.apk
-        uses: actions/upload-artifact@v4
-        with:
-          name: lupusMaster-apk
-          path: android/app/build/outputs/apk/debug/lupusMaster.apk
-          if-no-files-found: error
-
-      - name: Upload lupusMaster.aab
+      - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
           name: lupusMaster-aab
@@ -167,23 +125,11 @@ if (keystorePropertiesFile.exists()) {\n\
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download lupusMaster.apk
-        uses: actions/download-artifact@v4
-        with:
-          name: lupusMaster-apk
-          path: android/app/build/outputs/apk/debug/
-
-      - name: Download lupusMaster.aab
+      - name: Download Release AAB
         uses: actions/download-artifact@v4
         with:
           name: lupusMaster-aab
           path: android/app/build/outputs/bundle/release/
-
-      - name: Verify Available Files
-        run: |
-          echo "Listing available files..."
-          ls -la android/app/build/outputs/apk/debug/
-          ls -la android/app/build/outputs/bundle/release/
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

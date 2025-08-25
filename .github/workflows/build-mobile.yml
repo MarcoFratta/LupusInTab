@@ -42,36 +42,21 @@ jobs:
       - name: Add Capacitor Android platform
         run: npx cap add android || echo "Android platform already exists"
 
-      - name: Patch build.gradle for signing
+      - name: Generate app icons and sync
         run: |
-          cd android/app
-          echo "Patching app/build.gradle for signing..."
-          sed -i '/android {/i\
-            def keystorePropertiesFile = rootProject.file("app/signing.properties")\n\
-            def keystoreProperties = new Properties()\n\
-            if (keystorePropertiesFile.exists()) {\n\
-            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))\n\
-          }\n' build.gradle
-  
-            sed -i '/buildTypes {/i\
-            signingConfigs {\n\
-            release {\n\
-            if (keystoreProperties["storeFile"]) {\n\
-            storeFile file(keystoreProperties["storeFile"])\n\
-            storePassword keystoreProperties["storePassword"]\n\
-            keyAlias keystoreProperties["keyAlias"]\n\
-            keyPassword keystoreProperties["keyPassword"]\n\
-          }\n\
-          }\n\
-          }\n' build.gradle
-            
-            sed -i '/release {/a\
-            signingConfig signingConfigs.release' build.gradle
+          mkdir -p resources
+          echo "Place resources/icon.png if needed"
+          npx capacitor-assets generate
+          npx cap sync android
 
-      - name: Prepare signing properties and keystore
+      - name: Write keystore file
         run: |
           cd android
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
+
+      - name: Write signing.properties
+        run: |
+          cd android
           cat > app/signing.properties << EOF
           storeFile=app/keystore.jks
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
@@ -79,14 +64,54 @@ jobs:
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
 
-      - name: Generate app icons and sync
+      - name: Replace build.gradle with signing template
         run: |
-          mkdir -p resources
-          echo "Place resources/icon.png before running this if needed"
-          npx capacitor-assets generate
-          npx cap sync android
+          cd android/app
+          cat > build.gradle << 'EOF'
+          apply plugin: 'com.android.application'
+          
+          android {
+            compileSdkVersion 34
+            defaultConfig {
+              applicationId "com.example.lupus"
+              minSdkVersion 24
+              targetSdkVersion 34
+              versionCode 1
+              versionName "1.0"
+            }
+            
+            signingConfigs {
+              release {
+                def keystorePropertiesFile = rootProject.file("app/signing.properties")
+                def keystoreProperties = new Properties()
+                if (keystorePropertiesFile.exists()) {
+                  keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+                }
+                if (keystoreProperties['storeFile']) {
+                  storeFile file(keystoreProperties['storeFile'])
+                  storePassword keystoreProperties['storePassword']
+                  keyAlias keystoreProperties['keyAlias']
+                  keyPassword keystoreProperties['keyPassword']
+                }
+              }
+            }
+            
+            buildTypes {
+              release {
+                minifyEnabled false
+                signingConfig signingConfigs.release
+              }
+            }
+          }
+          
+          dependencies {
+            implementation fileTree(dir: 'libs', include: ['*.jar'])
+            implementation "androidx.appcompat:appcompat:1.6.1"
+            implementation "com.google.android.material:material:1.9.0"
+          }
+          EOF
 
-      - name: Configure Gradle
+      - name: Configure Gradle properties
         run: |
           cd android
           cat > gradle.properties << EOF

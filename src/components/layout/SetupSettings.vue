@@ -186,13 +186,13 @@ const openGitHubIssue = () => {
                 <span class="text-sm font-semibold text-neutral-200">Contribuisci su GitHub</span>
               </div>
               <div class="text-xs text-neutral-400 leading-relaxed text-left">
-                Dai una stella al progetto e segnala eventuali problemi o suggerimenti per miglioramenti.
+                Lascia una stella al progetto e segnala eventuali problemi o suggerimenti per miglioramenti.
               </div>
               <div class="flex flex-col sm:flex-row gap-2">
                 <button 
                   @click="openGitHubStar"
                   class="flex-1 py-2 px-3 bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] touch-manipulation">
-                  Dai una stella
+                  Lascia una stella
                 </button>
                 <button 
                   @click="openGitHubIssue"

@@ -140,13 +140,14 @@ export class RoleConstraintManager {
     
     // Check for meaningful data that indicates the role was used
     const hasTargetId = result.targetId !== null && result.targetId !== undefined;
+    const hasTargetIds = result.targetIds !== null && result.targetIds !== undefined;
     const hasTarget = result.target !== null && result.target !== undefined;
     const hasAction = result.action && result.action !== 'none';
     const hasChoice = result.choice !== null && result.choice !== undefined;
     const hasRoleId = result.roleId !== null && result.roleId !== undefined;
     
     // If any meaningful data is present, consider the role used
-    return hasTargetId || hasTarget || hasAction || hasChoice || hasRoleId;
+    return hasTargetId || hasTargetIds || hasTarget || hasAction || hasChoice || hasRoleId;
   }
 
   /**

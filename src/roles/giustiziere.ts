@@ -7,7 +7,7 @@ const giustiziere: RoleDef = {
     name: 'Giustiziere',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
-    score: 3,
+    score: 4,
     countAs: 'villaggio',
     description: 'Una volta per partita, di notte giustizia un giocatore.',
     color: '#dc2626',

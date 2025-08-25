@@ -11,19 +11,40 @@ const props = defineProps({
     player: { type: Object, required: true },
     onComplete: { type: Function, required: true },
     skippable: { type: Boolean, default: true },
+    availablePlayers: { type: Array, default: null },
+    availableRoles: { type: Array, default: null },
 });
 
 const targetId = ref(null);
 const roleId = ref(null);
 
-const aliveChoices = computed(() => [
-    { label: 'Giocatore…', value: null },
-    ...props.gameState.players
-        .filter(p => p.alive && p.id !== props.player.id)
-        .map(p => ({ label: p.name, value: p.id }))
-]);
+const aliveChoices = computed(() => {
+    if (props.availablePlayers) {
+        return [
+            { label: 'Giocatore…', value: null },
+            ...props.availablePlayers.map(p => ({ label: p.name, value: p.id }))
+        ];
+    }
+    
+    return [
+        { label: 'Giocatore…', value: null },
+        ...props.gameState.players
+            .filter(p => p.alive && p.id !== props.player.id)
+            .map(p => ({ label: p.name, value: p.id }))
+    ];
+});
 
 const roleChoices = computed(() => {
+    if (props.availableRoles) {
+        return [
+            { label: 'Ruolo…', value: null }, 
+            ...props.availableRoles.map((roleId) => ({ 
+                label: ROLES[roleId]?.name || roleId, 
+                value: roleId 
+            }))
+        ];
+    }
+    
     const playersInGame = props.gameState.players || [];
     const rolesInGame = [...new Set(playersInGame.map(p => p.roleId))];
     

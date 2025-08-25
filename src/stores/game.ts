@@ -42,7 +42,7 @@ export const useGameStore = defineStore('game', () => {
 		nightNumber: 0,
 		dayNumber: 0,
 		players: [],
-		setup: { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: { lupo: true, villico: true, guardia: true, veggente: true, massone: false, matto: false, giustiziere: false, boia: false, medium: false, lupomannaro: false, indemoniato: false, insinuo: false } },
+		setup: { numPlayers: 9, players: [], rolesCounts: {}, rolesEnabled: { lupo: true, villico: true, guardia: true, veggente: true, massone: true, matto: false, giustiziere: false, boia: false, medium: true, lupomannaro: false, indemoniato: true, insinuo: false, barabba: false, angelo: false, genio: false, parassita: false, simbionte: false } },
 		revealIndex: 0,
 		night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
 		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },

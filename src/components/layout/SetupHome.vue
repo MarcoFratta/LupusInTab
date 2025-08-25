@@ -51,10 +51,28 @@ const getTeamDisplayName = (teamName: string) => {
 };
 
 const canStart = computed(() => {
-  	const numWolves = roleCounts.value['lupo'] || 0;
+  	const numWolves = (roleCounts.value?.['lupo'] || 0);
   const totalsMatch = totalRolesSelected.value === state.setup.numPlayers;
-  return state.setup.players.length >= 4 && numWolves >= 1 && totalsMatch;
+  
+  const hasDuplicateNames = (() => {
+    const names = state.setup.players.map((p: any) => p.name?.trim().toLowerCase()).filter(Boolean);
+    const duplicates = names.filter((name: string, index: number) => names.indexOf(name) !== index);
+    return duplicates.length > 0;
+  })();
+  
+  return state.setup.players.length >= 4 && numWolves >= 1 && totalsMatch && !hasDuplicateNames;
 });
+
+const hasDuplicateNames = computed(() => {
+  const names = state.setup.players.map((p: any) => p.name?.trim().toLowerCase()).filter(Boolean);
+  const duplicates = names.filter((name: string, index: number) => names.indexOf(name) !== index);
+  return duplicates.length > 0;
+});
+
+const numWolves = computed(() => roleCounts.value?.['lupo'] || 0);
+const hasEnoughPlayers = computed(() => state.setup.players.length >= 4);
+const hasEnoughWolves = computed(() => numWolves.value >= 1);
+const rolesMatchPlayers = computed(() => totalRolesSelected.value === state.setup.numPlayers);
 
 function getMaxCountForRole(roleId: string): number {
   return engineGetMaxCountForRole(state, roleId);
@@ -77,6 +95,8 @@ const factionOrder: Record<string, number> = {
   'lupi': 1,
   'mannari': 2,
   'matti': 3,
+  'parassita': 4,
+  'simbionti': 5,
 };
 
 const sortedEnabledRoles = computed(() => {
@@ -150,6 +170,19 @@ const sortedEnabledRoles = computed(() => {
             <!-- Shine Effect -->
             <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </button>
+        </div>
+      </div>
+      
+      <!-- Start Game Requirements Status -->
+      <div v-if="!canStart" class="max-w-md mx-auto">
+        <div class="space-y-2 text-sm">
+          <!-- Duplicate Names Warning -->
+          <div v-if="hasDuplicateNames" class="flex items-center gap-2 text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg p-2">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <span>Risolvi i nomi duplicati per avviare il gioco</span>
+          </div>
         </div>
       </div>
       

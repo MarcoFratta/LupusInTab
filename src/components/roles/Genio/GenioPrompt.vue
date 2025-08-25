@@ -145,6 +145,7 @@ const getRoleIcon = (roleId: string) => {
     angelo: '👼',
     illusionista: '🎭',
     genio: '🧞‍♂️',
+    parassita: '🦠',
     
     // Additional roles (if more are added later)
     sindaco: '👑',
@@ -226,6 +227,8 @@ const getRoleCardClasses = (factionConfig: any) => {
       return 'bg-indigo-900/30 border border-indigo-700/40 hover:bg-indigo-900/50 hover:border-indigo-600/60';
     case 'matti':
       return 'bg-violet-900/30 border border-violet-700/40 hover:bg-violet-900/50 hover:border-violet-600/60';
+    case 'parassita':
+      return 'bg-pink-900/30 border border-pink-700/40 hover:bg-pink-900/50 hover:border-pink-600/60';
     default:
       return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
   }
@@ -245,6 +248,8 @@ const getRoleNumberClasses = (factionConfig: any) => {
       return 'border-indigo-400 text-indigo-400';
     case 'matti':
       return 'border-violet-400 text-violet-400';
+    case 'parassita':
+      return 'border-pink-400 text-pink-400';
     default:
       return 'border-neutral-400 text-neutral-400';
   }

@@ -10,8 +10,27 @@ const playerCount = computed(() => state.setup.players.length);
 const canAddPlayer = computed(() => playerCount.value < 20);
 const canRemovePlayer = computed(() => playerCount.value > 4);
 
+const duplicateNames = computed(() => {
+  const names = state.setup.players.map((p: any) => p.name?.trim().toLowerCase()).filter(Boolean);
+  const duplicates = names.filter((name: string, index: number) => names.indexOf(name) !== index);
+  return duplicates;
+});
+
+const hasDuplicateNames = computed(() => duplicateNames.value.length > 0);
+
+const getDuplicateNameError = (playerName: string) => {
+  const trimmedName = playerName?.trim().toLowerCase();
+  if (!trimmedName) return null;
+  
+  const count = state.setup.players.filter((p: any) => 
+    p.name?.trim().toLowerCase() === trimmedName
+  ).length;
+  
+  return count > 1 ? 'Nome duplicato' : null;
+};
+
 function resetNames() {
-  state.setup.numPlayers = 6;
+  state.setup.numPlayers = 9;
   engineInitSetupPlayers(state);
   engineNormalizeRoleCounts(state);
 }
@@ -96,6 +115,16 @@ function movePlayerDown(index: number) {
       </div>
     </div>
 
+    <!-- Duplicate Names Warning -->
+    <div v-if="hasDuplicateNames" class="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+      <div class="flex items-center gap-2 text-red-400 text-sm">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+        <span>Attenzione: Ci sono nomi duplicati. Ogni giocatore deve avere un nome univoco.</span>
+      </div>
+    </div>
+
     <!-- Players List -->
     <div class="space-y-3">
       <div class="flex items-center gap-2">
@@ -109,6 +138,9 @@ function movePlayerDown(index: number) {
           v-for="(player, index) in state.setup.players" 
           :key="index" 
           class="group relative rounded-lg border border-neutral-800/40 p-2.5 transition-all duration-300 bg-neutral-900/50 overflow-hidden hover:bg-neutral-900/70 hover:border-neutral-700/50 active:scale-[0.98] touch-manipulation"
+          :class="{
+            'border-red-500/50 bg-red-500/5': getDuplicateNameError(player.name)
+          }"
         >
           <div class="flex items-center gap-1">
             <!-- Reorder Buttons -->
@@ -140,8 +172,18 @@ function movePlayerDown(index: number) {
                 type="text" 
                 v-model="player.name" 
                 class="w-full px-2.5 py-1.5 bg-neutral-800/40 border border-neutral-700/40 rounded-md text-neutral-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-neutral-500"
+                :class="{
+                  'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50': getDuplicateNameError(player.name)
+                }"
                 :placeholder="`Giocatore ${index + 1}`"
               />
+              <!-- Error Message -->
+              <div v-if="getDuplicateNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
+                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                {{ getDuplicateNameError(player.name) }}
+              </div>
             </div>
             
             <!-- Remove Button -->

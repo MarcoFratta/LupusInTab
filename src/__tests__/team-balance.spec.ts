@@ -17,7 +17,7 @@ vi.mock('../stores/game', () => ({
   useGameStore: () => mockGameStore
 }));
 
-describe('Team Balance System - Weighted Variance', () => {
+describe('Team Balance System - Power-Based Balance', () => {
   beforeEach(() => {
     // Reset mock data before each test
     mockGameStore.state.setup.rolesCounts = {};
@@ -25,7 +25,7 @@ describe('Team Balance System - Weighted Variance', () => {
   });
 
   describe('Perfect Balance Scenarios', () => {
-    it('should give 100% fairness for balanced power distribution', () => {
+    it('should give realistic fairness for imbalanced power distribution', () => {
       mockGameStore.state.setup.rolesCounts = {
         lupo: 2,      // 2 × 10 = 20 power
         villico: 6,   // 6 × 1 = 6 power  
@@ -35,7 +35,10 @@ describe('Team Balance System - Weighted Variance', () => {
 
       const { teamBalance } = useTeamBalance();
       
-      expect(teamBalance.value.fairness).toBe(100);
+      // This is actually imbalanced: lupi (20) vs villaggio (13)
+      // Should give moderate fairness, not 100%
+      expect(teamBalance.value.fairness).toBeGreaterThan(50);
+      expect(teamBalance.value.fairness).toBeLessThan(70);
       expect(teamBalance.value.teamData.lupi.power).toBe(20);
       expect(teamBalance.value.teamData.lupi.players).toBe(2);
       expect(teamBalance.value.teamData.villaggio.power).toBe(13);
@@ -99,7 +102,7 @@ describe('Team Balance System - Weighted Variance', () => {
       
       expect(teamBalance.value.varietyBonus).toBe(5);
       expect(teamBalance.value.teamData.mannari).toBeDefined();
-      expect(teamBalance.value.teamData.mannari.power).toBe(33);
+      expect(teamBalance.value.teamData.mannari.power).toBe(30);
     });
 
     it('should not give variety bonus for 2 teams', () => {
@@ -115,24 +118,8 @@ describe('Team Balance System - Weighted Variance', () => {
     });
   });
 
-  describe('Player Count Weighting', () => {
-    it('should weight teams by player count', () => {
-      mockGameStore.state.setup.rolesCounts = {
-        lupo: 1,          // 1 × 10 = 10 power, 1 player (16.7% weight)
-        villico: 5,       // 5 × 1 = 5 power, 5 players (83.3% weight)
-        matto: 1          // 1 × 10 = 10 power, 1 player (16.7% weight)
-      };
-      mockGameStore.state.setup.numPlayers = 7;
-
-      const { teamBalance } = useTeamBalance();
-      
-      // Villaggio should have much more influence due to 5 players vs 1
-      expect(teamBalance.value.teamData.lupi.power).toBe(10);
-      expect(teamBalance.value.teamData.villaggio.power).toBe(5);
-      expect(teamBalance.value.teamData.matti.power).toBe(10);
-    });
-
-    it('should minimize impact of 1-player teams', () => {
+  describe('Equal Team Contribution', () => {
+    it('should treat all teams equally regardless of player count', () => {
       mockGameStore.state.setup.rolesCounts = {
         lupo: 1,          // 1 × 10 = 10 power, 1 player
         villico: 5,       // 5 × 1 = 5 power, 5 players
@@ -142,7 +129,23 @@ describe('Team Balance System - Weighted Variance', () => {
 
       const { teamBalance } = useTeamBalance();
       
-      // Matti team should have minimal impact due to only 1 player
+      // All teams contribute equally to balance calculation
+      expect(teamBalance.value.teamData.lupi.power).toBe(10);
+      expect(teamBalance.value.teamData.villaggio.power).toBe(5);
+      expect(teamBalance.value.teamData.matti.power).toBe(10);
+    });
+
+    it('should calculate balance based on power, not player count', () => {
+      mockGameStore.state.setup.rolesCounts = {
+        lupo: 1,          // 1 × 5 = 5 power
+        villico: 5,       // 5 × 1 = 5 power
+        matto: 1          // 1 × 10 = 10 power
+      };
+      mockGameStore.state.setup.numPlayers = 7;
+
+      const { teamBalance } = useTeamBalance();
+      
+      // Balance should be based on power distribution, not player count
       expect(teamBalance.value.teamData.matti.players).toBe(1);
       expect(teamBalance.value.teamData.matti.power).toBe(10);
     });
@@ -193,39 +196,5 @@ describe('Team Balance System - Weighted Variance', () => {
     });
   });
 
-  describe('Mathematical Properties', () => {
-    it('should calculate weighted variance correctly', () => {
-      mockGameStore.state.setup.rolesCounts = {
-        lupo: 2,      // 2 × 5 = 10 power, 2 players (40% weight)
-        villico: 3    // 3 × 1 = 3 power, 3 players (60% weight)
-      };
-      mockGameStore.state.setup.numPlayers = 5;
 
-      const { teamBalance } = useTeamBalance();
-      
-      // Total power = 13, mean = 6.5
-      // Lupi deviation = 10 - 6.5 = 3.5
-      // Villaggio deviation = 3 - 6.5 = -3.5
-      // Weighted variance = 0.4 × 3.5² + 0.6 × (-3.5)² = 12.25
-      expect(teamBalance.value.weightedVariance).toBeGreaterThan(0);
-      expect(teamBalance.value.baseFairness).toBeLessThan(100);
-    });
-
-    it('should normalize variance correctly', () => {
-      mockGameStore.state.setup.rolesCounts = {
-        lupo: 1,      // 1 × 5 = 5 power
-        villico: 1    // 1 × 1 = 1 power
-      };
-      mockGameStore.state.setup.numPlayers = 2;
-
-      const { teamBalance } = useTeamBalance();
-      
-      // Total power = 6, mean = 3
-      // Lupi deviation = 5 - 3 = 2
-      // Villaggio deviation = 1 - 3 = -2
-      // Variance should be normalized and converted to fairness
-      expect(teamBalance.value.fairness).toBeGreaterThan(0);
-      expect(teamBalance.value.fairness).toBeLessThanOrEqual(100);
-    });
-  });
 });

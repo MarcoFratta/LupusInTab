@@ -11,7 +11,7 @@ const angelo: RoleDef = {
     countAs: 'villaggio',
     description: 'Una volta per partita, riporta in vita un giocatore morto.',
     color: '#fbbf24',
-    phaseOrder: "any",
+    phaseOrder: -1,
     actsAtNight: "alive",
     effectType: 'optional',
     numberOfUsage: 1,

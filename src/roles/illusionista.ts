@@ -11,7 +11,7 @@ const illusionista: RoleDef = {
     countAs: 'villaggio',
     description: 'Di notte blocca le abilità notturne di un giocatore. Viene visto come lupo se indagato di notte',
     color: '#06b6d4',
-    phaseOrder: 0,
+    phaseOrder: -3,
     actsAtNight: "alive",
     effectType: 'optional',
     getPromptComponent: componentFactory('Illusionista', "prompt"),
@@ -25,8 +25,9 @@ const illusionista: RoleDef = {
 			const originalActsAtNight = targetPlayer.roleState.actsAtNight;
 			
 			if (originalActsAtNight !== 'never') {
-				if (!gameState.illusionistaStore) gameState.illusionistaStore = {};
-				gameState.illusionistaStore[targetId] = {
+				if (!gameState.custom) gameState.custom = {};
+				if (!gameState.custom['illusionista']) gameState.custom['illusionista'] = {};
+				gameState.custom['illusionista'][targetId] = {
 					originalActsAtNight: originalActsAtNight
 				};
 				
@@ -49,8 +50,8 @@ const illusionista: RoleDef = {
 	},
 	
 	restoreFunction(gameState: any) {
-		if (gameState.illusionistaStore) {
-			Object.entries(gameState.illusionistaStore).forEach(([targetIdStr, data]: [string, any]) => {
+		if (gameState.custom && gameState.custom['illusionista']) {
+			Object.entries(gameState.custom['illusionista']).forEach(([targetIdStr, data]: [string, any]) => {
 				const targetId = Number(targetIdStr);
 				const targetPlayer = gameState.players.find(p => p.id === targetId);
 				if (targetPlayer && data.originalActsAtNight !== undefined) {
@@ -58,7 +59,7 @@ const illusionista: RoleDef = {
 				}
 			});
 			
-			delete gameState.illusionistaStore;
+			delete gameState.custom['illusionista'];
 		}
 	},
 };

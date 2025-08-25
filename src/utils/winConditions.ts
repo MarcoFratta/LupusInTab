@@ -42,11 +42,11 @@ export function villageWin(state: GameState): boolean {
 		return false;
 	}
 	
+	// Village wins when no lupi remain AND no lupomannaro remain
 	const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
-	const nonLupiAlive = countAlive(state, (p) => !isLupoForWin(state, p.roleId));
+	const lupomannaroAliveForWin = countAlive(state, (p) => p.roleId === 'lupomannaro');
 	
-	// Village wins when no lupi remain
-	return lupiAlive === 0;
+	return lupiAlive === 0 && lupomannaroAliveForWin === 0;
 }
 
 export function useWinConditions() {
@@ -77,9 +77,10 @@ export function useWinConditions() {
             return false;
         }
         
-        // Village-aligned roles win when no roles that count as lupi for win conditions remain
+        // Village-aligned roles win when no roles that count as lupi for win conditions remain AND no lupomannaro remain
         const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
-        return lupiAlive === 0;
+        const lupomannaroAliveForWin = countAlive(state, (p) => p.roleId === 'lupomannaro');
+        return lupiAlive === 0 && lupomannaroAliveForWin === 0;
     };
 
     return {

@@ -144,13 +144,13 @@ watch(roleId, () => {
 
 <template>
   <div v-if="role" class="w-full min-h-screen bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl
-  sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200 role-details-page">
+  pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200 role-details-page">
     <!-- Header with back button and role name -->
     <div class="relative mb-6">
       <!-- Back button in top left -->
              <div
          @click="goBack"
-         class="absolute ml-2 p-1.5 rounded-lg bg-neutral-900/60 hover:bg-neutral-800/60 border border-neutral-800/40 transition-all duration-200 hover:scale-105 z-10 cursor-pointer"
+         class="absolute ml-4 p-1.5 rounded-lg bg-neutral-900/60 hover:bg-neutral-800/60 border border-neutral-800/40 transition-all duration-200 hover:scale-105 z-10 cursor-pointer"
        >
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />

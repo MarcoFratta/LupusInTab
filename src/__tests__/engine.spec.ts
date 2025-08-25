@@ -15,6 +15,7 @@ import {
   initializePlayerRoleState,
   computeWinner,
 } from '../core/engine';
+import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 import { useWinConditions } from '../utils/winConditions';
 import { ROLES } from '../roles/index';
 
@@ -74,14 +75,14 @@ describe('engine setup', () => {
   it('creates empty state with defaults', () => {
     const s = createEmptyState();
     expect(s.phase).toBe('setup');
-    expect(s.setup.numPlayers).toBe(6);
+    expect(s.setup.numPlayers).toBe(9);
     expect(s.settings.skipFirstNightActions).toBe(true);
   });
 
   it('initializes players and role counts', () => {
     const s = createEmptyState();
     initSetupPlayers(s);
-    expect(s.setup.players.length).toBe(6);
+    expect(s.setup.players.length).toBe(9);
     initDefaultRolesCounts(s);
     normalizeRoleCounts(s);
     expect(Object.values(s.setup.rolesCounts).reduce((a, b) => a + (b || 0), 0)).toBe(s.setup.numPlayers);
@@ -112,7 +113,7 @@ describe('engine flow', () => {
     initSetupPlayers(s);
             s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 1, villico: 2 } as any;
     beginReveal(s as any, ROLE_LIST as any, fakeShuffle);
-    expect(s.players.length).toBe(6);
+    expect(s.players.length).toBe(9);
     expect(s.phase).toBe('revealRoles');
   });
 
@@ -122,8 +123,11 @@ describe('engine flow', () => {
             s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 0, villico: 3 } as any;
     beginReveal(s as any, ROLE_LIST as any, fakeShuffle);
     beginNight(s as any, ROLES);
-    expect(s.night.turns.length).toBeGreaterThan(0);
-    expect((s.night.turns[0] as any).roleId).toBe('lupo');
+    
+    // With the new dynamic approach, turns are computed on-demand
+    const firstTurn = NightPhaseManager.getCurrentTurn(s);
+    expect(firstTurn).toBeDefined();
+    expect(firstTurn.roleId).toBe('lupo');
   });
 
   it('skip-first-night produces empty summary', () => {
@@ -162,8 +166,8 @@ describe('engine flow', () => {
   it('continueToDay increments correctly', () => {
     const s = createEmptyState();
     s.phase = 'resolve';
-    continueToDay(s);
-    expect(s.phase === 'day' || s.phase === 'end').toBe(true);
+    continueToDay(s, ROLES);
+    expect(['day', 'end'].includes(s.phase)).toBe(true);
   });
 });
 
@@ -306,7 +310,7 @@ describe('new roles logic', () => {
       } },
     } as any);
     // Lupomannaro should win with 2 players alive (lupomannaro + villico)
-    expect(winner).toBe('mannari');
+    expect(winner).toEqual(['mannari']);
   });
 
   it('BUG REPRODUCTION: Lupomannaro prevents any team from winning when alive with 3+ players', async () => {
@@ -369,7 +373,7 @@ describe('new roles logic', () => {
       lupomannaro: { id:'lupomannaro', team: 'mannari', checkWin: (st:any) => st.players.filter((p:any) => p.alive).length === 2 && st.players.some((p:any) => p.alive && p.roleId === 'lupomannaro') },
     } as any;
     
-    expect(evaluateWinner(scenario1 as any, roles)).toBe('mannari'); // Lupomannaro wins
+    expect(evaluateWinner(scenario1 as any, roles)).toEqual(['mannari']); // Lupomannaro wins
     
     // Scenario 2: Village wins when no real wolves and 3+ players
     const scenario2 = createEmptyState();
@@ -406,7 +410,6 @@ describe('new roles logic', () => {
     // With Lupomannaro alive and 3+ players, lupi cannot win due to Lupomannaro's constraint
     expect(evaluateWinner(scenario3 as any, rolesWithLupo)).toBe(null);
     
-    console.log('✅ All lupo mannaro scenarios work correctly after fix!');
   });
 
   it('LupoMannaro wins when one lupo and one lupo mannaro remain using winConstraint', async () => {
@@ -459,9 +462,8 @@ describe('new roles logic', () => {
     
     // Lupomannaro should win because it meets its win condition (2 players, lupomannaro alive)
     // and lupi don't meet their win condition due to Lupomannaro's presence
-    expect(winner).toBe('mannari');
+    expect(winner).toEqual(['mannari']);
     
-    console.log('✅ LupoMannaro wins when one lupo and one lupo mannaro remain!');
   });
 
   it('New proactive save/kill system works correctly', async () => {
@@ -495,9 +497,7 @@ describe('new roles logic', () => {
     
     // Note: The current engine implementation may not create the expected history structure
     // This test is checking test expectations, not game logic
-    console.log('✅ New proactive save/kill system works correctly!');
     
-    console.log('✅ New proactive save/kill system works correctly!');
   });
 
   it('History filtering correctly excludes skipped actions from details display', async () => {
@@ -536,7 +536,6 @@ describe('new roles logic', () => {
     // Note: The current engine implementation may not create the expected history structure
     // This test is checking test expectations, not game logic
     
-    console.log('✅ History filtering correctly excludes skipped actions!');
   });
 
   it('Passive effects are called before each role resolves', async () => {
@@ -601,7 +600,6 @@ describe('new roles logic', () => {
     // Check that no pending kills remain for Lupomannaro
     expect(s.night.context.pendingKills[2]).toBeUndefined();
     
-    console.log('✅ Passive effects correctly protect against incoming actions!');
   });
 
   it('should end game with tie when all players die', () => {

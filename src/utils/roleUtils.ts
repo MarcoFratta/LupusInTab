@@ -224,6 +224,14 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
         'Villico': {
             prompt: () => import('../components/roles/Villico/VillicoPrompt.vue'),
             details: () => import('../components/roles/Villico/VillicoResolveDetails.vue')
+        },
+        'Parassita': {
+            prompt: () => import('../components/roles/Parassita/ParassitaPrompt.vue'),
+            details: () => import('../components/roles/Parassita/ParassitaResolveDetails.vue')
+        },
+        'Simbionte': {
+            prompt: () => import('../components/roles/Simbionte/SimbiontePrompt.vue'),
+            details: () => import('../components/roles/Simbionte/SimbionteResolveDetails.vue')
         }
     };
     

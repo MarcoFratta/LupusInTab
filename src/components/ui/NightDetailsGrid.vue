@@ -142,7 +142,7 @@ const detailEntries = computed(() => {
   if (entries.length === 0) {
     entries.push({
       key: 'no-actions',
-      title: 'Nessuna Azione',
+      title: 'Nessuna azione',
       component: 'div',
       props: { 
         content: 'Nessun ruolo ha utilizzato i suoi poteri questa notte.',
@@ -165,7 +165,7 @@ const detailEntries = computed(() => {
     const factionB = roleDefB.team || 'unknown';
     
     // Define faction priority (you can adjust this order as needed)
-    const factionOrder = ['villaggio', 'lupi', 'matti', 'mannari'];
+    const factionOrder = ['villaggio', 'lupi', 'matti', 'mannari', 'parassita', 'simbionti'];
     const priorityA = factionOrder.indexOf(factionA);
     const priorityB = factionOrder.indexOf(factionB);
     

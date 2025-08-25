@@ -1,34 +1,36 @@
 import { createApp } from 'vue';
-import { createPinia } from 'pinia';
 import App from './components/App.vue';
 import router from './router';
-import { updateService } from './services/UpdateService';
 import './style.css';
+import { Capacitor } from '@capacitor/core';
 
-async function initializeApp() {
-  const app = createApp(App);
-  const pinia = createPinia();
+const app = createApp(App);
 
-  app.use(pinia);
-  app.use(router);
+app.use(router);
 
-  app.mount('#app');
-
-  try {
-    console.log('Checking for app updates...');
-    const hasUpdates = await updateService.checkForUpdates();
-    
-    if (hasUpdates) {
-      console.log('App updated successfully');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+if (Capacitor.isNativePlatform()) {
+  const { App: AppPlugin } = await import('@capacitor/app');
+  
+  AppPlugin.addListener('appStateChange', ({ isActive }) => {
+    if (isActive) {
+      checkForUpdates();
     }
+  });
+  
+  AppPlugin.addListener('appUrlOpen', (data) => {
+    // App opened with URL
+  });
+}
+
+async function checkForUpdates() {
+  try {
+    const { App: AppPlugin } = await import('@capacitor/app');
+    await AppPlugin.exitApp();
   } catch (error) {
-    console.error('Error during app initialization:', error);
+    // App update check failed
   }
 }
 
-initializeApp();
+app.mount('#app');
 
 

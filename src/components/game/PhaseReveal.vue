@@ -99,7 +99,7 @@ function startNight() {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+  <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <div class="w-full max-w-2xl space-y-6 text-center">
       <h2 class="text-xl font-semibold text-slate-100">Rivelazione dei ruoli</h2>
 

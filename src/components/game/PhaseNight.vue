@@ -22,6 +22,7 @@ const props = defineProps<Props>();
 const {
   currentPromptComponent,
   currentActor,
+  currentRole,
   isFirstNightSkipped,
   shouldShowDeadPrompt,
   shouldShowAlivePrompt,
@@ -30,21 +31,46 @@ const {
   shouldShowUsageLimitPrompt,
   currentGroupNames,
   roleDisplayInfo,
-  getEarliestStartNight,
-  onPromptComplete
-} = useNightPhase({
-  state: props.state,
-  onPromptComplete: props.onPromptComplete
-});
+  getEarliestStartNight
+} = useNightPhase();
 
 const asyncPromptComponent = computed(() => {
   if (!currentPromptComponent.value) return null;
-  return defineAsyncComponent(currentPromptComponent.value);
+  const component = defineAsyncComponent(currentPromptComponent.value);
+  console.log(`🌙 [DEBUG] PhaseNight - asyncPromptComponent computed:`, component ? 'found' : 'null');
+  return component;
 });
+
+// Add debug logging for prompt conditions
+const debugPromptConditions = computed(() => {
+  try {
+    console.log(`🌙 [DEBUG] PhaseNight - Prompt conditions:`, {
+      isFirstNightSkipped: isFirstNightSkipped.value,
+      shouldShowDeadPrompt: shouldShowDeadPrompt.value,
+      shouldShowAlivePrompt: shouldShowAlivePrompt.value,
+      shouldShowBlockedPrompt: shouldShowBlockedPrompt.value,
+      shouldShowStartNightPrompt: shouldShowStartNightPrompt.value,
+      shouldShowUsageLimitPrompt: shouldShowUsageLimitPrompt.value,
+      hasAsyncPromptComponent: !!asyncPromptComponent.value,
+      currentActor: currentActor.value,
+      currentRole: currentRole.value?.name
+    });
+  } catch (error) {
+    console.warn(`🌙 [DEBUG] PhaseNight - Error in debug logging:`, error);
+  }
+  return true;
+});
+
+// Trigger debug logging whenever computed values change
+try {
+  debugPromptConditions.value;
+} catch (error) {
+  console.warn(`🌙 [DEBUG] PhaseNight - Error triggering debug logging:`, error);
+}
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+  <div class="flex flex-col items-center justify-center px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
     <div class="w-full max-w-2xl space-y-6 text-center">
       <RoleHeader 
         v-if="roleDisplayInfo" 
@@ -55,33 +81,33 @@ const asyncPromptComponent = computed(() => {
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-6 text-left">
         <FirstNightSkippedPrompt 
           v-if="isFirstNightSkipped" 
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
 
         <DeadPrompt 
           v-else-if="shouldShowDeadPrompt" 
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
 
         <AlivePrompt 
           v-else-if="shouldShowAlivePrompt" 
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
 
         <BlockedPrompt 
           v-else-if="shouldShowBlockedPrompt" 
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
 
         <StartNightPrompt 
           v-else-if="shouldShowStartNightPrompt" 
           :earliest-start-night="getEarliestStartNight()"
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
 
         <UsageLimitPrompt 
           v-else-if="shouldShowUsageLimitPrompt" 
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
 
         <component 
@@ -89,12 +115,12 @@ const asyncPromptComponent = computed(() => {
           :is="asyncPromptComponent"
           :gameState="props.state" 
           :player="currentActor" 
-          :onComplete="onPromptComplete" 
+          :onComplete="props.onPromptComplete" 
         />
 
         <NoActionPrompt 
           v-else 
-          :on-complete="onPromptComplete" 
+          :on-complete="props.onPromptComplete" 
         />
       </div>
     </div>

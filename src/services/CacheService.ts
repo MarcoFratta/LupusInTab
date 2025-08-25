@@ -1,179 +1,157 @@
 import { Capacitor } from '@capacitor/core';
 
-export class CacheService {
-  private static instance: CacheService;
-  private readonly CACHE_KEY = 'website_cache';
-  private readonly CACHE_TIMESTAMP_KEY = 'cache_timestamp';
-  private readonly CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+interface CachedAsset {
+  url: string;
+  content: string;
+  timestamp: number;
+}
 
-  private constructor() {}
+interface CacheData {
+  assets: Record<string, CachedAsset>;
+  timestamp: number;
+}
 
-  static getInstance(): CacheService {
-    if (!CacheService.instance) {
-      CacheService.instance = new CacheService();
-    }
-    return CacheService.instance;
-  }
+const CACHE_KEY = 'website_cache';
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+
+class CacheService {
+  private isMobile = Capacitor.isNativePlatform();
 
   async cacheWebsiteContent(): Promise<void> {
-    // Only cache on mobile devices
-    if (!Capacitor.isNativePlatform()) {
-      console.log('Skipping cache - running in browser');
+    if (!this.isMobile) {
       return;
     }
 
     try {
-      console.log('Caching website content for mobile...');
+      const response = await fetch('/');
+      const html = await response.text();
       
-      // Cache the main HTML and critical assets
-      const assetsToCache = [
-        '/',
-        '/index.html',
-        '/assets/index.css',
-        '/assets/index.js'
-      ];
-
-      const cacheData: Record<string, string> = {};
+      const assets = this.extractAssets(html);
+      await this.cacheAssets(assets);
       
-      for (const asset of assetsToCache) {
-        try {
-          const response = await fetch(`https://lupus-in-tabula.vercel.app${asset}`);
-          if (response.ok) {
-            const content = await response.text();
-            cacheData[asset] = content;
-            console.log(`Cached: ${asset}`);
-          }
-        } catch (error) {
-          console.error(`Failed to cache ${asset}:`, error);
-        }
-      }
-
-      // Use Capacitor Filesystem for mobile only
-      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      const cacheData: CacheData = {
+        assets,
+        timestamp: Date.now()
+      };
       
-      await Filesystem.writeFile({
-        path: this.CACHE_KEY,
-        data: JSON.stringify(cacheData),
-        directory: Directory.Data
-      });
-
-      await Filesystem.writeFile({
-        path: this.CACHE_TIMESTAMP_KEY,
-        data: Date.now().toString(),
-        directory: Directory.Data
-      });
-
-      console.log('Website content cached successfully on mobile');
+      await this.saveCache(cacheData);
     } catch (error) {
       console.error('Failed to cache website content:', error);
     }
   }
 
-  async getCachedContent(path: string): Promise<string | null> {
-    // Only work on mobile devices
-    if (!Capacitor.isNativePlatform()) {
+  private extractAssets(html: string): Record<string, CachedAsset> {
+    const assets: Record<string, CachedAsset> = {};
+    const assetRegex = /(href|src)=["']([^"']+)["']/g;
+    let match;
+    
+    while ((match = assetRegex.exec(html)) !== null) {
+      const [, , url] = match;
+      if (url.startsWith('/') && !url.startsWith('//')) {
+        assets[url] = {
+          url,
+          content: '',
+          timestamp: Date.now()
+        };
+      }
+    }
+    
+    return assets;
+  }
+
+  private async cacheAssets(assets: Record<string, CachedAsset>): Promise<void> {
+    for (const [url, asset] of Object.entries(assets)) {
+      try {
+        const response = await fetch(url);
+        const content = await response.text();
+        asset.content = content;
+      } catch (error) {
+        console.error(`Failed to cache asset ${url}:`, error);
+      }
+    }
+  }
+
+  async getCachedContent(url: string): Promise<string | null> {
+    if (!this.isMobile) {
       return null;
     }
 
     try {
-      // Check if cache is still valid
-      if (!(await this.isCacheValid())) {
-        console.log('Cache expired, refreshing...');
-        await this.cacheWebsiteContent();
+      const cacheData = await this.loadCache();
+      if (!cacheData) return null;
+
+      const asset = cacheData.assets[url];
+      if (!asset) return null;
+
+      if (Date.now() - asset.timestamp > CACHE_DURATION) {
+        return null;
       }
 
-      const { Filesystem, Directory } = await import('@capacitor/filesystem');
-      
-      const result = await Filesystem.readFile({
-        path: this.CACHE_KEY,
-        directory: Directory.Data
-      });
-      
-      const cachedData = JSON.parse(result.data);
-      return cachedData[path] || null;
+      return asset.content;
     } catch (error) {
       console.error('Failed to get cached content:', error);
       return null;
     }
   }
 
-  private async isCacheValid(): Promise<boolean> {
-    // Only work on mobile devices
-    if (!Capacitor.isNativePlatform()) {
-      return false;
-    }
-
-    try {
-      const { Filesystem, Directory } = await import('@capacitor/filesystem');
-      
-      const result = await Filesystem.readFile({
-        path: this.CACHE_TIMESTAMP_KEY,
-        directory: Directory.Data
-      });
-      
-      const timestamp = parseInt(result.data, 10);
-      const now = Date.now();
-      
-      return (now - timestamp) < this.CACHE_DURATION;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  async clearCache(): Promise<void> {
-    // Only work on mobile devices
-    if (!Capacitor.isNativePlatform()) {
-      console.log('No cache to clear - running in browser');
+  private async saveCache(cacheData: CacheData): Promise<void> {
+    if (!this.isMobile) {
       return;
     }
 
     try {
-      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
+    } catch (error) {
+      console.error('Failed to save cache:', error);
+    }
+  }
+
+  private async loadCache(): Promise<CacheData | null> {
+    if (!this.isMobile) {
+      return null;
+    }
+
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+
+      const cacheData: CacheData = JSON.parse(cached);
       
-      await Filesystem.deleteFile({
-        path: this.CACHE_KEY,
-        directory: Directory.Data
-      });
-      
-      await Filesystem.deleteFile({
-        path: this.CACHE_TIMESTAMP_KEY,
-        directory: Directory.Data
-      });
-      
-      console.log('Cache cleared successfully on mobile');
+      if (Date.now() - cacheData.timestamp > CACHE_DURATION) {
+        return null;
+      }
+
+      return cacheData;
+    } catch (error) {
+      console.error('Failed to load cache:', error);
+      return null;
+    }
+  }
+
+  async clearCache(): Promise<void> {
+    if (!this.isMobile) {
+      return;
+    }
+
+    try {
+      localStorage.removeItem(CACHE_KEY);
     } catch (error) {
       console.error('Failed to clear cache:', error);
     }
   }
 
-  async getCacheInfo(): Promise<{ size: number; timestamp: number } | null> {
-    // Only work on mobile devices
-    if (!Capacitor.isNativePlatform()) {
-      return null;
+  async isCacheValid(): Promise<boolean> {
+    if (!this.isMobile) {
+      return false;
     }
 
     try {
-      const { Filesystem, Directory } = await import('@capacitor/filesystem');
-      
-      const result = await Filesystem.readFile({
-        path: this.CACHE_KEY,
-        directory: Directory.Data
-      });
-      
-      const timestampResult = await Filesystem.readFile({
-        path: this.CACHE_TIMESTAMP_KEY,
-        directory: Directory.Data
-      });
-      
-      return {
-        size: result.data.length,
-        timestamp: parseInt(timestampResult.data, 10)
-      };
+      const cacheData = await this.loadCache();
+      return cacheData !== null && (Date.now() - cacheData.timestamp <= CACHE_DURATION);
     } catch (error) {
-      return null;
+      return false;
     }
   }
 }
 
-export const cacheService = CacheService.getInstance();
-export default CacheService;
+export const cacheService = new CacheService();

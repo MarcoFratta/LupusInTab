@@ -1,187 +1,92 @@
 <script setup lang="ts">
-import { ref, reactive, computed, watch, defineAsyncComponent, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ROLES, ROLE_LIST } from './roles/index';
-// @ts-ignore - ambient module declarations provided in env.d.ts
-import { saveGameState, loadGameState, clearSavedGame, savePlayersSetup, loadPlayersSetup, saveSettings, loadSettings } from './utils/storage';
-import { PhaseReveal, PhaseNight, PhaseResolve, PhasePreNight, PhaseDay } from './components';
+import { PhaseReveal, PhaseNight, PhaseResolve, PhasePreNight, PhaseDay, WinResults, useGameLogic, useGameState, useNightPhase } from './components';
 import { SetupHome, SetupPlayers, SetupRoles, SetupSettings } from './components';
-import PlayerRoleList from './components/ui/PlayerRoleList.vue';
 import { RoleDetails } from './components';
 import { EventHistory } from './components';
 import SecondaryButton from './components/ui/SecondaryButton.vue';
 import PrimaryButton from './components/ui/PrimaryButton.vue';
 import GhostButton from './components/ui/GhostButton.vue';
 import ButtonGroup from './components/ui/ButtonGroup.vue';
-
-// @ts-ignore - ambient module declarations provided in env.d.ts
-import { shuffled } from './utils/random';
 import { useGameStore } from './stores/game';
-import {
-    createEmptyState as engineCreateEmptyState,
-    initDefaultRolesCounts as engineInitDefaultRolesCounts,
-    initSetupPlayers as engineInitSetupPlayers,
-    resizePlayers as engineResizePlayers,
-    normalizeRoleCounts as engineNormalizeRoleCounts,
-    updateRoleCount as engineUpdateRoleCount,
-    getMaxCountForRole as engineGetMaxCountForRole,
-    beginReveal as engineBeginReveal,
-    nextReveal as engineNextReveal,
-    beginNight as engineBeginNight,
-    recordNightResult as engineRecordNightResult,
-    resolveNight as engineResolveNight,
-    continueToDay as engineContinueToDay,
-    startNextNight as engineStartNextNight,
-    lynchPlayer as engineLynchPlayer,
-    completeDay as engineCompleteDay,
-    setSindaco as engineSetSindaco,
-    evaluateWinner as engineEvaluateWinner,
-} from './core/engine';
+import { loadGameState, saveGameState } from './utils/storage';
 
-import { NightPhaseManager } from './core/managers/NightPhaseManager';
 
-const PHASES = {
-	SETUP: 'setup',
-	REVEAL: 'revealRoles',
-    PRE_NIGHT: 'preNight',
-	NIGHT: 'night',
-	RESOLVE: 'resolve',
-	DAY: 'day',
-	END: 'end',
-};
 
 const savedGameAtBoot = loadGameState();
-const resumeAvailable = ref(!!(savedGameAtBoot && (savedGameAtBoot as any).phase !== PHASES.SETUP));
-
-// Debug logging
 
 
 const route = useRoute();
 const router = useRouter();
-const currentPage = ref<'home' | 'roles' | 'players' | 'settings'>('home');
-const showEventHistory = ref(false);
 const store = useGameStore();
 const state = store.state;
-// Ensure settings exist even if state was restored from an older schema
-if (!(state as any).settings) {
-    (state as any).settings = { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false };
-}
-// Ensure rolesEnabled exists in setup for older saved states
-if (!(state as any).setup?.rolesEnabled) {
-    		// Default active roles: only Villico and Lupo
-		(state as any).setup.rolesEnabled = { lupo: true, villico: true } as any;
-}
 
-const routePage = computed(() => {
-    const p = route.params.page as string | undefined;
-    return (p === 'players' || p === 'settings' || p === 'roles') ? p : 'home';
-});
-const isHome = computed(() => routePage.value === 'home');
-const isRoles = computed(() => routePage.value === 'roles');
-const isPlayers = computed(() => routePage.value === 'players');
-const isSettings = computed(() => routePage.value === 'settings');
-const isRoleDetails = computed(() => route.name === 'role-details');
-// Hydration
-// 1) Do NOT auto-resume a game; only resume if started and the user asks
-// 2) Always load players setup from dedicated storage if available
-const savedPlayers0 = loadPlayersSetup();
-if (state.phase === PHASES.SETUP) {
-    if (savedPlayers0 && Array.isArray(savedPlayers0.players) && savedPlayers0.players.length > 0) {
-        state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers0.numPlayers) || 6));
-        state.setup.players = savedPlayers0.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
-        
-        // Restore role configuration if available
-        if (savedPlayers0.rolesCounts && typeof savedPlayers0.rolesCounts === 'object') {
-            state.setup.rolesCounts = { ...savedPlayers0.rolesCounts };
-        } else {
-            initDefaultRolesCounts();
-        }
-        
-        if (savedPlayers0.rolesEnabled && typeof savedPlayers0.rolesEnabled === 'object') {
-            state.setup.rolesEnabled = { ...savedPlayers0.rolesEnabled };
-        }
-        
-        normalizeRoleCounts();
-    }
-}
-// Initialize tab from route once
-{
-    const p = route.params.page as string | undefined;
-    const page = (p === 'players' || p === 'settings') ? p : 'home';
-    currentPage.value = page as any;
-}
+const {
+    resumeAvailable,
+    currentPage,
+    showEventHistory,
+    routePage,
+    isHome,
+    isRoles,
+    isPlayers,
+    isSettings,
+    isRoleDetails,
+    alivePlayers,
+    wolvesAlive,
+    villagersAlive,
+    roleCounts,
+    totalRolesSelected,
+    canStart,
+    initializeGameState,
+    setupWatchers,
+    checkForSavedGames,
+    dismissResumeBanner,
+    toggleEventHistory
+} = useGameState();
 
-// Persist state: only save a resumable game once it's started (not in setup)
-let isInitialBoot = true;
-watch(
-    () => state,
-    () => {
-        if (state.phase !== PHASES.SETUP) {
-            saveGameState(state);
-            isInitialBoot = false;
-        } else if (!isInitialBoot) {
-            clearSavedGame();
-        }
-    },
-    { deep: true }
-);
+const {
+    PHASES,
+    resetAll,
+    resumeGame: resumeGameLogic,
+    initDefaultRolesCounts,
+    initSetupPlayers,
+    resizePlayers,
+    normalizeRoleCounts,
+    updateRoleCount,
+    getMaxCountForRole,
+    navigateToPage,
+    updatePlayersFromEditor,
+    beginReveal,
+    nextReveal,
+    beginNight,
+    onPromptComplete,
+    resolveNight,
+    continueToDay,
+    startNextNight,
+    quitAndReset,
+    onLynch,
+    onSkipDay,
+    onElectSindaco
+} = useGameLogic();
 
-// Persist players setup and role configuration independently so they are restored across visits
-watch(
-    () => ({ 
-        players: state.setup.players.map((p: { name: string }) => p.name), 
-        numPlayers: state.setup.numPlayers,
-        rolesCounts: state.setup.rolesCounts,
-        rolesEnabled: state.setup.rolesEnabled
-    }),
-    () => {
-        savePlayersSetup({
-            numPlayers: state.setup.numPlayers,
-            players: state.setup.players.map((p: { name: string }) => ({ name: p.name })),
-            rolesCounts: { ...state.setup.rolesCounts },
-            rolesEnabled: { ...state.setup.rolesEnabled }
-        });
-    },
-    { deep: true }
-);
+const {
+    currentTurn,
+    currentRole,
+    currentActor,
+    currentPromptComponent,
+    isFirstNightSkipped,
+    shouldShowDeadPrompt,
+    currentGroupNames
+} = useNightPhase();
 
-// Load settings on boot (defaults are in store) and persist changes
-const savedSettings0 = loadSettings();
-if (savedSettings0 && typeof savedSettings0 === 'object') {
-    state.settings.skipFirstNightActions = !!savedSettings0.skipFirstNightActions;
-    state.settings.enableSindaco = !!savedSettings0.enableSindaco;
-    state.settings.discussionTimerEnabled = !!savedSettings0.discussionTimerEnabled;
-}
-watch(
-    () => state.settings,
-    () => {
-        saveSettings({
-            skipFirstNightActions: !!state.settings.skipFirstNightActions,
-            enableSindaco: !!state.settings.enableSindaco,
-            discussionTimerEnabled: !!state.settings.discussionTimerEnabled,
-        });
-    },
-    { deep: true }
-);
+// Initialize game state and setup watchers
+initializeGameState();
+setupWatchers();
 
-// Make resumeAvailable reactive to state changes and more robust
-watch(() => state.phase, (newPhase) => {
-    if (newPhase === PHASES.SETUP) {
-        const saved = loadGameState();
-        const hasSavedGame = !!(saved && saved.phase !== PHASES.SETUP);
-        resumeAvailable.value = hasSavedGame;
-    }
-}, { immediate: true });
 
-// Also check for saved games on boot, but defer until after watchers are set up
-const checkForSavedGames = () => {
-    const saved = loadGameState();
-    
-    const hasSavedGame = !!(saved && saved.phase !== PHASES.SETUP);
-    resumeAvailable.value = hasSavedGame;
-    
-    return { hasSavedGame, saved };
-};
+
+
 
 // Manual test function for resume
 const testResume = () => {
@@ -257,233 +162,27 @@ watch(
     { immediate: true }
 );
 
-function resetAll() {
-    // Save current settings before reset
-    const currentSettings = { ...state.settings };
-    
-    Object.assign(store.state, engineCreateEmptyState());
-    
-    // Restore settings immediately after reset
-    state.settings = currentSettings;
-    
-	// Ensure setup players are re-initialized, preferring saved players if present
-	const savedPlayers = loadPlayersSetup();
-	if (savedPlayers && savedPlayers.players?.length) {
-		state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
-        state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
-		
-        // Restore role configuration if available
-        if (savedPlayers.rolesCounts && typeof savedPlayers.rolesCounts === 'object') {
-            state.setup.rolesCounts = { ...savedPlayers.rolesCounts };
-        } else {
-            initDefaultRolesCounts();
-        }
-        
-        if (savedPlayers.rolesEnabled && typeof savedPlayers.rolesEnabled === 'object') {
-            state.setup.rolesEnabled = { ...savedPlayers.rolesEnabled };
-        }
-        
-		normalizeRoleCounts();
-	} else {
-		initSetupPlayers();
-	}
-	clearSavedGame();
-    resumeAvailable.value = false;
-    isInitialBoot = false;
-}
 
-// derive alive groups via engine selectors
-const alivePlayers = computed(() => state.players.filter(p => p.alive));
-const wolvesAlive = computed(() => alivePlayers.value.filter(p => p.roleState?.realTeam === 'lupi'));
-const villagersAlive = computed(() => alivePlayers.value.filter(p => p.roleState?.realTeam !== 'lupi'));
 
-// winner computed inside engine flow
+
 
 function resumeGame() {
 	const saved = loadGameState();
 	if (saved && (saved as any).phase !== PHASES.SETUP) {
-		// Manually update each property to maintain reactivity
-		state.phase = saved.phase;
-		state.nightNumber = saved.nightNumber;
-		state.dayNumber = saved.dayNumber;
-		state.players = saved.players || [];
-		state.setup = saved.setup || { numPlayers: 6, players: [], rolesCounts: {}, rolesEnabled: {} };
-		state.revealIndex = saved.revealIndex || 0;
-		state.night = saved.night || { turns: [], currentIndex: 0, results: [], context: null, summary: null };
-		state.settings = saved.settings || { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false };
-		state.sindacoId = saved.sindacoId || null;
-		state.winner = saved.winner || null;
-		state.lynchedHistory = saved.lynchedHistory || [];
-		state.usedPowers = saved.usedPowers || {};
-		
-		state.custom = saved.custom || {};
-		state.history = saved.history || {};
-		state.nightDeathsByNight = saved.nightDeathsByNight || {};
-		state.lynchedHistoryByDay = saved.lynchedHistoryByDay || {};
+		resumeGameLogic(saved);
 		resumeAvailable.value = false;
 	}
 }
 
-function dismissResumeBanner() {
-    clearSavedGame();
-    resumeAvailable.value = false;
-    isInitialBoot = false;
-}
 
-// Setup helpers
-function initDefaultRolesCounts() { engineInitDefaultRolesCounts(state as any); }
 
-function initSetupPlayers() { engineInitSetupPlayers(state as any); }
 
-function resizePlayers(nextCount: any) { engineResizePlayers(state as any, Number(nextCount) || 0); }
 
-function normalizeRoleCounts() { engineNormalizeRoleCounts(state as any); }
 
-function updateRoleCount(roleId: string, count: number) { engineUpdateRoleCount(state as any, roleId, count); }
 
-function getMaxCountForRole(roleId: string): number { return engineGetMaxCountForRole(state as any, roleId); }
 
-function navigateToPage(page: 'home' | 'roles' | 'players' | 'settings') {
-    currentPage.value = page;
-    if (state.phase === PHASES.SETUP) {
-        router.replace({ name: 'setup', params: { page } });
-    }
-}
 
-function updatePlayersFromEditor(players: Array<{name: string}>, numPlayers: number) {
-    state.setup.players = players;
-    resizePlayers(numPlayers);
-    normalizeRoleCounts();
-    currentPage.value = 'home';
-}
 
-if (state.phase === PHASES.SETUP && state.setup.players.length === 0) {
-    const savedPlayers = loadPlayersSetup();
-    if (savedPlayers && savedPlayers.players?.length) {
-        state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
-        state.setup.players = savedPlayers.players.map((p: { name?: string }, i: number) => ({ name: (p?.name || `Giocatore ${i+1}`) }));
-        
-        // Restore role configuration if available
-        if (savedPlayers.rolesCounts && typeof savedPlayers.rolesCounts === 'object') {
-            state.setup.rolesCounts = { ...savedPlayers.rolesCounts };
-        } else {
-            engineInitDefaultRolesCounts(state as any);
-        }
-        
-        if (savedPlayers.rolesEnabled && typeof savedPlayers.rolesEnabled === 'object') {
-            state.setup.rolesEnabled = { ...savedPlayers.rolesEnabled };
-        }
-        
-        engineNormalizeRoleCounts(state as any);
-    } else {
-        engineInitSetupPlayers(state as any);
-    }
-}
-
-const roleCounts = computed(() => ({ ...state.setup.rolesCounts }));
-
-const totalRolesSelected = computed(() => Object.values(roleCounts.value).reduce((a: number, b: number) => a + (b || 0), 0));
-const canStart = computed(() => {
-    		const numWolves = roleCounts.value['lupo'] || 0;
-    return state.setup.players.length >= 4 && numWolves >= 1 && totalRolesSelected.value === state.setup.numPlayers;
-});
-
-function beginReveal() { engineBeginReveal(state as any, ROLE_LIST as any, shuffled); }
-
-function nextReveal() { engineNextReveal(state as any, () => beginNight()); }
-
-// Night engine
-function beginNight() { engineStartNextNight(state as any, ROLES as any); }
-
-const currentTurn = computed(() => {
-	if (state.phase !== PHASES.NIGHT) return null;
-	return NightPhaseManager.getCurrentTurn(state);
-});
-
-const currentRole = computed(() => {
-	const entry = currentTurn.value;
-	if (!entry) return null;
-	return ROLES[entry.roleId] || null;
-});
-
-const currentActor = computed(() => {
-	const entry = currentTurn.value;
-	if (!entry) return null;
-	if (entry.kind === 'single') {
-		return state.players.find(p => p.id === entry.playerId) || null;
-	}
-	return { id: 0, name: currentRole.value?.name, roleId: entry.roleId };
-});
-
-const currentPromptComponent = computed(() => {
-    if (!currentActor.value || !currentActor.value.roleId) return null;
-    
-    const role = ROLES.find(r => r.id === currentActor.value.roleId);
-    if (!role || role.actsAtNight === 'never') return null;
-    
-    return role.getPromptComponent();
-});
-
-const isFirstNightSkipped = computed(() => !!state.settings?.skipFirstNightActions && state.nightNumber === 1);
-
-const shouldShowDeadPrompt = computed(() => {
-	const entry = currentTurn.value;
-	if (!entry) return false;
-	// For all roles, show dead prompt if no alive members of the group
-	const anyAlive = alivePlayers.value.some(p => p.roleId === entry.roleId);
-	return !anyAlive;
-});
-
-const currentGroupNames = computed(() => {
-	const entry = currentTurn.value;
-	if (!entry) return null as string[] | null;
-	return entry.playerIds
-		.map(id => state.players.find(p => p.id === id)?.name)
-		.filter((n): n is string => !!n);
-});
-
-function onPromptComplete(result: any) {
-    engineRecordNightResult(state as any, result);
-    if (state.phase === PHASES.RESOLVE) engineResolveNight(state as any, ROLES as any);
-}
-
-function resolveNight() { engineResolveNight(state as any, ROLES as any); }
-
-function continueToDay() {
-    const winner = engineEvaluateWinner(state as any, ROLES as any);
-    if (winner) {
-        state.winner = winner as any;
-        state.phase = PHASES.END as any;
-        return;
-    }
-    engineContinueToDay(state as any, ROLES as any);
-}
-
-function startNextNight() { engineStartNextNight(state as any, ROLES as any); }
-
-function quitAndReset() { resetAll(); }
-
-// UI state only for setup pages, other phases manage their own UI
-
-// Day phase actions
-function onLynch(playerId: number) {
-    engineLynchPlayer(state as any, playerId);
-    // After lynch, complete the day: check winner then start next night
-    engineCompleteDay(state as any, ROLES as any);
-}
-
-function onSkipDay() {
-    // No lynch: complete the day
-    engineCompleteDay(state as any, ROLES as any);
-}
-
-function onElectSindaco(playerId: number) {
-    engineSetSindaco(state as any, playerId);
-}
-
-function toggleEventHistory() {
-    showEventHistory.value = !showEventHistory.value;
-}
 </script>
 
 <template>
@@ -493,7 +192,7 @@ function toggleEventHistory() {
 	<!-- Main Game Container -->
 	<div v-if="!isRoleDetails" class="w-full bg-neutral-950/95 sm:max-w-4xl
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl
-	 backdrop-blur-sm shadow-xl sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200" :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
+	 backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200" :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
 
 		<!-- Resume banner -->
 		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-900/60 sm:border
@@ -581,33 +280,14 @@ function toggleEventHistory() {
 
 		<!-- End Phase -->
 		<div v-else-if="state.phase === PHASES.END" class="
-		flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+		flex flex-col items-center justify-center px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
 			<!-- Main End Game Content -->
-			<div v-if="!showEventHistory" class="w-full max-w-2xl space-y-6 text-center">
-				<h2 class="text-xl font-semibold text-slate-100">Fine partita</h2>
-				<div class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4 text-left">
-					<div class="text-2xl font-bold" :class="state.winner === 'lupi' ? 'text-red-400' : (state.winner === 'matti' ? 'text-violet-400' : (state.winner === 'tie' ? 'text-yellow-400' : 'text-emerald-400'))">
-						{{ state.winner === 'tie' ? 'Pareggio, tutti sono morti' : (state.winner || 'Sconosciuto') + ' vincono' }}
-					</div>
-					<div v-if="state.winner !== 'tie'">
-						<div class="text-slate-300 text-sm mb-2">Vincitori:</div>
-						<PlayerRoleList 
-							:state="state" 
-							:players="state.players.filter(p => p.roleState?.realTeam === state.winner)" 
-						/>
-					</div>
-					<div class="text-slate-400">Grazie per aver giocato.</div>
-				</div>
-				
-				<!-- Action Buttons with consistent styling -->
-				<ButtonGroup class="mt-6">
-					<GhostButton full-width @click="toggleEventHistory">
-						📋 Eventi
-					</GhostButton>
-					<PrimaryButton full-width @click="quitAndReset">
-						Nuova partita
-					</PrimaryButton>
-				</ButtonGroup>
+			<div v-if="!showEventHistory" class="w-full">
+				<WinResults 
+					:state="state"
+					@toggle-event-history="toggleEventHistory"
+					@new-game="quitAndReset"
+				/>
 			</div>
 		</div>
 	</div>

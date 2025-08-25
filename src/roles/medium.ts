@@ -7,7 +7,7 @@ const medium: RoleDef = {
     name: 'Medium',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
-    score: 3,
+    score: 5,
     countAs: 'villaggio',
     description: 'Ogni notte comunica con un morto per scoprirne la fazione. Deve sempre investigare. Muore se interroga un lupomannaro.',
     color: '#eab308',

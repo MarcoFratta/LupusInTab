@@ -24,33 +24,73 @@ export class SetupManager {
    */
   static initDefaultRolesCounts(state: GameState): void {
     const n = state.setup.numPlayers;
-    const lupi = Math.max(SetupManager.getMinCountForRole(state, 'lupo'), Math.floor(n / 4));
-    const guardia = n >= 5 ? Math.max(SetupManager.getMinCountForRole(state, 'guardia'), 1) : 0;
-    const veggente = n >= 6 ? Math.max(SetupManager.getMinCountForRole(state, 'veggente'), 1) : 0;
-    const insinuo = n >= 7 ? Math.max(SetupManager.getMinCountForRole(state, 'insinuo'), 1) : 0;
-    const used = lupi + guardia + veggente + insinuo;
-    const villico = Math.max(0, n - used);
     
-    state.setup.rolesCounts = { lupo: lupi, guardia, veggente, insinuo, villico } as Record<string, number>;
+    // Special case: 9 players get a specific balanced setup
+    if (n === 9) {
+      state.setup.rolesCounts = { 
+        veggente: 1, 
+        medium: 1, 
+        guardia: 1, 
+        lupo: 2, 
+        indemoniato: 1, 
+        massone: 2, 
+        villico: 1 
+      } as Record<string, number>;
+    } else {
+      // Default logic for other player counts
+      const lupi = Math.max(SetupManager.getMinCountForRole(state, 'lupo'), Math.floor(n / 4));
+      const guardia = n >= 5 ? Math.max(SetupManager.getMinCountForRole(state, 'guardia'), 1) : 0;
+      const veggente = n >= 6 ? Math.max(SetupManager.getMinCountForRole(state, 'veggente'), 1) : 0;
+      const insinuo = n >= 7 ? Math.max(SetupManager.getMinCountForRole(state, 'insinuo'), 1) : 0;
+      const used = lupi + guardia + veggente + insinuo;
+      const villico = Math.max(0, n - used);
+      
+      state.setup.rolesCounts = { lupo: lupi, guardia, veggente, insinuo, villico } as Record<string, number>;
+    }
     
     if (!state.setup.rolesEnabled) {
-      state.setup.rolesEnabled = { 
-        lupo: true, 
-        villico: true, 
-        guardia: true, 
-        veggente: true, 
-        massone: false, 
-        matto: false, 
-        giustiziere: false, 
-        boia: false, 
-        medium: false, 
-        lupomannaro: false, 
-        indemoniato: false, 
-        insinuo: false, 
-        barabba: false, 
-        angelo: false, 
-        genio: false 
-      } as Record<string, boolean>;
+      // Enable roles based on player count
+      if (n === 9) {
+        state.setup.rolesEnabled = { 
+          lupo: true, 
+          villico: true, 
+          guardia: true, 
+          veggente: true, 
+          massone: true, 
+          matto: false, 
+          giustiziere: false, 
+          boia: false, 
+          medium: true, 
+          lupomannaro: false, 
+          indemoniato: true, 
+          insinuo: false, 
+          barabba: false, 
+          angelo: false, 
+          genio: false,
+          parassita: false,
+          simbionte: false
+        } as Record<string, boolean>;
+      } else {
+        state.setup.rolesEnabled = { 
+          lupo: true, 
+          villico: true, 
+          guardia: true, 
+          veggente: true, 
+          massone: false, 
+          matto: false, 
+          giustiziere: false, 
+          boia: false, 
+          medium: false, 
+          lupomannaro: false, 
+          indemoniato: false, 
+          insinuo: false, 
+          barabba: false, 
+          angelo: false, 
+          genio: false,
+          parassita: false,
+          simbionte: false
+        } as Record<string, boolean>;
+      }
     }
     
     // Normalize role counts to respect rolesEnabled setting
@@ -193,21 +233,11 @@ export class SetupManager {
     const totalRoles = Object.values(state.setup.rolesCounts).reduce((sum, count) => sum + (count || 0), 0);
     const numPlayers = state.setup.numPlayers;
     
-    console.log('Validating role counts:', {
-      totalRoles,
-      numPlayers,
-      rolesCounts: state.setup.rolesCounts,
-      rolesEnabled: state.setup.rolesEnabled
-    });
-    
     if (totalRoles !== numPlayers) {
-      console.warn(`Role count mismatch: ${totalRoles} roles for ${numPlayers} players`);
-      
       const currentVillici = state.setup.rolesCounts['villico'] || 0;
       const neededVillici = numPlayers - totalRoles + currentVillici;
       
       if (neededVillici > 0) {
-        console.log(`Adjusting villico count from ${currentVillici} to ${neededVillici}`);
         state.setup.rolesCounts['villico'] = neededVillici;
       } else if (neededVillici < 0) {
         console.warn(`Too many roles (${totalRoles}) for ${numPlayers} players. This shouldn't happen.`);
@@ -235,13 +265,6 @@ export class SetupManager {
     
     const pool: string[] = [];
     
-    console.log('beginReveal called with:', {
-      roleList: roleList.map(r => ({ id: r.id, name: r.name })),
-      rolesCounts: state.setup.rolesCounts,
-      rolesEnabled: state.setup.rolesEnabled,
-      numPlayers: state.setup.numPlayers
-    });
-    
     for (const role of roleList) {
       const count = state.setup.rolesCounts[role.id] || 0;
       const isEnabled = state.setup.rolesEnabled?.[role.id] !== false;
@@ -249,8 +272,6 @@ export class SetupManager {
         for (let i = 0; i < count; i += 1) pool.push(role.id);
       }
     }
-    
-    console.log('Role pool created:', pool);
     
     if (pool.length !== state.setup.numPlayers) {
       console.error(`Critical error: Role pool size (${pool.length}) doesn't match player count (${state.setup.numPlayers})`);
@@ -267,7 +288,6 @@ export class SetupManager {
     }
     
     const randomized = shuffled(pool);
-    console.log('Randomized role assignments:', randomized);
     
     state.players = state.setup.players.map((p, idx) => {
       const roleId = randomized[idx];

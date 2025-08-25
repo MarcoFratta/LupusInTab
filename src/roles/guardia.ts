@@ -6,7 +6,7 @@ const guardia: RoleDef = {
     id: 'guardia',
     name: 'Guardia',
     team: 'villaggio',
-    score: 4,
+    score: 5,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Ogni notte protegge un giocatore dagli attacchi dei lupi. Deve sempre proteggere.',

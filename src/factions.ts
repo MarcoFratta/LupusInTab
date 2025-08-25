@@ -32,6 +32,22 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		color: '#f59e0b',
 		ringColor: 'ring-amber-500/40',
 		winConditionDescription: 'Il matto vince se viene eliminato durante il giorno (votazione)'
+	},
+	parassita: {
+		id: 'parassita',
+		name: 'parassita',
+		displayName: 'Parassita',
+		color: '#ec4899',
+		ringColor: 'ring-pink-500/40',
+		winConditionDescription: 'Il parassita vince quando tutti i giocatori vivi sono infetti'
+	},
+	simbionti: {
+		id: 'simbionti',
+		name: 'simbionti',
+		displayName: 'Simbionti',
+		color: '#06b6d4',
+		ringColor: 'ring-cyan-500/40',
+		winConditionDescription: 'I simbionti vincono quando raggiungono la parità numerica con i villici o li superano'
 	}
 };
 

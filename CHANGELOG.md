@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.6.2...v1.7.0) (2025-08-25)
+
+
+### Features
+
+* add signed aab ([1807eaf](https://github.com/MarcoFratta/LupusInTab/commit/1807eaf410bbbc9605c9ffef39cf1e16247d12e0))
+
 ## [1.6.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.6.1...v1.6.2) (2025-08-24)
 
 

@@ -64,53 +64,12 @@ jobs:
           keyPassword=${{ secrets.KEY_PASSWORD }}
           EOF
 
-      - name: Replace build.gradle with signing template
+      - name: Add signing configuration to build.gradle
         run: |
           cd android/app
-          cat > build.gradle << 'EOF'
-          apply plugin: 'com.android.application'
-          
-          android {
-            namespace "com.lupus.master"
-            compileSdkVersion 34
-            defaultConfig {
-              applicationId "com.lupus.master"
-              minSdkVersion 24
-              targetSdkVersion 34
-              versionCode 1
-              versionName "1.0"
-            }
-            
-            signingConfigs {
-              release {
-                def keystorePropertiesFile = rootProject.file("app/signing.properties")
-                def keystoreProperties = new Properties()
-                if (keystorePropertiesFile.exists()) {
-                  keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-                }
-                if (keystoreProperties['storeFile']) {
-                  storeFile file(keystoreProperties['storeFile'])
-                  storePassword keystoreProperties['storePassword']
-                  keyAlias keystoreProperties['keyAlias']
-                  keyPassword keystoreProperties['keyPassword']
-                }
-              }
-            }
-            
-            buildTypes {
-              release {
-                minifyEnabled false
-                signingConfig signingConfigs.release
-              }
-            }
-          }
-          
-          dependencies {
-            implementation fileTree(dir: 'libs', include: ['*.jar'])
-            implementation "androidx.appcompat:appcompat:1.6.1"
-            implementation "com.google.android.material:material:1.9.0"
-          }
-          EOF
+          cp build.gradle build.gradle.backup
+          sed -i '/android {/a\    signingConfigs {\n        release {\n            def keystorePropertiesFile = rootProject.file("app/signing.properties")\n            def keystoreProperties = new Properties()\n            if (keystorePropertiesFile.exists()) {\n                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))\n            }\n            storeFile file(keystoreProperties["storeFile"])\n            storePassword keystoreProperties["storePassword"]\n            keyAlias keystoreProperties["keyAlias"]\n            keyPassword keystoreProperties["keyPassword"]\n        }\n    }' build.gradle
+          sed -i '/buildTypes {/a\        release {\n            signingConfig signingConfigs.release\n        }' build.gradle
 
       - name: Configure Gradle properties
         run: |

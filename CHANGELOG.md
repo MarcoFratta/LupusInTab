@@ -1,3 +1,12 @@
+# [1.9.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.8.0...v1.9.0) (2025-08-25)
+
+
+### Features
+
+* create privacy ([ec45321](https://github.com/MarcoFratta/LupusInTab/commit/ec45321ba97b0b083616af84e8097e6e51570d12))
+* create privacy.html ([227153c](https://github.com/MarcoFratta/LupusInTab/commit/227153ccd63979016b03b24bb6fae68861c5a959))
+* create privacy.yml ([f372e59](https://github.com/MarcoFratta/LupusInTab/commit/f372e5966a55986c6cd711b15636867c21fe47ce))
+
 # [1.8.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.7.1...v1.8.0) (2025-08-25)
 
 

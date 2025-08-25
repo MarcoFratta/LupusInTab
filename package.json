@@ -24,6 +24,8 @@
     "mobile:serve": "npx cap serve",
     "mobile:build:apk": "./scripts/build-local-apk.sh",
     "mobile:build:apk:docker": "./scripts/build-apk-docker.sh",
+    "mobile:build:aab": "./scripts/build-play-store-aab.sh",
+    "mobile:setup:playstore:quick": "./scripts/quick-play-store-setup.sh",
     "mobile:install:sdk": "./scripts/install-android-sdk.sh"
   },
   "dependencies": {

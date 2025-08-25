@@ -17,10 +17,6 @@ fi
 
 echo "✅ Node.js version: $(node -v)"
 
-# Install Capacitor CLI globally
-echo "📦 Installing Capacitor CLI globally..."
-npm install -g @capacitor/cli
-
 # Install Capacitor dependencies
 echo "📦 Installing Capacitor dependencies..."
 npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/ios @capacitor/splash-screen @capacitor/status-bar @capacitor/app

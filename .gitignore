@@ -28,6 +28,8 @@ android/
 ios/
 www/
 
+secrets
+
 # Environment variables
 .env
 .env.local

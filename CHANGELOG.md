@@ -1,3 +1,20 @@
+# [1.8.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.7.1...v1.8.0) (2025-08-25)
+
+
+### Bug Fixes
+
+* fix aab release ([517efb0](https://github.com/MarcoFratta/LupusInTab/commit/517efb0e6444c9528eba489be6835b6c40c18643))
+* fix aab release ([68047b1](https://github.com/MarcoFratta/LupusInTab/commit/68047b1a65e4c96945f2594ca48e9624c2bb78c6))
+* fix aab release ([756dcb9](https://github.com/MarcoFratta/LupusInTab/commit/756dcb962a008ecfc079ac6ec809b81651208bfa))
+* fix aab release ([336edd8](https://github.com/MarcoFratta/LupusInTab/commit/336edd8051222bbc10f23870ed72cc14ed66cfc8))
+* fix aab release ([a8d4229](https://github.com/MarcoFratta/LupusInTab/commit/a8d4229debbef2f195f7ae9d7fc676eed0b65210))
+* fix aab release ([9f6aa79](https://github.com/MarcoFratta/LupusInTab/commit/9f6aa79647d171a222f01195b84fd89ddb0d2007))
+
+
+### Features
+
+* update build-mobile.yml ([84e7c0a](https://github.com/MarcoFratta/LupusInTab/commit/84e7c0aebd606318ffb2e18655f8549fa0141aa5))
+
 ## [1.7.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.7.0...v1.7.1) (2025-08-25)
 
 

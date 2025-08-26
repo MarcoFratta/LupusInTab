@@ -143,7 +143,7 @@ watch(roleId, () => {
 </script>
 
 <template>
-  <div v-if="role" class="w-full min-h-screen bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl
+  		<div v-if="role" class="w-full min-h-screen bg-neutral-950 sm:bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl
   pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200 role-details-page">
     <!-- Header with back button and role name -->
     <div class="relative mb-6">
@@ -364,7 +364,7 @@ watch(roleId, () => {
   </div>
 
   <!-- Fallback if role not found -->
-  <div v-else class="w-full min-h-screen bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200">
+  		<div v-else class="w-full min-h-screen bg-neutral-950 sm:bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200">
     <!-- Header with back button -->
     <div class="relative mb-6">
       <!-- Back button in top left -->

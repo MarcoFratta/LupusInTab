@@ -70,7 +70,7 @@ try {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center px-2 sm:px-6 lg:px-8 py-4 sm:py-6">
+  <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
     <div class="w-full max-w-2xl space-y-6 text-center">
       <RoleHeader 
         v-if="roleDisplayInfo" 

@@ -190,7 +190,7 @@ function resumeGame() {
 	<RoleDetails v-if="isRoleDetails" />
 	
 	<!-- Main Game Container -->
-	<div v-if="!isRoleDetails" class="w-full bg-neutral-950/95 sm:max-w-4xl
+	<div v-if="!isRoleDetails" class="w-full bg-neutral-950 sm:bg-neutral-950/95 sm:max-w-4xl
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl
 	 backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200" :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
 

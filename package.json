@@ -25,6 +25,7 @@
     "mobile:build:apk": "./scripts/build-local-apk.sh",
     "mobile:build:apk:docker": "./scripts/build-apk-docker.sh",
     "mobile:build:aab": "./scripts/build-play-store-aab.sh",
+    "mobile:build:playstore": "./scripts/build-play-store-optimized.sh",
     "mobile:setup:playstore:quick": "./scripts/quick-play-store-setup.sh",
     "mobile:install:sdk": "./scripts/install-android-sdk.sh"
   },
@@ -55,6 +56,7 @@
     "postcss": "^8.5.6",
     "semantic-release": "^22.0.0",
     "tailwindcss": "^4.1.11",
+    "terser": "^5.43.1",
     "typescript": "^5.9.2",
     "vite": "^4.4.5",
     "vite-plugin-pwa": "^1.0.3",

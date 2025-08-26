@@ -90,6 +90,10 @@ jobs:
           org.gradle.parallel=true
           android.useAndroidX=true
           android.enableJetifier=true
+          android.enableR8.fullMode=true
+          android.enableR8=true
+          android.enableProguardInReleaseBuilds=true
+          android.enableResourceOptimization=true
           EOF
           ./gradlew clean
 
@@ -99,6 +103,36 @@ jobs:
           chmod +x ./gradlew
           ./gradlew bundleRelease
           cp app/build/outputs/bundle/release/app-release.aab app/build/outputs/bundle/release/lupusMaster.aab
+
+      - name: Verify Minification and Obfuscation
+        run: |
+          cd android
+          echo "🔍 Verifying minification and obfuscation..."
+          
+          # Check if ProGuard mapping file exists (indicates obfuscation ran)
+          if [ -f "app/build/outputs/mapping/release/mapping.txt" ]; then
+            echo "✅ ProGuard mapping file found - obfuscation is working"
+            echo "📊 Mapping file size: $(du -h app/build/outputs/mapping/release/mapping.txt | cut -f1)"
+          else
+            echo "⚠️  ProGuard mapping file not found - obfuscation may not be working"
+          fi
+          
+          # Check if resources were shrunk
+          if [ -f "app/build/outputs/mapping/release/resources.txt" ]; then
+            echo "✅ Resource shrinking mapping found - resources were optimized"
+          fi
+          
+          # Show AAB size
+          echo "📦 AAB size: $(du -h app/build/outputs/bundle/release/lupusMaster.aab | cut -f1)"
+          
+          # Check build logs for optimization messages
+          echo "🔍 Checking build logs for optimization messages..."
+          if grep -q "R8 full mode" app/build/outputs/logs/build.log 2>/dev/null; then
+            echo "✅ R8 full mode enabled"
+          fi
+          if grep -q "ProGuard" app/build/outputs/logs/build.log 2>/dev/null; then
+            echo "✅ ProGuard optimization enabled"
+          fi
 
       - name: Verify AAB Signature
         run: |
@@ -111,6 +145,14 @@ jobs:
           name: lupusMaster-aab
           path: android/app/build/outputs/bundle/release/lupusMaster.aab
           if-no-files-found: error
+
+      - name: Upload ProGuard Mapping (for crash analysis)
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-mapping
+          path: android/app/build/outputs/mapping/release/
+          if-no-files-found: warn
+          retention-days: 365
 
   release:
     needs: build

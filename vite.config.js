@@ -49,6 +49,30 @@ export default defineConfig({
             }
         })
     ],
+    build: {
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                drop_console: true,
+                drop_debugger: true,
+                pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn']
+            },
+            mangle: {
+                toplevel: true,
+                safari10: true
+            }
+        },
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['vue', 'vue-router', 'pinia'],
+                    capacitor: ['@capacitor/core', '@capacitor/app']
+                }
+            }
+        },
+        chunkSizeWarningLimit: 1000,
+        sourcemap: false
+    },
     test: {
         globals: true,
         environment: 'node',

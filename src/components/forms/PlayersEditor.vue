@@ -12,7 +12,7 @@ function apply() { props.onApply(localPlayers.value, localNum.value); props.onCl
 
 <template>
 	<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-    <div class="w-full max-w-lg rounded-2xl border border-neutral-800/50 bg-neutral-950/95 p-5 backdrop-blur-sm">
+    	<div class="w-full max-w-lg rounded-2xl border border-neutral-800/50 bg-neutral-950/95 p-5 backdrop-blur-sm">
       <div class="mb-3 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-neutral-100">Edit Players</h3>
         <button class="btn btn-secondary text-xs" @click="onClose">

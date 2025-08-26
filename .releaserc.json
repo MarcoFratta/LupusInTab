@@ -13,6 +13,12 @@
       }
     ],
     [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "node scripts/update-android-version.js ${nextRelease.version} ${nextRelease.notes}"
+      }
+    ],
+    [
       "@semantic-release/github",
       {
         "assets": [

@@ -26,6 +26,14 @@ console.log(`🏷️  Version Name: ${version}`);
 
 // Update Android build.gradle
 const buildGradlePath = path.join(__dirname, '..', 'android', 'app', 'build.gradle');
+
+// Check if the file exists
+if (!fs.existsSync(buildGradlePath)) {
+  console.error(`❌ build.gradle not found at: ${buildGradlePath}`);
+  console.error('Make sure to run "npx cap add android" and "npx cap sync android" first');
+  process.exit(1);
+}
+
 let buildGradleContent = fs.readFileSync(buildGradlePath, 'utf8');
 
 // Update versionCode

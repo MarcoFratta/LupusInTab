@@ -1,3 +1,13 @@
+## [1.9.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.2...v1.9.3) (2025-08-26)
+
+
+### Bug Fixes
+
+* fix aab version ([e015e8f](https://github.com/MarcoFratta/LupusInTab/commit/e015e8f63b5079fc05972eceef1366ad90b7ca2f))
+* fix release ([9c39e66](https://github.com/MarcoFratta/LupusInTab/commit/9c39e66feb5d8121ad28c2d6164ddbbf0d07aa4a))
+* fix release ([7cadd4e](https://github.com/MarcoFratta/LupusInTab/commit/7cadd4eb9c10cc85dd683f54510e2c05218f5e10))
+* fix release ([3a83819](https://github.com/MarcoFratta/LupusInTab/commit/3a838192cf02b6e75212aa8d766afd01044721b4))
+
 ## [1.9.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.1...v1.9.2) (2025-08-26)
 
 

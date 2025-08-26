@@ -1,3 +1,11 @@
+## [1.9.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.1...v1.9.2) (2025-08-26)
+
+
+### Bug Fixes
+
+* add proguard and terser ([771c45b](https://github.com/MarcoFratta/LupusInTab/commit/771c45b74ee174f80e90445d12c4a127d04a732b))
+* fix background color and app bg ([e783a82](https://github.com/MarcoFratta/LupusInTab/commit/e783a827cffb55fd3731d849d6dcbaff486901fd))
+
 ## [1.9.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.0...v1.9.1) (2025-08-26)
 
 

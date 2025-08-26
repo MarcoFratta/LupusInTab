@@ -104,31 +104,31 @@ function startNight() {
       <h2 class="text-xl font-semibold text-slate-100">Rivelazione dei ruoli</h2>
 
       <!-- Intro info card shown once at the start of reveal phase -->
-      <div v-if="showIntro" class="bg-white/5 border border-white/10 rounded-lg p-6 text-left space-y-3">
+      <div v-if="showIntro" class="bg-white/5 border border-white/10 rounded-lg p-4 text-left space-y-3">
         <div class="text-slate-100 text-sm font-medium">Come rivelare i ruoli</div>
         <div class="text-slate-400 text-sm">
           Passa il dispositivo a ogni giocatore a turno. Tocca per vedere il tuo ruolo, poi passa al prossimo.
         </div>
         <div class="flex justify-end pt-1">
-          <button class="btn btn-primary" @click="continueFromIntro">Inizia rivelazioni</button>
+          <button class="btn btn-primary w-full" @click="continueFromIntro">Inizia rivelazioni</button>
         </div>
       </div>
 
       <!-- Pre-night safety card shown only after the last player reveal -->
-      <div v-else-if="showPreNightInfo" class="bg-white/5 border border-white/10 rounded-lg p-6 text-left space-y-3">
-        <div class="text-slate-100 text-sm font-medium">Prima che inizi la Notte</div>
+      <div v-else-if="showPreNightInfo" class="bg-white/5 border border-white/10 rounded-lg p-4 text-left space-y-3">
+        <div class="text-slate-100 text-md font-medium">Prima che inizi la Notte</div>
         <div class="text-slate-400 text-sm">
-          Riporta il dispositivo al narratore. Premi "Inizia Notte" per continuare.
+          Riporta il dispositivo al narratore.
         </div>
         <div class="flex justify-end pt-1">
-          <button class="btn btn-primary" @click="startNight">Inizia Notte</button>
+          <button class="btn btn-primary w-full" @click="startNight">Inizia Notte</button>
         </div>
       </div>
 
       <!-- Reveal flow for current player -->
       <template v-else>
         <!-- Step 1: Show who to pass phone to -->
-        <div v-if="!showRoleReveal" class="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-8 text-center">
+        <div v-if="!showRoleReveal" class="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-6 text-center">
           <div class="text-slate-300 text-lg mb-3">Passa il telefono a</div>
           <div class="text-3xl font-bold text-slate-100 mb-6">{{ currentPlayer.name }}</div>
           <button 
@@ -140,10 +140,10 @@ function startNight() {
         </div>
 
         <!-- Step 2: Show role and allies -->
-        <div v-else class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4">
+        <div v-else class="bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
           <RoleRevealCard :player="currentPlayer" :roleDef="currentRoleDef" @next="nextReveal">
             <!-- Unified allies section -->
-            <div v-if="knownRoleAllies.length || knownTeamAllies.length" class="bg-white/5 border border-white/10 rounded-lg p-6">
+            <div v-if="knownRoleAllies.length || knownTeamAllies.length" class="bg-white/5 border border-white/10 rounded-lg py-4 px-3">
               <div class="text-slate-100 text-lg font-semibold mb-6 text-center">I tuoi alleati</div>
               
               <!-- Same role allies -->

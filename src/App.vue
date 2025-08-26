@@ -70,16 +70,6 @@ const {
     onElectSindaco
 } = useGameLogic();
 
-const {
-    currentTurn,
-    currentRole,
-    currentActor,
-    currentPromptComponent,
-    isFirstNightSkipped,
-    shouldShowDeadPrompt,
-    currentGroupNames
-} = useNightPhase();
-
 // Initialize game state and setup watchers
 initializeGameState();
 setupWatchers();
@@ -163,9 +153,6 @@ watch(
 );
 
 
-
-
-
 function resumeGame() {
 	const saved = loadGameState();
 	if (saved && (saved as any).phase !== PHASES.SETUP) {
@@ -174,28 +161,20 @@ function resumeGame() {
 	}
 }
 
-
-
-
-
-
-
-
-
-
 </script>
 
-<template>
+<template class="bg-neutral-950">
 	<!-- Role Details Page -->
 	<RoleDetails v-if="isRoleDetails" />
 	
 	<!-- Main Game Container -->
-	<div v-if="!isRoleDetails" class="w-full bg-neutral-950 sm:bg-neutral-950/95 sm:max-w-4xl
+	<div v-if="!isRoleDetails" class="w-full min-h-full bg-neutral-950 sm:max-w-4xl
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl
-	 backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200" :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
+	 backdrop-blur-sm pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200"
+       :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
 
 		<!-- Resume banner -->
-		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-900/60 sm:border
+		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" class="bg-neutral-800/50 sm:border
 		 sm:border-neutral-800/40 rounded-xl sm:rounded-xl p-3 sm:p-4 mb-6 mx-4 sm:mx-0 overflow-hidden">
 			<div class="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
 				<div class="text-center sm:text-left min-w-0 flex-1">
@@ -210,7 +189,7 @@ function resumeGame() {
 		</div>
 
 		<!-- Setup Phase -->
-		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center px-4 sm:px-0  sm:pb-0">
+		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center px-4 sm:px-0 sm:pb-0">
 			<!-- Desktop Page Navigation (hidden on mobile) -->
 			<div class="hidden sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
 				<router-link 
@@ -252,7 +231,7 @@ function resumeGame() {
 			</div>
 
 			<!-- Page Content -->
-			<SetupHome v-show="isHome" 
+			<SetupHome v-show="isHome"
 				@save-test-game="saveTestGame"
 				@test-resume="testResume"
 				@check-saved-games="checkForSavedGames"

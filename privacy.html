@@ -2,10 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Privacy Policy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Lupus in Tabula</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            neutral: {
+              50: '#fafafa',
+              100: '#f5f5f5',
+              200: '#e5e5e5',
+              300: '#d4d4d4',
+              400: '#a3a3a3',
+              500: '#737373',
+              600: '#525252',
+              700: '#404040',
+              800: '#262626',
+              900: '#171717',
+              950: '#0a0a0a'
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body>
-  <h1>Privacy Policy</h1>
-  <p>This app does not collect, store, or share any personal data. No cookies are used and no information is tracked.</p>
+<body class="bg-neutral-950 text-neutral-200 font-sans antialiased min-h-screen">
+  <div class="min-h-screen bg-neutral-950">
+    <!-- Header -->
+    <header class="bg-neutral-900/60 border-b border-neutral-800/40">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between">
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-6 sm:p-8">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl font-bold text-neutral-100 mb-4">Privacy Policy</h2>
+          <p class="text-neutral-400 text-lg">Last updated: <span id="current-date"></span></p>
+        </div>
+
+        <!-- No Data Collection Section -->
+        <div class="bg-green-900/20 border border-green-800/40 rounded-lg p-6 mb-8">
+          <div class="flex items-start space-x-3">
+            <div class="w-6 h-6 bg-green-500 rounded-full flex-shrink-0 mt-1"></div>
+            <div>
+              <h3 class="text-lg font-semibold text-green-400 mb-2">No Personal Data Collection</h3>
+              <p class="text-neutral-300">
+                This application does not collect, store, or share any personal data whatsoever. 
+                Your privacy is our priority, and we maintain a zero-data collection policy.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- What We Don't Collect -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-neutral-100 mb-4">What We Don't Collect</h3>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-4">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                <span class="font-medium text-neutral-200">Personal Information</span>
+              </div>
+              <p class="text-neutral-400 text-sm">No names, emails, phone numbers, or any identifying information</p>
+            </div>
+            <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-4">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                <span class="font-medium text-neutral-200">Usage Data</span>
+              </div>
+              <p class="text-neutral-400 text-sm">No analytics, tracking, or behavioral data collection</p>
+            </div>
+            <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-4">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                <span class="font-medium text-neutral-200">Cookies</span>
+              </div>
+              <p class="text-neutral-400 text-sm">No cookies, local storage, or persistent data</p>
+            </div>
+            <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-4">
+              <div class="flex items-center space-x-3 mb-2">
+                <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+                <span class="font-medium text-neutral-200">Third-Party Services</span>
+              </div>
+              <p class="text-neutral-400 text-sm">No external tracking or advertising services</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- How It Works -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-neutral-100 mb-4">How It Works</h3>
+          <div class="space-y-4">
+            <div class="flex items-start space-x-4">
+              <div class="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center text-neutral-300 font-semibold text-sm flex-shrink-0">1</div>
+              <div>
+                <h4 class="font-medium text-neutral-200 mb-1">Local Game State</h4>
+                <p class="text-neutral-400">Game data is stored locally on your device only, never transmitted anywhere</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-4">
+              <div class="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center text-neutral-300 font-semibold text-sm flex-shrink-0">2</div>
+              <div>
+                <h4 class="font-medium text-neutral-200 mb-1">No Network Requests</h4>
+                <p class="text-neutral-400">The app works completely offline and doesn't make any network calls</p>
+              </div>
+            </div>
+            <div class="flex items-start space-x-4">
+              <div class="w-8 h-8 bg-neutral-700 rounded-full flex items-center justify-center text-neutral-300 font-semibold text-sm flex-shrink-0">3</div>
+              <div>
+                <h4 class="font-medium text-neutral-200 mb-1">Complete Privacy</h4>
+                <p class="text-neutral-400">Your game sessions remain completely private and under your control</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Technical Details -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-neutral-100 mb-4">Technical Details</h3>
+          <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-4">
+            <p class="text-neutral-300 text-sm leading-relaxed">
+              This application is built as a Progressive Web App (PWA) that runs entirely in your browser. 
+              All game logic, player data, and game state are processed locally using JavaScript. 
+              No data leaves your device at any point during gameplay or between sessions.
+            </p>
+          </div>
+        </section>
+
+        <!-- Contact Information -->
+        <section class="mb-8">
+          <h3 class="text-xl font-semibold text-neutral-100 mb-4">Contact Us</h3>
+          <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-4">
+            <p class="text-neutral-300 mb-3">
+              If you have any questions about this privacy policy or our data practices, 
+              you can reach us through our GitHub repository:
+            </p>
+            <a href="https://github.com/MarcoFratta/LupusInTab"
+               class="inline-flex items-center space-x-2 text-violet-400 hover:text-violet-300 transition-colors">
+              <span>View on GitHub</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center pt-6 border-t border-neutral-800/40">
+          <p class="text-neutral-500 text-sm">
+            This privacy policy is effective as of the date shown above and applies to all versions of the Lupus in Tabula application.
+          </p>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Set current date
+    document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  </script>
 </body>
 </html>

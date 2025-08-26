@@ -61,11 +61,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Update Android version
-        run: |
-          echo "Updating Android version to match package.json..."
-          node scripts/update-android-version.js $(node -p "require('./package.json').version")
-
       - name: Build web assets
         run: npm run build
 
@@ -87,6 +82,11 @@ jobs:
           echo "Place resources/icon.png if needed"
           npx capacitor-assets generate
           npx cap sync android
+
+      - name: Update Android version
+        run: |
+          echo "Updating Android version to match package.json..."
+          node scripts/update-android-version.js $(node -p "require('./package.json').version")
 
       - name: Write keystore file
         run: |

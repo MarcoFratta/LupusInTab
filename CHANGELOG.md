@@ -1,3 +1,10 @@
+## [1.9.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.0...v1.9.1) (2025-08-26)
+
+
+### Bug Fixes
+
+* fix background color and app bg ([34d986e](https://github.com/MarcoFratta/LupusInTab/commit/34d986e927a6c42ea3cbaca5e8701f5c0c5432e9))
+
 # [1.9.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.8.0...v1.9.0) (2025-08-25)
 
 

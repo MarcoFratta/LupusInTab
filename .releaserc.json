@@ -6,19 +6,6 @@
     "@semantic-release/changelog",
     "@semantic-release/npm",
     [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "echo 'Preparing release assets...'",
-        "publishCmd": "echo 'Release assets prepared'"
-      }
-    ],
-    [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "node scripts/update-android-version.js ${nextRelease.version} ${nextRelease.notes}"
-      }
-    ],
-    [
       "@semantic-release/github",
       {
         "assets": [

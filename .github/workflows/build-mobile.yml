@@ -86,7 +86,33 @@ jobs:
       - name: Update Android version
         run: |
           echo "Updating Android version to match package.json..."
-          node scripts/update-android-version.js $(node -p "require('./package.json').version")
+          
+          # Check if Android folder exists
+          if [ ! -d "android" ]; then
+            echo "❌ Android folder not found. Creating it first..."
+            npx cap add android
+            npx cap sync android
+          fi
+          
+          # Check if build.gradle exists
+          if [ ! -f "android/app/build.gradle" ]; then
+            echo "❌ build.gradle not found. Syncing Capacitor..."
+            npx cap sync android
+          fi
+          
+          # Now update the version
+          if [ -f "android/app/build.gradle" ]; then
+            echo "✅ build.gradle found, updating version..."
+            node scripts/update-android-version.js $(node -p "require('./package.json').version")
+            
+            # Verify the update
+            echo "🔍 Verifying version update..."
+            grep "versionCode" android/app/build.gradle
+            grep "versionName" android/app/build.gradle
+          else
+            echo "❌ build.gradle still not found after sync. Exiting."
+            exit 1
+          fi
 
       - name: Write keystore file
         run: |

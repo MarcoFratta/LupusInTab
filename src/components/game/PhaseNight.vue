@@ -31,6 +31,7 @@ const {
   shouldShowUsageLimitPrompt,
   currentGroupNames,
   roleDisplayInfo,
+  currentTurn,
   getEarliestStartNight
 } = useNightPhase();
 
@@ -78,7 +79,7 @@ try {
         :group-names="currentGroupNames" 
       />
 
-      <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-6 text-left">
+      <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-4 text-left">
         <FirstNightSkippedPrompt 
           v-if="isFirstNightSkipped" 
           :on-complete="props.onPromptComplete" 
@@ -114,7 +115,8 @@ try {
           v-else-if="asyncPromptComponent" 
           :is="asyncPromptComponent"
           :gameState="props.state" 
-          :player="currentActor" 
+          :player="currentTurn?.playerIds?.length > 0 ? props.state.players.find(p => p.id === currentTurn.playerIds[0]) : currentActor" 
+          :playerIds="currentTurn?.playerIds || []"
           :onComplete="props.onPromptComplete" 
         />
 

@@ -83,9 +83,42 @@ export function useWinConditions() {
         return lupiAlive === 0 && lupomannaroAliveForWin === 0;
     };
 
+    const alieniWin: WinCheck = (state) => {
+        const alieniAlive = countAlive(state, (p) => {
+            const roleDef = ROLES[p.roleId];
+            if (!roleDef) return false;
+            const team = roleDef.team;
+            return team === 'alieni';
+        });
+        
+        if (alieniAlive === 0) return false;
+        
+        const teamCounts = new Map<string, number>();
+        
+        for (const player of state.players) {
+            if (!player.alive) continue;
+            
+            const roleDef = ROLES[player.roleId];
+            if (!roleDef) continue;
+            
+            const team = roleDef.countAs || roleDef.team;
+            if (team === 'alieni') continue;
+            
+            teamCounts.set(team, (teamCounts.get(team) || 0) + 1);
+        }
+        
+        if (teamCounts.size === 0) return false;
+        
+        const teamCountsArray = Array.from(teamCounts.values());
+        const firstCount = teamCountsArray[0];
+        
+        return teamCountsArray.every(count => count === firstCount) && firstCount === alieniAlive;
+    };
+
     return {
         wolvesWin,
-        villageWin
+        villageWin,
+        alieniWin
     };
 }
 

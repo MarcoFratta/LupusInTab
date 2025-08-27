@@ -11,47 +11,31 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const expandedEvents = ref(new Set<string>());
+const selectedDay = ref(1);
+const showDetails = ref(false);
 
-const toggleEventExpansion = (eventKey: string) => {
-  if (expandedEvents.value.has(eventKey)) {
-    expandedEvents.value.delete(eventKey);
-  } else {
-    expandedEvents.value.add(eventKey);
-  }
-};
-
-const isEventExpanded = (eventKey: string) => expandedEvents.value.has(eventKey);
-
-// Get variant for role titles
-function getRoleVariant(title: string) { return 'neutral'; }
-
-// Combine and sort all events chronologically
-const allEvents = computed(() => {
-  const events = [];
+const timelineDays = computed(() => {
+  const days = [];
   const state = props.state;
   
-  // Get night events from state.history
   if (state.history) {
     const nightNumbers = new Set();
     
-    // Collect all night numbers from history
     for (const nightNum in state.history) {
       nightNumbers.add(Number(nightNum));
     }
-    // Also include nights from nightDeathsByNight map
     if (state.nightDeathsByNight) {
       for (const nightNum in state.nightDeathsByNight) {
         nightNumbers.add(Number(nightNum));
       }
     }
     
-    // Create night events from history
-    for (const nightNum of Array.from(nightNumbers).sort((a, b) => a - b)) {
+    const sortedNights = Array.from(nightNumbers).sort((a, b) => a - b);
+    
+    for (const nightNum of sortedNights) {
       const nightPlayerActions = state.history[nightNum] || {};
       const nightEvents = Object.values(nightPlayerActions).filter(Boolean);
       
-      // Create summary
       const summary = {
         died: Array.isArray(state.nightDeathsByNight?.[nightNum]) ? [...state.nightDeathsByNight[nightNum]] : [],
         saved: [],
@@ -60,192 +44,323 @@ const allEvents = computed(() => {
         checks: []
       };
       
-      // Process events to build additional info
       for (const event of nightEvents) {
         if (event.type === 'guardia_save' && event.data?.target && !summary.saved.includes(event.data.target)) {
           summary.saved.push(event.data.target);
         }
       }
       
-      events.push({
-        type: 'night',
-        order: nightNum * 2, // Even numbers for nights
+      const dayNum = nightNum;
+      let lynchedPlayer = null;
+      
+      if (state.lynchedHistoryByDay && state.lynchedHistoryByDay[dayNum]) {
+        const lynchedIds = state.lynchedHistoryByDay[dayNum] || [];
+        lynchedPlayer = lynchedIds.length > 0 ? lynchedIds[0] : null;
+      } else if (state.lynchedHistory && state.lynchedHistory[dayNum - 1]) {
+        lynchedPlayer = state.lynchedHistory[dayNum - 1];
+      }
+      
+      days.push({
+        day: dayNum,
         night: nightNum,
-        data: {
-          night: nightNum,
-          summary,
-          results: nightEvents
-        }
+        nightSummary: summary,
+        lynchedPlayer,
+        nightEvents
       });
     }
   }
   
-  // Add day events from lynchedHistoryByDay
-  if (state.lynchedHistoryByDay && Object.keys(state.lynchedHistoryByDay).length > 0) {
-    for (const dayKey of Object.keys(state.lynchedHistoryByDay)) {
-      const dayNum = Number(dayKey);
-      const lynchedIds = state.lynchedHistoryByDay[dayNum] || [];
-      for (const pid of lynchedIds) {
-        events.push({
-          type: 'day',
-          order: dayNum * 2 + 1,
-          day: dayNum,
-          data: { day: dayNum, lynched: pid }
-        });
-      }
-    }
-  } else if (state.lynchedHistory) {
-    // Fallback: derive day events from lynchedHistory
-    let dayIndex = 1;
-    for (const pid of state.lynchedHistory) {
-      events.push({
-        type: 'day',
-        order: dayIndex * 2 + 1,
-        day: dayIndex,
-        data: { day: dayIndex, lynched: pid }
-      });
-      dayIndex += 1;
-    }
-  }
-
-  // Sort chronologically
-  return events.sort((a, b) => a.order - b.order);
+  return days;
 });
+
+const currentDay = computed(() => {
+  if (timelineDays.value.length === 0) return null;
+  return timelineDays.value.find(day => day.day === selectedDay.value) || timelineDays.value[0];
+});
+
+const selectDay = (day: number) => {
+  selectedDay.value = day;
+  showDetails.value = false;
+};
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-    <div class="w-full max-w-2xl space-y-6">
-      <div class="flex items-center justify-between flex-shrink-0">
-        <h2 class="text-2xl font-semibold text-slate-100">📋 Storico Eventi</h2>
+  <div class="min-h-screen flex flex-col px-4 py-4 sm:px-6 sm:py-6">
+    <div class="w-full space-y-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl sm:text-2xl font-semibold text-slate-100">📋 Storico Eventi</h2>
         <GhostButton size="sm" @click="props.onClose">
           ✕ Chiudi
         </GhostButton>
       </div>
       
-      <div class="space-y-4">
-        <template v-for="event in allEvents" :key="event.type + '-' + (event.night || event.day)">
-          <!-- Night Event -->
-          <EventCard 
-            v-if="event.type === 'night'" 
-            :title="`Notte ${event.night}`"
-            variant="neutral"
-          >
-            <!-- Deaths Summary -->
-            <div class="bg-white/5 border border-white/10 rounded-lg p-4 mb-4">
-              <div class="flex items-center justify-center gap-2 mb-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-red-400">
-                  <path d="M12 3C7.582 3 4 6.582 4 11v4a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-4c0-4.418-3.582-8-8-8Z" stroke="currentColor" stroke-width="1.5"/>
-                  <circle cx="9" cy="11" r="1.5" fill="currentColor"/>
-                  <circle cx="15" cy="11" r="1.5" fill="currentColor"/>
-                  <path d="M9 16c1.333-.667 4.667-.667 6 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <div class="font-medium text-slate-100 text-sm">
-                  Morti
-                  <span v-if="event.data.summary.died.length"> ({{ event.data.summary.died.length }})</span>
+      <!-- Horizontal Timeline -->
+      <div class="w-full">
+        <div class="relative">
+          <!-- Timeline Container -->
+          <div class="overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <!-- Connecting Lines Layer -->
+            <div class="relative h-0">
+              <div 
+                v-for="(day, index) in timelineDays.slice(0, -1)" 
+                :key="`line-${day.day}`"
+                class="absolute top-6 sm:top-5 h-0.5 bg-gradient-to-r from-blue-500/40 to-purple-500/40 z-0"
+                :style="{
+                  left: `${(index + 0.5) * (100 / (timelineDays.length - 1))}%`,
+                  width: `${100 / (timelineDays.length - 1)}%`
+                }"
+              ></div>
+            </div>
+            
+            <div class="flex items-start justify-between w-full min-w-max gap-4 sm:gap-6">
+              <!-- Timeline Days -->
+              <div 
+                v-for="(day, index) in timelineDays" 
+                :key="`day-${day.day}`"
+                class="relative flex-shrink-0 flex-1"
+              >
+                <!-- Timeline Dot -->
+                <div 
+                  @click="selectDay(day.day)"
+                  :class="[
+                    'relative z-10 w-12 h-12 sm:w-10 sm:h-10 rounded-full border-4 cursor-pointer transition-all duration-300 transform hover:scale-110 active:scale-95 mx-auto',
+                    selectedDay === day.day
+                      ? 'border-blue-400 bg-blue-500 shadow-lg shadow-blue-500/50'
+                      : 'border-white/40 bg-slate-800 hover:border-white/60'
+                  ]"
+                >
+                  <!-- Inner Glow Effect -->
+                  <div 
+                    v-if="selectedDay === day.day"
+                    class="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-20"
+                  ></div>
+                  
+                  <!-- Day Number -->
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-sm sm:text-xs font-bold text-white">{{ day.day }}</span>
+                  </div>
+                </div>
+                
+                <!-- Day Label -->
+                <div class="mt-3 flex flex-col items-center">
+                  <div class="text-sm sm:text-xs font-medium text-slate-300 text-center">
+                    Giorno {{ day.day }}
+                  </div>
+                  
+                  <!-- Quick Indicators -->
+                  <div class="flex gap-1 mt-2">
+                    <div 
+                      v-if="day.nightSummary.died.length > 0"
+                      class="w-2 h-2 rounded-full bg-red-400"
+                      :title="`${day.nightSummary.died.length} morti`"
+                    ></div>
+                    <div 
+                      v-if="day.lynchedPlayer"
+                      class="w-2 h-2 rounded-full bg-amber-400"
+                      title="Linciaggio"
+                    ></div>
+                  </div>
                 </div>
               </div>
-              <div v-if="event.data.summary.died.length === 0" class="text-slate-400 text-xs">
-                Nessun morto stanotte.
-              </div>
-              <div v-else class="flex flex-wrap justify-center gap-1">
-                <span 
-                  v-for="pid in event.data.summary.died" 
-                  :key="pid"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border bg-red-500/15 text-red-300 border-red-500/30"
-                >
-                  <span class="w-1 h-1 rounded-full bg-red-400"></span>
-                  {{ props.state.players.find((p) => p.id === pid)?.name }}
-                </span>
-              </div>
             </div>
-
-            <!-- Resurrected Players -->
-            <div v-if="event.data.summary.resurrected && event.data.summary.resurrected.length > 0" class="bg-white/5 border border-white/10 rounded-lg p-4 mb-4">
-              <div class="flex items-center justify-center gap-2 mb-2">
-                <span class="text-emerald-400 text-sm">✨</span>
-                <div class="font-medium text-emerald-400 text-sm">
-                  Resuscitati
-                  <span v-if="event.data.summary.resurrected.length"> ({{ event.data.summary.resurrected.length }})</span>
-                </div>
-              </div>
-              <div class="flex flex-wrap justify-center gap-1">
-                <span 
-                  v-for="pid in event.data.summary.resurrected" 
-                  :key="pid"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                >
-                  <span class="w-1 h-1 rounded-full bg-emerald-400"></span>
-                  {{ props.state.players.find((p) => p.id === pid)?.name }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Toggle Details Button -->
-            <GhostButton 
-              full-width 
-              size="xs"
-              class="mb-2"
-              @click="toggleEventExpansion('night-' + event.night)"
-            >
-              {{ isEventExpanded('night-' + event.night) ? 'Nascondi dettagli' : 'Mostra dettagli' }}
-            </GhostButton>
-
-            <!-- Detailed Actions (expanded) -->
-            <NightDetailsGrid 
-              v-if="isEventExpanded('night-' + event.night)" 
-              :game-state="props.state" 
-              :night-number="event.night" 
-            />
-          </EventCard>
-
-          <!-- Day Event -->
-          <EventCard 
-            v-if="event.type === 'day'" 
-            :title="`Giorno ${event.day}`"
-            variant="emerald"
-          >
-            <div class="bg-white/5 border border-white/10 rounded-lg p-4">
-              <div class="flex items-center justify-center gap-2 mb-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-amber-400">
-                  <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 6.343l-.707-.707m12.728 12.728l-.707-.707M6.343 17.657l-.707.707" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <div class="font-medium text-slate-100 text-sm">Linciaggio</div>
-              </div>
-              <div v-if="event.data.lynched === null" class="text-slate-400 text-xs">
-                Nessun linciaggio oggi.
-              </div>
-              <div v-else class="flex justify-center">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border bg-amber-500/15 text-amber-300 border-amber-500/30">
-                  <span class="w-1 h-1 rounded-full bg-amber-400"></span>
-                  {{ props.state.players.find((p) => p.id === event.data.lynched)?.name }}
-                </span>
-              </div>
-            </div>
-          </EventCard>
-        </template>
-        
-        <div v-if="allEvents.length === 0" class="bg-white/5 border border-white/10 rounded-lg p-6 text-center">
-          <div class="text-slate-400">Nessun evento registrato.</div>
+          </div>
+          
+          <!-- Main Timeline Line -->
+          <div class="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-blue-500/30 transform translate-y-1/2 -mx-4 sm:mx-0"></div>
         </div>
+      </div>
+      
+      <!-- Selected Day Details -->
+      <div v-if="currentDay" class="space-y-6">
+        <!-- Day Header -->
+        <div class="text-center">
+          <h3 class="text-lg sm:text-xl font-semibold text-slate-100 mb-2">
+            Ciclo {{ currentDay.day }}
+          </h3>
+          <div class="flex items-center justify-center gap-4 text-sm text-slate-400">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+              Notte {{ currentDay.night }}
+            </span>
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              Giorno {{ currentDay.day }}
+            </span>
+          </div>
+        </div>
+        
+        <!-- Results Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          <!-- Night Results -->
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <span class="text-xl">🌙</span>
+              </div>
+              <div>
+                <div class="font-semibold text-slate-200">Notte {{ currentDay.night }}</div>
+                <div class="text-slate-400 text-sm">Risultati</div>
+              </div>
+            </div>
+            
+            <!-- Deaths -->
+            <div class="mb-4">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <span class="text-sm font-medium text-slate-200">Morti</span>
+                <span class="text-xs text-slate-400">({{ currentDay.nightSummary.died.length }})</span>
+              </div>
+              <div v-if="currentDay.nightSummary.died.length === 0" class="text-slate-400 text-xs text-center py-3">
+                Nessun morto
+              </div>
+              <div v-else class="flex flex-wrap gap-2 justify-center sm:justify-start">
+                <span 
+                  v-for="pid in currentDay.nightSummary.died" 
+                  :key="pid"
+                  class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border bg-red-500/20 text-red-300 border-red-500/40"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                  {{ props.state.players.find((p) => p.id === pid)?.name }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Actions Count -->
+            <div class="text-center pt-2 border-t border-white/20">
+              <div class="text-2xl font-bold text-slate-200">{{ Object.keys(currentDay.nightEvents).length }}</div>
+              <div class="text-xs text-slate-400">Azioni notturne</div>
+            </div>
+          </div>
+          
+          <!-- Day Results -->
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                <span class="text-xl">☀️</span>
+              </div>
+              <div>
+                <div class="font-semibold text-slate-200">Giorno {{ currentDay.day }}</div>
+                <div class="text-slate-400 text-sm">Votazione</div>
+              </div>
+            </div>
+            
+            <!-- Lynch Results -->
+            <div class="mb-4">
+              <div class="flex items-center gap-2 mb-3">
+                <div class="w-3 h-3 rounded-full bg-amber-400"></div>
+                <span class="text-sm font-medium text-slate-200">Linciaggio</span>
+              </div>
+              
+              <div v-if="!currentDay.lynchedPlayer" class="text-slate-400 text-xs text-center py-6">
+                Nessun linciaggio
+              </div>
+              <div v-else class="text-center">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium border bg-amber-500/20 text-amber-300 border-amber-500/40">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  {{ props.state.players.find((p) => p.id === currentDay.lynchedPlayer)?.name }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Day Status -->
+            <div class="text-center pt-2 border-t border-white/20">
+              <div class="text-sm font-medium text-slate-200">
+                {{ currentDay.lynchedPlayer ? 'Completato' : 'Nessun voto' }}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Details Button -->
+        <div class="flex justify-center">
+          <GhostButton 
+            size="default"
+            @click="showDetails = !showDetails"
+            class="px-6 py-3"
+          >
+            {{ showDetails ? 'Nascondi dettagli' : 'Mostra dettagli' }}
+          </GhostButton>
+        </div>
+        
+        <!-- Night Details Grid -->
+        <div v-if="showDetails" class="w-full">
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6">
+            <h4 class="text-base sm:text-lg font-semibold text-slate-100 mb-4 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+              Dettagli Azioni Notturne - Notte {{ currentDay.night }}
+            </h4>
+            <NightDetailsGrid 
+              :game-state="props.state" 
+              :night-number="currentDay.night" 
+            />
+          </div>
+        </div>
+      </div>
+      
+      <!-- Empty State -->
+      <div v-if="timelineDays.length === 0" class="bg-white/5 border border-white/10 rounded-lg p-6 text-center">
+        <div class="text-slate-400">Nessun evento registrato.</div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Mobile-specific fixes for event history */
-@media (max-width: 768px) {
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
   .min-h-screen {
     min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile */
+    min-height: 100dvh;
   }
   
-  /* Prevent horizontal overflow */
   .w-full {
     max-width: 100vw;
     overflow-x: hidden;
   }
 }
+
+/* Enhanced mobile scrolling */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(59, 130, 246, 0.5) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.6), rgba(147, 51, 234, 0.6));
+  border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.8), rgba(147, 51, 234, 0.8));
+}
+
+/* Touch-friendly animations */
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Mobile touch optimizations */
+.active\:scale-95:active {
+  transform: scale(0.95);
+}
+
+
 </style>

@@ -96,7 +96,7 @@ const factionOrder: Record<string, number> = {
   'mannari': 2,
   'matti': 3,
   'parassita': 4,
-  'simbionti': 5,
+  'alieni': 5,
 };
 
 const sortedEnabledRoles = computed(() => {

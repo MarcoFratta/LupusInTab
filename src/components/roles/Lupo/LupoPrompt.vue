@@ -5,12 +5,13 @@ import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 const props = defineProps({
 	gameState: { type: Object, required: true },
 	player: { type: Object, required: false },
+	playerIds: { type: Array, required: true },
 	onComplete: { type: Function, required: true },
 });
 
 const targetId = ref(null);
 const selectable = computed(() => {
-	return props.gameState.players.filter(p => p.alive && p.roleId !== 'lupo');
+	return props.gameState.players.filter(p => p.alive && !props.playerIds.includes(p.id));
 });
 const choices = computed(() => [
 	{ label: 'Seleziona un giocatore…', value: null },

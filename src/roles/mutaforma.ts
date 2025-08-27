@@ -1,0 +1,187 @@
+import type { RoleDef } from '../types';
+import { useWinConditions } from '../utils/winConditions';
+import { componentFactory } from '../utils/roleUtils';
+import { ROLES } from '../roles';
+
+const mutaforma: RoleDef = {
+    id: 'mutaforma',
+    name: 'Mutaforma',
+    team: 'alieni',
+    visibleAsTeam: 'villico',
+    countAs: 'alieni',
+    score: 8,
+    description: 'Di notte può copiare il potere di un altro giocatore per quella notte.',
+    color: '#10b981',
+    phaseOrder: 2,
+    actsAtNight: "alive",
+    effectType: 'required',
+    numberOfUsage: 'unlimited',
+    getPromptComponent: componentFactory('Mutaforma', "prompt"),
+    getResolveDetailsComponent: componentFactory('Mutaforma', "details"),
+    
+    resolve(gameState: any, action: any) {
+        const targetId = Number(action?.data?.targetId || action?.targetId);
+        if (!Number.isFinite(targetId) || targetId <= 0) return;
+        
+        const targetPlayer = gameState.players.find((p: any) => p.id === targetId);
+        if (!targetPlayer) return;
+        
+        const targetRoleId = targetPlayer.roleId;
+        const targetRole = ROLES[targetRoleId];
+        
+        if (!targetRole) return;
+        
+        // Check if the target role can be used by the mutaforma
+        const canUseRole = mutaforma.canUseTargetRole(targetRole, gameState, action.playerId);
+        
+        if (!canUseRole) {
+            return {
+                type: 'mutaforma_action',
+                nightNumber: gameState.nightNumber,
+                roleId: 'mutaforma',
+                playerIds: action.playerIds || [],
+                targetId: targetId,
+                targetRoleId: targetRoleId,
+                targetPlayerName: targetPlayer.name,
+                canUseRole: false,
+                reason: 'Role cannot be used by Mutaforma',
+                data: action.data
+            };
+        }
+        
+        // Create the mutaforma action
+        const mutaformaAction = {
+            type: 'mutaforma_action',
+            nightNumber: gameState.nightNumber,
+            roleId: 'mutaforma',
+            playerIds: action.playerIds || [],
+            targetId: targetId,
+            targetRoleId: targetRoleId,
+            targetPlayerName: targetPlayer.name,
+            canUseRole: canUseRole,
+            data: action.data
+        };
+        
+        // Store the target role info
+        mutaformaAction.targetRole = {
+            id: targetRoleId,
+            name: targetRole.name,
+            team: targetRole.team,
+            actsAtNight: targetRole.actsAtNight,
+            startNight: targetRole.startNight
+        };
+        
+        // If the prompt provided a target role result, store it
+        if (action.targetRoleResult) {
+            mutaformaAction.targetRoleResult = action.targetRoleResult;
+        }
+        
+        return mutaformaAction;
+    },
+    
+    // Helper function to check if a target role can be used by mutaforma
+    canUseTargetRole(targetRole: any, gameState: any, mutaformaPlayerId: number) {
+        if (!targetRole) return false;
+
+        // Check if role acts at night
+        if (targetRole.actsAtNight === 'never') return false;
+
+        // Check if role requires being dead but mutaforma is alive
+        if (targetRole.actsAtNight === 'dead') return false;
+
+        // Check if role requires being alive but mutaforma is dead
+        if (targetRole.actsAtNight === 'alive') {
+            const mutaformaPlayer = gameState.players.find((p: any) => p.id === mutaformaPlayerId);
+            if (!mutaformaPlayer || !mutaformaPlayer.alive) return false;
+        }
+
+        // Check start night restriction
+        if (targetRole.startNight && typeof targetRole.startNight === 'number') {
+            if (gameState.nightNumber < targetRole.startNight) return false;
+        }
+
+        return true;
+    },
+
+    checkWin(gameState: any) {
+        const { alieniWin } = useWinConditions();
+        return alieniWin ? alieniWin(gameState) : false;
+    },
+
+    checkWinConstraint(gameState: any) {
+        const { villageWin, wolvesWin } = useWinConditions();
+        
+        const mutaformaAlive = gameState.players.some((p: any) => 
+            p.roleId === 'mutaforma' && p.alive
+        );
+        
+        if (!mutaformaAlive) return false;
+        
+        const villageWins = villageWin ? villageWin(gameState) : false;
+        const wolvesWins = wolvesWin ? wolvesWin(gameState) : false;
+        
+        return villageWins || wolvesWins;
+    },
+
+    passiveEffect(gameState: any, player: any) {
+        const teams = new Set<string>();
+        const alivePlayers = gameState.players.filter((p: any) => p.alive);
+        
+        for (const alivePlayer of alivePlayers) {
+            const roleDef = ROLES[alivePlayer.roleId];
+            if (!roleDef) continue;
+            
+            const team = roleDef.countAs || roleDef.team;
+            teams.add(team);
+        }
+        
+        const allTeams = new Set<string>();
+        for (const gamePlayer of gameState.players) {
+            const roleDef = ROLES[gamePlayer.roleId];
+            if (!roleDef) continue;
+            
+            const team = roleDef.countAs || roleDef.team;
+            allTeams.add(team);
+        }
+        
+        const teamsWithNoAlivePlayers = Array.from(allTeams).filter(team => !teams.has(team));
+        
+        if (teamsWithNoAlivePlayers.length > 0) {
+            const mutaformaPlayers = gameState.players.filter((p: any) => 
+                p.roleId === 'mutaforma' && p.alive
+            );
+            
+            // Add mutaforma players to pending kills instead of directly killing them
+            if (mutaformaPlayers.length > 0) {
+                if (!gameState.night?.context) {
+                    gameState.night = { ...gameState.night, context: {} };
+                }
+                if (!gameState.night.context.pendingKills) {
+                    gameState.night.context.pendingKills = {};
+                }
+                
+                for (const mutaformaPlayer of mutaformaPlayers) {
+                    if (!gameState.night.context.pendingKills[mutaformaPlayer.id]) {
+                        gameState.night.context.pendingKills[mutaformaPlayer.id] = [];
+                    }
+                    gameState.night.context.pendingKills[mutaformaPlayer.id].push({
+                        source: 'mutaforma_passive',
+                        roleId: 'mutaforma',
+                        reason: `Squadra ${teamsWithNoAlivePlayers.join(', ')} non ha più giocatori vivi`
+                    });
+                }
+            }
+            
+            return {
+                type: 'mutaforma_passive_death',
+                message: `Tutti i mutaforma sono morti perché la squadra ${teamsWithNoAlivePlayers.join(', ')} non ha più giocatori vivi`,
+                deadTeams: teamsWithNoAlivePlayers,
+                pendingKills: mutaformaPlayers.map(p => p.id)
+            };
+        }
+        
+        return null;
+    },
+};
+
+export default mutaforma;

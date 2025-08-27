@@ -36,7 +36,8 @@ export class GameStateManager {
           angelo: false,
           genio: false,
           parassita: false,
-          simbionte: false
+          simbionte: false,
+          mutaforma: false
         } 
       },
       revealIndex: 0,

@@ -5,6 +5,7 @@ import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 const props = defineProps({
 	gameState: { type: Object, required: true },
 	player: { type: Object, required: false },
+	playerIds: { type: Array, required: true },
 	onComplete: { type: Function, required: true },
 });
 
@@ -22,7 +23,7 @@ const selectable = computed(() => {
 	return props.gameState.players.filter(p => 
 		p.alive && 
 		p.id !== props.player?.id && 
-		p.roleId !== 'parassita' && 
+		!props.playerIds.includes(p.id) && 
 		!infetti.includes(p.id)
 	);
 });

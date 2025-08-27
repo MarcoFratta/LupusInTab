@@ -32,12 +32,12 @@ import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import FactionComparisonCard from '../../ui/FactionComparisonCard.vue';
 
-const props = defineProps<{ gameState: any, player: any, onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
 
 const selectedTargetId = ref<number | null>(null);
 
 const alivePlayers = computed(() => 
-    props.gameState.players.filter((p: any) => p.alive && p.roleId !== 'insinuo')
+    props.gameState.players.filter((p: any) => p.alive && !props.playerIds.includes(p.id))
 );
 
 const playerChoices = computed(() => 

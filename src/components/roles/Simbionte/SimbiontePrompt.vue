@@ -8,6 +8,7 @@ import { getFactionConfig } from '../../../factions';
 const props = defineProps<{
   gameState: any;
   player: any;
+  playerIds: number[];
   onComplete: (result: any) => void;
 }>();
 
@@ -17,7 +18,7 @@ const choices = computed(() => {
   const alive = props.gameState.players.filter((p: any) => 
     p.alive && 
     p.id !== props.player?.id && 
-    p.roleId !== 'simbionte'
+    !props.playerIds.includes(p.id)
   );
   return [
     { label: 'Seleziona un giocatore...', value: null },
@@ -60,7 +61,7 @@ function submit() {
       v-model="targetId"
       :choices="choices"
       buttonText="Conferma"
-      accent="cyan"
+      accent="violet"
       :disabled="choices.length === 0"
       @confirm="submit"
     >

@@ -19,7 +19,10 @@ const investigationEvents = computed(() => {
     return [props.entry];
 });
 
-const witchPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'witch'));
+const witchPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeWitch = computed(() => {
   const witchList = witchPlayers.value;

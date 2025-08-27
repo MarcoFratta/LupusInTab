@@ -17,7 +17,10 @@ const barabbaEvent = computed(() => {
 const targetId = computed(() => barabbaEvent.value?.targetId);
 const target = computed(() => targetId.value ? props.gameState.players.find(p => p.id === targetId.value) : null);
 
-const barabbaPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'barabba'));
+const barabbaPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeBarabba = computed(() => {
   const barabbaList = barabbaPlayers.value;

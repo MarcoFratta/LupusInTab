@@ -54,7 +54,7 @@ describe('Parassita Role', () => {
       expect(parassita.id).toBe('parassita');
       expect(parassita.name).toBe('Parassita');
       expect(parassita.team).toBe('parassita');
-      expect(parassita.phaseOrder).toBe(0);
+      expect(parassita.phaseOrder).toBe('any');
       expect(parassita.actsAtNight).toBe('alive');
       expect(parassita.effectType).toBe('required');
       expect(parassita.numberOfUsage).toBe('unlimited');
@@ -63,7 +63,7 @@ describe('Parassita Role', () => {
     });
 
     it('should have correct description and color', () => {
-      expect(parassita.description).toBe('Di notte infetta un altro giocatore. Vince se tutti i giocatori vivi sono infetti.');
+      expect(parassita.description).toBe('Di notte infetta gli altri giocatori. Vince se tutti i giocatori vivi sono infetti.');
       expect(parassita.color).toBe('#ec4899');
     });
   });

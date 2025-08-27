@@ -4,7 +4,10 @@ const props = defineProps({
 	nightNumber: { type: Number, required: true },
 });
 
-const massonePlayers = props.gameState.players.filter(p => p.roleId === 'massone');
+const massonePlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 </script>
 
 <template>

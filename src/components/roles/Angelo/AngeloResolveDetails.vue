@@ -17,7 +17,10 @@ const angeloEvent = computed(() => {
 const targetId = computed(() => angeloEvent.value?.targetId);
 const target = computed(() => targetId.value ? props.gameState.players.find(p => p.id === targetId.value) : null);
 
-const angeloPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'angelo'));
+const angeloPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeAngelo = computed(() => {
   const angeloList = angeloPlayers.value;

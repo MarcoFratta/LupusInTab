@@ -41,8 +41,10 @@ vi.mock('../utils/roleUtils', () => ({
 vi.mock('../utils/winConditions', () => ({
   useWinConditions: vi.fn(() => ({
     villageWin: vi.fn(() => false),
-    wolvesWin: vi.fn(() => false)
+    wolvesWin: vi.fn(() => false),
+    alieniWin: vi.fn(() => false)
   })),
   villageWin: vi.fn(() => false),
-  wolvesWin: vi.fn(() => false)
+  wolvesWin: vi.fn(() => false),
+  alieniWin: vi.fn(() => false)
 }));

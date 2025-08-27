@@ -122,9 +122,19 @@ export class NightPhaseManager {
         console.log(`🌙 [DEBUG] First night actions skipped for role ${currentTurn.roleId}`);
       }
       
+      // Record this turn in the night.turns array for proper restore order
+      if (!state.night.turns) state.night.turns = [];
+      state.night.turns.push({
+        roleId: currentTurn.roleId,
+        playerIds: currentTurn.playerIds || [],
+        phaseOrder: roleDef?.phaseOrder,
+        timestamp: Date.now() // Add timestamp for debugging
+      });
+      
       // Mark this role as called for this night
       calledRoles.add(currentTurn.roleId);
       console.log(`🌙 [DEBUG] recordNightResult - Marked role ${currentTurn.roleId} as called. Called roles:`, Array.from(calledRoles));
+      console.log(`🌙 [DEBUG] recordNightResult - Night turns so far:`, state.night.turns.map(t => `${t.roleId}(${t.phaseOrder})`));
       
       // Check if there are more roles to call
       const nextTurn = NightPhaseManager.getCurrentTurn(state);

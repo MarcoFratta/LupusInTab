@@ -38,23 +38,13 @@ const props = defineProps({
   player: { type: Object, required: true }
 });
 
-const genioPlayers = computed(() => {
-  // After transformation, the player is no longer a genio, so we need to use the entry data
-  if (props.entry && props.entry.playerIds) {
-    const playerIds = props.entry.playerIds;
-    const players = props.gameState.players.filter(p => playerIds.includes(p.id));
-    console.log('GenioResolveDetails - genioPlayers from entry:', players);
-    return players;
-  }
-  
-  // Fallback: look for current genio players (shouldn't find any after transformation)
-  const players = props.gameState.players.filter(p => p.roleId === 'genio');
-  console.log('GenioResolveDetails - genioPlayers fallback found:', players);
-  return players;
+const players = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
 const genioNames = computed(() => {
-  const genioList = genioPlayers.value;
+  const genioList = players.value;
   if (genioList.length === 0) {
     // If no players found, try to get the name from the entry
     if (props.entry && props.entry.playerId) {

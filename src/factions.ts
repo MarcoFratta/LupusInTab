@@ -41,13 +41,13 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		ringColor: 'ring-pink-500/40',
 		winConditionDescription: 'Il parassita vince quando tutti i giocatori vivi sono infetti'
 	},
-	simbionti: {
-		id: 'simbionti',
-		name: 'simbionti',
-		displayName: 'Simbionti',
+	alieni: {
+		id: 'alieni',
+		name: 'alieni',
+		displayName: 'Alieni',
 		color: '#06b6d4',
 		ringColor: 'ring-cyan-500/40',
-		winConditionDescription: 'I simbionti vincono quando raggiungono la parità numerica con i villici o li superano'
+		winConditionDescription: 'Gli alieni vincono quando rimangono vivi con lo stesso numero di giocatori per ogni squadra'
 	}
 };
 

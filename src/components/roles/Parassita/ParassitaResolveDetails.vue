@@ -15,7 +15,10 @@ const targetIds = computed(() => {
   return props.entry.targetIds.filter(id => Number.isFinite(id) && id > 0);
 });
 
-const parassitaPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'parassita'));
+const parassitaPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 // Get all parassita names for display
 const parassitaNames = computed(() => {

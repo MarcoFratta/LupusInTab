@@ -21,7 +21,10 @@ const roleId = computed(() => boiaEvent.value?.declaredRoleId);
 const target = computed(() => targetId.value ? props.gameState.players.find(p => p.id === targetId.value) : null);
 const roleName = computed(() => roleId.value ? (ROLES[roleId.value]?.name || roleId.value) : '');
 
-const boiaPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'boia'));
+const boiaPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeBoia = computed(() => {
   const boiaList = boiaPlayers.value;

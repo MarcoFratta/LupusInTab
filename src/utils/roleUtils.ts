@@ -232,6 +232,10 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
         'Simbionte': {
             prompt: () => import('../components/roles/Simbionte/SimbiontePrompt.vue'),
             details: () => import('../components/roles/Simbionte/SimbionteResolveDetails.vue')
+        },
+        'Mutaforma': {
+            prompt: () => import('../components/roles/Mutaforma/MutaformaPrompt.vue'),
+            details: () => import('../components/roles/Mutaforma/MutaformaResolveDetails.vue')
         }
     };
     

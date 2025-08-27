@@ -46,19 +46,13 @@ const props = defineProps({
   player: { type: Object, required: true }
 });
 
-const simbiontePlayers = computed(() => {
-  if (props.entry && props.entry.playerIds) {
-    const playerIds = props.entry.playerIds;
-    const players = props.gameState.players.filter(p => playerIds.includes(p.id));
-    return players;
-  }
-  
-  const players = props.gameState.players.filter(p => p.roleId === 'simbionte');
-  return players;
+const players = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
 const simbionteNames = computed(() => {
-  const simbionteList = simbiontePlayers.value;
+  const simbionteList = players.value;
   if (simbionteList.length === 0) {
     if (props.entry && props.entry.playerId) {
       const player = props.gameState.players.find(p => p.id === props.entry.playerId);

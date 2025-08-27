@@ -23,9 +23,9 @@ describe('Simbionte Role', () => {
           name: 'Simbionte Player',
           alive: true,
           roleState: {
-            realTeam: 'simbionti',
-            team: 'simbionti',
-            countAs: 'villaggio',
+            realTeam: 'alieni',
+            team: 'alieni',
+            countAs: 'alieni',
             visibleAsTeam: 'villaggio'
           }
         },
@@ -62,8 +62,8 @@ describe('Simbionte Role', () => {
     it('should have correct basic properties', () => {
       expect(simbionte.id).toBe('simbionte');
       expect(simbionte.name).toBe('Simbionte');
-      expect(simbionte.team).toBe('simbionti');
-      expect(simbionte.countAs).toBe('villaggio');
+      expect(simbionte.team).toBe('alieni');
+      expect(simbionte.countAs).toBe('alieni');
       expect(simbionte.visibleAsTeam).toBe('villaggio');
       expect(simbionte.actsAtNight).toBe('alive');
       expect(simbionte.effectType).toBe('required');

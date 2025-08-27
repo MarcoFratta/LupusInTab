@@ -11,7 +11,7 @@ const boia: RoleDef = {
     countAs: 'villaggio',
     description: 'Di notte impicca un giocatore se ne indovina il ruolo. Se sbaglia muore',
     color: '#7c3aed',
-    phaseOrder: 2,
+    phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'optional',
     numberOfUsage: 1,

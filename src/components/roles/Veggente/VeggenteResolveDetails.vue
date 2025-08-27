@@ -19,7 +19,10 @@ const investigationEvents = computed(() => {
     return [props.entry];
 });
 
-const veggentePlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'veggente'));
+const veggentePlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeVeggente = computed(() => {
   const veggenteList = veggentePlayers.value;
@@ -48,7 +51,7 @@ const representativeVeggente = computed(() => {
           left-label="Veggente"
           right-label="Bersaglio"
           :center-content="{
-            action: veggentePlayers.length > 1 ? 'hanno controllato' : 'ha controllato'
+            action: veggentePlayers.length > 1 ? 'hanno visto' : 'ha visto'
           }"
         />
         

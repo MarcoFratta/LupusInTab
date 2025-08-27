@@ -10,7 +10,7 @@ export const insinuo: RoleDef = {
 	countAs: 'villaggio',
 	color: '#a855f7',
 	description: 'Di notte cambia la fazione di un giocatore agli occhi di chi lo indaga.',
-	phaseOrder: 1,
+	phaseOrder: 5,
 	actsAtNight: "alive",
 	effectType: 'required',
 	numberOfUsage: 'unlimited',

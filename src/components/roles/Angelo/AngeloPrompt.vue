@@ -6,6 +6,7 @@ import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 const props = defineProps({
     gameState: { type: Object, required: true },
     player: { type: Object, required: true },
+    playerIds: { type: Array, required: true },
     onComplete: { type: Function, required: true },
 });
 

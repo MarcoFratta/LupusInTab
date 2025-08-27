@@ -9,7 +9,7 @@ const illusionista: RoleDef = {
 	score: 6,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Di notte blocca le abilità notturne di un giocatore. Viene visto come lupo se indagato di notte',
+    description: 'Di notte blocca le abilità notturne di un giocatore.',
     color: '#06b6d4',
     phaseOrder: -3,
     actsAtNight: "alive",
@@ -50,15 +50,19 @@ const illusionista: RoleDef = {
 	},
 	
 	restoreFunction(gameState: any) {
+		// Always restore blocked players, regardless of whether illusionista is alive or dead
 		if (gameState.custom && gameState.custom['illusionista']) {
 			Object.entries(gameState.custom['illusionista']).forEach(([targetIdStr, data]: [string, any]) => {
 				const targetId = Number(targetIdStr);
 				const targetPlayer = gameState.players.find(p => p.id === targetId);
 				if (targetPlayer && data.originalActsAtNight !== undefined) {
+					// Restore the original actsAtNight value
 					targetPlayer.roleState.actsAtNight = data.originalActsAtNight;
+					console.log(`🔓 [Illusionista] Restored player ${targetPlayer.name} actsAtNight from 'blocked' to '${data.originalActsAtNight}'`);
 				}
 			});
 			
+			// Clean up the custom data
 			delete gameState.custom['illusionista'];
 		}
 	},

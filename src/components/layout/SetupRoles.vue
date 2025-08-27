@@ -22,7 +22,7 @@ const rolesByFaction = computed(() => {
     groups[role.team].push(role);
   });
   
-  const factionOrder = ['villaggio', 'lupi', 'mannari', 'matti', 'parassita', 'simbionti'];
+  const factionOrder = ['villaggio', 'lupi', 'mannari', 'matti', 'parassita', 'alieni'];
   
   return factionOrder.map(factionName => ({
     name: factionName,

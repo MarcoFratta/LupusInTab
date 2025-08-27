@@ -18,7 +18,10 @@ const investigationEvents = computed(() => {
     return [props.entry];
 });
 
-const mediumPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'medium'));
+const mediumPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeMedium = computed(() => {
   const mediumList = mediumPlayers.value;
@@ -44,7 +47,7 @@ const representativeMedium = computed(() => {
           left-label="Medium"
           right-label="Bersaglio"
           :center-content="{
-            action: mediumPlayers.length > 1 ? 'hanno controllato' : 'ha controllato'
+            action: mediumPlayers.length > 1 ? 'hanno visto' : 'ha visto'
           }"
         />
         

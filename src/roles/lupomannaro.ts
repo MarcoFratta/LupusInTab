@@ -10,7 +10,7 @@ const lupomannaro: RoleDef = {
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
     description: 'Vince solo se rimane in vita con un altro giocatore. Di notte dichiara un giocatore e un ruolo:' +
-        ' se indovina, la vittima muore. ' +
+        ' se indovina, la vittima muore sbranata. ' +
         'Se rimane in vita, nessun altro può vincere.' +
         'I lupi non possono ucciderlo. ' +
         'Muore se il veggente lo indaga.',

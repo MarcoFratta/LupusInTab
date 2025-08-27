@@ -26,13 +26,13 @@ export class RoleConstraintManager {
       return "blocked";
     }
 
-    // Check if all players with this role are dead and role requires alive players
-    if (aliveMembers.length === 0 && roleDef.actsAtNight === 'alive') {
+    // Check if role requires alive players but ALL players are dead
+    if (roleDef.actsAtNight === 'alive' && aliveMembers.length === 0) {
       return "dead";
     }
 
-    // Check if all players with this role are alive and role requires dead players
-    if (deadMembers.length === 0 && roleDef.actsAtNight === 'dead') {
+    // Check if role requires dead players but ALL players are alive
+    if (roleDef.actsAtNight === 'dead' && deadMembers.length === 0) {
       return "alive";
     }
 

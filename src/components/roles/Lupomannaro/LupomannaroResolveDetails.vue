@@ -11,7 +11,10 @@ const props = defineProps({
 	player: { type: Object, required: true },
 });
 
-const lupomannaroPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'lupomannaro'));
+const lupomannaroPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeLupomannaro = computed(() => {
   const lupomannaroList = lupomannaroPlayers.value;

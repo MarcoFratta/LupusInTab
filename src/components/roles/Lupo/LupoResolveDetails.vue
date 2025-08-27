@@ -21,7 +21,10 @@ const wolfKills = computed(() => {
   return [];
 });
 
-	const wolves = computed(() => props.gameState.players.filter((p) => p.roleId === 'lupo'));
+	const wolves = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 // Get all wolf names for display
 const wolfNames = computed(() => {

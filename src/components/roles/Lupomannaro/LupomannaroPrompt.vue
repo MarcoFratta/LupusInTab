@@ -5,6 +5,7 @@ import PromptDeclare from '../../ui/prompts/PromptDeclare.vue';
 const props = defineProps({
     gameState: { type: Object, required: true },
     player: { type: Object, required: true },
+    playerIds: { type: Array, required: true },
     onComplete: { type: Function, required: true },
 });
 
@@ -12,7 +13,7 @@ const availablePlayers = computed(() =>
     props.gameState.players.filter(p => 
         p.alive && 
         p.id !== props.player.id && 
-        p.roleId !== 'lupomannaro'
+        !props.playerIds.includes(p.id)
     )
 );
 
@@ -21,8 +22,7 @@ const availableRoles = computed(() => {
     const rolesInGame = [...new Set(playersInGame.map(p => p.roleId))];
     
     return rolesInGame.filter(roleId => 
-        roleId !== props.player.roleId && 
-        roleId !== 'lupomannaro'
+        roleId !== props.player.roleId
     );
 });
 </script>

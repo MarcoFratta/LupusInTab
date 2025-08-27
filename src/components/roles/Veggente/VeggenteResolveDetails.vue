@@ -20,7 +20,10 @@ const investigationEvents = computed(() => {
     return [props.entry];
 });
 
-const veggentePlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'veggente'));
+const veggentePlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeVeggente = computed(() => {
   const veggenteList = veggentePlayers.value;

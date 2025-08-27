@@ -17,7 +17,10 @@ const justicerEvent = computed(() => {
 const targetId = computed(() => justicerEvent.value?.targetId);
 const target = computed(() => targetId.value ? props.gameState.players.find(p => p.id === targetId.value) : null);
 
-const justicerPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'giustiziere'));
+const justicerPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeJusticer = computed(() => {
   const justicerList = justicerPlayers.value;

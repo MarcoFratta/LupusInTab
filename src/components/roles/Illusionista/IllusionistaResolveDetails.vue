@@ -17,7 +17,10 @@ const illusionistaEvent = computed(() => {
 const targetId = computed(() => illusionistaEvent.value?.targetId);
 const target = computed(() => targetId.value ? props.gameState.players.find(p => p.id === targetId.value) : null);
 
-const illusionistaPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'illusionista'));
+const illusionistaPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeIllusionista = computed(() => {
   const illusionistaList = illusionistaPlayers.value;

@@ -10,7 +10,6 @@ const props = defineProps({
 });
 
 const doctorChoices = computed(() => {
-  // The entry is now the role-specific history object
   if (!props.entry || !props.entry.targetId) return [];
   
   const targetId = Number(props.entry.targetId);
@@ -21,13 +20,15 @@ const doctorChoices = computed(() => {
   return [];
 });
 
-const guardiaPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'guardia'));
+const guardiaPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeGuardia = computed(() => {
   const guardiaList = guardiaPlayers.value;
   if (guardiaList.length === 0) return null;
   
-  // Create a representative guardia object that shows all names
   return {
     ...guardiaList[0],
     name: guardiaList.length === 1 ? guardiaList[0].name : guardiaList.map(g => g.name).join(', '),

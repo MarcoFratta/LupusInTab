@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
+import { getFactionConfig } from '../../../factions';
 
 interface Props {
     gameState: any;
@@ -34,6 +35,10 @@ const representativeMedium = computed(() => {
   };
 });
 
+const getFactionColor = (faction: string) => {
+  const factionConfig = getFactionConfig(faction);
+  return factionConfig?.color || '#9ca3af';
+};
 </script>
 
 <template>
@@ -52,8 +57,10 @@ const representativeMedium = computed(() => {
         />
         
         <InvestigationResultCard 
-          :discovered-faction="event.discoveredFaction"
           title="Risultato Investigazione"
+          text="gioca per"
+          :results="event.discoveredFaction"
+          :color="getFactionColor(event.discoveredFaction)"
         />
       </div>
     </template>

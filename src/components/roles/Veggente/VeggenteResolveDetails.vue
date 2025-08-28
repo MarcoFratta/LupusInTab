@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
+import { getFactionConfig } from '../../../factions';
 
 interface Props {
     gameState: any;
@@ -36,15 +37,20 @@ const representativeVeggente = computed(() => {
   };
 });
 
-
+const getFactionColor = (faction: string) => {
+  const factionConfig = getFactionConfig(faction);
+  return factionConfig?.color || '#9ca3af';
+};
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div>
     <template v-if="investigationEvents.length">
-      <div v-for="event in investigationEvents" :key="'mc-' + event.playerId + '-' + (event.data?.target || 'no-target')" class="space-y-3">
+      <div v-for="event in investigationEvents" :key="'mc-' + event.playerId + '-' + (event.data?.target || 'no-target')" 
+      class="space-y-1">
         <!-- Player Comparison Row using RoleComparisonCard -->
         <RoleComparisonCard
+          class=""
           :game-state="props.gameState"
           :left-player="representativeVeggente"
           :right-player="event.targetId && props.gameState.players.find((p)=>p.id===Number(event.targetId))"
@@ -57,8 +63,10 @@ const representativeVeggente = computed(() => {
         
         <!-- Investigation Result using reusable component -->
         <InvestigationResultCard 
-          :discovered-faction="event.discoveredFaction"
           title="Risultato Investigazione"
+          text="gioca per"
+          :results="event.discoveredFaction"
+          :color="getFactionColor(event.discoveredFaction)"
         />
       </div>
     </template>

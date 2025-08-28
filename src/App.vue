@@ -278,7 +278,7 @@ function resumeGame() {
 				:to="{ name: 'setup', params: { page: 'home' } }"
 				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
 				:class="isHome 
-					? 'text-blue-400' 
+					? 'text-violet-400' 
 					: 'text-neutral-500'"
 			>
 				<div class="relative">
@@ -287,13 +287,13 @@ function resumeGame() {
 						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/>
 					</svg>
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isHome ? 'text-blue-400' : 'text-neutral-500'">Home</span>
+				<span class="text-[10px] font-medium mt-1" :class="isHome ? 'text-violet-400' : 'text-neutral-500'">Home</span>
 			</router-link>
 			<router-link 
 				:to="{ name: 'setup', params: { page: 'roles' } }"
 				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
 				:class="isRoles 
-					? 'text-blue-400' 
+					? 'text-violet-400' 
 					: 'text-neutral-500'"
 			>
 				<div class="relative">
@@ -302,13 +302,13 @@ function resumeGame() {
 						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
 					</svg>
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isRoles ? 'text-blue-400' : 'text-neutral-500'">Ruoli</span>
+				<span class="text-[10px] font-medium mt-1" :class="isRoles ? 'text-violet-400' : 'text-neutral-500'">Ruoli</span>
 			</router-link>
 			<router-link 
 				:to="{ name: 'setup', params: { page: 'players' } }"
 				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
 				:class="isPlayers 
-					? 'text-blue-400' 
+					? 'text-violet-400' 
 					: 'text-neutral-500'"
 			>
 				<div class="relative">
@@ -317,13 +317,13 @@ function resumeGame() {
 						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
 					</svg>
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isPlayers ? 'text-blue-400' : 'text-neutral-500'">Giocatori</span>
+				<span class="text-[10px] font-medium mt-1" :class="isPlayers ? 'text-violet-400' : 'text-neutral-500'">Giocatori</span>
 			</router-link>
 			<router-link 
 				:to="{ name: 'setup', params: { page: 'settings' } }"
 				class="flex flex-col items-center justify-center py-2 transition-all duration-200 touch-manipulation"
 				:class="isSettings 
-					? 'text-blue-400' 
+					? 'text-violet-400' 
 					: 'text-neutral-500'"
 			>
 				<div class="relative">
@@ -335,14 +335,14 @@ function resumeGame() {
 					</svg>
 
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isSettings ? 'text-blue-400' : 'text-neutral-500'">Impostazioni</span>
+				<span class="text-[10px] font-medium mt-1" :class="isSettings ? 'text-violet-400' : 'text-neutral-500'">Impostazioni</span>
 			</router-link>
 		</div>
 	</div>
 
 	<!-- Full Screen Event History Modal -->
 	<div v-if="showEventHistory && state.phase === PHASES.END" class="fixed inset-0 bg-neutral-950 z-50 overflow-y-auto">
-		<div class="w-full max-w-none sm:max-w-6xl sm:mx-auto min-h-full bg-neutral-950/95 sm:border-x sm:border-neutral-800/40 backdrop-blur-sm shadow-xl text-neutral-200">
+		<div class="w-full max-w-none sm:max-w-8xl sm:mx-auto min-h-full bg-neutral-950/95 sm:border-x sm:border-neutral-800/40 backdrop-blur-sm shadow-xl text-neutral-200">
 			<EventHistory 
 				:state="state" 
 				:onClose="() => showEventHistory = false" 

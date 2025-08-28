@@ -26,7 +26,6 @@ function incrementCount() {
 function decrementCount() {
   const min = Math.max(0, Number(props.minCount || 0));
   if (min > 0 && props.count === min) {
-    // Cannot go below minimum count for roles that require it
     return;
   }
   if (props.count > 0) {
@@ -40,7 +39,6 @@ function handleInputChange(event: Event) {
   let raw = parseInt(target.value);
   if (!Number.isFinite(raw)) raw = 0;
   
-  // If role has minCount > 0, cannot set to 0
   if (raw === 0 && min > 0) {
     props.onCountChange(min);
     return;
@@ -57,22 +55,22 @@ function handleInputChange(event: Event) {
 </script>
 
 <template>
-  <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3 hover:bg-neutral-900/80 transition-colors w-full"
-       :style="{ borderColor: hexToRgba(getFactionConfig(role.team)?.color || '#9ca3af', 0.3) || undefined }">
-    <div class="flex items-center justify-between gap-3">
-      <div class="min-w-0 flex-1 flex flex-col justify-center">
-        <h3 class="text-sm font-semibold leading-tight text-left truncate mb-1"
-            :style="{ color: getFactionConfig(role.team)?.color || '#9ca3af' }">{{ role.name }}</h3>
-        <span class="inline-flex w-max items-center gap-1 rounded text-[10px] font-medium px-1.5 py-0.5"
-             :style="{ backgroundColor: hexToRgba(getFactionConfig(role.team)?.color || '#9ca3af', 0.15) || undefined, color: getFactionConfig(role.team)?.color || '#9ca3af' }">
-          <span class="w-1 h-1 rounded-full bg-current flex-shrink-0"></span>
-          <span class="leading-none">{{ getFactionConfig(role.team)?.displayName || role.team }}</span>
-        </span>
+  <div class="group relative overflow-hidden bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 hover:bg-neutral-900/80 transition-all duration-300 hover:scale-[1.02] w-full">
+    
+    <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    
+    <div class="relative flex flex-col space-y-3 items-center text-center">
+      <div class="flex items-center justify-center w-full">
+        <h3 class="w-full text-center text-sm font-semibold leading-tight truncate"
+             :style="{ color: getFactionConfig(role.team)?.color || '#9ca3af' }">
+          {{ role.name }}
+        </h3>
       </div>
-      <div class="flex items-center">
+      
+      <div class="flex items-center justify-center">
         <button
           type="button"
-          class="role-counter-btn w-8 h-8 rounded-l border border-r-0 border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center transition-colors hover:bg-neutral-700/60 hover:text-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
+          class="role-counter-btn w-7 h-7 rounded-l-lg border border-r-0 border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center transition-all duration-200 hover:bg-neutral-700/60 hover:text-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation active:scale-95"
           :disabled="count <= (minCount || 0)"
           @click="decrementCount"
         >
@@ -80,13 +78,15 @@ function handleInputChange(event: Event) {
             <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </button>
-        <div class="role-counter-display w-8 h-8 bg-neutral-800/60 border border-neutral-800/50 flex items-center justify-center">
-          <span class="text-sm font-semibold text-neutral-100 tabular-nums">{{ count }}</span>
+        
+        <div class="role-counter-display w-8 h-7 bg-neutral-800/60 border border-neutral-800/50 flex items-center justify-center">
+          <span class="text-sm font-bold text-neutral-100 tabular-nums">{{ count }}</span>
         </div>
+        
         <button
           type="button"
-          class="role-counter-btn w-8 h-8 rounded-r border border-l-0 border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center transition-colors hover:bg-neutral-700/60 hover:text-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
-          :disabled="count >=  maxCount"
+          class="role-counter-btn w-7 h-7 rounded-r-lg border border-l-0 border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center transition-all duration-200 hover:bg-neutral-700/60 hover:text-neutral-100 disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation active:scale-95"
+          :disabled="count >= maxCount"
           @click="incrementCount"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

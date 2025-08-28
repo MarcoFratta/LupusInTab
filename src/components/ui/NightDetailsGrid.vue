@@ -171,11 +171,11 @@ const detailEntries = computed(() => {
 
 <template>
   <div class="space-y-4">
-    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div 
         v-for="e in detailEntries" 
         :key="e.key" 
-        class="bg-white/5 border border-white/10 rounded-lg p-4"
+        class="bg-white/5 border border-white/10 rounded-lg pt-4"
       >
         <div class="flex items-center justify-center mb-3">
           <div class="font-semibold text-sm" :style="{ color: getRoleColor(e.props?.roleId || e.key.split('-')[0]) }">

@@ -3,9 +3,10 @@ import { useWinConditions } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const massone: RoleDef = {
-    id: 'massone',
-    name: 'Massone',
-    team: 'villaggio',
+	id: 'massone',
+	name: 'Massone',
+	team: 'villaggio',
+	icon: 'MassoneIcon',
     score: 2,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',

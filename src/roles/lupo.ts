@@ -6,6 +6,7 @@ const lupo: RoleDef = {
     id: 'lupo',
     name: 'Lupo',
     team: 'lupi',
+    icon: 'LupoIcon',
     score: 10,
     visibleAsTeam: 'lupi',
     countAs: 'lupi',

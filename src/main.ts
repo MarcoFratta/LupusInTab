@@ -13,8 +13,8 @@ app.use(router);
 
 app.mount('#app');
 
-cacheService.cacheWebsiteContent().catch(error => {
-  // Cache service failed to initialize
+cacheService.initialize().catch(error => {
+  console.error('Cache service failed to initialize:', error);
 });
 
 

@@ -32,6 +32,7 @@ export interface RoleDef {
 	id: string;
 	name: string;
 	team: Team;
+	icon?: string;
 	/**
 	 * Power score of this role for team balance calculations.
 	 * Higher scores indicate more powerful/influential roles.

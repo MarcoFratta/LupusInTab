@@ -8,16 +8,7 @@
     [
       "@semantic-release/github",
       {
-        "assets": [
-          {
-            "path": "android/app/build/outputs/apk/debug/lupusMaster.apk",
-            "label": "LupusMaster APK (Testing)"
-          },
-          {
-            "path": "android/app/build/outputs/bundle/release/lupusMaster.aab",
-            "label": "LupusMaster AAB (Play Store)"
-          }
-        ]
+        "assets": []
       }
     ],
     "@semantic-release/git"

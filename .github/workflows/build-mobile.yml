@@ -308,6 +308,8 @@ jobs:
             const fs = require('fs');
             const version = require('./package.json').version;
             
+            console.log(`🔍 Looking for release v${version} to upload AAB...`);
+            
             // Find the latest release
             const releases = await github.rest.repos.listReleases({
               owner: context.repo.owner,
@@ -317,17 +319,39 @@ jobs:
             const latestRelease = releases.data.find(release => release.tag_name === `v${version}`);
             
             if (latestRelease) {
+              console.log(`✅ Found release v${version} with ID: ${latestRelease.id}`);
+              
+              // Check if AAB already exists in the release
+              const existingAssets = await github.rest.repos.listReleaseAssets({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: latestRelease.id
+              });
+              
+              const aabName = `lupusMaster-${version}.aab`;
+              const assetExists = existingAssets.data.some(asset => asset.name === aabName);
+              
+              if (assetExists) {
+                console.log(`ℹ️ AAB ${aabName} already exists in release v${version}. Skipping upload.`);
+                return;
+              }
+              
               // Upload AAB to the release
               const aabPath = 'android/app/build/outputs/bundle/release/lupusMaster.aab';
               if (fs.existsSync(aabPath)) {
+                console.log(`📤 Uploading AAB ${aabName} to release v${version}...`);
                 const aabBuffer = fs.readFileSync(aabPath);
                 await github.rest.repos.uploadReleaseAsset({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   release_id: latestRelease.id,
-                  name: `lupusMaster-${version}.aab`,
+                  name: aabName,
                   data: aabBuffer
                 });
-                console.log(`✅ AAB uploaded to release v${version}`);
+                console.log(`✅ AAB ${aabName} successfully uploaded to release v${version}`);
+              } else {
+                console.log(`❌ AAB file not found at ${aabPath}`);
               }
+            } else {
+              console.log(`❌ Release v${version} not found`);
             }

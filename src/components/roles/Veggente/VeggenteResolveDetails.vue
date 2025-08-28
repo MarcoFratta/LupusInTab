@@ -44,11 +44,13 @@ const getFactionColor = (faction: string) => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div>
     <template v-if="investigationEvents.length">
-      <div v-for="event in investigationEvents" :key="'mc-' + event.playerId + '-' + (event.data?.target || 'no-target')" class="space-y-3">
+      <div v-for="event in investigationEvents" :key="'mc-' + event.playerId + '-' + (event.data?.target || 'no-target')" 
+      class="space-y-1">
         <!-- Player Comparison Row using RoleComparisonCard -->
         <RoleComparisonCard
+          class=""
           :game-state="props.gameState"
           :left-player="representativeVeggente"
           :right-player="event.targetId && props.gameState.players.find((p)=>p.id===Number(event.targetId))"

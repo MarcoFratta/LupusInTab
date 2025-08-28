@@ -1,3 +1,10 @@
+## [1.9.4](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.3...v1.9.4) (2025-08-28)
+
+
+### Bug Fixes
+
+* update workflow ([1c4db05](https://github.com/MarcoFratta/LupusInTab/commit/1c4db05a902d15d4f97f8a4dd4fe233a9842fe7f))
+
 ## [1.9.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.2...v1.9.3) (2025-08-26)
 
 

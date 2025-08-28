@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.4...v1.10.0) (2025-08-28)
+
+
+### Features
+
+* change ui ([11caaed](https://github.com/MarcoFratta/LupusInTab/commit/11caaed76d5007ab30749d341d12a0048b2ce68a))
+
 ## [1.9.4](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.3...v1.9.4) (2025-08-28)
 
 

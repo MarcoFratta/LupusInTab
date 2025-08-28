@@ -10,7 +10,7 @@ const boia: RoleDef = {
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
     description: 'Di notte impicca un giocatore se ne indovina il ruolo. Se sbaglia muore',
-    color: '#7c3aed',
+    color: '#5b21b6',
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'optional',

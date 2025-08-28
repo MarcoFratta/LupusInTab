@@ -9,7 +9,7 @@ const matto: RoleDef = {
     countAs: 'villaggio',
     score: 10,
     description: 'Vince da solo se viene linciato dal villaggio.',
-    color: '#f59e0b',
+    color: '#e9d5ff',
     phaseOrder: "any",
     actsAtNight: "never",
     effectType: 'optional',

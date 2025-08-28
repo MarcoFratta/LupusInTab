@@ -10,7 +10,7 @@ const massone: RoleDef = {
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Conosce gli altri massoni ma non ha nessun potere di notte.',
-    color: '#ec4899',
+    color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "never",
     effectType: 'optional',

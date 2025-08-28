@@ -10,7 +10,7 @@ const guardia: RoleDef = {
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Ogni notte protegge un giocatore dagli attacchi dei lupi.',
-    color: '#3b82f6',
+    color: '#8b5cf6',
 	phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'required',

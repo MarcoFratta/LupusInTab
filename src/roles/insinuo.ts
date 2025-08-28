@@ -8,7 +8,7 @@ export const insinuo: RoleDef = {
 	visibleAsTeam: 'villaggio',
 	score: 3,
 	countAs: 'villaggio',
-	color: '#a855f7',
+	color: '#8b5cf6',
 	description: 'Di notte cambia la fazione di un giocatore agli occhi di chi lo indaga.',
 	phaseOrder: 5,
 	actsAtNight: "alive",

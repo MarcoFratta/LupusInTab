@@ -60,7 +60,7 @@ function confirmSindaco() {
                   <div v-if="selectedId === p.id" class="w-2 h-2 rounded-full bg-white"></div>
                 </div>
               </div>
-              <span class="font-medium">
+              <span class="font-medium truncate max-w-full" :title="p.name">
                 <span v-if="props.state.sindacoId === p.id" class="text-amber-400">★ </span>{{ p.name }}
               </span>
             </div>
@@ -104,7 +104,7 @@ function confirmSindaco() {
                   <div v-if="selectedId === p.id" class="w-2 h-2 rounded-full bg-white"></div>
                 </div>
               </div>
-              <span class="font-medium"><span v-if="props.state.sindacoId === p.id" class="text-amber-400">★ </span>{{ p.name }}</span>
+              <span class="font-medium truncate max-w-full" :title="p.name"><span v-if="props.state.sindacoId === p.id" class="text-amber-400">★ </span>{{ p.name }}</span>
             </div>
           </label>
         </div>

@@ -27,6 +27,19 @@ const getDuplicateNameError = (playerName: string) => {
   return count > 1 ? 'Nome duplicato' : null;
 };
 
+const getCharacterLengthError = (playerName: string) => {
+  if (!playerName) return null;
+  return playerName.length > 15 ? 'Nome troppo lungo (max 15 caratteri)' : null;
+};
+
+const getPlayerNameError = (playerName: string) => {
+  return getCharacterLengthError(playerName) || getDuplicateNameError(playerName);
+};
+
+const hasNameErrors = computed(() => {
+  return state.setup.players.some((p: any) => getPlayerNameError(p.name));
+});
+
 function resetNames() {
   state.setup.numPlayers = 9;
   engineInitSetupPlayers(state);
@@ -94,12 +107,12 @@ function movePlayerDown(index: number) {
       </div>
     </div>
 
-    <div v-if="hasDuplicateNames" class="bg-red-500/10 border border-red-500/30 rounded-xl p-3 md:p-4">
+    <div v-if="hasNameErrors" class="bg-red-500/10 border border-red-500/30 rounded-xl p-3 md:p-4">
       <div class="flex items-center gap-3 text-red-400">
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
         </svg>
-        <span class="text-sm font-medium">Risolvi i nomi duplicati per continuare</span>
+        <span class="text-sm font-medium">Risolvi gli errori nei nomi per continuare</span>
       </div>
     </div>
 
@@ -146,9 +159,10 @@ function movePlayerDown(index: number) {
         <div 
           v-for="(player, index) in state.setup.players" 
           :key="index" 
-          class="group relative rounded-xl border border-neutral-800/40 p-4 md:p-5 transition-all duration-300 bg-neutral-900/60 overflow-hidden hover:bg-neutral-900/80 hover:border-neutral-700/50 active:scale-[0.98] touch-manipulation"
+          class="group relative rounded-xl border border-neutral-800/40 p-3
+          md:p-5 transition-all duration-300 bg-neutral-900/60 overflow-hidden hover:bg-neutral-900/80 hover:border-neutral-700/50 active:scale-[0.98] touch-manipulation"
           :class="{
-            'border-red-500/50 bg-red-500/5': getDuplicateNameError(player.name)
+            'border-red-500/50 bg-red-500/5': getPlayerNameError(player.name)
           }"
         >
           <div class="flex items-center gap-3">
@@ -181,16 +195,17 @@ function movePlayerDown(index: number) {
                 v-model="player.name" 
                 class="w-full px-3 py-2 md:px-4 md:py-2.5 bg-neutral-800/40 border border-neutral-700/40 rounded-lg text-neutral-100 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200 placeholder-neutral-500"
                 :class="{
-                  'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50': getDuplicateNameError(player.name)
+                  'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50': getPlayerNameError(player.name)
                 }"
-                :placeholder="`Giocatore ${index + 1}`"
+                                :placeholder="`Giocatore ${index + 1}`"
+                maxlength="15"
               />
-              <div v-if="getDuplicateNameError(player.name)" class="mt-2 text-red-400 text-xs flex items-center gap-1">
-                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                </svg>
-                {{ getDuplicateNameError(player.name) }}
-              </div>
+                             <div v-if="getPlayerNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
+                 <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                 </svg>
+                 {{ getPlayerNameError(player.name) }}
+               </div>
             </div>
             
             <button 

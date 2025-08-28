@@ -10,7 +10,7 @@ const medium: RoleDef = {
     score: 5,
     countAs: 'villaggio',
     description: 'Ogni notte comunica con un morto per scoprirne la fazione.',
-    color: '#eab308',
+    color: '#f3e8ff',
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'required',

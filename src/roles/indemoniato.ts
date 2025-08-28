@@ -9,7 +9,7 @@ const indemoniato: RoleDef = {
     score: 2,
     countAs: 'villaggio',
     description: 'Villico che gioca per i lupi. Vince se i lupi vincono.',
-    color: '#fb7185',
+    color: '#581c87',
     phaseOrder: "any",
     actsAtNight: "never",
     effectType: 'optional',

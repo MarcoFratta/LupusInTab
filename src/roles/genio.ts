@@ -17,6 +17,7 @@ export const genio: RoleDef = {
     startNight: 3,
     phaseOrder: 0,
     canTargetDead: false,
+    color: '#f3e8ff',
     resolve(gameState: any, action: any) {
         const target = action.data?.target;
         

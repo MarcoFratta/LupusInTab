@@ -19,4 +19,5 @@ export { default as PrimaryButton } from './PrimaryButton.vue';
 export { default as SecondaryButton } from './SecondaryButton.vue';
 export { default as SkipConfirmButtons } from './SkipConfirmButtons.vue';
 export { default as DiscussionTimer } from './DiscussionTimer.vue';
+export { default as CacheStatus } from './CacheStatus.vue';
 export * from './prompts';

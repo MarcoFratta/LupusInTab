@@ -38,7 +38,7 @@ const showDetails = ref(false);
               class="inline-flex items-center gap-2 px-2.5 py-1 rounded text-xs font-medium border bg-red-500/15 text-red-300 border-red-500/30"
             >
               <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
-              {{ props.state.players.find((p: any) => p.id === pid)?.name }}
+              <span class="truncate max-w-[8rem]" :title="props.state.players.find((p: any) => p.id === pid)?.name">{{ props.state.players.find((p: any) => p.id === pid)?.name }}</span>
             </span>
           </div>
         </div>
@@ -56,7 +56,7 @@ const showDetails = ref(false);
               class="inline-flex items-center gap-2 px-2.5 py-1 rounded text-xs font-medium border bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
             >
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-              {{ props.state.players.find((p: any) => p.id === pid)?.name }}
+              <span class="truncate max-w-[8rem]" :title="props.state.players.find((p: any) => p.id === pid)?.name">{{ props.state.players.find((p: any) => p.id === pid)?.name }}</span>
             </span>
           </div>
         </div>

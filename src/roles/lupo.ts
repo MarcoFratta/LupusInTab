@@ -10,7 +10,7 @@ const lupo: RoleDef = {
     visibleAsTeam: 'lupi',
     countAs: 'lupi',
     description: 'Di notte sceglie una vittima da sbranare.',
-    color: '#ef4444',
+    color: '#4c1d95',
     phaseOrder: 1,
     actsAtNight: "alive",
     effectType: 'required',

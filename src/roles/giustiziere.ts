@@ -10,7 +10,7 @@ const giustiziere: RoleDef = {
     score: 4,
     countAs: 'villaggio',
     description: 'Una volta per partita, di notte giustizia un giocatore.',
-    color: '#dc2626',
+    color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'optional',

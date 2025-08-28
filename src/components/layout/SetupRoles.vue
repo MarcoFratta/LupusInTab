@@ -147,12 +147,6 @@ function openRoleDetails(roleId: string): void {
         </div>
       </div>
     </div>
-
-    <div class="text-center p-4 md:p-5 rounded-xl bg-neutral-800/30 border border-neutral-700/30">
-      <div class="flex items-center justify-center gap-2 text-sm text-neutral-400">
-        <span>Puoi regolare il numero per ogni ruolo nella Home. I Contadini riempiono automaticamente gli slot rimanenti.</span>
-      </div>
-    </div>
   </div>
 </template>
 

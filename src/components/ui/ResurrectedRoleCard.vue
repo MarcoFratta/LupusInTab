@@ -7,7 +7,7 @@
       <span class="font-medium text-emerald-400">Resuscitato</span>
     </div>
     <div class="text-sm text-slate-300">
-      <div class="font-medium">{{ player.name }}</div>
+      <div class="font-medium truncate max-w-full" :title="player.name">{{ player.name }}</div>
       <div class="text-xs text-emerald-300 mt-1">È stato riportato in vita</div>
     </div>
   </div>

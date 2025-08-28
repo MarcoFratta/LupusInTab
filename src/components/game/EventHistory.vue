@@ -287,7 +287,7 @@ window.addEventListener('resize', updateTimelineLine);
                    rounded-lg text-sm font-medium border bg-blue-600/80 text-white
                     border-blue-500/60 hover:bg-blue-500/80 hover:border-blue-400/60 
                     transition-all duration-200 hover:shadow-lg hover:shadow-blue-900/50">
-                    <span class="font-semibold">{{ props.state.players.find((p) => p.id === pid)?.name }}</span>
+                    <span class="font-semibold truncate max-w-full" :title="props.state.players.find((p) => p.id === pid)?.name">{{ props.state.players.find((p) => p.id === pid)?.name }}</span>
                   </div>
                 </div>
               </div>
@@ -375,7 +375,7 @@ window.addEventListener('resize', updateTimelineLine);
                <div v-else class="text-center">
                  <div class="group/item relative inline-block">
                    <div class="inline-flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium border bg-amber-600/80 text-white border-amber-500/60 hover:bg-amber-500/80 hover:border-amber-400/60 transition-all duration-200 hover:shadow-lg hover:shadow-amber-900/50">
-                     <span class="font-semibold">{{ props.state.players.find((p) => p.id === lynchHistoryByDay[currentDay.day])?.name }}</span>
+                     <span class="font-semibold truncate max-w-full" :title="props.state.players.find((p) => p.id === lynchHistoryByDay[currentDay.day])?.name">{{ props.state.players.find((p) => p.id === lynchHistoryByDay[currentDay.day])?.name }}</span>
                    </div>
                  </div>
                </div>

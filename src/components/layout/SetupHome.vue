@@ -230,7 +230,7 @@ const sortedEnabledRoles = computed(() => {
       <div class="space-y-4">
         <div class="text-center space-y-3">
           <h3 class="text-lg md:text-xl font-semibold text-neutral-200">Ruoli</h3>
-          <div class="w-12 md:w-16 h-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 mx-auto rounded-full"></div>
+          <div class="w-full md:w-16 h-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 mx-auto rounded-full"></div>
         </div>
         
         <!-- Mobile-Optimized Role Grid -->

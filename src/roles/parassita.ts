@@ -11,6 +11,7 @@ export const parassita: RoleDef = {
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'required',
+    countAs: 'villaggio',
     numberOfUsage: 'unlimited',
     minCount: 1,
     maxCount: 1,

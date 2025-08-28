@@ -306,9 +306,9 @@ function getRoleConstraintReason() {
     <div v-else-if="targetRole && showTargetRolePrompt" class="space-y-4">
       <div class="text-center mb-4">
         <p class="text-neutral-300 text-sm">
-          <span class="font-medium">{{ props.player?.name || 'Mutaforma' }}</span>
+          <span class="font-medium truncate max-w-full" :title="props.player?.name || 'Mutaforma'">{{ props.player?.name || 'Mutaforma' }}</span>
           ha copiato il ruolo di
-          <span class="font-medium">{{ targetPlayer?.name }}</span>
+          <span class="font-medium truncate max-w-full" :title="targetPlayer?.name">{{ targetPlayer?.name }}</span>
         </p>
         <div class="text-emerald-400 text-xs mt-2">
           ✅ Ora usa il potere copiato:

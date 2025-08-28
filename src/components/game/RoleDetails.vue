@@ -91,10 +91,12 @@ function getFactionInfo(team: string | undefined) {
   if (faction?.color) {
     // Map common hex colors to Tailwind classes
     const colorMap: Record<string, string> = {
-      '#34d399': 'bg-emerald-400', // villaggio green
-      '#f87171': 'bg-red-400',     // lupi red
-      '#818cf8': 'bg-indigo-400',  // mannari indigo
-      '#a78bfa': 'bg-violet-400'   // matti violet
+      '#10b981': 'bg-emerald-500', // villaggio green
+      '#dc2626': 'bg-red-500',     // lupi red
+      '#7c3aed': 'bg-violet-600',  // mannari medium violet
+      '#f59e0b': 'bg-amber-500',   // matti amber
+      '#3b82f6': 'bg-blue-500',    // parassita blue
+      '#8b5cf6': 'bg-violet-500'   // alieni violet
     };
     bgColor = colorMap[faction.color] || 'bg-neutral-400';
   }

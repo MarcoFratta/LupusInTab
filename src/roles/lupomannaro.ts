@@ -14,7 +14,7 @@ const lupomannaro: RoleDef = {
         'Se rimane in vita, nessun altro può vincere.' +
         'I lupi non possono ucciderlo. ' +
         'Muore se il veggente lo indaga.',
-    color: '#6366f1',
+    color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'required',

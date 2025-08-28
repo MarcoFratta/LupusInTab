@@ -16,8 +16,9 @@ defineProps<Props>();
 <template>
   <div class="text-center">
     <h2 
-      class="text-xl font-semibold mb-2" 
+      class="text-xl font-semibold mb-2 truncate max-w-full" 
       :style="{ color: roleInfo.color }"
+      :title="roleInfo.name"
     >
       {{ roleInfo.name }}
     </h2>
@@ -29,7 +30,8 @@ defineProps<Props>();
         <span 
           v-for="name in groupNames" 
           :key="name"
-          class="px-2 py-1 bg-neutral-800/50 rounded text-xs text-slate-300"
+          class="px-2 py-1 bg-neutral-800/50 rounded text-xs text-slate-300 max-w-[8rem] truncate"
+          :title="name"
         >
           {{ name }}
         </span>

@@ -17,7 +17,7 @@ const getReasonText = (reason: string) => {
     case 'usageLimit':
       return 'Ha già usato questo ruolo il massimo numero di volte';
     default:
-      return 'Non può usare il ruolo questa notte';
+      return 'Non può usare questo ruolo questa notte';
   }
 };
 </script>
@@ -26,7 +26,7 @@ const getReasonText = (reason: string) => {
   <div class="text-center p-2 space-y-1">
     <div class="text-red-400 text-lg">💀</div>
     <div>
-      <div class="text-neutral-100 font-medium text-xs">{{ props.player?.name || 'Giocatore' }} morto</div>
+      <div class="text-neutral-100 font-medium text-xs truncate max-w-full" :title="props.player?.name || 'Giocatore'">{{ props.player?.name || 'Giocatore' }} morto</div>
       <div class="text-neutral-400 text-xs mt-0">
         {{ getReasonText(reason) }}
       </div>

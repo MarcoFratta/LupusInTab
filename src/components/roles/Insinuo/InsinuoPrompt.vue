@@ -16,7 +16,7 @@
             <div v-if="selectedTarget && targetFactionInfo" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4">
                 <div class="text-center space-y-3">
                     <div class="text-neutral-300 text-sm">Hai scelto:</div>
-                    <div class="text-neutral-100 font-medium">{{ selectedTarget.name }}</div>
+                    <div class="text-neutral-100 font-medium truncate max-w-full" :title="selectedTarget.name">{{ selectedTarget.name }}</div>
                     <FactionComparisonCard 
                         :current-team="targetFactionInfo.currentTeam"
                         :next-team="targetFactionInfo.nextTeam"

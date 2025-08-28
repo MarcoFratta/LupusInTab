@@ -10,7 +10,7 @@ const illusionista: RoleDef = {
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Di notte blocca le abilità notturne di un giocatore.',
-    color: '#06b6d4',
+    color: '#a78bfa',
     phaseOrder: -3,
     actsAtNight: "alive",
     effectType: 'optional',

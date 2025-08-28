@@ -130,7 +130,7 @@ function startNight() {
         <!-- Step 1: Show who to pass phone to -->
         <div v-if="!showRoleReveal" class="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-6 text-center">
           <div class="text-slate-300 text-lg mb-3">Passa il telefono a</div>
-          <div class="text-3xl font-bold text-slate-100 mb-6">{{ currentPlayer.name }}</div>
+          <div class="text-3xl font-bold text-slate-100 mb-6 truncate max-w-full" :title="currentPlayer.name">{{ currentPlayer.name }}</div>
           <button 
             class="btn btn-primary text-lg px-8 py-3 rounded-xl"
             @click="showRoleReveal = true"
@@ -154,7 +154,7 @@ function startNight() {
                 </div>
                 <div class="space-y-2">
                   <div v-for="p in knownRoleAllies" :key="p.id" class="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
-                    <span class="text-slate-100 font-medium">{{ p.name }}</span>
+                    <span class="text-slate-100 font-medium truncate max-w-full" :title="p.name">{{ p.name }}</span>
                     <FactionLabel :team="p.team" :labelText="p.labelText" />
                   </div>
                 </div>
@@ -168,7 +168,7 @@ function startNight() {
                 </div>
                 <div class="space-y-2">
                   <div v-for="p in knownTeamAllies" :key="p.id" class="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
-                    <span class="text-slate-100 font-medium">{{ p.name }}</span>
+                    <span class="text-slate-100 font-medium truncate max-w-full" :title="p.name">{{ p.name }}</span>
                     <FactionLabel :team="p.team" :labelText="p.labelText" />
                   </div>
                 </div>

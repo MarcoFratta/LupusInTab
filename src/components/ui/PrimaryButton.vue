@@ -8,15 +8,15 @@ const props = defineProps({
 const emit = defineEmits(['click']);
 
 const sizeClasses = {
-  xs: 'text-xs',
-  sm: 'text-sm',
-  default: ''
+  xs: 'text-xs py-2',
+  sm: 'text-sm py-2',
+  default: 'text-base py-3'
 };
 </script>
 
 <template>
   <button 
-    class="btn btn-primary"
+    class="btn btn-accent font-semibold rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
     :class="[
       { 'w-full': fullWidth },
       { 'btn-disabled': disabled },

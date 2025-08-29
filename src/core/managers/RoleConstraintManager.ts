@@ -57,7 +57,8 @@ export class RoleConstraintManager {
   private static checkStartNightConstraint(state: GameState, roleId: string, playerIds: number[], roleDef: any): boolean {
     const rolePlayers = state.players.filter(p => playerIds.includes(p.id));
     
-    return rolePlayers.some(player => {
+    // Return true only if ALL players have startNight restrictions that prevent them from acting
+    return rolePlayers.every(player => {
       const roleStartNight = roleDef.startNight;
       const playerStartNight = player.roleState?.startNight;
       const startNight = playerStartNight || roleStartNight;

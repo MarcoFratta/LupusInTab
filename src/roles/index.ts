@@ -11,6 +11,7 @@ import guardia from './guardia';
 import boia from './boia';
 import medium from './medium';
 import lupomannaro from './lupomannaro';
+import muccamannara from './muccamannara';
 import indemoniato from './indemoniato';
 import { insinuo } from './insinuo';
 import illusionista from './illusionista';
@@ -29,6 +30,7 @@ const rolesArray: RoleDef[] = [
 	boia,
 	medium,
 	lupomannaro,
+	muccamannara,
 	indemoniato,
 	insinuo as any,
 	illusionista,

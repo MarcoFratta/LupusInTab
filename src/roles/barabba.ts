@@ -1,5 +1,5 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import { villageWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const barabba: RoleDef = {
@@ -35,7 +35,6 @@ const barabba: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const { villageWin } = useWinConditions();
         return villageWin(gameState);
     },
 };

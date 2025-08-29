@@ -185,10 +185,6 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
             prompt: () => import('../components/roles/Illusionista/IllusionistaPrompt.vue'),
             details: () => import('../components/roles/Illusionista/IllusionistaResolveDetails.vue')
         },
-        'Indemoniato': {
-            prompt: () => import('../components/roles/Indemoniato/IndemoniatoPrompt.vue'),
-            details: () => import('../components/roles/Indemoniato/IndemoniatoResolveDetails.vue')
-        },
         'Insinuo': {
             prompt: () => import('../components/roles/Insinuo/InsinuoPrompt.vue'),
             details: () => import('../components/roles/Insinuo/InsinuoResolveDetails.vue')
@@ -201,29 +197,25 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
             prompt: () => import('../components/roles/Lupomannaro/LupomannaroPrompt.vue'),
             details: () => import('../components/roles/Lupomannaro/LupomannaroResolveDetails.vue')
         },
-        'Massone': {
-            prompt: () => import('../components/roles/Massone/MassonePrompt.vue'),
-            details: () => import('../components/roles/Massone/MassoneResolveDetails.vue')
-        },
         'Medium': {
             prompt: () => import('../components/roles/Medium/MediumPrompt.vue'),
             details: () => import('../components/roles/Medium/MediumResolveDetails.vue')
-        },
-        'Matto': {
-            prompt: () => import('../components/roles/Matto/MattoPrompt.vue'),
-            details: () => import('../components/roles/Matto/MattoResolveDetails.vue')
-        },
-        'Strega': {
-            prompt: () => import('../components/roles/Strega/StregaPrompt.vue'),
-            details: () => import('../components/roles/Strega/StregaResolveDetails.vue')
         },
         'Veggente': {
             prompt: () => import('../components/roles/Veggente/VeggentePrompt.vue'),
             details: () => import('../components/roles/Veggente/VeggenteResolveDetails.vue')
         },
-        'Villico': {
-            prompt: () => import('../components/roles/Villico/VillicoPrompt.vue'),
-            details: () => import('../components/roles/Villico/VillicoResolveDetails.vue')
+        'Parassita': {
+            prompt: () => import('../components/roles/Parassita/ParassitaPrompt.vue'),
+            details: () => import('../components/roles/Parassita/ParassitaResolveDetails.vue')
+        },
+        'Simbionte': {
+            prompt: () => import('../components/roles/Simbionte/SimbiontePrompt.vue'),
+            details: () => import('../components/roles/Simbionte/SimbionteResolveDetails.vue')
+        },
+        'Mutaforma': {
+            prompt: () => import('../components/roles/Mutaforma/MutaformaPrompt.vue'),
+            details: () => import('../components/roles/Mutaforma/MutaformaResolveDetails.vue')
         }
     };
     

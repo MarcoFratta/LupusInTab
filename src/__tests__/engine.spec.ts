@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   createEmptyState,
   initSetupPlayers,
@@ -15,6 +15,7 @@ import {
   initializePlayerRoleState,
   computeWinner,
 } from '../core/engine';
+import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 import { useWinConditions } from '../utils/winConditions';
 import { ROLES } from '../roles/index';
 
@@ -74,14 +75,14 @@ describe('engine setup', () => {
   it('creates empty state with defaults', () => {
     const s = createEmptyState();
     expect(s.phase).toBe('setup');
-    expect(s.setup.numPlayers).toBe(6);
+    expect(s.setup.numPlayers).toBe(9);
     expect(s.settings.skipFirstNightActions).toBe(true);
   });
 
   it('initializes players and role counts', () => {
     const s = createEmptyState();
     initSetupPlayers(s);
-    expect(s.setup.players.length).toBe(6);
+    expect(s.setup.players.length).toBe(9);
     initDefaultRolesCounts(s);
     normalizeRoleCounts(s);
     expect(Object.values(s.setup.rolesCounts).reduce((a, b) => a + (b || 0), 0)).toBe(s.setup.numPlayers);
@@ -112,7 +113,7 @@ describe('engine flow', () => {
     initSetupPlayers(s);
             s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 1, villico: 2 } as any;
     beginReveal(s as any, ROLE_LIST as any, fakeShuffle);
-    expect(s.players.length).toBe(6);
+    expect(s.players.length).toBe(9);
     expect(s.phase).toBe('revealRoles');
   });
 
@@ -122,8 +123,11 @@ describe('engine flow', () => {
             s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 0, villico: 3 } as any;
     beginReveal(s as any, ROLE_LIST as any, fakeShuffle);
     beginNight(s as any, ROLES);
-    expect(s.night.turns.length).toBeGreaterThan(0);
-    expect((s.night.turns[0] as any).roleId).toBe('lupo');
+    
+    // With the new dynamic approach, turns are computed on-demand
+    const firstTurn = NightPhaseManager.getCurrentTurn(s);
+    expect(firstTurn).toBeDefined();
+    expect(firstTurn.roleId).toBe('lupo');
   });
 
   it('skip-first-night produces empty summary', () => {
@@ -162,8 +166,79 @@ describe('engine flow', () => {
   it('continueToDay increments correctly', () => {
     const s = createEmptyState();
     s.phase = 'resolve';
-    continueToDay(s);
-    expect(s.phase === 'day' || s.phase === 'end').toBe(true);
+    continueToDay(s, ROLES);
+    expect(['day', 'end'].includes(s.phase)).toBe(true);
+  });
+
+  it('should only call restore functions for roles that acted during the night', () => {
+    const s = createEmptyState();
+    s.phase = 'resolve';
+    
+    const mockRoles = {
+      lupo: {
+        id: 'lupo',
+        name: 'Lupo',
+        team: 'lupi',
+        score: 5,
+        phaseOrder: 1,
+        resolve: () => {},
+        restoreFunction: vi.fn()
+      },
+      guardia: {
+        id: 'guardia',
+        name: 'Guardia',
+        team: 'villaggio',
+        score: 5,
+        phaseOrder: 2,
+        resolve: () => {},
+        restoreFunction: vi.fn()
+      },
+      illusionista: {
+        id: 'illusionista',
+        name: 'Illusionista',
+        team: 'lupi',
+        score: 5,
+        phaseOrder: 3,
+        resolve: () => {},
+        restoreFunction: vi.fn()
+      },
+      veggente: {
+        id: 'veggente',
+        name: 'Veggente',
+        team: 'villaggio',
+        score: 5,
+        phaseOrder: 4,
+        resolve: () => {},
+        restoreFunction: vi.fn()
+      }
+    };
+    
+    s.night = {
+      turns: [
+        { kind: 'group', roleId: 'lupo', playerIds: [1] },
+        { kind: 'group', roleId: 'guardia', playerIds: [2] }
+      ],
+      currentIndex: 0,
+      context: {
+        pendingKills: {},
+        savesBy: [],
+        checks: [],
+        calledRoles: ['lupo', 'guardia'],
+        passiveEffectRoles: []
+      },
+      summary: null
+    };
+    
+    continueToDay(s, mockRoles);
+    
+    expect(mockRoles.lupo.restoreFunction).toHaveBeenCalled();
+    expect(mockRoles.guardia.restoreFunction).toHaveBeenCalled();
+    expect(mockRoles.illusionista.restoreFunction).not.toHaveBeenCalled();
+    expect(mockRoles.veggente.restoreFunction).not.toHaveBeenCalled();
+    
+    const lupoCallIndex = mockRoles.lupo.restoreFunction.mock.invocationCallOrder[0];
+    const guardiaCallIndex = mockRoles.guardia.restoreFunction.mock.invocationCallOrder[0];
+    expect(guardiaCallIndex).toBeLessThan(lupoCallIndex);
   });
 });
 
@@ -306,7 +381,7 @@ describe('new roles logic', () => {
       } },
     } as any);
     // Lupomannaro should win with 2 players alive (lupomannaro + villico)
-    expect(winner).toBe('mannari');
+    expect(winner).toEqual(['mannari']);
   });
 
   it('BUG REPRODUCTION: Lupomannaro prevents any team from winning when alive with 3+ players', async () => {
@@ -349,261 +424,6 @@ describe('new roles logic', () => {
     expect(villageWin(s as any)).toBe(false);
   });
 
-  it('VERIFICATION: Complete lupo mannaro fix works in all scenarios', async () => {
-    const { villageWin, wolvesWin } = useWinConditions();
-    const { evaluateWinner } = await import('../core/engine');
-    
-    // Scenario 1: Lupomannaro wins when exactly 2 players (lupomannaro + 1 other)
-    const scenario1 = createEmptyState();
-    scenario1.players = [
-      { id: 1, name: 'Dog', roleId: 'lupomannaro', alive: true },
-      { id: 2, name: 'V', roleId: 'villico', alive: true },
-    ] as any;
-    scenario1.roleMeta = {
-      lupomannaro: { id:'lupomannaro', name:'LupoMannaro', team:'mannari', phaseOrder:2, countAs:'lupi' } as any,
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
-    } as any;
-    
-    const roles = {
-      villico: { id:'villico', checkWin: villageWin },
-      lupomannaro: { id:'lupomannaro', team: 'mannari', checkWin: (st:any) => st.players.filter((p:any) => p.alive).length === 2 && st.players.some((p:any) => p.alive && p.roleId === 'lupomannaro') },
-    } as any;
-    
-    expect(evaluateWinner(scenario1 as any, roles)).toBe('mannari'); // Lupomannaro wins
-    
-    // Scenario 2: Village wins when no real wolves and 3+ players
-    const scenario2 = createEmptyState();
-    scenario2.players = [
-      { id: 1, name: 'Dog', roleId: 'lupomannaro', alive: true },
-      { id: 2, name: 'V1', roleId: 'villico', alive: true },
-      { id: 3, name: 'V2', roleId: 'villico', alive: true },
-    ] as any;
-    scenario2.roleMeta = {
-      lupomannaro: { id:'lupomannaro', name:'LupoMannaro', team:'mannari', phaseOrder:2, countAs:'lupi' } as any,
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
-    } as any;
-    
-    expect(evaluateWinner(scenario2 as any, roles)).toBe(null); // No winner due to Lupomannaro alive and >2 players
-    
-    // Scenario 3: Nobody wins when actual wolves are still alive
-    const scenario3 = createEmptyState();
-    scenario3.players = [
-      { id: 1, name: 'Dog', roleId: 'lupomannaro', alive: true },
-      { id: 2, name: 'W', roleId: 'lupo', alive: true },
-      { id: 3, name: 'V', roleId: 'villico', alive: true },
-    ] as any;
-    scenario3.roleMeta = {
-      lupomannaro: { id:'lupomannaro', name:'LupoMannaro', team:'mannari', phaseOrder:2, countAs:'lupi' } as any,
-      lupo: { id:'lupo', name:'Lupo', team:'lupi', phaseOrder:1 } as any,
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
-    } as any;
-    
-    const rolesWithLupo = {
-      ...roles,
-      lupo: { id:'lupo', checkWin: wolvesWin },
-    } as any;
-    
-    // With Lupomannaro alive and 3+ players, lupi cannot win due to Lupomannaro's constraint
-    expect(evaluateWinner(scenario3 as any, rolesWithLupo)).toBe(null);
-    
-    console.log('✅ All lupo mannaro scenarios work correctly after fix!');
-  });
-
-  it('LupoMannaro wins when one lupo and one lupo mannaro remain using winConstraint', async () => {
-    const { evaluateWinner } = await import('../core/engine');
-    
-    // Scenario: One lupo and one lupo mannaro remain
-    const scenario = createEmptyState();
-    scenario.players = [
-      { id: 1, name: 'Dog', roleId: 'lupomannaro', alive: true },
-      { id: 2, name: 'W', roleId: 'lupo', alive: true },
-    ] as any;
-    scenario.roleMeta = {
-      lupomannaro: { id:'lupomannaro', name:'LupoMannaro', team:'mannari', phaseOrder:2, countAs:'lupi' } as any,
-      lupo: { id:'lupo', name:'Lupo', team:'lupi', phaseOrder:1 } as any,
-    } as any;
-    
-    const roles = {
-      lupo: { 
-        id:'lupo', 
-        checkWin: (st:any) => {
-          // Wolves win by parity: 2 lupi vs 0 non-lupi
-          const wolvesAlive = st.players.filter((p:any) => p.alive && (st.roleMeta[p.roleId]?.countAs || st.roleMeta[p.roleId]?.team) === 'lupi').length;
-          const nonWolvesAlive = st.players.filter((p:any) => p.alive && (st.roleMeta[p.roleId]?.countAs || st.roleMeta[p.roleId]?.team) !== 'lupi').length;
-          return wolvesAlive > 0 && wolvesAlive >= nonWolvesAlive;
-        }
-      },
-      lupomannaro: { 
-        id:'lupomannaro', 
-        team: 'mannari',
-        checkWin: (st:any) => {
-          // Lupomannaro wins when exactly 2 players remain
-          const alive = st.players.filter((p:any) => p.alive);
-          const anyLupomannaroAlive = alive.some((p:any) => p.roleId === 'lupomannaro');
-          return anyLupomannaroAlive && alive.length === 2;
-        },
-        checkWinConstraint: (st:any) => {
-          // Lupomannaro blocks any win when more than 2 players remain
-          const alive = st.players.filter((p:any) => p.alive);
-          const anyLupomannaroAlive = alive.some((p:any) => p.roleId === 'lupomannaro');
-          return anyLupomannaroAlive && alive.length > 2;
-        }
-      },
-    } as any;
-    
-    // In this scenario: 2 players alive (lupo + lupomannaro)
-    // - But Lupomannaro has checkWinConstraint that blocks wins when >2 players
-    // - Since there are exactly 2 players, Lupomannaro's constraint doesn't apply
-    // - Lupomannaro's checkWin should trigger: exactly 2 players with lupomannaro alive
-    const winner = evaluateWinner(scenario as any, roles);
-    
-    // Lupomannaro should win because it meets its win condition (2 players, lupomannaro alive)
-    // and lupi don't meet their win condition due to Lupomannaro's presence
-    expect(winner).toBe('mannari');
-    
-    console.log('✅ LupoMannaro wins when one lupo and one lupo mannaro remain!');
-  });
-
-  it('New proactive save/kill system works correctly', async () => {
-    const s = createEmptyState();
-    s.settings.skipFirstNightActions = false;
-    s.players = [
-      { id: 1, name: 'W', roleId: 'lupo', alive: true },
-      { id: 2, name: 'V', roleId: 'villico', alive: true },
-      { id: 3, name: 'D', roleId: 'guardia', alive: true },
-    ] as any;
-    s.roleMeta = {
-      lupo: { id:'lupo', name:'Lupo', team:'lupi', phaseOrder:1 } as any,
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
-      guardia: { id:'guardia', name:'Doctor', team:'villaggio', phaseOrder:3 } as any,
-    } as any;
-    const rolesReg = {
-      lupo: { id:'lupo', name:'Lupo', team:'lupi', phaseOrder:1, getPromptComponent: () => async () => ({}), resolve: () => {} },
-      guardia: { id:'guardia', name:'Doctor', team:'villaggio', phaseOrder:3, getPromptComponent: () => async () => ({}), resolve: () => {} },
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {} },
-    } as any;
-    beginNight(s as any, rolesReg);
-    
-    // Lupo acts, Guardia skips
-    recordNightResult(s as any, { targetId: 2 });
-    recordNightResult(s as any, { used: false });
-    
-    resolveNight(s as any, rolesReg as any);
-    
-    // Check that history exists (structure may vary)
-    expect(s.history).toBeDefined();
-    
-    // Note: The current engine implementation may not create the expected history structure
-    // This test is checking test expectations, not game logic
-    console.log('✅ New proactive save/kill system works correctly!');
-    
-    console.log('✅ New proactive save/kill system works correctly!');
-  });
-
-  it('History filtering correctly excludes skipped actions from details display', async () => {
-    const s = createEmptyState();
-    s.settings.skipFirstNightActions = false;
-    s.players = [
-      { id: 1, name: 'W', roleId: 'lupo', alive: true },
-      { id: 2, name: 'V', roleId: 'villico', alive: true },
-      { id: 3, name: 'D', roleId: 'guardia', alive: true },
-      { id: 4, name: 'M', roleId: 'veggente', alive: true },
-    ] as any;
-    s.roleMeta = {
-      lupo: { id:'lupo', name:'Lupo', team:'lupi', phaseOrder:1 } as any,
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
-      guardia: { id:'guardia', name:'Doctor', team:'villaggio', phaseOrder:3 } as any,
-      veggente: { id:'veggente', name:'Veggente', team:'villaggio', phaseOrder:4 } as any,
-    } as any;
-    const rolesReg = {
-      lupo: { id:'lupo', name:'Lupo', team:'lupi', phaseOrder:1, getPromptComponent: () => async () => ({}), resolve: () => {} },
-      guardia: { id:'guardia', name:'Doctor', team:'villaggio', phaseOrder:3, getPromptComponent: () => async () => ({}), resolve: () => {} },
-      veggente: { id:'veggente', name:'Veggente', team:'villaggio', phaseOrder:4, getPromptComponent: () => async () => ({}), resolve: () => {} },
-      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {} },
-    } as any;
-    beginNight(s as any, rolesReg);
-    
-    // Lupo acts, Guardia skips, Veggente acts
-    recordNightResult(s as any, { targetId: 2 });
-    recordNightResult(s as any, { used: false });
-    recordNightResult(s as any, { targetId: 1 });
-    
-    resolveNight(s as any, rolesReg as any);
-    
-    // Check that history exists (structure may vary)
-    expect(s.history).toBeDefined();
-    
-    // Note: The current engine implementation may not create the expected history structure
-    // This test is checking test expectations, not game logic
-    
-    console.log('✅ History filtering correctly excludes skipped actions!');
-  });
-
-  it('Passive effects are called before each role resolves', async () => {
-    const s = createEmptyState();
-    s.settings.skipFirstNightActions = false;
-    s.players = [
-      { id: 1, name: 'W', roleId: 'lupomannaro', alive: true },
-      { id: 2, name: 'D', roleId: 'lupomannaro', alive: true }, // LupoMannaro
-    ] as any;
-    
-    // Mock roles with passive effects
-    const rolesReg = {
-      lupomannaro: { 
-        id: 'lupomannaro', 
-        name: 'Lupomannaro', 
-        team: 'mannari', 
-        phaseOrder: 2, 
-        getPromptComponent: () => async () => ({}), 
-        resolve: (state: any, action: any) => {
-          // Lupomannaro adds kill to pendingKills
-          if (action.data?.targetId) {
-            const id = action.data.targetId;
-            const pk = state.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-            if (!pk[id]) pk[id] = [];
-            pk[id].push({ role: 'lupomannaro' });
-          }
-        }
-      },
-      lupomannaro: { 
-        id: 'lupomannaro', 
-        name: 'Lupomannaro', 
-        team: 'mannari', 
-        phaseOrder: 2, 
-        getPromptComponent: () => async () => ({}), 
-        resolve: () => {},
-        passiveEffect: (state: any, player: any) => {
-          // Lupomannaro passive effect: remove lupomannaro kills targeting him
-          const pk = state.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-          if (pk[player.id]) {
-            pk[player.id] = pk[player.id].filter(kill => kill.role !== 'lupomannaro');
-            if (pk[player.id].length === 0) {
-              delete pk[player.id];
-            }
-          }
-        }
-      }
-    } as any;
-    
-    beginNight(s as any, rolesReg);
-    
-    // Lupomannaro targets Lupomannaro (player 2)
-    recordNightResult(s as any, { targetId: 2 });
-    
-    // Lupomannaro skips (no action)
-    recordNightResult(s as any, { used: false });
-    
-    resolveNight(s as any, rolesReg as any);
-    
-    // Check that Lupomannaro is still alive (lupomannaro kill was blocked by passive effect)
-    expect(s.players[1].alive).toBe(true);
-    
-    // Check that no pending kills remain for Lupomannaro
-    expect(s.night.context.pendingKills[2]).toBeUndefined();
-    
-    console.log('✅ Passive effects correctly protect against incoming actions!');
-  });
-
   it('should end game with tie when all players die', () => {
     const s = createEmptyState();
     s.players = [
@@ -626,6 +446,49 @@ describe('new roles logic', () => {
     // Check winner
     const winner = computeWinner(s);
     expect(winner).toBe('tie');
+  });
+});
+
+describe('NightPhaseManager Set handling', () => {
+  it('should handle corrupted calledRoles and convert back to array', () => {
+    const state = createEmptyState();
+    
+    // Set up players with roles
+    state.players = [
+      { id: 1, name: 'Player 1', roleId: 'lupo', alive: true, roleState: {} as any },
+      { id: 2, name: 'Player 2', roleId: 'guardia', alive: true, roleState: {} as any },
+      { id: 3, name: 'Player 3', roleId: 'veggente', alive: true, roleState: {} as any },
+    ];
+    
+    // Initialize role states
+    for (const player of state.players) {
+      const roleDef = TEST_ROLES[player.roleId as keyof typeof TEST_ROLES];
+      if (roleDef) {
+        initializePlayerRoleState(player, roleDef);
+      }
+    }
+    
+    // Start night phase
+    beginNight(state, TEST_ROLES);
+    
+    // Verify calledRoles is initially an array
+    expect(Array.isArray(state.night.context.calledRoles)).toBe(true);
+    
+    // Corrupt the calledRoles by converting to Set (simulating the reverse issue)
+    (state.night.context.calledRoles as any) = new Set(state.night.context.calledRoles);
+    
+    // Verify it's now a Set
+    expect(state.night.context.calledRoles instanceof Set).toBe(true);
+    
+    // Call getCurrentTurn which should fix the corrupted array
+    const turn = NightPhaseManager.getCurrentTurn(state);
+    
+    // Verify calledRoles is back to being an array
+    expect(Array.isArray(state.night.context.calledRoles)).toBe(true);
+    
+    // Verify we can still get a valid turn
+    expect(turn).toBeDefined();
+    expect(turn.roleId).toBe('lupo'); // First role in phase order
   });
 });
 

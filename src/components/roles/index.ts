@@ -31,6 +31,9 @@ export { default as LupoResolveDetails } from './Lupo/LupoResolveDetails.vue';
 export { default as LupomannaroPrompt } from './Lupomannaro/LupomannaroPrompt.vue';
 export { default as LupomannaroResolveDetails } from './Lupomannaro/LupomannaroResolveDetails.vue';
 
+export { default as MuccaMannaraPrompt } from './MuccaMannara/MuccaMannaraPrompt.vue';
+export { default as MuccaMannaraResolveDetails } from './MuccaMannara/MuccaMannaraResolveDetails.vue';
+
 export { default as MassonePrompt } from './Massone/MassonePrompt.vue';
 export { default as MassoneResolveDetails } from './Massone/MassoneResolveDetails.vue';
 

@@ -38,22 +38,33 @@ function submitNoAction() {
 </script>
 
 <template>
-    <div class="space-y-3">
-        <div v-if="hasActed" class="text-xs text-neutral-400">Hai già usato il tuo potere in questa partita.</div>
+    <div class="space-y-6">
+        <div class="text-center space-y-3">
+            <p class="text-neutral-400 text-base font-medium">Angelo, scegli un giocatore morto da riportare in vita (una volta per partita)</p>
+        </div>
         
-        <div v-else-if="selectable.length === 0" class="text-center text-gray-500">
-            <p>Nessun giocatore da resuscitare</p>
+        <div v-if="hasActed" class="text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-500/10 border border-neutral-500/20">
+                <svg class="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="text-sm font-medium text-neutral-300">Hai già usato il tuo potere in questa partita</span>
+            </div>
+        </div>
+        
+        <div v-else-if="selectable.length === 0" class="text-center space-y-4">
+            <p class="text-neutral-400 text-base">Nessun giocatore da resuscitare</p>
             <button 
-                class="btn btn-primary w-full mt-4" 
+                class="btn btn-accent w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
                 @click="submitNoAction"
             >
                 Continua
             </button>
         </div>
         
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-6">
             <PromptSelect
-                label="Angelo, scegli un giocatore morto da riportare in vita (una volta per partita)"
+                label="Chi vuoi resuscitare?"
                 v-model="targetId"
                 :choices="choices"
                 buttonText=""

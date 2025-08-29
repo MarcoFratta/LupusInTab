@@ -1,4 +1,5 @@
 import type { RoleDef } from '../types';
+import { mannariWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const lupomannaro: RoleDef = {
@@ -53,14 +54,7 @@ const lupomannaro: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const alive = gameState.players.filter((p: any) => p.alive);
-        const anyLupomannaroAlive = alive.some((p: any) => p.roleId === 'lupomannaro');
-        return anyLupomannaroAlive && alive.length === 2;
-    },
-    checkWinConstraint(gameState: any) {
-        const alive = gameState.players.filter((p: any) => p.alive);
-        const anyLupomannaroAlive = alive.some((p: any) => p.roleId === 'lupomannaro');
-        return anyLupomannaroAlive && alive.length > 2;
+        return mannariWin(gameState);
     },
     getPromptComponent: componentFactory('Lupomannaro', "prompt"),
     getResolveDetailsComponent: componentFactory('Lupomannaro', "details"),

@@ -23,9 +23,9 @@ function submit() {
 </script>
 
 <template>
-    <div class="space-y-4">
-        <div class="text-center">
-            <p class="text-neutral-400 text-sm">Scegliete una vittima da eliminare questa notte</p>
+    <div class="space-y-6">
+        <div class="text-center space-y-3">
+            <p class="text-neutral-400 text-base font-medium">Scegliete una vittima da eliminare questa notte</p>
         </div>
         
         <PromptSelect

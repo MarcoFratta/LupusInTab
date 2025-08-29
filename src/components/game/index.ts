@@ -6,4 +6,5 @@ export { default as PhaseResolve } from './PhaseResolve.vue';
 export { default as RoleCard } from './RoleCard.vue';
 export { default as RoleDetails } from './RoleDetails.vue';
 export { default as RoleRevealCard } from './RoleRevealCard.vue';
+export { default as RoleReseeCard } from './RoleReseeCard.vue';
 export { default as EventHistory } from './EventHistory.vue';

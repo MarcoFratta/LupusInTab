@@ -28,18 +28,34 @@ export class DayPhaseManager {
    * Call restore functions for roles in reverse order
    */
   private static callRestoreFunctions(state: GameState, roles: RolesRegistry): void {
-    if (state.night && state.night.turns && state.night.turns.length > 0) {
-      const rolesWithRestore = state.night.turns
-        .map(turn => ({ turn, role: roles[turn.roleId] }))
-        .filter(({ role }) => role && typeof role.restoreFunction === 'function')
-        .reverse(); // Reverse order so higher phase numbers (later night actions) restore first
-      
-      for (const { role } of rolesWithRestore) {
-        try {
-          role.restoreFunction!(state);
-        } catch (error) {
-          console.error('Error in restore function:', error);
-        }
+    const nightTurns = state.night?.turns || [];
+    const rolesThatActed = nightTurns.map(turn => turn.roleId);
+    
+    if (rolesThatActed.length === 0) {
+      console.log(`🔄 [DayPhase] No roles acted during the night, skipping restore functions`);
+      return;
+    }
+    
+    const rolesToRestore = rolesThatActed
+      .map(roleId => {
+        const role = roles[roleId];
+        return { roleId, role, phaseOrder: role?.phaseOrder };
+      })
+      .filter(({ role }) => role && typeof role.restoreFunction === 'function')
+      .sort((a, b) => {
+        const aIndex = rolesThatActed.indexOf(a.roleId);
+        const bIndex = rolesThatActed.indexOf(b.roleId);
+        return bIndex - aIndex; // Reverse order for restore
+      });
+    
+    console.log(`🔄 [DayPhase] Restore order: ${rolesToRestore.map(r => `${r.roleId}(${r.phaseOrder})`).join(' → ')}`);
+    
+    for (const { roleId, role } of rolesToRestore) {
+      try {
+        console.log(`🔄 [DayPhase] Calling restore function for role: ${roleId}`);
+        role.restoreFunction!(state);
+      } catch (error) {
+        console.error(`Error in restore function for role ${roleId}:`, error);
       }
     }
   }

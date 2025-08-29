@@ -1,5 +1,5 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import { villageWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const veggente: RoleDef = {
@@ -23,6 +23,24 @@ const veggente: RoleDef = {
         
         const target = gameState.players.find((p: any) => p.id === targetId);
         
+        // If target is lupomannaro or muccamannara, add pending kill
+        if (target && (target.roleId === 'lupomannaro' || target.roleId === 'muccamannara')) {
+            if (!gameState.night?.context) {
+                gameState.night = { ...gameState.night, context: {} };
+            }
+            if (!gameState.night.context.pendingKills) {
+                gameState.night.context.pendingKills = {};
+            }
+            if (!gameState.night.context.pendingKills[targetId]) {
+                gameState.night.context.pendingKills[targetId] = [];
+            }
+            
+            gameState.night.context.pendingKills[targetId].push({
+                role: 'veggente',
+                reason: 'Investigated by veggente'
+            });
+        }
+        
         return {
             type: 'veggente_action',
             nightNumber: gameState.nightNumber,
@@ -34,7 +52,6 @@ const veggente: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const { villageWin } = useWinConditions();
         return villageWin(gameState);
     },
 };

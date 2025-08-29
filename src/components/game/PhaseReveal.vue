@@ -1,19 +1,78 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import RoleRevealCard from './RoleRevealCard.vue';
+import RoleReseeCard from './RoleReseeCard.vue';
 import { nextReveal as engineNextReveal } from '../../core/engine';
 import { getFactionConfig } from '../../factions';
 import FactionLabel from '../ui/FactionLabel.vue';
 import { ROLES } from '../../roles';
+import { SetupTitle, LongPressButton } from '../ui';
 
 const props = defineProps<{ state: any, onStartNight: () => void }>();
 
-const showIntro = ref(true);
-const showPreNightInfo = ref(false);
-const showRoleReveal = ref(false);
+const isMounted = ref(false);
+
+onMounted(() => {
+  isMounted.value = true;
+});
+
+// Watch for phase changes to ensure proper cleanup
+watch(() => props.state.phase, (newPhase, oldPhase) => {
+  console.log('PhaseReveal - Phase changed:', { oldPhase, newPhase });
+  
+  // If we're transitioning away from reveal phase, ensure RoleReseeCard is hidden
+  if (oldPhase === 'revealRoles' && newPhase !== 'revealRoles') {
+    console.log('PhaseReveal - Hiding RoleReseeCard due to phase change');
+    props.state.showRoleResee = false;
+  }
+});
 
 const currentPlayer = computed(() => props.state.players[props.state.revealIndex]);
 const currentRoleDef = computed(() => ROLES[currentPlayer.value?.roleId]);
+const showRoleResee = computed(() => {
+  // Simplified condition - just check if showRoleResee is true in the state
+  const shouldShow = props.state.showRoleResee === true;
+  
+  console.log('PhaseReveal - showRoleResee computed:', {
+    stateShowRoleResee: props.state.showRoleResee,
+    shouldShow,
+    phase: props.state.phase
+  });
+  
+  return shouldShow;
+});
+
+const canRenderRoleResee = computed(() => {
+  // Additional safety check to ensure the component can render safely
+  return showRoleResee.value && 
+         props.state && 
+         props.state.players && 
+         Array.isArray(props.state.players) && 
+         props.state.players.length > 0;
+});
+
+// Get reveal phase state from game state, with fallbacks
+const revealState = computed(() => {
+    if (!props.state.revealPhaseState) {
+        props.state.revealPhaseState = {
+            showIntro: true,
+            showPreNightInfo: false,
+            showRoleReveal: false,
+            roleRevealed: false
+        };
+    }
+    return props.state.revealPhaseState;
+});
+
+// Helper functions to update the game state
+function updateRevealState(updates: Partial<typeof revealState.value>) {
+    Object.assign(revealState.value, updates);
+}
+
+const showIntro = computed(() => revealState.value.showIntro);
+const showPreNightInfo = computed(() => revealState.value.showPreNightInfo);
+const showRoleReveal = computed(() => revealState.value.showRoleReveal);
+const roleRevealed = computed(() => revealState.value.roleRevealed);
 
 // Players to show as known team allies to the current player
 const knownTeamAllies = computed(() => {
@@ -82,99 +141,166 @@ const knownRoleAllies = computed(() => {
 });
 
 function continueFromIntro() {
-  showIntro.value = false;
+  updateRevealState({ showIntro: false });
 }
 
 function nextReveal() {
-  showRoleReveal.value = false; // Hide role, show next player
+  updateRevealState({ showRoleReveal: false }); // Hide role, show next player
+  updateRevealState({ roleRevealed: false }); // Reset for next player
   engineNextReveal(props.state, () => {
     // At the end of reveal sequence, show a safety info screen before starting Night 1
-    showPreNightInfo.value = true;
+    updateRevealState({ showPreNightInfo: true });
   });
 }
 
 function startNight() {
-  props.onStartNight();
+  console.log('PhaseReveal - startNight called, current state:', {
+    phase: props.state.phase,
+    showRoleResee: props.state.showRoleResee,
+    revealPhaseState: props.state.revealPhaseState
+  });
+  
+  // Immediately hide the role resee card to prevent rendering issues
+  props.state.showRoleResee = false;
+  
+  // Force a small delay to ensure the state update is processed
+  setTimeout(() => {
+    console.log('PhaseReveal - calling onStartNight');
+    props.onStartNight();
+  }, 0);
 }
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-    <div class="w-full max-w-2xl space-y-6 text-center">
-      <h2 class="text-xl font-semibold text-slate-100">Rivelazione dei ruoli</h2>
+  <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+    <SetupTitle title="Rivelazione dei ruoli" />
+    <div class="w-full max-w-2xl space-y-4 mt-2 text-center">
+
+      <!-- Role Resee Component -->
+      <div v-if="showRoleResee" class="role-resee-wrapper">
+        <RoleReseeCard 
+          :key="`role-resee-${state.phase}-${state.showRoleResee}`"
+          :state="state" 
+          :onBack="() => props.state.showRoleResee = false" 
+        />
+      </div>
 
       <!-- Intro info card shown once at the start of reveal phase -->
-      <div v-if="showIntro" class="bg-white/5 border border-white/10 rounded-lg p-6 text-left space-y-3">
-        <div class="text-slate-100 text-sm font-medium">Come rivelare i ruoli</div>
-        <div class="text-slate-400 text-sm">
-          Passa il dispositivo a ogni giocatore a turno. Tocca per vedere il tuo ruolo, poi passa al prossimo.
-        </div>
-        <div class="flex justify-end pt-1">
-          <button class="btn btn-primary" @click="continueFromIntro">Inizia rivelazioni</button>
+      <div v-else-if="showIntro" class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6">
+        <div class="text-center space-y-4">
+          <div class="w-16 h-16 mx-auto bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-base md:text-lg font-semibold text-neutral-200 mb-2">Come rivelare i ruoli</h3>
+            <p class="text-neutral-400 text-xs md:text-sm leading-relaxed max-w-md mx-auto">
+              Passa il dispositivo a ogni giocatore a turno. Tieni premuto per vedere il tuo ruolo, poi passa al prossimo.
+            </p>
+          </div>
+          <button 
+            class="btn btn-accent px-4 py-2 text-sm font-semibold rounded-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg shadow-violet-500/25"
+            @click="continueFromIntro"
+          >
+            Inizia Rivelazioni
+          </button>
         </div>
       </div>
 
       <!-- Pre-night safety card shown only after the last player reveal -->
-      <div v-else-if="showPreNightInfo" class="bg-white/5 border border-white/10 rounded-lg p-6 text-left space-y-3">
-        <div class="text-slate-100 text-sm font-medium">Prima che inizi la Notte</div>
-        <div class="text-slate-400 text-sm">
-          Riporta il dispositivo al narratore. Premi "Inizia Notte" per continuare.
-        </div>
-        <div class="flex justify-end pt-1">
-          <button class="btn btn-primary" @click="startNight">Inizia Notte</button>
+      <div v-else-if="showPreNightInfo" class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6">
+        <div class="text-center space-y-6">
+          <div class="w-20 h-20 mx-auto bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-full flex items-center justify-center">
+            <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          </div>
+          <div class="space-y-4">
+            <h3 class="text-xl md:text-2xl font-semibold text-neutral-200 mb-3">Prima che inizi la Notte</h3>
+            <div class="space-y-3">
+              <p class="text-lg md:text-xl font-semibold text-neutral-100 leading-relaxed">
+                Chiedi a tutti i giocatori di chiudere gli occhi
+              </p>
+              <p class="text-base md:text-lg text-neutral-300 leading-relaxed">
+                Quando tutti sono pronti vai alla prima notte
+              </p>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <button 
+              class="btn btn-secondary w-full px-6 py-3 text-base font-semibold rounded-lg transform hover:scale-105
+              active:scale-95 transition-all duration-200"
+              @click="() => {
+                console.log('PhaseReveal - Button clicked, setting showRoleResee to true');
+                props.state.showRoleResee = true;
+                console.log('PhaseReveal - State after setting:', props.state.showRoleResee);
+              }"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              Rivela di nuovo un ruolo
+            </button>
+            <button 
+              class="btn btn-accent w-full px-6 py-3 text-base font-semibold rounded-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg shadow-amber-500/25"
+              @click="startNight"
+            >
+              Inizia la Notte
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Reveal flow for current player -->
       <template v-else>
-        <!-- Step 1: Show who to pass phone to -->
-        <div v-if="!showRoleReveal" class="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-8 text-center">
-          <div class="text-slate-300 text-lg mb-3">Passa il telefono a</div>
-          <div class="text-3xl font-bold text-slate-100 mb-6">{{ currentPlayer.name }}</div>
-          <button 
-            class="btn btn-primary text-lg px-8 py-3 rounded-xl"
-            @click="showRoleReveal = true"
-          >
-            Rivela Ruolo
-          </button>
-        </div>
-
-        <!-- Step 2: Show role and allies -->
-        <div v-else class="bg-white/5 border border-white/10 rounded-lg p-6 space-y-4">
-          <RoleRevealCard :player="currentPlayer" :roleDef="currentRoleDef" @next="nextReveal">
-            <!-- Unified allies section -->
-            <div v-if="knownRoleAllies.length || knownTeamAllies.length" class="bg-white/5 border border-white/10 rounded-lg p-6">
-              <div class="text-slate-100 text-lg font-semibold mb-6 text-center">I tuoi alleati</div>
-              
-              <!-- Same role allies -->
-              <div v-if="knownRoleAllies.length" class="mb-6 last:mb-0">
-                <div class="text-slate-300 text-sm font-medium mb-3 flex items-center gap-2">
-                  <div class="w-1 h-4 rounded-full bg-slate-400"></div>
-                  Vi conoscete a vicenda ({{ knownRoleAllies.length }})
-                </div>
-                <div class="space-y-2">
-                  <div v-for="p in knownRoleAllies" :key="p.id" class="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
-                    <span class="text-slate-100 font-medium">{{ p.name }}</span>
-                    <FactionLabel :team="p.team" :labelText="p.labelText" />
-                  </div>
-                </div>
-              </div>
-
-              <!-- Known allies -->
-              <div v-if="knownTeamAllies.length">
-                <div class="text-slate-300 text-sm font-medium mb-3 flex items-center gap-2">
-                  <div class="w-1 h-4 rounded-full bg-slate-400"></div>
-                  Tu conosci loro ({{ knownTeamAllies.length }})
-                </div>
-                <div class="space-y-2">
-                  <div v-for="p in knownTeamAllies" :key="p.id" class="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
-                    <span class="text-slate-100 font-medium">{{ p.name }}</span>
-                    <FactionLabel :team="p.team" :labelText="p.labelText" />
-                  </div>
-                </div>
+        <div v-if="!showRoleReveal" class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6 text-center">
+          <div class="space-y-4">
+            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/30 rounded-full flex items-center justify-center">
+              <svg class="w-8 h-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="text-neutral-300 text-base md:text-lg mb-2">Passa il telefono a</div>
+              <div class="text-2xl md:text-3xl font-bold text-neutral-100 mb-4 truncate max-w-full" :title="currentPlayer.name">
+                {{ currentPlayer.name }}
               </div>
             </div>
-          </RoleRevealCard>
+            <LongPressButton
+              class="w-full"
+              size="md"
+              :disabled="roleRevealed"
+              @activate="() => { updateRevealState({ showRoleReveal: true, roleRevealed: true }); }"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              {{ roleRevealed ? 'Ruolo rivelato' : 'Rivela' }}
+            </LongPressButton>
+            
+            <div v-if="roleRevealed" class="mt-3 p-2 bg-green-500/20 border border-green-500/30 rounded-lg">
+              <div class="flex items-center justify-center gap-2 text-green-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span class="text-xs font-medium">Ruolo rivelato!</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="space-y-4">
+          <RoleRevealCard 
+            :player="currentPlayer" 
+            :roleDef="currentRoleDef" 
+            :knownRoleAllies="knownRoleAllies"
+            :knownTeamAllies="knownTeamAllies"
+            @next="nextReveal" 
+          />
         </div>
       </template>
     </div>
@@ -199,6 +325,27 @@ function startNight() {
   .w-full {
     max-width: 100vw;
     overflow-x: hidden;
+  }
+}
+
+/* Role resee wrapper styling */
+.role-resee-wrapper {
+  width: 100%;
+  min-height: 0;
+  overflow: visible;
+}
+
+/* Loading spinner animation */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

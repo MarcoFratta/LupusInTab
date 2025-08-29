@@ -181,4 +181,129 @@ describe('Veggente Role', () => {
       expect(typeof veggente.checkWin).toBe('function');
     });
   });
+
+  describe('Pending Kills for Mannari', () => {
+    it('should add pending kill when investigating lupomannaro', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 4 },
+        used: true
+      };
+
+      // Initialize pendingKills if it doesn't exist
+      if (!mockGameState.night.context.pendingKills) {
+        mockGameState.night.context.pendingKills = {};
+      }
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(result.type).toBe('veggente_action');
+      expect(mockGameState.night.context.pendingKills[4]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[4]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[4][0]).toEqual({
+        role: 'veggente',
+        reason: 'Investigated by veggente'
+      });
+    });
+
+    it('should add pending kill when investigating muccamannara', () => {
+      // Add muccamannara player to the game state
+      const muccamannaraPlayer = {
+        id: 5,
+        roleId: 'muccamannara',
+        name: 'Muccamannara Player',
+        alive: true,
+        roleState: { realTeam: 'mannari', visibleAsTeam: 'villaggio' }
+      };
+      mockGameState.players.push(muccamannaraPlayer);
+
+      const action = {
+        playerId: 1,
+        data: { targetId: 5 },
+        used: true
+      };
+
+      // Initialize pendingKills if it doesn't exist
+      if (!mockGameState.night.context.pendingKills) {
+        mockGameState.night.context.pendingKills = {};
+      }
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(result.type).toBe('veggente_action');
+      expect(mockGameState.night.context.pendingKills[5]).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[5]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[5][0]).toEqual({
+        role: 'veggente',
+        reason: 'Investigated by veggente'
+      });
+    });
+
+    it('should not add pending kill when investigating non-mannari players', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 2 },
+        used: true
+      };
+
+      // Initialize pendingKills if it doesn't exist
+      if (!mockGameState.night.context.pendingKills) {
+        mockGameState.night.context.pendingKills = {};
+      }
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(result.type).toBe('veggente_action');
+      // Should not add pending kill for lupo
+      expect(mockGameState.night.context.pendingKills[2]).toBeUndefined();
+    });
+
+    it('should handle multiple pending kills for the same target', () => {
+      const action = {
+        playerId: 1,
+        data: { targetId: 4 },
+        used: true
+      };
+
+      // Initialize pendingKills if it doesn't exist
+      if (!mockGameState.night.context.pendingKills) {
+        mockGameState.night.context.pendingKills = {};
+      }
+
+      // Add an existing pending kill
+      mockGameState.night.context.pendingKills[4] = [
+        { role: 'lupo', reason: 'Wolf attack' }
+      ];
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[4]).toHaveLength(2);
+      expect(mockGameState.night.context.pendingKills[4][1]).toEqual({
+        role: 'veggente',
+        reason: 'Investigated by veggente'
+      });
+    });
+
+    it('should initialize night context if it does not exist', () => {
+      // Remove night context to test initialization
+      delete mockGameState.night.context;
+
+      const action = {
+        playerId: 1,
+        data: { targetId: 4 },
+        used: true
+      };
+
+      const result = veggente.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(mockGameState.night.context).toBeDefined();
+      expect(mockGameState.night.context.pendingKills).toBeDefined();
+      expect(mockGameState.night.context.pendingKills[4]).toBeDefined();
+    });
+  });
 });

@@ -1,5 +1,5 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import { villageWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const angelo: RoleDef = {
@@ -36,7 +36,6 @@ const angelo: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const { villageWin } = useWinConditions();
         return villageWin(gameState);
     },
 };

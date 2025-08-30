@@ -1,3 +1,10 @@
+## [1.11.12](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.11...v1.11.12) (2025-08-30)
+
+
+### Bug Fixes
+
+* fix passive effects resolve order ([cca197d](https://github.com/MarcoFratta/LupusInTab/commit/cca197d05be73f74e3a6e7b8bdefe6bd7524c717))
+
 ## [1.11.11](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.10...v1.11.11) (2025-08-30)
 
 

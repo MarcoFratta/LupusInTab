@@ -61,7 +61,7 @@ jobs:
         with:
           token: ${{ secrets.PAT_TO_PUSH }}
           # Get the latest commits including semantic-release changes
-          ref: ${{ github.sha }}
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -113,6 +113,35 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT_TO_PUSH }}
+
+      - name: Debug Git History
+        run: |
+          echo "🔍 Debugging Git history..."
+          echo "📱 Current branch: $(git branch --show-current)"
+          echo "📱 Current commit: $(git rev-parse HEAD)"
+          echo "📱 Git log (last 5 commits):"
+          git log --oneline -5
+          echo "📱 Git tags:"
+          git tag --sort=-version:refname | head -5
+          echo "📱 Package.json version: $(node -p "require('./package.json').version")"
+
+      - name: Fetch Latest Changes
+        run: |
+          echo "🔄 Fetching latest changes from remote..."
+          git fetch origin master --depth=0
+          git fetch origin --tags --depth=0
+          echo "📱 Latest remote commit: $(git rev-parse origin/master)"
+          echo "📱 Latest tag: $(git describe --tags --abbrev=0)"
+          echo "📱 Package.json version after fetch: $(node -p "require('./package.json').version")"
+
+      - name: Reset to Latest Master
+        run: |
+          echo "🔄 Resetting to latest master branch..."
+          git checkout master
+          git reset --hard origin/master
+          echo "📱 Current commit after reset: $(git rev-parse HEAD)"
+          echo "📱 Package.json version after reset: $(node -p "require('./package.json').version")"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -342,6 +371,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_TO_PUSH }}
 
       - name: Download Release AAB
         uses: actions/download-artifact@v4

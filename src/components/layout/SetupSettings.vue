@@ -1,13 +1,29 @@
 <script setup lang="ts">
 import { useGameStore } from '../../stores/game';
-import { watch, computed } from 'vue';
+import { watch, computed, ref, onMounted } from 'vue';
 import { SetupTitle } from '../ui';
 import { saveSettings } from '../../utils/storage';
 
 const store = useGameStore();
 const state = store.state as any;
+const appVersion = ref('');
 
 const activeSettingsCount = computed(() => Object.values(state.settings).filter(Boolean).length);
+
+const loadAppVersion = async () => {
+  try {
+    const response = await fetch('/version.json');
+    const data = await response.json();
+    appVersion.value = data.version;
+  } catch (error) {
+    console.warn('Failed to load app version:', error);
+    appVersion.value = '';
+  }
+};
+
+onMounted(() => {
+  loadAppVersion();
+});
 
 
 watch(() => state.settings, () => {
@@ -147,6 +163,10 @@ const toggleSetting = (key: string) => {
           </div>
         </div>
       </div>
+    </div>
+
+    <div v-if="appVersion" class="text-xs text-neutral-500 text-center mt-6">
+      Versione {{ appVersion }}
     </div>
   </div>
 </template>

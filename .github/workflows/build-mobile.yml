@@ -297,7 +297,7 @@ jobs:
       - name: Update Android version
         run: |
           echo "Updating Android version to match package.json..."
-          echo "Current package.json version: $(node -p "require('./package.json').version')"
+          echo "Current package.json version: $(node -p "require('./package.json').version")"
           
           # Check if Android folder exists
           if [ ! -d "android" ]; then

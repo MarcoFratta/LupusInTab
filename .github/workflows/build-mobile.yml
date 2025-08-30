@@ -71,37 +71,56 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Wait for Semantic Release
+        run: |
+          echo "⏳ Waiting for semantic-release commits to be available..."
+          echo "📱 Expected version from release: ${{ needs.release.outputs.new_release_version }}"
+          
+          # Wait a bit for commits to be pushed
+          sleep 10
+          
+          echo "🔄 Fetching latest changes..."
+          git fetch origin master
+          git checkout master
+          git pull origin master
+          
+          echo "📱 Current package.json version: $(node -p "require('./package.json').version")"
+          echo "📱 Expected version: ${{ needs.release.outputs.new_release_version }}"
+
+      - name: Verify Version Sync
+        run: |
+          echo "🔍 Verifying version synchronization..."
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          EXPECTED_VERSION="${{ needs.release.outputs.new_release_version }}"
+          
+          if [ "$CURRENT_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "❌ Version mismatch detected!"
+            echo "   Expected: $EXPECTED_VERSION"
+            echo "   Actual: $CURRENT_VERSION"
+            echo "   This means semantic-release commits are not yet available."
+            exit 1
+          fi
+          
+          echo "✅ Version synchronization verified: $CURRENT_VERSION"
+
       - name: Build web assets
         run: npm run build
 
-      - name: Update version.json
+      - name: Verify version.json is up to date
         run: |
-          node -e "
-          const fs = require('fs');
-          const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          echo "🔍 Verifying version.json is up to date..."
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          VERSION_JSON_VERSION=$(node -p "require('./public/version.json').version")
           
-          // Read existing version.json
-          const versionJsonPath = 'public/version.json';
-          const versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
+          if [ "$CURRENT_VERSION" != "$VERSION_JSON_VERSION" ]; then
+            echo "❌ version.json is out of sync!"
+            echo "   package.json version: $CURRENT_VERSION"
+            echo "   version.json version: $VERSION_JSON_VERSION"
+            echo "   This suggests semantic-release didn't update version.json properly."
+            exit 1
+          fi
           
-          // Update only the version and timestamp fields
-          versionData.version = packageJson.version;
-          versionData.timestamp = Date.now();
-          
-          // Write back the updated file
-          fs.writeFileSync(versionJsonPath, JSON.stringify(versionData, null, 2));
-          console.log('Updated version.json version to:', packageJson.version, 'with timestamp:', new Date().toISOString());
-          "
-
-      - name: Commit and push version.json update
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TO_PUSH }}
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add public/version.json
-          git commit -m "Update version.json to ${{ needs.release.outputs.new_release_version }}" || echo "No changes to commit"
-          git push origin master || echo "No changes to push"
+          echo "✅ version.json is up to date: $CURRENT_VERSION"
 
   build:
     runs-on: ubuntu-latest
@@ -129,19 +148,19 @@ jobs:
       - name: Fetch Latest Changes
         run: |
           echo "🔄 Fetching latest changes from remote..."
-          git fetch origin master --depth=0
-          git fetch origin --tags --depth=0
+          git fetch origin master
+          git fetch origin --tags
           echo "📱 Latest remote commit: $(git rev-parse origin/master)"
           echo "📱 Latest tag: $(git describe --tags --abbrev=0)"
           echo "📱 Package.json version after fetch: $(node -p "require('./package.json').version")"
 
-      - name: Reset to Latest Master
+      - name: Pull Latest Changes
         run: |
-          echo "🔄 Resetting to latest master branch..."
+          echo "🔄 Pulling latest changes from remote master..."
           git checkout master
-          git reset --hard origin/master
-          echo "📱 Current commit after reset: $(git rev-parse HEAD)"
-          echo "📱 Package.json version after reset: $(node -p "require('./package.json').version")"
+          git pull origin master
+          echo "📱 Current commit after pull: $(git rev-parse HEAD)"
+          echo "📱 Package.json version after pull: $(node -p "require('./package.json').version")"
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -408,99 +427,4 @@ jobs:
             
             console.log(`✅ Release v${version} verified and ready for AAB upload`);
             console.log(`📅 Release ID: ${targetRelease.id}`);
-            console.log(`🏷️  Release tag: ${targetRelease.tag_name}`);
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Update GitHub Release with AAB
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const version = require('./package.json').version;
-            
-            console.log(`🔍 Looking for release v${version} to upload AAB...`);
-            
-            // Wait a bit to ensure the release is fully created
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            
-            // Find the specific release by exact tag match
-            const releases = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            
-            console.log(`📋 Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
-            
-            const targetRelease = releases.data.find(release => release.tag_name === `v${version}`);
-            
-            if (targetRelease) {
-              console.log(`✅ Found target release v${version} with ID: ${targetRelease.id}`);
-              console.log(`📅 Release created at: ${targetRelease.created_at}`);
-              console.log(`🏷️  Release tag: ${targetRelease.tag_name}`);
-              
-              // Check if AAB already exists in the release
-              const existingAssets = await github.rest.repos.listReleaseAssets({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                release_id: targetRelease.id
-              });
-              
-              const aabName = `lupusMaster-${version}.aab`;
-              const assetExists = existingAssets.data.some(asset => asset.name === aabName);
-              
-              if (assetExists) {
-                console.log(`ℹ️ AAB ${aabName} already exists in release v${version}. Skipping upload.`);
-                return;
-              }
-              
-              // Upload AAB to the release
-              const aabPath = 'android/app/build/outputs/bundle/release/lupusMaster.aab';
-              if (fs.existsSync(aabPath)) {
-                console.log(`📤 Uploading AAB ${aabName} to release v${version}...`);
-                const aabBuffer = fs.readFileSync(aabPath);
-                
-                try {
-                  await github.rest.repos.uploadReleaseAsset({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    release_id: targetRelease.id,
-                    name: aabName,
-                    data: aabBuffer
-                  });
-                  console.log(`✅ AAB ${aabName} successfully uploaded to release v${version}`);
-                  
-                  // Verify the upload was successful
-                  const verifyAssets = await github.rest.repos.listReleaseAssets({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    release_id: targetRelease.id
-                  });
-                  
-                  const uploadedAsset = verifyAssets.data.find(asset => asset.name === aabName);
-                  if (uploadedAsset) {
-                    console.log(`✅ AAB upload verified: ${uploadedAsset.name} (${uploadedAsset.size} bytes)`);
-                    console.log(`🔗 Asset URL: ${uploadedAsset.browser_download_url}`);
-                  } else {
-                    console.error(`❌ AAB upload verification failed - asset not found in release`);
-                    throw new Error('AAB upload verification failed');
-                  }
-                } catch (error) {
-                  console.error(`❌ Failed to upload AAB: ${error.message}`);
-                  throw error;
-                }
-              } else {
-                console.log(`❌ AAB file not found at ${aabPath}`);
-                throw new Error(`AAB file not found at ${aabPath}`);
-              }
-            } else {
-              console.error(`❌ Release v${version} not found`);
-              console.error(`Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
-              throw new Error(`Release v${version} not found. Available: ${releases.data.map(r => r.tag_name).join(', ')}`);
-            }
+            console.log(`

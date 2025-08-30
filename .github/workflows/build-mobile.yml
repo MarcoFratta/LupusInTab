@@ -58,6 +58,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TO_PUSH }}
+          # Get the latest commits including semantic-release changes
+          ref: ${{ github.sha }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -78,46 +82,15 @@ jobs:
           
           // Read existing version.json
           const versionJsonPath = 'public/version.json';
-          let versionData = {};
+          const versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
           
-          if (fs.existsSync(versionJsonPath)) {
-            versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
-          } else {
-            // Fallback if file doesn't exist
-            versionData = {
-              assets: [
-                '/',
-                '/index.html',
-                '/manifest.webmanifest',
-                '/favicon.svg',
-                '/style.css',
-                '/assets/index-*.js',
-                '/assets/index-*.css',
-                '/assets/vendor-*.js',
-                '/assets/*.js',
-                '/assets/*.css',
-                '/assets/*.woff2',
-                '/assets/*.woff',
-                '/assets/*.ttf',
-                '/assets/*.png',
-                '/assets/*.svg',
-                '/assets/*.ico',
-                '/sw.js',
-                '/workbox-*.js',
-                '/registerSW.js'
-              ],
-              changelog: 'Auto-updated by CI workflow',
-              minVersion: '1.0.0'
-            };
-          }
-          
-          // Update only the version and timestamp
+          // Update only the version and timestamp fields
           versionData.version = packageJson.version;
           versionData.timestamp = Date.now();
           
           // Write back the updated file
           fs.writeFileSync(versionJsonPath, JSON.stringify(versionData, null, 2));
-          console.log('Updated version.json version to:', packageJson.version);
+          console.log('Updated version.json version to:', packageJson.version, 'with timestamp:', new Date().toISOString());
           "
 
       - name: Commit and push version.json update

@@ -23,4 +23,6 @@ export { default as CacheStatus } from './CacheStatus.vue';
 export { default as SetupTitle } from './SetupTitle.vue';
 export { default as LongPressButton } from './LongPressButton.vue';
 export { default as NewRolesPopup } from './NewRolesPopup.vue';
+export { default as AppUpdateOverlay } from './AppUpdateOverlay.vue';
+export { default as PassPhoneCard } from './PassPhoneCard.vue';
 export * from './prompts';

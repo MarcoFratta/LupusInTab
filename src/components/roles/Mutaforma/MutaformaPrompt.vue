@@ -123,7 +123,7 @@ function mutaformaCanUseTargetRole(role: any) {
   // Role has usage limits that are already exhausted
   if (role.numberOfUsage !== 'unlimited' && role.numberOfUsage !== undefined) {
     const usedPowers = props.gameState.usedPowers?.[role.id] || [];
-    const timesUsed = usedPowers.filter((playerId: number) => playerId === props.player?.id).length;
+    const timesUsed = usedPowers.length;
     if (timesUsed >= role.numberOfUsage) return false;
   }
   
@@ -291,10 +291,12 @@ function getRoleConstraintReason() {
       return `Questo ruolo può essere utilizzato solo a partire dalla notte ${targetRole.value.startNight}.`;
     }
   }
-
+ console.log('checking -> ' + targetRole.value.id)
+  const usedPowers = props.gameState.usedPowers?.[targetRole.value.id] || [];
+  console.log('his used powers are' + usedPowers)
   if (targetRole.value.numberOfUsage !== 'unlimited' && targetRole.value.numberOfUsage !== undefined) {
     const usedPowers = props.gameState.usedPowers?.[targetRole.value.id] || [];
-    const timesUsed = usedPowers.filter((playerId: number) => playerId === props.player?.id).length;
+    const timesUsed = usedPowers.length;
     if (timesUsed >= targetRole.value.numberOfUsage) {
       return `Questo ruolo è già stato utilizzato il numero massimo di volte permesso.`;
     }
@@ -383,7 +385,7 @@ function getRoleConstraintReason() {
           :disabled="hasPendingKills"
           class="btn btn-ghost text-sm text-neutral-400 hover:text-neutral-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          ← Scegli un altro ruolo
+          Scegli un altro ruolo
         </button>
       </div>
 
@@ -439,7 +441,7 @@ function getRoleConstraintReason() {
         </h3>
         <div class="w-12 h-0.5 bg-gradient-to-r from-neutral-500 to-neutral-400 mx-auto rounded-full"></div>
         <p class="text-neutral-300 text-sm">
-          {{ hasPendingKills ? 'Non puoi utilizzare il tuo potere perché stai morendo a causa della perdita di equilibrio tra le squadre' : 'Il ruolo selezionato non può essere utilizzato' }}
+          {{ hasPendingKills ? 'Non puoi utilizzare il tuo potere perché stai morendo' : 'Il ruolo selezionato non può essere utilizzato' }}
         </p>
       </div>
       
@@ -448,7 +450,7 @@ function getRoleConstraintReason() {
         :disabled="hasPendingKills"
         class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-neutral-500/30 hover:shadow-2xl hover:shadow-neutral-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {{ hasPendingKills ? 'Continua senza potere' : 'Torna alla selezione' }}
+        {{ hasPendingKills ? 'Continua' : 'Torna alla selezione' }}
       </button>
     </div>
   </div>

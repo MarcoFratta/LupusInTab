@@ -42,7 +42,7 @@ const misspurplePlayers = computed(() => {
         <InvestigationResultCard 
           title="Risultato Investigazione"
           text="lupi nel villaggio"
-          :results="event.lupiCount"
+          :results="event.lupiCount.toString()"
           color="#9333ea"
         />
       </div>

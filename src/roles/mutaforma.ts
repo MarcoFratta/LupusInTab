@@ -3,6 +3,37 @@ import { alieniWin, villageWin, wolvesWin } from '../utils/winConditions';
 import { componentFactory } from '../utils/roleUtils';
 import { ROLES } from '../roles';
 
+// Helper function to check if a target role can be used by mutaforma
+function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutaformaPlayerId: number) {
+    if (!targetRole) return false;
+
+    // Check if role acts at night
+    if (targetRole.actsAtNight === 'never') return false;
+
+    // Check if role requires being dead but mutaforma is alive
+    if (targetRole.actsAtNight === 'dead') return false;
+
+    // Check if role requires being alive but mutaforma is dead
+    if (targetRole.actsAtNight === 'alive') {
+        const mutaformaPlayer = gameState.players.find((p: any) => p.id === mutaformaPlayerId);
+        if (!mutaformaPlayer || !mutaformaPlayer.alive) return false;
+    }
+
+    // Check start night restriction
+    if (targetRole.startNight && typeof targetRole.startNight === 'number') {
+        if (gameState.nightNumber < targetRole.startNight) return false;
+    }
+
+    // Check usage limit restriction
+    if (targetRole.numberOfUsage !== 'unlimited' && targetRole.numberOfUsage !== undefined) {
+        const usedPowers = gameState.usedPowers?.[targetRole.id] || [];
+        const timesUsed = usedPowers.filter((playerId: number) => playerId === mutaformaPlayerId).length;
+        if (timesUsed >= targetRole.numberOfUsage) return false;
+    }
+
+    return true;
+}
+
 const mutaforma: RoleDef = {
     id: 'mutaforma',
     name: 'Mutaforma',
@@ -33,7 +64,7 @@ const mutaforma: RoleDef = {
         if (!targetRole) return;
         
         // Check if the target role can be used by the mutaforma
-        const canUseRole = mutaforma.canUseTargetRole(targetRole, gameState, action.playerId);
+        const canUseRole = checkMutaformaCanUseTargetRole(targetRole, gameState, action.playerId);
         
         if (!canUseRole) {
             return {
@@ -68,46 +99,22 @@ const mutaforma: RoleDef = {
             }
         };
         
-        // Store the target role info
-        mutaformaAction.targetRole = {
-            id: targetRoleId,
-            name: targetRole.name,
-            team: targetRole.team,
-            actsAtNight: targetRole.actsAtNight,
-            startNight: targetRole.startNight
+        // Store the target role info in the data
+        mutaformaAction.data = {
+            ...mutaformaAction.data,
+            targetRole: {
+                id: targetRoleId,
+                name: targetRole.name,
+                team: targetRole.team,
+                actsAtNight: targetRole.actsAtNight,
+                startNight: targetRole.startNight
+            }
         };
-        
-        // If the prompt provided a target role result, store it
-        if (action.data?.targetRoleResult) {
-            mutaformaAction.targetRoleResult = action.data.targetRoleResult;
-        }
         
         return mutaformaAction;
     },
     
-    // Helper function to check if a target role can be used by mutaforma
-    canUseTargetRole(targetRole: any, gameState: any, mutaformaPlayerId: number) {
-        if (!targetRole) return false;
 
-        // Check if role acts at night
-        if (targetRole.actsAtNight === 'never') return false;
-
-        // Check if role requires being dead but mutaforma is alive
-        if (targetRole.actsAtNight === 'dead') return false;
-
-        // Check if role requires being alive but mutaforma is dead
-        if (targetRole.actsAtNight === 'alive') {
-            const mutaformaPlayer = gameState.players.find((p: any) => p.id === mutaformaPlayerId);
-            if (!mutaformaPlayer || !mutaformaPlayer.alive) return false;
-        }
-
-        // Check start night restriction
-        if (targetRole.startNight && typeof targetRole.startNight === 'number') {
-            if (gameState.nightNumber < targetRole.startNight) return false;
-        }
-
-        return true;
-    },
 
     checkWin(gameState: any) {
         return alieniWin(gameState);

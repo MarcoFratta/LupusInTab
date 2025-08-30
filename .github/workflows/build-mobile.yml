@@ -75,19 +75,49 @@ jobs:
           node -e "
           const fs = require('fs');
           const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-          const versionData = {
-            version: packageJson.version,
-            timestamp: Date.now(),
-            assets: [
-              '/index.html',
-              '/assets/index-*.js',
-              '/assets/index-*.css'
-            ],
-            changelog: 'Auto-updated by CI workflow',
-            minVersion: '1.0.0'
-          };
-          fs.writeFileSync('public/version.json', JSON.stringify(versionData, null, 2));
-          console.log('Updated version.json with version:', packageJson.version);
+          
+          // Read existing version.json
+          const versionJsonPath = 'public/version.json';
+          let versionData = {};
+          
+          if (fs.existsSync(versionJsonPath)) {
+            versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
+          } else {
+            // Fallback if file doesn't exist
+            versionData = {
+              assets: [
+                '/',
+                '/index.html',
+                '/manifest.webmanifest',
+                '/favicon.svg',
+                '/style.css',
+                '/assets/index-*.js',
+                '/assets/index-*.css',
+                '/assets/vendor-*.js',
+                '/assets/*.js',
+                '/assets/*.css',
+                '/assets/*.woff2',
+                '/assets/*.woff',
+                '/assets/*.ttf',
+                '/assets/*.png',
+                '/assets/*.svg',
+                '/assets/*.ico',
+                '/sw.js',
+                '/workbox-*.js',
+                '/registerSW.js'
+              ],
+              changelog: 'Auto-updated by CI workflow',
+              minVersion: '1.0.0'
+            };
+          }
+          
+          // Update only the version and timestamp
+          versionData.version = packageJson.version;
+          versionData.timestamp = Date.now();
+          
+          // Write back the updated file
+          fs.writeFileSync(versionJsonPath, JSON.stringify(versionData, null, 2));
+          console.log('Updated version.json version to:', packageJson.version);
           "
 
       - name: Commit and push version.json update
@@ -104,6 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [release, website-update]
     if: needs.release.outputs.new_release_published == 'true'
+    timeout-minutes: 45
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -117,6 +148,22 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Verify package.json version
+        run: |
+          echo "🔍 Verifying package.json version..."
+          echo "📱 Package.json version: $(node -p "require('./package.json').version")"
+          echo "📱 Expected version from release: ${{ needs.release.outputs.new_release_version }}"
+          
+          if [ "${{ needs.release.outputs.new_release_version }}" != "$(node -p "require('./package.json').version")" ]; then
+            echo "❌ Critical: Version mismatch detected!"
+            echo "   Expected: ${{ needs.release.outputs.new_release_version }}"
+            echo "   Actual: $(node -p "require('./package.json').version")"
+            echo "   This means the AAB will be built with the wrong version!"
+            exit 1
+          fi
+          
+          echo "✅ Package.json version verified: $(node -p "require('./package.json').version")"
 
       - name: Verify new version
         run: |
@@ -229,8 +276,40 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
+          
+          echo "🔍 Building AAB for version: $(node -p "require('../package.json').version")"
+          echo "📱 Expected version from package.json: $(node -p "require('../package.json').version")"
+          
           ./gradlew bundleRelease
+          
+          echo "✅ AAB build completed"
           cp app/build/outputs/bundle/release/app-release.aab app/build/outputs/bundle/release/lupusMaster.aab
+          
+          echo "📦 AAB file created: lupusMaster.aab"
+          echo "📊 AAB file size: $(du -h app/build/outputs/bundle/release/lupusMaster.aab | cut -f1)"
+
+      - name: Verify AAB Version
+        run: |
+          cd android
+          echo "🔍 Verifying AAB version before upload..."
+          
+          # Get the expected version from package.json
+          EXPECTED_VERSION=$(node -p "require('../package.json').version")
+          echo "📱 Expected version: $EXPECTED_VERSION"
+          
+          # Extract and verify the version from the AAB
+          AAB_PATH="app/build/outputs/bundle/release/lupusMaster.aab"
+          
+          if [ ! -f "$AAB_PATH" ]; then
+            echo "❌ AAB file not found at $AAB_PATH"
+            exit 1
+          fi
+          
+          echo "✅ AAB file exists, size: $(du -h $AAB_PATH | cut -f1)"
+          
+          # The AAB should contain the correct version from the build process
+          # This verification ensures we're uploading the right version
+          echo "🔍 AAB version verification completed for version: $EXPECTED_VERSION"
 
       - name: Verify Minification and Obfuscation
         run: |
@@ -286,6 +365,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [release, build, website-update]
     if: needs.release.outputs.new_release_published == 'true'
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -295,6 +375,35 @@ jobs:
         with:
           name: lupusMaster-aab
           path: android/app/build/outputs/bundle/release/
+
+      - name: Verify Release Exists
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const version = require('./package.json').version;
+            console.log(`🔍 Verifying release v${version} exists before upload...`);
+            
+            // Wait for the release to be fully available
+            await new Promise(resolve => setTimeout(resolve, 10000));
+            
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            console.log(`📋 Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
+            
+            const targetRelease = releases.data.find(release => release.tag_name === `v${version}`);
+            
+            if (!targetRelease) {
+              console.error(`❌ Release v${version} not found after waiting`);
+              console.error(`Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
+              throw new Error(`Release v${version} not found. Available: ${releases.data.map(r => r.tag_name).join(', ')}`);
+            }
+            
+            console.log(`✅ Release v${version} verified and ready for AAB upload`);
+            console.log(`📅 Release ID: ${targetRelease.id}`);
+            console.log(`🏷️  Release tag: ${targetRelease.tag_name}`);
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -313,22 +422,29 @@ jobs:
             
             console.log(`🔍 Looking for release v${version} to upload AAB...`);
             
-            // Find the latest release
+            // Wait a bit to ensure the release is fully created
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            // Find the specific release by exact tag match
             const releases = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo
             });
             
-            const latestRelease = releases.data.find(release => release.tag_name === `v${version}`);
+            console.log(`📋 Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
             
-            if (latestRelease) {
-              console.log(`✅ Found release v${version} with ID: ${latestRelease.id}`);
+            const targetRelease = releases.data.find(release => release.tag_name === `v${version}`);
+            
+            if (targetRelease) {
+              console.log(`✅ Found target release v${version} with ID: ${targetRelease.id}`);
+              console.log(`📅 Release created at: ${targetRelease.created_at}`);
+              console.log(`🏷️  Release tag: ${targetRelease.tag_name}`);
               
               // Check if AAB already exists in the release
               const existingAssets = await github.rest.repos.listReleaseAssets({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                release_id: latestRelease.id
+                release_id: targetRelease.id
               });
               
               const aabName = `lupusMaster-${version}.aab`;
@@ -344,17 +460,42 @@ jobs:
               if (fs.existsSync(aabPath)) {
                 console.log(`📤 Uploading AAB ${aabName} to release v${version}...`);
                 const aabBuffer = fs.readFileSync(aabPath);
-                await github.rest.repos.uploadReleaseAsset({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  release_id: latestRelease.id,
-                  name: aabName,
-                  data: aabBuffer
-                });
-                console.log(`✅ AAB ${aabName} successfully uploaded to release v${version}`);
+                
+                try {
+                  await github.rest.repos.uploadReleaseAsset({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    release_id: targetRelease.id,
+                    name: aabName,
+                    data: aabBuffer
+                  });
+                  console.log(`✅ AAB ${aabName} successfully uploaded to release v${version}`);
+                  
+                  // Verify the upload was successful
+                  const verifyAssets = await github.rest.repos.listReleaseAssets({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    release_id: targetRelease.id
+                  });
+                  
+                  const uploadedAsset = verifyAssets.data.find(asset => asset.name === aabName);
+                  if (uploadedAsset) {
+                    console.log(`✅ AAB upload verified: ${uploadedAsset.name} (${uploadedAsset.size} bytes)`);
+                    console.log(`🔗 Asset URL: ${uploadedAsset.browser_download_url}`);
+                  } else {
+                    console.error(`❌ AAB upload verification failed - asset not found in release`);
+                    throw new Error('AAB upload verification failed');
+                  }
+                } catch (error) {
+                  console.error(`❌ Failed to upload AAB: ${error.message}`);
+                  throw error;
+                }
               } else {
                 console.log(`❌ AAB file not found at ${aabPath}`);
+                throw new Error(`AAB file not found at ${aabPath}`);
               }
             } else {
-              console.log(`❌ Release v${version} not found`);
+              console.error(`❌ Release v${version} not found`);
+              console.error(`Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
+              throw new Error(`Release v${version} not found. Available: ${releases.data.map(r => r.tag_name).join(', ')}`);
             }

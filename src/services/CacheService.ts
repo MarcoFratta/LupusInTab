@@ -26,12 +26,31 @@ interface VersionInfo {
   minVersion: string;
 }
 
+interface UpdateProgress {
+  current: number;
+  total: number;
+  status: string;
+}
+
+type UpdateProgressCallback = (progress: UpdateProgress) => void;
+
 const CACHE_KEY = 'website_cache';
 
 class CacheService {
   private isMobile = Capacitor.isNativePlatform();
   private currentVersion: string | null = null;
   private updateInterval: NodeJS.Timeout | null = null;
+  private progressCallback: UpdateProgressCallback | null = null;
+
+  setProgressCallback(callback: UpdateProgressCallback): void {
+    this.progressCallback = callback;
+  }
+
+  private updateProgress(current: number, total: number, status: string): void {
+    if (this.progressCallback) {
+      this.progressCallback({ current, total, status });
+    }
+  }
 
   async initialize(): Promise<void> {
     if (!this.isMobile) {
@@ -112,6 +131,8 @@ class CacheService {
 
   private async performFullCache(versionInfo: VersionInfo): Promise<void> {
     try {
+      this.updateProgress(0, 100, 'Preparazione cache completa...');
+      
       // Start with core PWA assets
       const coreAssets = [
         '/',
@@ -122,13 +143,17 @@ class CacheService {
       ];
       
       // Expand wildcard patterns for comprehensive Vite asset coverage
+      this.updateProgress(10, 100, 'Espansione pattern asset...');
       const expandedAssets = await this.expandAssetPatterns(versionInfo.assets);
       
       // Combine core assets with expanded assets
       const allAssets = [...coreAssets, ...expandedAssets];
       console.log(`Caching ${allAssets.length} assets (${coreAssets.length} core + ${expandedAssets.length} expanded)`);
       
+      this.updateProgress(20, 100, `Download di ${allAssets.length} asset...`);
       const assets = await this.cacheAssets(versionInfo.version, allAssets);
+      
+      this.updateProgress(90, 100, 'Salvataggio cache...');
       const cacheData: CacheData = {
         assets,
         timestamp: Date.now(),
@@ -137,9 +162,11 @@ class CacheService {
       };
       
       await this.saveCache(cacheData);
+      this.updateProgress(100, 100, 'Cache completata!');
       console.log('Full website cache completed');
     } catch (error) {
       console.error('Failed to perform full cache:', error);
+      this.updateProgress(0, 100, 'Errore durante il cache');
     }
   }
 
@@ -148,16 +175,24 @@ class CacheService {
       console.log(`Version mismatch: cached ${existingCache.version}, server ${newVersionInfo.version}`);
       console.log('Checking for incremental updates...');
       
+      this.updateProgress(0, 100, 'Controllo aggiornamenti incrementali...');
+      
       // Expand wildcard patterns for comprehensive Vite asset coverage
+      this.updateProgress(10, 100, 'Espansione pattern asset...');
       const expandedAssets = await this.expandAssetPatterns(newVersionInfo.assets);
       console.log(`Expanded ${newVersionInfo.assets.length} patterns to ${expandedAssets.length} actual assets`);
+      
+      this.updateProgress(20, 100, `Analisi di ${expandedAssets.length} asset...`);
       
       const updatedAssets = { ...existingCache.assets };
       let newAssetsCount = 0;
       let updatedAssetsCount = 0;
       let unchangedAssetsCount = 0;
       
-      for (const assetPath of expandedAssets) {
+      for (let i = 0; i < expandedAssets.length; i++) {
+        const assetPath = expandedAssets[i];
+        const progress = 20 + Math.floor((i / expandedAssets.length) * 60);
+        
         try {
           const assetUrl = `${CACHE_CONFIG.WEBSITE_URL}${assetPath}`;
           const existingAsset = existingCache.assets[assetPath];
@@ -171,6 +206,7 @@ class CacheService {
           
           if (!existingAsset) {
             // New asset - download it
+            this.updateProgress(progress, 100, `Download nuovo asset: ${assetPath.split('/').pop()}`);
             console.log(`New asset detected: ${assetPath}`);
             const response = await fetch(assetUrl);
             if (response.ok) {
@@ -187,6 +223,7 @@ class CacheService {
             }
           } else if (existingAsset.hash !== currentHash) {
             // Asset changed - download new version
+            this.updateProgress(progress, 100, `Aggiornamento asset: ${assetPath.split('/').pop()}`);
             console.log(`Asset changed: ${assetPath}`);
             const response = await fetch(assetUrl);
             if (response.ok) {
@@ -203,6 +240,7 @@ class CacheService {
             }
           } else {
             // Asset unchanged - keep existing
+            this.updateProgress(progress, 100, `Asset invariato: ${assetPath.split('/').pop()}`);
             console.log(`Asset unchanged: ${assetPath}`);
             unchangedAssetsCount++;
           }
@@ -210,6 +248,8 @@ class CacheService {
           console.error(`Failed to process asset ${assetPath}:`, error);
         }
       }
+      
+      this.updateProgress(85, 100, 'Salvataggio cache...');
       
       // Update cache with new data
       const updatedCacheData: CacheData = {
@@ -221,8 +261,12 @@ class CacheService {
       
       await this.saveCache(updatedCacheData);
       
+      this.updateProgress(90, 100, 'Pulizia asset obsoleti...');
+      
       // Clean up old assets that are no longer needed
       await this.cleanupOldAssets(updatedAssets, expandedAssets);
+      
+      this.updateProgress(100, 100, 'Aggiornamento completato!');
       
       console.log(`Incremental update completed:`);
       console.log(`  - New assets: ${newAssetsCount}`);
@@ -232,6 +276,7 @@ class CacheService {
       
     } catch (error) {
       console.error('Failed to perform incremental update:', error);
+      this.updateProgress(0, 100, 'Errore durante aggiornamento incrementale');
       // Fallback to full cache if incremental fails
       console.log('Falling back to full cache...');
       await this.performFullCache(newVersionInfo);
@@ -486,6 +531,25 @@ class CacheService {
       };
     } catch (error) {
       console.error('Failed to get detailed cache info:', error);
+      return null;
+    }
+  }
+
+  async getVersionInfo(): Promise<{ currentVersion: string; newVersion: string } | null> {
+    if (!this.isMobile) {
+      return null;
+    }
+
+    try {
+      const cacheData = await this.loadCache();
+      const currentVersion = cacheData?.version || 'N/A';
+      
+      const versionInfo = await this.fetchVersionInfo();
+      const newVersion = versionInfo?.version || 'N/A';
+      
+      return { currentVersion, newVersion };
+    } catch (error) {
+      console.error('Failed to get version info:', error);
       return null;
     }
   }

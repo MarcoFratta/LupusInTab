@@ -81,7 +81,7 @@ function handleNext() {
         <!-- Prossimo button inside the card -->
         <div class="pt-4">
           <LongPressButton 
-            size="md"
+            size="lg"
             fullWidth
             @activate="handleNext"
           >

@@ -13,6 +13,7 @@ import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
 import { useNewRolesPopup } from './composables';
 import { useCache } from './composables';
+import { AppUpdateOverlay } from './components/ui';
 
 
 const savedGameAtBoot = loadGameState();
@@ -75,13 +76,20 @@ const {
 initializeGameState();
 setupWatchers();
 
+const { initialize: initializeCache } = useCache();
+
 const {
 	showPopup: showNewRolesPopup,
 	newRoles,
 	closePopup: closeNewRolesPopup
 } = useNewRolesPopup();
 
-const { initialize: initializeCache } = useCache();
+const {
+	isUpdating,
+	updateProgress,
+	currentVersion,
+	newVersion
+} = useCache();
 
 
 // Manual test function for resume
@@ -366,6 +374,15 @@ function resumeGame() {
 		:show="showNewRolesPopup"
 		:new-roles="newRoles"
 		@close="closeNewRolesPopup"
+	/>
+
+	<!-- App Update Overlay -->
+	<AppUpdateOverlay
+		:is-updating="isUpdating"
+		:current-version="currentVersion"
+		:new-version="newVersion"
+		:progress="updateProgress?.current || 0"
+		:status="updateProgress?.status || ''"
 	/>
 </template>
 

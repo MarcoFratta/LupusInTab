@@ -28,7 +28,7 @@ defineProps<Props>();
     </div>
 
     <button 
-      class="group relative px-8 py-3 text-lg font-semibold rounded-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40"
+      class="group w-full relative px-8 py-3 text-lg font-semibold rounded-2xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40"
       @click="onComplete({ skipped: true })"
     >
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

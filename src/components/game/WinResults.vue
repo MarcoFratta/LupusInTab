@@ -31,7 +31,7 @@
                 <div class="absolute inset-0 bg-gradient-to-br
                  from-white/5 to-transparent opacity-0 
                  group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative w-full">
+                <div class="relative w-full px-4">
                   <div class="flex items-center justify-center space-x-3 mb-4">
                     <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: getTeamColor(team) }"></div>
                     <div class="text-xl md:text-2xl font-bold" :class="getTeamTextColor(team)">
@@ -53,7 +53,7 @@
                    :class="getTeamBorderColor(winner)">
                 <div class="absolute px-4 inset-0 bg-gradient-to-br from-white/5
                  to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative w-full">
+                <div class="relative w-full px-4">
                   <div class="flex items-center justify-center space-x-3 mb-4">
                     <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: getTeamColor(winner) }"></div>
                     <div class="text-xl md:text-2xl font-bold" :class="getTeamTextColor(winner)">

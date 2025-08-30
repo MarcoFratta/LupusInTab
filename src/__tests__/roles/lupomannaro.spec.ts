@@ -160,4 +160,63 @@ describe('Lupomannaro Role', () => {
       expect(typeof lupomannaro.checkWin).toBe('function');
     });
   });
+
+  describe('Passive Effect', () => {
+    it('should be immune to lupo kills', () => {
+      // Simulate a lupo kill being recorded
+      mockGameState.night.context.pendingKills[1] = [{ role: 'lupo' }];
+      
+      // Apply passive effect
+      lupomannaro.passiveEffect(mockGameState, mockGameState.players[0]);
+      
+      // The lupo kill should be filtered out
+      expect(mockGameState.night.context.pendingKills[1]).toBeUndefined();
+    });
+
+    it('should not be immune to other role kills', () => {
+      // Simulate kills from other roles
+      mockGameState.night.context.pendingKills[1] = [
+        { role: 'lupo' },
+        { role: 'veggente' },
+        { role: 'giustiziere' }
+      ];
+      
+      // Apply passive effect
+      lupomannaro.passiveEffect(mockGameState, mockGameState.players[0]);
+      
+      // Only lupo kills should be filtered out, others should remain
+      expect(mockGameState.night.context.pendingKills[1]).toHaveLength(2);
+      expect(mockGameState.night.context.pendingKills[1]).toEqual([
+        { role: 'veggente' },
+        { role: 'giustiziere' }
+      ]);
+    });
+
+    it('should handle case with no pending kills', () => {
+      // No pending kills
+      mockGameState.night.context.pendingKills = {};
+      
+      // Apply passive effect
+      lupomannaro.passiveEffect(mockGameState, mockGameState.players[0]);
+      
+      // Should not crash and should remain empty
+      expect(mockGameState.night.context.pendingKills).toEqual({});
+    });
+
+    it('should prevent lupo from killing lupomannaro in the game flow', () => {
+      // Simulate the exact bug scenario
+      // 1. Lupo acts and records a kill on lupomannaro
+      mockGameState.night.context.pendingKills[1] = [{ role: 'lupo' }];
+      
+      // 2. Lupomannaro's passive effect should be applied BEFORE lupo's kill is processed
+      // This simulates the new engine behavior where passive effects run before each role's turn
+      lupomannaro.passiveEffect(mockGameState, mockGameState.players[0]);
+      
+      // 3. The lupo kill should be filtered out, preventing lupomannaro from dying
+      expect(mockGameState.night.context.pendingKills[1]).toBeUndefined();
+      
+      // 4. Lupomannaro should still be alive
+      expect(mockGameState.players[0].alive).toBe(true);
+    });
+  });
 });

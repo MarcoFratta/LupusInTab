@@ -220,7 +220,7 @@ window.addEventListener('resize', updateTimelineLine);
                     ></div>
                   </div>
                 </div>
-                <div class="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse pointer-events-none"></div>
+
               </div>
             </div>
           </div>

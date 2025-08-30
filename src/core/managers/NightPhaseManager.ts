@@ -33,20 +33,7 @@ export class NightPhaseManager {
     
     state.phase = 'night';
     
-    // Apply mutaforma passive effect at the start of night to check team balance
-    const mutaformaPlayers = state.players.filter(p => p.roleId === 'mutaforma' && p.alive);
-    if (mutaformaPlayers.length > 0) {
-      const mutaformaRole = ROLES['mutaforma'];
-      if (mutaformaRole && typeof mutaformaRole.passiveEffect === 'function') {
-        for (const player of mutaformaPlayers) {
-          try {
-            mutaformaRole.passiveEffect(state as any, player);
-          } catch (error) {
-            console.error(`Error in mutaforma passive effect for player ${player.id}:`, error);
-          }
-        }
-      }
-    }
+
   }
 
   /**
@@ -76,25 +63,7 @@ export class NightPhaseManager {
     return a.roleId.localeCompare(b.roleId);
   }
 
-  /**
-   * Apply passive effects for roles that don't have prompts
-   */
-  private static applyPassiveEffects(state: GameState, rolesWithPassiveOnly: any[]): void {
-    for (const roleInfo of rolesWithPassiveOnly) {
-      const { roleDef, players } = roleInfo;
-      if (typeof roleDef.passiveEffect === 'function') {
-        for (const player of players) {
-          if (player.alive) {
-            try {
-              roleDef.passiveEffect(state as any, player);
-            } catch (error) {
-              console.error(`Error in passive effect for ${roleInfo.roleId} (player ${player.id}):`, error);
-            }
-          }
-        }
-      }
-    }
-  }
+
 
   /**
    * Record the result of a night action and move to the next role
@@ -162,28 +131,15 @@ export class NightPhaseManager {
       const isFirstNightSkipped = state.settings?.skipFirstNightActions && state.nightNumber === 1;
       
       if (!isFirstNightSkipped) {
-        // Apply passive effects if not first night skipped
-        NightPhaseManager.applyRolePassiveEffects(state, currentTurn.roleId, playerIds, currentTurn.roleId);
+        // Apply passive effects BEFORE processing the role's action
+        // This ensures immunities and other passive effects are applied before kills are recorded
+        NightPhaseManager.applyRolePassiveEffects(state, currentTurn.roleId, playerIds);
         
         // Initialize history for this night
         GameStateManager.initializeHistory(state, state.nightNumber);
 
         // Process the result and update history
         NightPhaseManager.processNightActionResult(state, currentTurn, result, roleDef, playerIds);
-      } else {
-        // For first night skipped, still apply passive effects for roles with actsAtNight: "never"
-        if (roleDef && roleDef.actsAtNight === 'never' && typeof roleDef.passiveEffect === 'function') {
-          for (const playerId of playerIds) {
-            const player = state.players.find(p => p.id === playerId);
-            if (player && player.alive) {
-              try {
-                roleDef.passiveEffect(state as any, player);
-              } catch (error) {
-                console.error(`Error in passive effect for ${currentTurn.roleId} (player ${playerId}):`, error);
-              }
-            }
-          }
-        }
       }
       
       // Record this turn in the night.turns array for proper restore order
@@ -210,20 +166,20 @@ export class NightPhaseManager {
   }
 
   /**
-   * Apply passive effects for a specific role
+   * Apply passive effects for a specific role before processing their action
+   * This ensures immunities and other passive effects are applied before kills are recorded
    */
-  private static applyRolePassiveEffects(state: GameState, roleDef: any, playerIds: number[], roleId: string): void {
-    const aliveMembers = state.players.filter(p => playerIds.includes(p.id) && p.alive);
+  private static applyRolePassiveEffects(state: GameState, roleId: string, playerIds: number[]): void {
+    const roleDef = ROLES[roleId];
+    if (!roleDef || typeof roleDef.passiveEffect !== 'function') return;
     
-    if (roleDef && typeof roleDef.passiveEffect === 'function') {
-      for (const playerId of playerIds) {
-        const player = state.players.find(p => p.id === playerId);
-        if (player && player.alive) {
-          try {
-            roleDef.passiveEffect(state as any, player);
-          } catch (error) {
-            console.error(`Error in passive effect for ${roleId} (player ${playerId}):`, error);
-          }
+    for (const playerId of playerIds) {
+      const player = state.players.find(p => p.id === playerId);
+      if (player && player.alive) {
+        try {
+          roleDef.passiveEffect(state as any, player);
+        } catch (error) {
+          console.error(`Error in passive effect for ${roleId} (player ${playerId}):`, error);
         }
       }
     }
@@ -324,6 +280,26 @@ export class NightPhaseManager {
       const summary = NightPhaseManager.createNightSummary(state);
       state.night.summary = summary;
       GameStateManager.recordNightDeaths(state, state.nightNumber, summary.died);
+    }
+  }
+
+  /**
+   * Apply passive effects for a specific role before processing their action
+   * This ensures immunities and other passive effects are applied before kills are recorded
+   */
+  private static applyRolePassiveEffects(state: GameState, roleId: string, playerIds: number[]): void {
+    const roleDef = ROLES[roleId];
+    if (!roleDef || typeof roleDef.passiveEffect !== 'function') return;
+    
+    for (const playerId of playerIds) {
+      const player = state.players.find(p => p.id === playerId);
+      if (player && player.alive) {
+        try {
+          roleDef.passiveEffect(state as any, player);
+        } catch (error) {
+          console.error(`Error in passive effect for ${roleId} (player ${playerId}):`, error);
+        }
+      }
     }
   }
 
@@ -472,20 +448,8 @@ export class NightPhaseManager {
       const nextRole = availableRoles.find(role => role.roleDef.actsAtNight !== 'never');
       
       if (!nextRole) {
-        // All remaining roles are actsAtNight: "never", apply their passive effects and return null
+        // All remaining roles are actsAtNight: "never", mark them as called
         for (const role of availableRoles) {
-          if (typeof role.roleDef.passiveEffect === 'function') {
-            for (const player of role.players) {
-              if (player.alive) {
-                try {
-                  role.roleDef.passiveEffect(state as any, player);
-                } catch (error) {
-                  console.error(`Error in passive effect for ${role.roleId} (player ${player.id}):`, error);
-                }
-              }
-            }
-          }
-          // Mark this role as called
           if (!state.night.context.calledRoles.includes(role.roleId)) {
             state.night.context.calledRoles.push(role.roleId);
           }

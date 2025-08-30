@@ -28,7 +28,8 @@ const pressTimer = ref<number | null>(null);
 const isActivated = ref(false);
 
 const buttonClasses = computed(() => {
-  const baseClasses = 'relative overflow-hidden rounded-lg font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg';
+  const baseClasses = 'relative overflow-hidden rounded-lg ' +
+      'font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg';
   
   const variantClasses = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/25',

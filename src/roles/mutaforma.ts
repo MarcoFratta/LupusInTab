@@ -7,9 +7,9 @@ const mutaforma: RoleDef = {
     id: 'mutaforma',
     name: 'Mutaforma',
     team: 'alieni',
-    visibleAsTeam: 'villico',
+    visibleAsTeam: 'villaggio',
     countAs: 'alieni',
-    score: 8,
+    score: 35,
     description: 'Di notte può copiare il potere di un altro giocatore per quella notte.',
     color: '#10b981',
     phaseOrder: 2,
@@ -20,6 +20,7 @@ const mutaforma: RoleDef = {
     getResolveDetailsComponent: componentFactory('Mutaforma', "details"),
     
     resolve(gameState: any, action: any) {
+        
         const targetId = Number(action?.data?.targetId || action?.targetId);
         if (!Number.isFinite(targetId) || targetId <= 0) return;
         
@@ -59,7 +60,12 @@ const mutaforma: RoleDef = {
             targetRoleId: targetRoleId,
             targetPlayerName: targetPlayer.name,
             canUseRole: canUseRole,
-            data: action.data
+            data: {
+                ...action.data,
+                targetId: targetId,
+                targetRoleId: targetRoleId,
+                targetRoleResult: action.data?.targetRoleResult
+            }
         };
         
         // Store the target role info
@@ -72,8 +78,8 @@ const mutaforma: RoleDef = {
         };
         
         // If the prompt provided a target role result, store it
-        if (action.targetRoleResult) {
-            mutaformaAction.targetRoleResult = action.targetRoleResult;
+        if (action.data?.targetRoleResult) {
+            mutaformaAction.targetRoleResult = action.data.targetRoleResult;
         }
         
         return mutaformaAction;
@@ -162,19 +168,10 @@ const mutaforma: RoleDef = {
                         gameState.night.context.pendingKills[mutaformaPlayer.id] = [];
                     }
                     gameState.night.context.pendingKills[mutaformaPlayer.id].push({
-                        source: 'mutaforma_passive',
-                        roleId: 'mutaforma',
-                        reason: `Squadra ${teamsWithNoAlivePlayers.join(', ')} non ha più giocatori vivi`
+                        role: 'mutaforma'
                     });
                 }
             }
-            
-            return {
-                type: 'mutaforma_passive_death',
-                message: `Tutti i mutaforma sono morti perché la squadra ${teamsWithNoAlivePlayers.join(', ')} non ha più giocatori vivi`,
-                deadTeams: teamsWithNoAlivePlayers,
-                pendingKills: mutaformaPlayers.map(p => p.id)
-            };
         }
         
         return null;

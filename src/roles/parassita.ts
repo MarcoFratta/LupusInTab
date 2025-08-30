@@ -10,7 +10,7 @@ export const parassita: RoleDef = {
     color: '#ec4899',
     phaseOrder: "any",
     actsAtNight: "alive",
-    effectType: 'required',
+    effectType: 'optional',
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     numberOfUsage: 'unlimited',

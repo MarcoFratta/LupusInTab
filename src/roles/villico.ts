@@ -4,7 +4,7 @@ import {componentFactory} from "../utils/roleUtils";
 
 const villico: RoleDef = {
 	id: 'villico',
-	name: 'Villico',
+	name: 'Contadino',
 	team: 'villaggio',
 	icon: 'VillicoIcon',
     score: 1,

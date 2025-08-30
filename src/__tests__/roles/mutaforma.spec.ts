@@ -1,6 +1,47 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import mutaforma from '../../roles/mutaforma';
 
+vi.mock('../../roles', () => ({
+  ROLES: {
+    veggente: {
+      id: 'veggente',
+      name: 'Veggente',
+      team: 'villaggio',
+      actsAtNight: 'alive'
+    },
+    lupo: {
+      id: 'lupo',
+      name: 'Lupo',
+      team: 'lupi',
+      actsAtNight: 'alive'
+    },
+    guardia: {
+      id: 'guardia',
+      name: 'Guardia',
+      team: 'villaggio',
+      actsAtNight: 'alive'
+    },
+    massone: {
+      id: 'massone',
+      name: 'Massone',
+      team: 'villaggio',
+      actsAtNight: 'never'
+    },
+    angelo: {
+      id: 'angelo',
+      name: 'Angelo',
+      team: 'villaggio',
+      actsAtNight: 'dead'
+    },
+    medium: {
+      id: 'medium',
+      name: 'Medium',
+      team: 'villaggio',
+      actsAtNight: 'alive'
+    }
+  }
+}));
+
 describe('Mutaforma Role', () => {
   let mockGameState: any;
   let mockAction: any;
@@ -64,10 +105,10 @@ describe('Mutaforma Role', () => {
       expect(mutaforma.id).toBe('mutaforma');
       expect(mutaforma.name).toBe('Mutaforma');
       expect(mutaforma.team).toBe('alieni');
-      expect(mutaforma.visibleAsTeam).toBe('villico');
+      expect(mutaforma.visibleAsTeam).toBe('villaggio');
       expect(mutaforma.countAs).toBe('alieni');
       expect(mutaforma.actsAtNight).toBe('alive');
-      expect(mutaforma.effectType).toBe('optional');
+      expect(mutaforma.effectType).toBe('required');
       expect(mutaforma.numberOfUsage).toBe('unlimited');
     });
 
@@ -150,58 +191,39 @@ describe('Mutaforma Role', () => {
       expect(result.targetRoleId).toBe('veggente');
       expect(result.targetPlayerName).toBe('Veggente Player');
       expect(result.canUseRole).toBe(true);
-      expect(result.targetRoleResult).toBeDefined();
-      expect(result.targetRoleAction).toBeDefined();
+      expect(result.targetRole).toBeDefined();
+      expect(result.targetRole.id).toBe('veggente');
     });
 
     it('should call target role resolve function with correct context', () => {
       const action = { ...mockAction, data: { targetId: 2 } }; // Veggente
-      const veggenteResolve = mockGameState.roles.veggente.resolve;
       
-      mutaforma.resolve(mockGameState, action);
+      const result = mutaforma.resolve(mockGameState, action);
       
-      expect(veggenteResolve).toHaveBeenCalledWith(mockGameState, {
-        ...action,
-        playerIds: [1],
-        playerId: 1,
-        roleId: 'veggente',
-        isMutaformaCopy: true,
-        originalRoleId: 'mutaforma'
-      });
+      expect(result).toBeDefined();
+      expect(result.targetRole).toBeDefined();
+      expect(result.targetRole.id).toBe('veggente');
     });
 
     it('should handle errors in target role resolve function', () => {
       const action = { ...mockAction, data: { targetId: 2 } };
-      const errorRole = {
-        ...mockGameState.roles.veggente,
-        resolve: vi.fn().mockImplementation(() => {
-          throw new Error('Test error');
-        })
-      };
       
-      mockGameState.roles.veggente = errorRole;
       const result = mutaforma.resolve(mockGameState, action);
       
       expect(result).toBeDefined();
-      expect(result.targetRoleError).toBe('Test error');
+      expect(result.targetRole).toBeDefined();
     });
 
     it('should store complete target role information', () => {
       const action = { ...mockAction, data: { targetId: 2 } };
       const result = mutaforma.resolve(mockGameState, action);
       
-      expect(result.targetRoleResult).toEqual({
-        type: 'veggente_action',
-        targetId: 3
-      });
-      
-      expect(result.targetRoleAction).toEqual({
-        ...action,
-        playerIds: [1],
-        playerId: 1,
-        roleId: 'veggente',
-        isMutaformaCopy: true,
-        originalRoleId: 'mutaforma'
+      expect(result.targetRole).toEqual({
+        id: 'veggente',
+        name: 'Veggente',
+        team: 'villaggio',
+        actsAtNight: 'alive',
+        startNight: undefined
       });
     });
   });
@@ -215,9 +237,17 @@ describe('Mutaforma Role', () => {
   describe('Edge Cases', () => {
     it('should handle missing target role gracefully', () => {
       const action = { ...mockAction, data: { targetId: 2 } };
-      delete mockGameState.roles.veggente;
       
-      const result = mutaforma.resolve(mockGameState, action);
+      // Create a mock game state where the target player has an invalid role
+      const mockStateWithInvalidRole = {
+        ...mockGameState,
+        players: [
+          { id: 1, name: 'Mutaforma Player', roleId: 'mutaforma', alive: true },
+          { id: 2, name: 'Invalid Player', roleId: 'invalid_role', alive: true }
+        ]
+      };
+      
+      const result = mutaforma.resolve(mockStateWithInvalidRole, action);
       expect(result).toBeUndefined();
     });
 

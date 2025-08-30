@@ -36,7 +36,7 @@ export const FACTIONS: Record<string, FactionConfig> = {
 	parassita: {
 		id: 'parassita',
 		name: 'parassita',
-		displayName: 'Parassita',
+		displayName: 'Parassiti',
 		color: '#3b82f6',
 		ringColor: 'ring-blue-500/40',
 		winConditionDescription: 'Il parassita vince quando tutti i giocatori vivi sono infetti'

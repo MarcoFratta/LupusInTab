@@ -32,9 +32,8 @@ const centerContent = props.centerContent;
       <div class="flex items-center justify-center">
         <div class="flex items-center gap-1 px-1.5 py-1 rounded-full text-center bg-neutral-800/60 border border-neutral-700/40">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="text-neutral-400">
-            <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span class="text-xs font-medium text-neutral-300">{{ centerContent.action }}</span>
         </div>
       </div>
       

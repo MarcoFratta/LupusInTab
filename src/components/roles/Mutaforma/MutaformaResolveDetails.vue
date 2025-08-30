@@ -60,6 +60,14 @@ const AsyncTargetRoleDetails = computed(() => {
 });
 
 const hasAction = computed(() => targetPlayer.value && representativeMutaforma.value);
+
+const shouldShowTargetRoleDetails = computed(() => {
+  return canUseRole.value && 
+         targetRoleResult.value && 
+         typeof targetRoleResult.value === 'object' &&
+         !targetRoleResult.value.skipped &&
+         targetRoleResolveDetailsComponent.value;
+});
 </script>
 
 <template>
@@ -79,8 +87,7 @@ const hasAction = computed(() => targetPlayer.value && representativeMutaforma.v
     </template>
 
     <!-- Target Role Results (if any) -->
-    <div v-if="canUseRole && targetRoleResult && typeof targetRoleResult === 'object' &&
-    !targetRoleResult.skipped" class="space-y-2">
+    <div v-if="shouldShowTargetRoleDetails" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-sm ">
           Risultato dell'azione copiata:
@@ -102,9 +109,10 @@ const hasAction = computed(() => targetPlayer.value && representativeMutaforma.v
           <div class="text-sm mb-2">Azione copiata:</div>
           <div class="text-xs">
             <strong>Players:</strong> {{ mutaformaPlayers.map(p => p.name).join(', ') }}<br>
-            <strong>Target:</strong> {{ targetRoleResult.targetId }}<br>
-            <strong>Type:</strong> {{ targetRoleResult.type }}<br>
-            <strong>Data:</strong> {{ JSON.stringify(targetRoleResult.data) }}
+            <strong>Target:</strong> {{ targetRoleResult?.targetId }}<br>
+            <strong>Type:</strong> {{ targetRoleResult?.type }}<br>
+            <strong>Discovered Faction:</strong> {{ targetRoleResult?.discoveredFaction }}<br>
+            <strong>Data:</strong> {{ JSON.stringify(targetRoleResult) }}
           </div>
         </div>
       </div>

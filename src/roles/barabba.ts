@@ -7,7 +7,7 @@ const barabba: RoleDef = {
     name: 'Barabba',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
-    score: 4,
+    score: 6,
     countAs: 'villaggio',
     description: 'Quando è morto, può portare con sé un giocatore nell\'aldilà una volta per partita.',
     color: '#c4b5fd',

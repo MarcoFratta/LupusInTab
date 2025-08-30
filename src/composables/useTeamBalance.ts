@@ -112,7 +112,7 @@ export function useTeamBalance() {
       baseFairness: Math.round(baseFairness * 100),
       varietyBonus: Math.round(varietyBonus * 100),
       finalFairness: Math.round(finalFairness * 100),
-      
+      weightedVariance: Math.round(totalWeightedDeviation * 100) / 100
     };
   });
 

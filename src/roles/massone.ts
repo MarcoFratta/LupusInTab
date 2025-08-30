@@ -7,7 +7,7 @@ const massone: RoleDef = {
 	name: 'Massone',
 	team: 'villaggio',
 	icon: 'MassoneIcon',
-    score: 2,
+    score: 3,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Conosce gli altri massoni ma non ha nessun potere di notte.',

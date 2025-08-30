@@ -147,7 +147,7 @@ const sortedEnabledRoles = computed(() => {
              <div class="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 opacity-80"></div>
            </div>
            
-           <div class="relative z-10 flex items-center gap-1.5 md:gap-2">
+           <div class="relative px-2 z-10 flex items-center gap-1.5 md:gap-2">
              <svg v-if="canStart" class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
              </svg>
@@ -178,7 +178,7 @@ const sortedEnabledRoles = computed(() => {
       <!-- Team Balance Section -->
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg md:text-xl font-semibold text-neutral-200">Bilanciamento Squadre</h3>
+          <h3 class="text-lg md:text-xl font-semibold text-neutral-200">Bilanciamento</h3>
           <div class="text-2xl md:text-3xl font-bold" 
                :class="teamBalance.fairness >= 70 
                  ? 'text-violet-400' 

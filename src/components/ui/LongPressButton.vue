@@ -10,7 +10,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  duration: 1000,
+  duration: 700,
   disabled: false,
   variant: 'accent',
   size: 'md',

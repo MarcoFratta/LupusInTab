@@ -6,7 +6,7 @@ const angelo: RoleDef = {
     id: 'angelo',
     name: 'Angelo',
     team: 'villaggio',
-    score: 3,
+    score: 6,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'Una volta per partita, riporta in vita un giocatore morto.',

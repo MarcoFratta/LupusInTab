@@ -94,4 +94,17 @@ export function alieniWin(state: GameState): boolean {
 	return teamCountsArray.every(count => count === firstCount) && firstCount === alieniAlive;
 }
 
+/**
+ * Common constraint function for mannari roles (lupomannaro and muccamannara)
+ * Blocks other teams from winning when any mannari role is alive
+ */
+export function mannariBlocksOtherWins(state: GameState): boolean {
+	const mannariAlive = countAlive(state, (p) => {
+		return p.roleId === 'lupomannaro' || p.roleId === 'muccamannara';
+	});
+	
+	// If any mannari is alive, block other teams from winning
+	return mannariAlive > 0;
+}
+
 

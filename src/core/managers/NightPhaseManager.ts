@@ -32,6 +32,21 @@ export class NightPhaseManager {
     } as any;
     
     state.phase = 'night';
+    
+    // Apply mutaforma passive effect at the start of night to check team balance
+    const mutaformaPlayers = state.players.filter(p => p.roleId === 'mutaforma' && p.alive);
+    if (mutaformaPlayers.length > 0) {
+      const mutaformaRole = ROLES['mutaforma'];
+      if (mutaformaRole && typeof mutaformaRole.passiveEffect === 'function') {
+        for (const player of mutaformaPlayers) {
+          try {
+            mutaformaRole.passiveEffect(state as any, player);
+          } catch (error) {
+            console.error(`Error in mutaforma passive effect for player ${player.id}:`, error);
+          }
+        }
+      }
+    }
   }
 
   /**

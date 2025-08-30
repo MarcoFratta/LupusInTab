@@ -215,6 +215,7 @@ export interface GameState {
     history?: GameHistory;
     nightDeathsByNight?: Record<number, number[]>;
     lynchedHistoryByDay?: Record<number, number[]>;
+    roleMeta?: Record<string, any>; // Test-specific property for role metadata
 }
 
 export interface NightTurn { kind: 'group'; roleId: string; playerIds: number[] }

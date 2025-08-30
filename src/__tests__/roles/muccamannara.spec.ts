@@ -51,7 +51,7 @@ describe('MuccaMannara Role', () => {
       expect(muccamannara.id).toBe('muccamannara');
       expect(muccamannara.name).toBe('Mucca Mannara');
       expect(muccamannara.team).toBe('mannari');
-      expect(muccamannara.score).toBe(30);
+      expect(muccamannara.score).toBe(33);
       expect(muccamannara.actsAtNight).toBe('never');
     });
 

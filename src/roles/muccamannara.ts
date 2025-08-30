@@ -1,22 +1,22 @@
 import type { RoleDef } from '../types';
-import { mannariWin } from '../utils/winConditions';
+import { mannariWin, mannariBlocksOtherWins } from '../utils/winConditions';
 
 const muccamannara: RoleDef = {
     id: 'muccamannara',
     name: 'Mucca Mannara',
     team: 'mannari',
-    score: 30,
+    score: 33,
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
     description: 'Vince solo se rimane in vita con un altro giocatore. ' +
         'Se rimane in vita, nessun altro può vincere. ' +
         'I lupi non possono ucciderla. ' +
+        "Conosce l'identità dei lupi. " +
         'Muore se il veggente la indaga.',
     color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "never",
-    numberOfUsage: 'unlimited',
     resolve(){},
     passiveEffect(gameState: any, player: any) {
         const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
@@ -31,6 +31,10 @@ const muccamannara: RoleDef = {
 
     checkWin(gameState: any) {
         return mannariWin(gameState);
+    },
+    
+    checkWinConstraint(gameState: any) {
+        return mannariBlocksOtherWins(gameState);
     },
 };
 

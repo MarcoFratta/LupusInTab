@@ -174,6 +174,12 @@ describe('engine flow', () => {
     const s = createEmptyState();
     s.phase = 'resolve';
     
+    // Add players so the game doesn't end immediately
+    s.players = [
+      { id: 1, name: 'Lupo Player', roleId: 'lupo', alive: true, roleState: {} },
+      { id: 2, name: 'Guardia Player', roleId: 'guardia', alive: true, roleState: {} }
+    ] as any;
+    
     const mockRoles = {
       lupo: {
         id: 'lupo',
@@ -396,9 +402,262 @@ describe('new roles logic', () => {
       villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
     } as any;
     const { villageWin } = useWinConditions();
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWin: villageWin },
+      lupomannaro: { id:'lupomannaro', name:'LupoMannaro', team:'mannari', phaseOrder:2, actsAtNight:false, getPromptComponent: () => async () => ({}), resolve: () => {}, checkWinConstraint: (st:any) => st.players.some((p:any)=>p.alive && p.roleId==='lupomannaro') && st.players.filter((p:any)=>p.alive).length>2 },
+    } as any);
+    // With 3+ players alive and Lupomannaro alive, village should NOT win due to constraint
+    expect(winner).toBe(null);
+  });
+
+  it('REFACTORED: Parassita can win while blocking other teams via checkWinConstraint', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'P', roleId: 'parassita', alive: true },
+      { id: 2, name: 'V1', roleId: 'villico', alive: true },
+      { id: 3, name: 'V2', roleId: 'villico', alive: true },
+    ] as any;
+    s.custom = {
+      parassita: { infetti: [2, 3] } // Both villico are infected
+    };
+    s.roleMeta = {
+      parassita: { id:'parassita', name:'Parassita', team:'parassita', phaseOrder:1 } as any,
+      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
+    } as any;
     
-    // Now test the village win condition specifically
-    expect(villageWin(s as any)).toBe(false);
+    const { villageWin } = useWinConditions();
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      parassita: { 
+        id:'parassita', 
+        name:'Parassita', 
+        team:'parassita', 
+        phaseOrder:1, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: (st:any) => {
+          // Parassita wins if all other players are infected
+          const alivePlayers = st.players.filter((p:any) => p.alive);
+          const parassitaPlayer = alivePlayers.find((p:any) => p.roleId === 'parassita');
+          if (!parassitaPlayer) return false;
+          
+          const otherAlivePlayers = alivePlayers.filter((p:any) => p.id !== parassitaPlayer.id);
+          if (otherAlivePlayers.length === 0) return false;
+          
+          const infetti = st.custom?.parassita?.infetti || [];
+          return otherAlivePlayers.every((p:any) => infetti.includes(p.id));
+        },
+        checkWinConstraint: (st:any) => {
+          // Parassita blocks village from winning when alive
+          const parassitaAlive = st.players.some((p:any) => p.roleId === 'parassita' && p.alive);
+          if (!parassitaAlive) return false;
+          
+          // Check if village would win
+          const alivePlayers = st.players.filter((p:any) => p.alive);
+          const lupiAlive = alivePlayers.filter((p:any) => {
+            const roleDef = st.roleMeta?.[p.roleId];
+            return roleDef && (roleDef.team === 'lupi' || roleDef.countAs === 'lupi');
+          }).length;
+          
+          const lupomannaroAliveForWin = alivePlayers.filter((p:any) => {
+            const roleDef = st.roleMeta?.[p.roleId];
+            return roleDef && roleDef.team === 'mannari' && roleDef.countAs === 'lupi';
+          }).length;
+          
+          return lupiAlive === 0 && lupomannaroAliveForWin === 0;
+        }
+      },
+      villico: { 
+        id:'villico', 
+        name:'Villico', 
+        team:'villaggio', 
+        phaseOrder:99, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: villageWin 
+      },
+    } as any);
+    
+    // Parassita should win (all other players infected) and block village from winning
+    expect(winner).toEqual(['parassita']);
+  });
+
+  it('REFACTORED: Only one team can win at a time - prioritizes first winning team', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'P', roleId: 'parassita', alive: true },
+      { id: 2, name: 'V', roleId: 'villico', alive: true },
+    ] as any;
+    s.custom = {
+      parassita: { infetti: [2] } // Villico is infected
+    };
+    s.roleMeta = {
+      parassita: { id:'parassita', name:'Parassita', team:'parassita', phaseOrder:1 } as any,
+      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
+    } as any;
+    
+    const { villageWin } = useWinConditions();
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      parassita: { 
+        id:'parassita', 
+        name:'Parassita', 
+        team:'parassita', 
+        phaseOrder:1, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: (st:any) => {
+          // Parassita wins if all other players are infected
+          const alivePlayers = st.players.filter((p:any) => p.alive);
+          const parassitaPlayer = alivePlayers.find((p:any) => p.roleId === 'parassita');
+          if (!parassitaPlayer) return false;
+          
+          const otherAlivePlayers = alivePlayers.filter((p:any) => p.id !== parassitaPlayer.id);
+          if (otherAlivePlayers.length === 0) return false;
+          
+          const infetti = st.custom?.parassita?.infetti || [];
+          return otherAlivePlayers.every((p:any) => infetti.includes(p.id));
+        }
+      },
+      villico: { 
+        id:'villico', 
+        name:'Villico', 
+        team:'villaggio', 
+        phaseOrder:99, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: villageWin 
+      },
+    } as any);
+    
+    // Both teams could win, but only one should win (parassita wins first)
+    expect(winner).toEqual(['parassita']);
+    expect(winner && winner.length).toBe(1); // Ensure only one team wins
+  });
+
+  it('REFACTORED: Mannari roles block other teams from winning when alive', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'LM', roleId: 'lupomannaro', alive: true },
+      { id: 2, name: 'MM', roleId: 'muccamannara', alive: true },
+      { id: 3, name: 'V', roleId: 'villico', alive: true },
+    ] as any;
+    s.roleMeta = {
+      lupomannaro: { id:'lupomannaro', name:'Lupomannaro', team:'mannari', phaseOrder:1, countAs:'lupi' } as any,
+      muccamannara: { id:'muccamannara', name:'MuccaMannara', team:'mannari', phaseOrder:2, countAs:'lupi' } as any,
+      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
+    } as any;
+    
+    const { villageWin, wolvesWin } = useWinConditions();
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      lupomannaro: { 
+        id:'lupomannaro', 
+        name:'Lupomannaro', 
+        team:'mannari', 
+        phaseOrder:1, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: (st:any) => {
+          // Mannari win when their count >= other players count
+          const mannariAlive = st.players.filter((p:any) => p.alive && (p.roleId === 'lupomannaro' || p.roleId === 'muccamannara')).length;
+          const nonMannariAlive = st.players.filter((p:any) => p.alive && p.roleId !== 'lupomannaro' && p.roleId !== 'muccamannara').length;
+          return mannariAlive >= nonMannariAlive;
+        },
+        checkWinConstraint: (st:any) => {
+          // Import the common function
+          const { mannariBlocksOtherWins } = require('../../utils/winConditions');
+          return mannariBlocksOtherWins(st);
+        }
+      },
+      muccamannara: { 
+        id:'muccamannara', 
+        name:'MuccaMannara', 
+        team:'mannari', 
+        phaseOrder:2, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: (st:any) => {
+          // Mannari win when their count >= other players count
+          const mannariAlive = st.players.filter((p:any) => p.alive && (p.roleId === 'lupomannaro' || p.roleId === 'muccamannara')).length;
+          const nonMannariAlive = st.players.filter((p:any) => p.alive && p.roleId !== 'lupomannaro' && p.roleId !== 'muccamannara').length;
+          return mannariAlive >= nonMannariAlive;
+        },
+        checkWinConstraint: (st:any) => {
+          // Import the common function
+          const { mannariBlocksOtherWins } = require('../../utils/winConditions');
+          return mannariBlocksOtherWins(st);
+        }
+      },
+      villico: { 
+        id:'villico', 
+        name:'Villico', 
+        team:'villaggio', 
+        phaseOrder:99, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: villageWin 
+      },
+    } as any);
+    
+    // With both lupomannaro and muccamannara alive, they should block other teams from winning
+    // But they can still win themselves (mannari count = 2, non-mannari count = 1)
+    expect(winner).toEqual(['mannari']);
+  });
+
+  it('REFACTORED: Mannari constraint blocks village from winning when any mannari is alive', async () => {
+    const s = createEmptyState();
+    s.players = [
+      { id: 1, name: 'LM', roleId: 'lupomannaro', alive: true },
+      { id: 2, name: 'V1', roleId: 'villico', alive: true },
+      { id: 3, name: 'V2', roleId: 'villico', alive: true },
+    ] as any;
+    s.roleMeta = {
+      lupomannaro: { id:'lupomannaro', name:'Lupomannaro', team:'mannari', phaseOrder:1, countAs:'lupi' } as any,
+      villico: { id:'villico', name:'Villico', team:'villaggio', phaseOrder:99 } as any,
+    } as any;
+    
+    const { villageWin } = useWinConditions();
+    const winner = (await import('../core/engine')).evaluateWinner(s as any, {
+      lupomannaro: { 
+        id:'lupomannaro', 
+        name:'Lupomannaro', 
+        team:'mannari', 
+        phaseOrder:1, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: (st:any) => {
+          // Mannari win when their count >= other players count
+          const mannariAlive = st.players.filter((p:any) => p.alive && (p.roleId === 'lupomannaro' || p.roleId === 'muccamannara')).length;
+          const nonMannariAlive = st.players.filter((p:any) => p.alive && p.roleId !== 'lupomannaro' && p.roleId !== 'muccamannara').length;
+          return mannariAlive >= nonMannariAlive;
+        },
+        checkWinConstraint: (st:any) => {
+          // Import the common function
+          const { mannariBlocksOtherWins } = require('../../utils/winConditions');
+          return mannariBlocksOtherWins(st);
+        }
+      },
+      villico: { 
+        id:'villico', 
+        name:'Villico', 
+        team:'villaggio', 
+        phaseOrder:99, 
+        actsAtNight:false, 
+        getPromptComponent: () => async () => ({}), 
+        resolve: () => {}, 
+        checkWin: villageWin 
+      },
+    } as any);
+    
+    // With lupomannaro alive, village should NOT win due to constraint
+    // But lupomannaro can still win (mannari count = 1, non-mannari count = 2, so no win)
+    expect(winner).toBe(null);
   });
 
   it('BUG REPRODUCTION: Lupomannaro prevents village from winning even when all real wolves are dead', async () => {

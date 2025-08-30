@@ -216,6 +216,14 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
         'Mutaforma': {
             prompt: () => import('../components/roles/Mutaforma/MutaformaPrompt.vue'),
             details: () => import('../components/roles/Mutaforma/MutaformaResolveDetails.vue')
+        },
+        'MissPurple': {
+            prompt: () => import('../components/roles/MissPurple/MissPurplePrompt.vue'),
+            details: () => import('../components/roles/MissPurple/MissPurpleResolveDetails.vue')
+        },
+        'Bugiardo': {
+            prompt: () => import('../components/roles/Bugiardo/BugiardoPrompt.vue'),
+            details: () => import('../components/roles/Bugiardo/BugiardoResolveDetails.vue')
         }
     };
     

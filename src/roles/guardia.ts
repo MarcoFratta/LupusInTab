@@ -15,7 +15,6 @@ const guardia: RoleDef = {
     actsAtNight: "alive",
     effectType: 'required',
     numberOfUsage: 'unlimited',
-    affectedRoles: ['lupo'],
     getPromptComponent: componentFactory('Guardia', "prompt"),
     getResolveDetailsComponent: componentFactory('Guardia', "details"),
     resolve(gameState: any, action: any) {

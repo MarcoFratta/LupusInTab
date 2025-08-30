@@ -8,6 +8,7 @@ import { SetupTitle } from '../ui';
 const props = defineProps<{ state: any; onContinue: () => void }>();
 
 const showRoleResee = ref(false);
+const expandedFactions = ref<Set<string>>(new Set());
 
 const aliveWithRoles = computed(() => {
   const players = props.state.players.filter((p: any) => p.alive).map((p: any) => {
@@ -61,32 +62,43 @@ const getTeamDisplayName = (team: string) => {
   };
   return teamNames[team] || 'Sconosciuti';
 };
+
+const toggleFaction = (team: string) => {
+  if (expandedFactions.value.has(team)) {
+    expandedFactions.value.delete(team);
+  } else {
+    expandedFactions.value.add(team);
+  }
+};
+
+const isFactionExpanded = (team: string) => {
+  return expandedFactions.value.has(team);
+};
 </script>
 
 <template>
+  <SetupTitle class="pt-2" title="Preparazione per la Notte" />
   <div class="w-full px-3 py-2 md:px-6 space-y-4 md:space-y-6">
-    <SetupTitle title="Preparazione per la Notte" />
-
     <div class="space-y-4 md:space-y-6">
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6">
         <div class="space-y-6">
-          <div class="text-center space-y-4">
+          <div class="text-center space-y-4 pt-2">
             <div class="flex items-center justify-center gap-3 mb-4">
               <div class="w-12 h-12 md:w-16 md:h-16 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 bg-gradient-to-br from-violet-500/30 to-fuchsia-500/30 border border-violet-500/50">
                 <svg class="w-6 h-6 md:w-8 md:h-8 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                 </svg>
               </div>
-              <div class="text-3xl md:text-4xl font-bold text-violet-400">
+              <div class="text-2xl md:text-4xl font-bold text-violet-400">
                 Notte {{ props.state.nightNumber + 1 }}
               </div>
             </div>
             
-            <div class="space-y-3">
+            <div class="space-y-2">
               <p class="text-md md:text-2xl font-semibold text-neutral-100 leading-relaxed">
                 Chiedi a tutti i giocatori di chiudere gli occhi
               </p>
-              <p class="text-md md:text-xl text-neutral-300 leading-relaxed">
+              <p class="text-sm md:text-xl text-neutral-300 leading-relaxed">
                 Quando tutti sono pronti prosegui alla fase notturna
               </p>
             </div>
@@ -97,16 +109,35 @@ const getTeamDisplayName = (team: string) => {
               <div class="w-3 h-3 rounded-full bg-violet-500"></div>
               <h4 class="text-base md:text-lg font-semibold text-neutral-200">Giocatori vivi e i loro ruoli</h4>
             </div>
-            <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg p-3">
+            <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg pt-3 px-2 pb-2">
               <div class="space-y-4">
                 <template v-for="(teamPlayers, team) in groupPlayersByTeam(aliveWithRoles)" :key="team">
                   <div v-if="teamPlayers.length > 0" class="space-y-2">
-                    <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: getTeamColor(team) }"></div>
-                      <h5 class="text-sm font-medium text-neutral-300 capitalize">{{ getTeamDisplayName(team) }}</h5>
-                      <span class="text-xs text-neutral-500">({{ teamPlayers.length }})</span>
-                    </div>
-                    <div class="">
+                    <button 
+                      @click="toggleFaction(team)"
+                      class="w-full flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-neutral-700/40 transition-colors duration-200 group"
+                    >
+                      <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: getTeamColor(team) }"></div>
+                        <h5 class="text-md font-medium text-neutral-300 capitalize">{{ getTeamDisplayName(team) }}</h5>
+                        <span class="text-xs text-neutral-500">({{ teamPlayers.length }})</span>
+                      </div>
+                      <div class="flex items-center gap-2">
+                        <svg 
+                          class="w-4 h-4 text-neutral-400 transition-transform duration-200 group-hover:text-neutral-300"
+                          :class="{ 'rotate-180': isFactionExpanded(team) }"
+                          fill="none" 
+                          stroke="currentColor" 
+                          viewBox="0 0 24 24"
+                        >
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                      </div>
+                    </button>
+                    <div 
+                      v-show="isFactionExpanded(team)"
+                      class="pl-3 border-l-2 border-neutral-700/40 ml-2"
+                    >
                       <PlayerRoleList :state="props.state" :players="teamPlayers" />
                     </div>
                   </div>
@@ -115,7 +146,7 @@ const getTeamDisplayName = (team: string) => {
             </div>
           </div>
           
-          <div class="pt-4">
+          <div class="pt-6">
             <button 
               class="group relative w-full px-6 py-3 text-lg font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25"
               @click="props.onContinue"

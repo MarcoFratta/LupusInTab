@@ -11,9 +11,9 @@
       <div class="w-24 h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
     </div>
 
-    <div class="relative">
+    <div class="relative w-full">
       <div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-fuchsia-500/5 to-transparent rounded-2xl"></div>
-      <div class="relative bg-neutral-900/80 backdrop-blur-sm border border-neutral-800/60 rounded-2xl p-6 md:p-8 space-y-6">
+      <div class="relative bg-neutral-900/80 backdrop-blur-sm border border-neutral-800/60 rounded-2xl py-6 px-0 md:p-8 space-y-6">
         <div class="text-center space-y-3">
           <div class="text-4xl md:text-5xl font-black" :class="getWinnerColor(winner)">
             {{ getWinnerText(winner) }}
@@ -31,7 +31,7 @@
                 <div class="absolute inset-0 bg-gradient-to-br
                  from-white/5 to-transparent opacity-0 
                  group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative">
+                <div class="relative w-full">
                   <div class="flex items-center justify-center space-x-3 mb-4">
                     <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: getTeamColor(team) }"></div>
                     <div class="text-xl md:text-2xl font-bold" :class="getTeamTextColor(team)">
@@ -51,8 +51,9 @@
             <div class="group">
               <div class="relative overflow-hidden rounded-xl p-6 transition-all duration-300 hover:scale-[1.02]"
                    :class="getTeamBorderColor(winner)">
-                <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-white/5
+                 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative w-full">
                   <div class="flex items-center justify-center space-x-3 mb-4">
                     <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: getTeamColor(winner) }"></div>
                     <div class="text-xl md:text-2xl font-bold" :class="getTeamTextColor(winner)">

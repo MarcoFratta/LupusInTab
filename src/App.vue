@@ -4,14 +4,14 @@ import { useRoute, useRouter } from 'vue-router';
 import { PhaseReveal, PhaseNight, PhaseResolve, PhasePreNight, PhaseDay, WinResults, useGameLogic, useGameState, useNightPhase } from './components';
 import { SetupHome, SetupPlayers, SetupRoles, SetupSettings } from './components';
 import { RoleDetails } from './components';
-import { EventHistory } from './components';
+import { EventHistory, NewRolesPopup } from './components';
 import SecondaryButton from './components/ui/SecondaryButton.vue';
 import PrimaryButton from './components/ui/PrimaryButton.vue';
 import GhostButton from './components/ui/GhostButton.vue';
 import ButtonGroup from './components/ui/ButtonGroup.vue';
 import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
-
+import { useNewRolesPopup } from './composables';
 
 
 const savedGameAtBoot = loadGameState();
@@ -74,8 +74,11 @@ const {
 initializeGameState();
 setupWatchers();
 
-
-
+const {
+	showPopup: showNewRolesPopup,
+	newRoles,
+	closePopup: closeNewRolesPopup
+} = useNewRolesPopup();
 
 
 // Manual test function for resume
@@ -350,6 +353,14 @@ function resumeGame() {
 			/>
 		</div>
 	</div>
+
+	<!-- New Roles Popup -->
+	<NewRolesPopup
+      class=""
+		:show="showNewRolesPopup"
+		:new-roles="newRoles"
+		@close="closeNewRolesPopup"
+	/>
 </template>
 
  

@@ -41,16 +41,22 @@ export class DayPhaseManager {
         const role = roles[roleId];
         return { roleId, role, phaseOrder: role?.phaseOrder };
       })
-      .filter(({ role }) => role && typeof role.restoreFunction === 'function')
-      .sort((a, b) => {
-        const aIndex = rolesThatActed.indexOf(a.roleId);
-        const bIndex = rolesThatActed.indexOf(b.roleId);
-        return bIndex - aIndex; // Reverse order for restore
-      });
+      .filter(({ role }) => role && typeof role.restoreFunction === 'function');
     
-    console.log(`🔄 [DayPhase] Restore order: ${rolesToRestore.map(r => `${r.roleId}(${r.phaseOrder})`).join(' → ')}`);
+    if (rolesToRestore.length === 0) {
+      console.log(`🔄 [DayPhase] No roles with restore functions found`);
+      return;
+    }
     
-    for (const { roleId, role } of rolesToRestore) {
+    const sortedRoles = rolesToRestore.sort((a, b) => {
+      const aIndex = rolesThatActed.indexOf(a.roleId);
+      const bIndex = rolesThatActed.indexOf(b.roleId);
+      return bIndex - aIndex; // Reverse order for restore
+    });
+    
+    console.log(`🔄 [DayPhase] Restore order: ${sortedRoles.map(r => `${r.roleId}(${r.phaseOrder})`).join(' → ')}`);
+    
+    for (const { roleId, role } of sortedRoles) {
       try {
         console.log(`🔄 [DayPhase] Calling restore function for role: ${roleId}`);
         role.restoreFunction!(state);

@@ -226,7 +226,7 @@ window.addEventListener('resize', updateTimelineLine);
         </div>
       </div>
       
-      <div v-if="currentDay" class="space-y-6 px-2">
+      <div v-if="currentDay" class="space-y-6 px-4">
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
           <div class="group relative overflow-hidden rounded-2xl border border-neutral-800/40 transition-all duration-300 hover:scale-[1.02] hover:border-neutral-700/50">
             <div class="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-fuchsia-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

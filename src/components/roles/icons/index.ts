@@ -18,3 +18,5 @@ export { default as GenioIcon } from './GenioIcon.vue';
 export { default as ParassitaIcon } from './ParassitaIcon.vue';
 export { default as SimbionteIcon } from './SimbionteIcon.vue';
 export { default as MutaformaIcon } from './MutaformaIcon.vue';
+export { default as MissPurpleIcon } from './MissPurpleIcon.vue';
+export { default as BugiardoIcon } from './BugiardoIcon.vue';

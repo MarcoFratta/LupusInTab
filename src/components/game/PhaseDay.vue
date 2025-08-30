@@ -116,7 +116,8 @@ function confirmSindaco() {
         </div>
 
         <button 
-          class="group relative px-6 py-3 text-base font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
+          class="group relative w-full px-6 py-3 text-base
+          font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
           @click="props.onSkipDay"
         >
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -124,7 +125,7 @@ function confirmSindaco() {
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 opacity-80"></div>
           </div>
           
-          <div class="relative z-10 flex items-center gap-2">
+          <div class="relative z-10 flex justify-center items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>

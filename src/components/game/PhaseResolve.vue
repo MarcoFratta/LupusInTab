@@ -28,7 +28,7 @@ const showDetails = ref(false);
         
         <!-- Deaths Card -->
         <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6">
-          <div class="text-center mb-4">
+          <div class="text-center">
             <div class="flex items-center justify-center gap-3 mb-3">
               <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300 bg-gradient-to-br from-red-500/30 to-orange-500/30 border border-red-500/50">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-red-400">
@@ -101,7 +101,7 @@ const showDetails = ref(false);
           <div class="space-y-3">
             <ButtonGroup>
               <GhostButton full-width @click="showDetails = !showDetails">
-                {{ showDetails ? 'Nascondi dettagli' : 'Mostra dettagli' }}
+                {{ showDetails ? 'Nascondi' : 'Dettagli' }}
               </GhostButton>
               <PrimaryButton full-width @click="props.onContinue">Continua</PrimaryButton>
             </ButtonGroup>

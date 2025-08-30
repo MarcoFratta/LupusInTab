@@ -427,12 +427,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT_TO_PUSH }}
 
-      - name: Download Release AAB
-        uses: actions/download-artifact@v4
-        with:
-          name: lupusMaster-aab
-          path: android/app/build/outputs/bundle/release/
-
       - name: Verify Release Exists
         uses: actions/github-script@v6
         with:
@@ -460,4 +454,99 @@ jobs:
             
             console.log(`✅ Release v${version} verified and ready for AAB upload`);
             console.log(`📅 Release ID: ${targetRelease.id}`);
-            console.log(`
+            console.log(`🏷️  Release tag: ${targetRelease.tag_name}`);
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update GitHub Release with AAB
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const version = require('./package.json').version;
+            
+            console.log(`🔍 Looking for release v${version} to upload AAB...`);
+            
+            // Wait a bit to ensure the release is fully created
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            // Find the specific release by exact tag match
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            console.log(`📋 Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
+            
+            const targetRelease = releases.data.find(release => release.tag_name === `v${version}`);
+            
+            if (targetRelease) {
+              console.log(`✅ Found target release v${version} with ID: ${targetRelease.id}`);
+              console.log(`📅 Release created at: ${targetRelease.created_at}`);
+              console.log(`🏷️  Release tag: ${targetRelease.tag_name}`);
+              
+              // Check if AAB already exists in the release
+              const existingAssets = await github.rest.repos.listReleaseAssets({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: targetRelease.id
+              });
+              
+              const aabName = `lupusMaster-${version}.aab`;
+              const assetExists = existingAssets.data.some(asset => asset.name === aabName);
+              
+              if (assetExists) {
+                console.log(`ℹ️ AAB ${aabName} already exists in release v${version}. Skipping upload.`);
+                return;
+              }
+              
+              // Upload AAB to the release
+              const aabPath = 'android/app/build/outputs/bundle/release/lupusMaster.aab';
+              if (fs.existsSync(aabPath)) {
+                console.log(`📤 Uploading AAB ${aabName} to release v${version}...`);
+                const aabBuffer = fs.readFileSync(aabPath);
+                
+                try {
+                  await github.rest.repos.uploadReleaseAsset({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    release_id: targetRelease.id,
+                    name: aabName,
+                    data: aabBuffer
+                  });
+                  console.log(`✅ AAB ${aabName} successfully uploaded to release v${version}`);
+                  
+                  // Verify the upload was successful
+                  const verifyAssets = await github.rest.repos.listReleaseAssets({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    release_id: targetRelease.id
+                  });
+                  
+                  const uploadedAsset = verifyAssets.data.find(asset => asset.name === aabName);
+                  if (uploadedAsset) {
+                    console.log(`✅ AAB upload verified: ${uploadedAsset.name} (${uploadedAsset.size} bytes)`);
+                    console.log(`🔗 Asset URL: ${uploadedAsset.browser_download_url}`);
+                  } else {
+                    console.error(`❌ AAB upload verification failed - asset not found in release`);
+                    throw new Error('AAB upload verification failed');
+                  }
+                } catch (error) {
+                  console.error(`❌ Failed to upload AAB: ${error.message}`);
+                  throw error;
+                }
+              } else {
+                console.log(`❌ AAB file not found at ${aabPath}`);
+                throw new Error(`AAB file not found at ${aabPath}`);
+              }
+            } else {
+              console.error(`❌ Release v${version} not found`);
+              console.error(`Available releases: ${releases.data.map(r => r.tag_name).join(', ')}`);
+              throw new Error(`Release v${version} not found. Available: ${releases.data.map(r => r.tag_name).join(', ')}`);
+            }

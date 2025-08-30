@@ -51,7 +51,7 @@
             <div class="group">
               <div class="relative overflow-hidden rounded-xl p-6 transition-all duration-300 hover:scale-[1.02]"
                    :class="getTeamBorderColor(winner)">
-                <div class="absolute inset-0 bg-gradient-to-br from-white/5
+                <div class="absolute px-4 inset-0 bg-gradient-to-br from-white/5
                  to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative w-full">
                   <div class="flex items-center justify-center space-x-3 mb-4">

@@ -427,6 +427,26 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT_TO_PUSH }}
 
+      - name: Download Release AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: lupusMaster-aab
+          path: ./
+
+      - name: Verify AAB File
+        run: |
+          echo "🔍 Checking downloaded AAB file..."
+          ls -la
+          if [ -f "lupusMaster.aab" ]; then
+            echo "✅ AAB file found: lupusMaster.aab"
+            echo "📦 File size: $(du -h lupusMaster.aab | cut -f1)"
+          else
+            echo "❌ AAB file not found"
+            echo "📁 Current directory contents:"
+            ls -la
+            exit 1
+          fi
+
       - name: Verify Release Exists
         uses: actions/github-script@v6
         with:
@@ -469,9 +489,16 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const path = require('path');
             const version = require('./package.json').version;
             
             console.log(`🔍 Looking for release v${version} to upload AAB...`);
+            console.log(`📁 Current working directory: ${process.cwd()}`);
+            console.log(`📁 Directory contents:`);
+            fs.readdirSync('.').forEach(file => {
+              const stats = fs.statSync(file);
+              console.log(`   ${file} - ${stats.isDirectory() ? 'DIR' : 'FILE'} ${stats.size ? `(${Math.round(stats.size / 1024)} KB)` : ''}`);
+            });
             
             // Wait a bit to ensure the release is fully created
             await new Promise(resolve => setTimeout(resolve, 5000));
@@ -507,7 +534,7 @@ jobs:
               }
               
               // Upload AAB to the release
-              const aabPath = 'android/app/build/outputs/bundle/release/lupusMaster.aab';
+              const aabPath = 'lupusMaster.aab';
               if (fs.existsSync(aabPath)) {
                 console.log(`📤 Uploading AAB ${aabName} to release v${version}...`);
                 const aabBuffer = fs.readFileSync(aabPath);

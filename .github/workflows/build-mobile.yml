@@ -342,6 +342,19 @@ jobs:
           echo "📦 AAB file created: lupusMaster.aab"
           echo "📊 AAB file size: $(du -h app/build/outputs/bundle/release/lupusMaster.aab | cut -f1)"
 
+      - name: Build Release APK
+        run: |
+          cd android
+          echo "🔍 Building APK for version: $(node -p "require('../package.json').version")"
+          
+          ./gradlew assembleRelease
+          
+          echo "✅ APK build completed"
+          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/lupusMaster.apk
+          
+          echo "📦 APK file created: lupusMaster.apk"
+          echo "📊 APK file size: $(du -h app/build/outputs/apk/release/lupusMaster.apk | cut -f1)"
+
       - name: Verify AAB Version
         run: |
           cd android
@@ -407,6 +420,13 @@ jobs:
           path: android/app/build/outputs/bundle/release/lupusMaster.aab
           if-no-files-found: error
 
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: lupusMaster-apk
+          path: android/app/build/outputs/apk/release/lupusMaster.apk
+          if-no-files-found: error
+
       - name: Upload ProGuard Mapping (for crash analysis)
         uses: actions/upload-artifact@v4
         with:
@@ -431,6 +451,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: lupusMaster-aab
+          path: ./
+
+      - name: Download Release APK
+        uses: actions/download-artifact@v4
+        with:
+          name: lupusMaster-apk
           path: ./
 
       - name: Verify AAB File
@@ -571,6 +597,47 @@ jobs:
               } else {
                 console.log(`❌ AAB file not found at ${aabPath}`);
                 throw new Error(`AAB file not found at ${aabPath}`);
+              }
+
+              // Upload APK to the release
+              const apkName = `lupusMaster-${version}.apk`;
+              const apkPath = 'lupusMaster.apk';
+              if (fs.existsSync(apkPath)) {
+                console.log(`📤 Uploading APK ${apkName} to release v${version}...`);
+                const apkBuffer = fs.readFileSync(apkPath);
+                
+                try {
+                  await github.rest.repos.uploadReleaseAsset({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    release_id: targetRelease.id,
+                    name: apkName,
+                    data: apkBuffer
+                  });
+                  console.log(`✅ APK ${apkName} successfully uploaded to release v${version}`);
+                  
+                  // Verify the APK upload was successful
+                  const verifyApkAssets = await github.rest.repos.listReleaseAssets({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    release_id: targetRelease.id
+                  });
+                  
+                  const uploadedApkAsset = verifyApkAssets.data.find(asset => asset.name === apkName);
+                  if (uploadedApkAsset) {
+                    console.log(`✅ APK upload verified: ${uploadedApkAsset.name} (${uploadedApkAsset.size} bytes)`);
+                    console.log(`🔗 APK URL: ${uploadedApkAsset.browser_download_url}`);
+                  } else {
+                    console.error(`❌ APK upload verification failed - asset not found in release`);
+                    throw new Error('APK upload verification failed');
+                  }
+                } catch (error) {
+                  console.error(`❌ Failed to upload APK: ${error.message}`);
+                  throw error;
+                }
+              } else {
+                console.log(`❌ APK file not found at ${apkPath}`);
+                throw new Error(`APK file not found at ${apkPath}`);
               }
             } else {
               console.error(`❌ Release v${version} not found`);

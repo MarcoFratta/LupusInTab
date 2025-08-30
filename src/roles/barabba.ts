@@ -10,7 +10,7 @@ const barabba: RoleDef = {
     score: 4,
     countAs: 'villaggio',
     description: 'Quando è morto, può portare con sé un giocatore nell\'aldilà una volta per partita.',
-    color: '#29bb46',
+    color: '#c4b5fd',
     phaseOrder: "any",
     actsAtNight: "dead",
     effectType: 'optional',

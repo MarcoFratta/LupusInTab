@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
+import { getFactionConfig } from '../../../factions';
 
 interface Props {
     gameState: any;
@@ -18,7 +19,10 @@ const investigationEvents = computed(() => {
     return [props.entry];
 });
 
-const mediumPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'medium'));
+const mediumPlayers = computed(() => {
+  if (!props.entry || !props.entry.playerIds) return [];
+  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+});
 
 const representativeMedium = computed(() => {
   const mediumList = mediumPlayers.value;
@@ -31,6 +35,10 @@ const representativeMedium = computed(() => {
   };
 });
 
+const getFactionColor = (faction: string) => {
+  const factionConfig = getFactionConfig(faction);
+  return factionConfig?.color || '#9ca3af';
+};
 </script>
 
 <template>
@@ -44,13 +52,15 @@ const representativeMedium = computed(() => {
           left-label="Medium"
           right-label="Bersaglio"
           :center-content="{
-            action: mediumPlayers.length > 1 ? 'hanno controllato' : 'ha controllato'
+            action: mediumPlayers.length > 1 ? 'hanno visto' : 'ha visto'
           }"
         />
         
         <InvestigationResultCard 
-          :discovered-faction="event.discoveredFaction"
           title="Risultato Investigazione"
+          text="gioca per"
+          :results="event.discoveredFaction"
+          :color="getFactionColor(event.discoveredFaction)"
         />
       </div>
     </template>

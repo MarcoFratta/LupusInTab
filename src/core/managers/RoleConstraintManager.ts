@@ -26,13 +26,13 @@ export class RoleConstraintManager {
       return "blocked";
     }
 
-    // Check if all players with this role are dead and role requires alive players
-    if (aliveMembers.length === 0 && roleDef.actsAtNight === 'alive') {
+    // Check if role requires alive players but ALL players are dead
+    if (roleDef.actsAtNight === 'alive' && aliveMembers.length === 0) {
       return "dead";
     }
 
-    // Check if all players with this role are alive and role requires dead players
-    if (deadMembers.length === 0 && roleDef.actsAtNight === 'dead') {
+    // Check if role requires dead players but ALL players are alive
+    if (roleDef.actsAtNight === 'dead' && deadMembers.length === 0) {
       return "alive";
     }
 
@@ -141,13 +141,14 @@ export class RoleConstraintManager {
     
     // Check for meaningful data that indicates the role was used
     const hasTargetId = result.targetId !== null && result.targetId !== undefined;
+    const hasTargetIds = result.targetIds !== null && result.targetIds !== undefined;
     const hasTarget = result.target !== null && result.target !== undefined;
     const hasAction = result.action && result.action !== 'none';
     const hasChoice = result.choice !== null && result.choice !== undefined;
     const hasRoleId = result.roleId !== null && result.roleId !== undefined;
     
     // If any meaningful data is present, consider the role used
-    return hasTargetId || hasTarget || hasAction || hasChoice || hasRoleId;
+    return hasTargetId || hasTargetIds || hasTarget || hasAction || hasChoice || hasRoleId;
   }
 
   /**

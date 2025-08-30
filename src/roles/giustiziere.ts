@@ -3,14 +3,15 @@ import { villageWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const giustiziere: RoleDef = {
-    id: 'giustiziere',
-    name: 'Giustiziere',
-    team: 'villaggio',
+	id: 'giustiziere',
+	name: 'Giustiziere',
+	team: 'villaggio',
+	icon: 'GiustiziereIcon',
     visibleAsTeam: 'villaggio',
-    score: 3,
+    score: 4,
     countAs: 'villaggio',
     description: 'Una volta per partita, di notte giustizia un giocatore.',
-    color: '#dc2626',
+    color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'optional',

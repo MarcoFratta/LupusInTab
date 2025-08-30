@@ -67,9 +67,8 @@ export function useTeamBalance() {
     // Ideal power per team (total power / number of teams)
     const idealPowerPerTeam = totalActivePower / numActiveTeams;
     
-    let totalDeviation = 0;
-    let totalWeightedDeviation = 0;
-    let weightedVariance = 0;
+         let totalDeviation = 0;
+     let totalWeightedDeviation = 0;
     
     Object.entries(teamData).forEach(([teamName, team]) => {
       if (team.players === 0) return; // Skip disabled teams
@@ -80,20 +79,16 @@ export function useTeamBalance() {
       // Convert to percentage deviation for fairness calculation
       const percentageDeviation = (powerDeviation / idealPowerPerTeam) * 100;
       
-      // Weight by player count - teams with more players have more impact
-      const weight = team.players / totalPlayers;
-      const weightedDeviation = percentageDeviation * weight;
-      
-      totalDeviation += percentageDeviation;
-      totalWeightedDeviation += weightedDeviation;
-      
-      // Calculate weighted variance contribution
-      weightedVariance += weight * Math.pow(powerDeviation, 2);
+           // No weighting - each team contributes equally to the balance calculation
+     const weightedDeviation = percentageDeviation;
+     
+     totalDeviation += percentageDeviation;
+     totalWeightedDeviation += weightedDeviation;
     });
     
     // Convert deviation to fairness (0 deviation = 100% fairness)
-    // Use a very low sensitivity factor to make the system more lenient
-    const sensitivityFactor = 0.1; // Very low sensitivity for more lenient fairness
+         // Use a balanced sensitivity factor for gradual but realistic changes
+     const sensitivityFactor = 0.5; // Balanced sensitivity for gradual fairness changes
     const adjustedDeviation = totalWeightedDeviation * sensitivityFactor;
     
     // Maximum possible deviation is when one team has 100% and others have 0%
@@ -104,16 +99,7 @@ export function useTeamBalance() {
     // Small bonus for having multiple teams (variety)
     const varietyBonus = Object.keys(teamData).length > 2 ? 0.05 : 0;
     
-    // Large bonus for reasonably balanced scenarios (deviation < 50%)
-    const balanceBonus = totalWeightedDeviation < 50 ? 0.4 : 0;
-    
-    // Special case: if teams have reasonable power ratios (within 3x), give 100% fairness
-    const maxPower = Math.max(...Object.values(teamData).map(team => team.power));
-    const minPower = Math.min(...Object.values(teamData).map(team => team.power));
-    const powerRatio = maxPower / minPower;
-    const reasonableRatioBonus = powerRatio <= 3 ? 0.5 : 0;
-    
-    const finalFairness = Math.min(1, Math.max(0, baseFairness + varietyBonus + balanceBonus + reasonableRatioBonus));
+         const finalFairness = Math.min(1, Math.max(0, baseFairness + varietyBonus));
     
     return {
       fairness: Math.round(finalFairness * 100),
@@ -126,7 +112,7 @@ export function useTeamBalance() {
       baseFairness: Math.round(baseFairness * 100),
       varietyBonus: Math.round(varietyBonus * 100),
       finalFairness: Math.round(finalFairness * 100),
-      weightedVariance: Math.round(weightedVariance * 100) / 100
+      
     };
   });
 

@@ -1,8 +1,8 @@
 <template>
     <div class="space-y-4 mb-2">
         <div v-if="insinuoEvent" class="text-center space-y-1.5">
-            <div class="text-neutral-300 text-sm">{{ representativeInsinuo?.name }} ha insinuato:</div>
-            <div class="text-neutral-100 font-medium">{{ getTargetName(insinuoEvent.targetId) }}</div>
+            <div class="text-neutral-300 text-sm truncate max-w-full" :title="representativeInsinuo?.name">{{ representativeInsinuo?.name }} ha insinuato:</div>
+            <div class="text-neutral-100 font-medium truncate max-w-full" :title="getTargetName(insinuoEvent.targetId)">{{ getTargetName(insinuoEvent.targetId) }}</div>
             <FactionComparisonCard 
                 :current-team="insinuoEvent.previousFaction || 'villaggio'"
                 :next-team="insinuoEvent.newFaction || 'villaggio'"

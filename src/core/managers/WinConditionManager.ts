@@ -34,7 +34,7 @@ export class WinConditionManager {
    * Evaluate custom win conditions by checking role-specific win functions
    * Returns the winning team id, or null if no winner
    */
-  static evaluateWinner(state: GameState, roles: RolesRegistry): string | null {
+  static evaluateWinner(state: GameState, roles: RolesRegistry): string[] | null {
     const alivePlayers = GameStateManager.getAlivePlayers(state);
     if (alivePlayers.length === 0) return null;
     
@@ -53,13 +53,16 @@ export class WinConditionManager {
     }
     
     // Let roles declare their faction win
+    const winningTeams = new Set<string>();
     for (const p of alivePlayers) {
       const def = roles[p.roleId];
       if (def && typeof def.checkWin === 'function') {
         try {
           if (def.checkWin(state as any)) {
             const team = p.roleState?.realTeam || def.team;
-            return team || null;
+            if (team) {
+              winningTeams.add(team);
+            }
           }
         } catch (error) {
           console.error(`Error in checkWin for role ${p.roleId}:`, error);
@@ -67,23 +70,24 @@ export class WinConditionManager {
       }
     }
     
-    return null;
+    return winningTeams.size > 0 ? Array.from(winningTeams) : null;
   }
 
   /**
    * Check if the game should end after a specific event (like lynching)
    * Returns the winner if game should end, null otherwise
    */
-  static checkGameEndCondition(state: GameState, roles: RolesRegistry): string | null {
+  static checkGameEndCondition(state: GameState, roles: RolesRegistry): string[] | null {
     // Check for immediate win conditions first (like Matto being lynched)
-    if (state.winner) return state.winner;
+    if (state.winner) return Array.isArray(state.winner) ? state.winner : [state.winner];
     
     // Check custom win conditions
-    const customWinner = WinConditionManager.evaluateWinner(state, roles);
-    if (customWinner) return customWinner;
+    const customWinners = WinConditionManager.evaluateWinner(state, roles);
+    if (customWinners) return customWinners;
     
     // Check basic win conditions
-    return WinConditionManager.computeWinner(state);
+    const basicWinner = WinConditionManager.computeWinner(state);
+    return basicWinner ? [basicWinner] : null;
   }
 
   /**
@@ -108,9 +112,9 @@ export class WinConditionManager {
    * Sets the winner and phase if game should end
    */
   static validateGameContinuation(state: GameState, roles: RolesRegistry): boolean {
-    const winner = WinConditionManager.checkGameEndCondition(state, roles);
-    if (winner) {
-      state.winner = winner;
+    const winners = WinConditionManager.checkGameEndCondition(state, roles);
+    if (winners) {
+      state.winner = winners;
       state.phase = 'end';
       return false; // Game should end
     }

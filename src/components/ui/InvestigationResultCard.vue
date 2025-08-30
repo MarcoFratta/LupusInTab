@@ -2,25 +2,26 @@
 import { getFactionConfig } from '../../factions';
 
 interface Props {
-    discoveredFaction?: string;
     title?: string;
+    text?: string;
+    results?: string;
+    color?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     title: 'Risultato Investigazione'
 });
 
-const getFactionDisplay = (faction: string) => {
-    const factionConfig = getFactionConfig(faction);
+const getDisplayInfo = (results: string, color: string) => {
     return {
-        name: factionConfig?.displayName || faction,
-        color: factionConfig?.color || '#9ca3af'
+        name: results,
+        color: color
     };
 };
 </script>
 
 <template>
-  <!-- Compact Investigation Result Card -->
+  <!-- Generic Result Card -->
   <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
     <!-- Header with Icon -->
     <div class="flex items-center justify-center gap-2 mb-2">
@@ -30,27 +31,29 @@ const getFactionDisplay = (faction: string) => {
       <span class="text-xs font-medium text-neutral-300">{{ title }}</span>
     </div>
     
-    <!-- Investigation Content -->
+    <!-- Content -->
     <div class="text-center">
-                <div v-if="discoveredFaction" class="flex items-center justify-center gap-2">
-            <span class="text-xs text-neutral-500">gioca per</span>
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border font-medium text-sm"
-                 :style="{ 
-                   color: getFactionDisplay(discoveredFaction).color,
-                   borderColor: getFactionDisplay(discoveredFaction).color,
-                   backgroundColor: getFactionDisplay(discoveredFaction).color + '15'
-                 }">
-              <div class="w-1.5 h-1.5 rounded-full" :style="{ backgroundColor: getFactionDisplay(discoveredFaction).color }"></div>
-              {{ getFactionDisplay(discoveredFaction).name }}
-            </div>
-          </div>
+      <!-- Results display -->
+      <div v-if="results && text && color" class="flex items-center justify-center gap-2">
+        <span class="text-xs text-neutral-500">{{ text }}</span>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border font-medium text-sm"
+             :style="{ 
+               color: getDisplayInfo(results, color).color,
+               borderColor: getDisplayInfo(results, color).color,
+               backgroundColor: getDisplayInfo(results, color).color + '15'
+             }">
+          <div class="w-1.5 h-1.5 rounded-full" :style="{ backgroundColor: getDisplayInfo(results, color).color }"></div>
+          {{ getDisplayInfo(results, color).name }}
+        </div>
+      </div>
       
+      <!-- Fallback -->
       <div v-else>
         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-neutral-600 bg-neutral-800/40 text-neutral-500 font-medium text-sm">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="text-neutral-600">
             <path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L5.636 5.636" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Fazione non scoperta
+          Nessun risultato
         </div>
       </div>
     </div>

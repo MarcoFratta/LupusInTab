@@ -16,6 +16,9 @@ import indemoniato from './indemoniato';
 import { insinuo } from './insinuo';
 import illusionista from './illusionista';
 import { genio } from './genio';
+import { parassita } from './parassita';
+import { simbionte } from './simbionte';
+import mutaforma from './mutaforma';
 
 const rolesArray: RoleDef[] = [
 	lupo,
@@ -35,6 +38,9 @@ const rolesArray: RoleDef[] = [
 	insinuo as any,
 	illusionista,
 	genio,
+	parassita,
+	simbionte,
+	mutaforma,
 ];
 
 export const ROLES: Record<string, RoleDef> = rolesArray.reduce((acc, role) => {

@@ -8,3 +8,4 @@ export { default as RoleDetails } from './RoleDetails.vue';
 export { default as RoleRevealCard } from './RoleRevealCard.vue';
 export { default as RoleReseeCard } from './RoleReseeCard.vue';
 export { default as EventHistory } from './EventHistory.vue';
+export { default as WinResults } from './WinResults.vue';

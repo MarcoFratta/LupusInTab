@@ -6,12 +6,16 @@ const lupomannaro: RoleDef = {
     id: 'lupomannaro',
     name: 'Lupo Mannaro',
     team: 'mannari',
-    score: 33,
+    score: 30,
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Vince solo se rimane in vita con un altro giocatore. Di notte dichiara un giocatore e un ruolo: se indovina, la vittima muore. I lupi non possono ucciderlo. Muore se il veggente lo indaga.',
-    color: '#6366f1',
+    description: 'Vince solo se rimane in vita con un altro giocatore. Di notte dichiara un giocatore e un ruolo:' +
+        ' se indovina, la vittima muore sbranata. ' +
+        'Se rimane in vita, nessun altro può vincere.' +
+        'I lupi non possono ucciderlo. ' +
+        'Muore se il veggente lo indaga.',
+    color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "alive",
     effectType: 'required',

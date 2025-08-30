@@ -36,13 +36,14 @@ const playerNames = computed(() => {
     <div v-if="player" class="flex-1 font-medium bg-transparent flex flex-col">
       <div class="flex flex-wrap gap-1 justify-center">
         <span v-for="name in playerNames" :key="name" 
-              class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200">
+              class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200 max-w-full truncate"
+              :title="name.trim()">
           {{ name.trim() }}
         </span>
       </div>
       <div class="flex items-center justify-center gap-2 mt-2">
         <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: factionConfig?.color || '#9ca3af' }"></div>
-        <span class="text-xs" :style="{ color: factionConfig?.color || '#9ca3af' }">{{ playerRoleDef?.name || player.roleId }}</span>
+        <span class="text-xs truncate max-w-[8rem]" :style="{ color: factionConfig?.color || '#9ca3af' }" :title="playerRoleDef?.name || player.roleId">{{ playerRoleDef?.name || player.roleId }}</span>
       </div>
     </div>
     <div v-else class="flex-1 font-medium bg-transparent flex flex-col justify-center items-center text-neutral-400 text-xs">

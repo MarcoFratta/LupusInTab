@@ -91,10 +91,12 @@ function getFactionInfo(team: string | undefined) {
   if (faction?.color) {
     // Map common hex colors to Tailwind classes
     const colorMap: Record<string, string> = {
-      '#34d399': 'bg-emerald-400', // villaggio green
-      '#f87171': 'bg-red-400',     // lupi red
-      '#818cf8': 'bg-indigo-400',  // mannari indigo
-      '#a78bfa': 'bg-violet-400'   // matti violet
+      '#10b981': 'bg-emerald-500', // villaggio green
+      '#dc2626': 'bg-red-500',     // lupi red
+      '#7c3aed': 'bg-violet-600',  // mannari medium violet
+      '#f59e0b': 'bg-amber-500',   // matti amber
+      '#3b82f6': 'bg-blue-500',    // parassita blue
+      '#8b5cf6': 'bg-violet-500'   // alieni violet
     };
     bgColor = colorMap[faction.color] || 'bg-neutral-400';
   }
@@ -143,14 +145,14 @@ watch(roleId, () => {
 </script>
 
 <template>
-  <div v-if="role" class="w-full min-h-screen bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl
-  sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200 role-details-page">
+  		<div v-if="role" class="w-full min-h-screen bg-neutral-950 sm:bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl
+  pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200 role-details-page">
     <!-- Header with back button and role name -->
     <div class="relative mb-6">
       <!-- Back button in top left -->
              <div
          @click="goBack"
-         class="absolute ml-2 p-1.5 rounded-lg bg-neutral-900/60 hover:bg-neutral-800/60 border border-neutral-800/40 transition-all duration-200 hover:scale-105 z-10 cursor-pointer"
+         class="absolute ml-4 p-1.5 rounded-lg bg-neutral-900/60 hover:bg-neutral-800/60 border border-neutral-800/40 transition-all duration-200 hover:scale-105 z-10 cursor-pointer"
        >
          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -364,7 +366,7 @@ watch(roleId, () => {
   </div>
 
   <!-- Fallback if role not found -->
-  <div v-else class="w-full min-h-screen bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200">
+  		<div v-else class="w-full min-h-screen bg-neutral-950 sm:bg-neutral-950/95 sm:max-w-4xl sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl backdrop-blur-sm shadow-xl pt-6 sm:pt-0 sm:p-4 md:p-6 lg:p-8 text-neutral-200">
     <!-- Header with back button -->
     <div class="relative mb-6">
       <!-- Back button in top left -->

@@ -16,7 +16,7 @@
             <div v-if="selectedTarget && targetFactionInfo" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4">
                 <div class="text-center space-y-3">
                     <div class="text-neutral-300 text-sm">Hai scelto:</div>
-                    <div class="text-neutral-100 font-medium">{{ selectedTarget.name }}</div>
+                    <div class="text-neutral-100 font-medium truncate max-w-full" :title="selectedTarget.name">{{ selectedTarget.name }}</div>
                     <FactionComparisonCard 
                         :current-team="targetFactionInfo.currentTeam"
                         :next-team="targetFactionInfo.nextTeam"
@@ -32,12 +32,12 @@ import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import FactionComparisonCard from '../../ui/FactionComparisonCard.vue';
 
-const props = defineProps<{ gameState: any, player: any, onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
 
 const selectedTargetId = ref<number | null>(null);
 
 const alivePlayers = computed(() => 
-    props.gameState.players.filter((p: any) => p.alive && p.roleId !== 'insinuo')
+    props.gameState.players.filter((p: any) => p.alive && !props.playerIds.includes(p.id))
 );
 
 const playerChoices = computed(() => 

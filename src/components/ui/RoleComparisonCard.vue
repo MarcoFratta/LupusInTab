@@ -4,7 +4,7 @@ import PlayerRoleCard from './PlayerRoleCard.vue';
 const props = defineProps({
     gameState: { type: Object, required: true },
     leftPlayer: { type: Object, required: true },
-    rightPlayer: { type: Object, required: true },
+    rightPlayer: { type: [Object, Array], required: true },
     leftLabel: { type: String, required: true },
     rightLabel: { type: String, required: true },
     centerContent: { type: Object, required: true }
@@ -38,14 +38,25 @@ const centerContent = props.centerContent;
         </div>
       </div>
       
-      <!-- Right Player (Target) -->
+      <!-- Right Player(s) (Target) -->
       <div class="text-center flex-1">
         <div class="text-xs text-neutral-400 mb-2">{{ rightLabel }}</div>
-        <PlayerRoleCard 
+        <div v-if="Array.isArray(rightPlayer)" class="space-y-2">
+          <PlayerRoleCard 
+            v-for="player in rightPlayer" 
+            :key="player.id"
             :game-state="gameState" 
-            :player="rightPlayer" 
+            :player="player" 
             :label="rightLabel" 
             align="center"
+          />
+        </div>
+        <PlayerRoleCard 
+          v-else
+          :game-state="gameState" 
+          :player="rightPlayer" 
+          :label="rightLabel" 
+          align="center"
         />
       </div>
     </div>

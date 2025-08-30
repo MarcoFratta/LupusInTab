@@ -88,7 +88,7 @@ function onTimerInput(e: any) {
 
 <template>
   <div v-if="enabled" class="rounded-md border border-neutral-700/60 bg-neutral-900/50 p-3">
-    <div class="text-xs text-neutral-400">Timer discussione</div>
+    <div class="text-xs text-center text-neutral-400">Timer discussione</div>
     <div class="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
       <div class="flex items-center gap-2 sm:gap-1 justify-center sm:justify-start">
         <button class="w-9 h-9 rounded border border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center text-lg font-medium leading-none"

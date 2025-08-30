@@ -2,11 +2,11 @@
 import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 
-const props = defineProps<{ gameState: any, player: any, onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
 
 const targetId = ref<number | null>(null);
 const choices = computed(() => {
-	const alive = props.gameState.players.filter((p: any) => p.alive && p.id !== props.player?.id);
+	const alive = props.gameState.players.filter((p: any) => p.alive);
 	return [
 		{ label: 'Nessuno', value: null },
 		...alive.map((p: any) => ({ label: p.name, value: p.id }))

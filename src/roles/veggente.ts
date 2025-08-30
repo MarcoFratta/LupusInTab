@@ -3,9 +3,10 @@ import { villageWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const veggente: RoleDef = {
-    id: 'veggente',
-    name: 'Veggente',
-    team: 'villaggio',
+	id: 'veggente',
+	name: 'Veggente',
+	team: 'villaggio',
+	icon: 'VeggenteIcon',
     score: 7,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',

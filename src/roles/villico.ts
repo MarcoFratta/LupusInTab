@@ -3,9 +3,10 @@ import {villageWin} from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const villico: RoleDef = {
-    id: 'villico',
-    name: 'Villico',
-    team: 'villaggio',
+	id: 'villico',
+	name: 'Villico',
+	team: 'villaggio',
+	icon: 'VillicoIcon',
     score: 1,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',

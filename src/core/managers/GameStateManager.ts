@@ -16,7 +16,7 @@ export class GameStateManager {
       dayNumber: 0,
       players: [],
       setup: { 
-        numPlayers: 6, 
+        numPlayers: 9, 
         players: [], 
         rolesCounts: {}, 
         rolesEnabled: { 
@@ -24,16 +24,20 @@ export class GameStateManager {
           villico: true, 
           guardia: true, 
           veggente: true, 
-          massone: false, 
+          massone: true, 
           matto: false, 
           giustiziere: false, 
           boia: false, 
-          medium: false, 
+          medium: true, 
           lupomannaro: false, 
-          indemoniato: false, 
+          indemoniato: true, 
           insinuo: false, 
           barabba: false, 
-          angelo: false 
+          angelo: false,
+          genio: false,
+          parassita: false,
+          simbionte: false,
+          mutaforma: false
         } 
       },
       revealIndex: 0,

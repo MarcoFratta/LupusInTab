@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
+import DisplayFaction from '../../ui/DisplayFaction.vue';
 
 interface Props {
     gameState: any;
     player: any;
+    playerIds: number[];
     onComplete: (r: any) => void;
 }
 
@@ -61,7 +63,13 @@ function submitNoAction() {
         accent="violet"
         :disabled="!choices.length"
         @confirm="submit"
-      />
+      >
+        <DisplayFaction
+          :game-state="gameState"
+          :target-id="targetId"
+          discovery-text="Ha scoperto che"
+        />
+      </PromptSelect>
     </div>
   </div>
 </template>

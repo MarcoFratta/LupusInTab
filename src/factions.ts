@@ -13,16 +13,16 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		id: 'lupi',
 		name: 'lupi',
 		displayName: 'Lupi',
-		color: '#ef4444',
-		ringColor: 'ring-red-500/40',
+		color: '#f87171',
+		ringColor: 'ring-red-400/40',
 		winConditionDescription: 'I lupi vincono quando raggiungono la parità numerica con i villici o li superano'
 	},
 	mannari: {
 		id: 'mannari',
 		name: 'mannari',
 		displayName: 'Mannari',
-		color: '#8b5cf6',
-		ringColor: 'ring-violet-500/40',
+		color: '#7c3aed',
+		ringColor: 'ring-violet-600/40',
 		winConditionDescription: 'Il lupo mannaro vince se restano solo in due (lui e un altro giocatore)'
 	},
 	matti: {
@@ -32,6 +32,22 @@ export const FACTIONS: Record<string, FactionConfig> = {
 		color: '#f59e0b',
 		ringColor: 'ring-amber-500/40',
 		winConditionDescription: 'Il matto vince se viene eliminato durante il giorno (votazione)'
+	},
+	parassita: {
+		id: 'parassita',
+		name: 'parassita',
+		displayName: 'Parassita',
+		color: '#3b82f6',
+		ringColor: 'ring-blue-500/40',
+		winConditionDescription: 'Il parassita vince quando tutti i giocatori vivi sono infetti'
+	},
+	alieni: {
+		id: 'alieni',
+		name: 'alieni',
+		displayName: 'Alieni',
+		color: '#ec4899',
+		ringColor: 'ring-pink-500/40',
+		winConditionDescription: 'Gli alieni vincono quando rimangono vivi con lo stesso numero di giocatori per ogni squadra'
 	}
 };
 

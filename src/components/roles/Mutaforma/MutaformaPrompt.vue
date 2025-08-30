@@ -2,6 +2,7 @@
 import { computed, ref, defineAsyncComponent } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import { ROLES } from '../../../roles';
+import { getFactionConfig } from '../../../factions';
 
 const props = defineProps<{
   gameState: any;
@@ -36,7 +37,10 @@ const choices = computed(() => [
   })
 ]);
 
-const canSubmit = computed(() => Number.isFinite(Number(targetId.value)) && Number(targetId.value) > 0);
+const canSubmit = computed(() => {
+  if (hasPendingKills.value) return false;
+  return Number.isFinite(Number(targetId.value)) && Number(targetId.value) > 0;
+});
 
 const hasPendingKills = computed(() => {
   if (!props.gameState.night?.context?.pendingKills) return false;
@@ -49,13 +53,13 @@ const hasPendingKills = computed(() => {
   
   if (aliveMutaformaPlayers.length === 0) return false;
   
-  // Check if ALL alive mutaforma players have pending kills made by mutaforma themselves
-  return aliveMutaformaPlayers.every(playerId => {
+  // Check if ANY alive mutaforma player has pending kills from mutaforma passive effect
+  return aliveMutaformaPlayers.some(playerId => {
     const pendingKills = props.gameState.night.context.pendingKills[playerId];
     if (!pendingKills || pendingKills.length === 0) return false;
     
-    // Check if any of the pending kills are made by mutaforma themselves
-    return pendingKills.some(kill => kill.source === 'mutaforma_passive');
+    // Check if any of the pending kills are from mutaforma passive effect
+    return pendingKills.some(kill => kill.role === 'mutaforma');
   });
 });
 
@@ -69,7 +73,14 @@ const targetRole = computed(() => {
   return ROLES[targetPlayer.value.roleId];
 });
 
+const targetRoleFactionColor = computed(() => {
+  if (!targetRole.value) return '#10b981'; // Default emerald color
+  const factionConfig = getFactionConfig(targetRole.value.team);
+  return factionConfig?.color || '#10b981';
+});
+
 const targetRoleCanBeUsed = computed(() => {
+  if (hasPendingKills.value) return false;
   if (!targetRole.value) return false;
   // Check if the target role can be used by the mutaforma
   return mutaformaCanUseTargetRole(targetRole.value);
@@ -81,7 +92,7 @@ const AsyncTargetRolePrompt = computed(() => {
 });
 
 function mutaformaCanUseTargetRole(role: any) {
-  if (!role) return false;
+  if (!role || hasPendingKills.value) return false;
   
   // Role doesn't act at night
   if (role.actsAtNight === 'never') return false;
@@ -123,7 +134,12 @@ function mutaformaCanUseTargetRole(role: any) {
 }
 
 function selectTarget() {
-  if (!canSubmit.value) return;
+  if (!canSubmit.value || hasPendingKills.value) {
+    if (hasPendingKills.value) {
+      skip();
+    }
+    return;
+  }
   
   if (!targetRoleCanBeUsed.value) {
     // Show warning that the role cannot be used, but let user decide
@@ -136,6 +152,11 @@ function selectTarget() {
 }
 
 function onTargetRoleComplete(result: any) {
+  if (hasPendingKills.value) {
+    skip();
+    return;
+  }
+  
   // Call the target role's resolve function to get the proper result
   let targetRoleResult = result;
   
@@ -171,15 +192,34 @@ function onTargetRoleComplete(result: any) {
 }
 
 function goBack() {
+  if (hasPendingKills.value) {
+    skip();
+    return;
+  }
   showTargetRolePrompt.value = false;
   targetId.value = null;
 }
 
 function skip() {
+  if (hasPendingKills.value) {
+    // When there are pending kills, force the player to continue without using power
+    props.onComplete({ 
+      targetId: null, 
+      skipped: true, 
+      reason: 'mutaforma_passive_death',
+      message: 'Potere non utilizzato a causa della perdita di equilibrio tra le squadre'
+    });
+    return;
+  }
   props.onComplete({ targetId: null, skipped: true });
 }
 
 function completeWithUnusableRole() {
+  if (hasPendingKills.value) {
+    skip();
+    return;
+  }
+  
   // Determine the reason why the role cannot be used
   let reason = 'unknown';
   
@@ -213,6 +253,11 @@ function completeWithUnusableRole() {
 function getRoleConstraintReason() {
   if (!targetRole.value) return '';
 
+  // Check if mutaforma players are dying due to passive effect
+  if (hasPendingKills.value) {
+    return 'Non puoi utilizzare il tuo potere perché stai morendo a causa della perdita di equilibrio tra le squadre.';
+  }
+
   // Check if target player's roleState.actsAtNight is blocked
   if (targetPlayer.value?.roleState?.actsAtNight === 'blocked') {
     return 'Il giocatore selezionato è bloccato e non può utilizzare il suo ruolo.';
@@ -224,11 +269,11 @@ function getRoleConstraintReason() {
   }
 
   if (targetRole.value.actsAtNight === 'never') {
-    return 'Il ruolo non può essere utilizzato questa notte.';
+    return 'Questo ruolo non può essere utilizzato durante la notte.';
   }
 
   if (targetRole.value.actsAtNight === 'dead') {
-    return 'Il ruolo richiede di essere morto per essere utilizzato.';
+    return 'Questo ruolo richiede di essere morto per essere utilizzato.';
   }
 
   if (targetRole.value.actsAtNight === 'alive') {
@@ -237,13 +282,13 @@ function getRoleConstraintReason() {
       return player && player.alive;
     });
     if (aliveMutaformaPlayers.length === 0) {
-      return 'Il ruolo richiede che tu sia vivo per essere utilizzato.';
+      return 'Questo ruolo richiede che tu sia vivo per essere utilizzato.';
     }
   }
 
   if (targetRole.value.startNight && typeof targetRole.value.startNight === 'number') {
     if (props.gameState.nightNumber < targetRole.value.startNight) {
-      return `Il ruolo può essere utilizzato solo a partire dalla notte ${targetRole.value.startNight}.`;
+      return `Questo ruolo può essere utilizzato solo a partire dalla notte ${targetRole.value.startNight}.`;
     }
   }
 
@@ -251,51 +296,62 @@ function getRoleConstraintReason() {
     const usedPowers = props.gameState.usedPowers?.[targetRole.value.id] || [];
     const timesUsed = usedPowers.filter((playerId: number) => playerId === props.player?.id).length;
     if (timesUsed >= targetRole.value.numberOfUsage) {
-      return `Il ruolo è già stato utilizzato ${targetRole.value.numberOfUsage} volte questa notte.`;
+      return `Questo ruolo è già stato utilizzato il numero massimo di volte permesso.`;
     }
   }
 
-  if (targetRole.value.effectType === 'blocked') {
-    return 'Il ruolo è bloccato da un altro giocatore o ha altre restrizioni.';
+  if (targetRole.value.actsAtNight === 'blocked') {
+    return 'Questo ruolo è bloccato da un altro giocatore o ha altre restrizioni.';
   }
 
-  return '';
+  return 'Questo ruolo non può essere utilizzato per motivi sconosciuti.';
 }
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-6">
     <!-- Mutaforma Selection Phase -->
-    <div v-if="!showTargetRolePrompt" class="space-y-4">
+    <div v-if="!showTargetRolePrompt" class="space-y-6">
       <!-- Warning when mutaforma players are dying -->
-      <div v-if="hasPendingKills" class="bg-red-900/60 border border-red-800/40 rounded-lg p-4 text-center">
-        <div class="text-red-300 text-sm mb-2">
-          ⚠️ <strong>Attenzione:</strong> State morendo e non potete usare il vostro potere
+      <div v-if="hasPendingKills" class="bg-red-900/60 border border-red-800/40 rounded-xl p-6 text-center">
+        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-red-500/20 to-red-600/20 border border-red-500/40 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-red-500/20">
+          <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
         </div>
-        <div class="text-red-200 text-xs mb-4">
-          Non potete copiare ruoli questa notte
+        
+        <div class="space-y-3">
+          <h3 class="text-lg sm:text-xl font-semibold text-red-100">
+            Attenzione: Potere non disponibile
+          </h3>
+          <div class="w-12 h-0.5 bg-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full"></div>
+          <p class="text-red-300 text-sm">
+            Non potete usare il vostro potere questa notte perché state morendo a causa della perdita di equilibrio tra le squadre
+          </p>
         </div>
-        <div class="text-center">
+        
+        <div class="mt-6">
           <button 
             @click="skip"
-            class="btn btn-secondary w-full"
+            class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
           >
-            Continua
+            Continua senza potere
           </button>
         </div>
       </div>
       
-      <div v-else class="text-center mb-4">
-        <p class="text-neutral-400 text-xs">
-          Copia il potere di un altro giocatore per questa notte
+      <div v-else class="text-center space-y-3">
+        <p class="text-neutral-400 text-base font-medium">
+          {{ hasPendingKills ? 'Il vostro potere è bloccato a causa della perdita di equilibrio tra le squadre' : 'Copia il potere di un altro giocatore per questa notte' }}
         </p>
       </div>
 
       <PromptSelect
-        label="Mutaforma, scegli un giocatore per copiare il suo ruolo"
+        v-if="!hasPendingKills"
+        :label="hasPendingKills ? 'Potere non disponibile - Squadra sbilanciata' : 'Mutaforma, scegli un giocatore per copiare il suo ruolo'"
         v-model="targetId"
         :choices="choices"
-        buttonText="Copia Ruolo"
+        :buttonText="hasPendingKills ? 'Potere bloccato' : 'Copia Ruolo'"
         accent="emerald"
         :disabled="choices.length === 0 || hasPendingKills"
         @confirm="selectTarget"
@@ -303,34 +359,58 @@ function getRoleConstraintReason() {
     </div>
 
     <!-- Target Role Prompt Phase -->
-    <div v-else-if="targetRole && showTargetRolePrompt" class="space-y-4">
-      <div class="text-center mb-4">
+    <div v-else-if="targetRole && showTargetRolePrompt" class="space-y-6">
+      <div class="text-center space-y-3">
+        <h3 class="text-lg sm:text-xl font-semibold text-neutral-100">
+          Ruolo copiato con successo
+        </h3>
+        <div class="w-12 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-400 mx-auto rounded-full"></div>
         <p class="text-neutral-300 text-sm">
-          <span class="font-medium truncate max-w-full" :title="props.player?.name || 'Mutaforma'">{{ props.player?.name || 'Mutaforma' }}</span>
-          ha copiato il ruolo di
-          <span class="font-medium truncate max-w-full" :title="targetPlayer?.name">{{ targetPlayer?.name }}</span>
+          Ruolo copiato:
+          <span 
+            class="font-medium"
+            :style="{ color: targetRoleFactionColor }"
+          >
+            {{ targetRole?.name || 'Sconosciuto' }}
+          </span>
         </p>
-        <div class="text-emerald-400 text-xs mt-2">
-          ✅ Ora usa il potere copiato:
-        </div>
+      </div>
+
+      <!-- Back button -->
+      <div class="text-center">
+        <button
+          @click="goBack"
+          :disabled="hasPendingKills"
+          class="btn btn-ghost text-sm text-neutral-400 hover:text-neutral-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          ← Scegli un altro ruolo
+        </button>
       </div>
 
       <!-- Warning when role cannot be used -->
-      <div v-if="!targetRoleCanBeUsed" class="bg-red-900/60 border border-red-800/40 rounded-lg p-4 text-center">
-        <div class="text-red-300 text-sm mb-3">
-          ⚠️ <strong>Attenzione:</strong> Il ruolo selezionato non ha effetto questa notte.
+      <div v-if="!targetRoleCanBeUsed" class="bg-amber-900/60 border border-amber-800/40 rounded-xl p-6 text-center">
+        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-amber-500/20 to-amber-600/20 border border-amber-500/40 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-amber-500/20">
+          <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+          </svg>
         </div>
-        <div class="text-red-200 text-xs mb-4">
-          {{ getRoleConstraintReason() }}
+        
+        <div class="space-y-3 mb-6">
+          <h3 class="text-lg sm:text-xl font-semibold text-amber-100">
+            Ruolo non utilizzabile
+          </h3>
+          <div class="w-12 h-0.5 bg-gradient-to-r from-amber-500 to-amber-400 mx-auto rounded-full"></div>
+          <p class="text-amber-300 text-sm">
+            {{ hasPendingKills ? 'Non puoi utilizzare il tuo potere perché stai morendo a causa della perdita di equilibrio tra le squadre' : getRoleConstraintReason() }}
+          </p>
         </div>
-        <div class="text-center">
-          <button 
-            @click="completeWithUnusableRole"
-            class="btn btn-secondary w-full"
-          >
-            Continua
-          </button>
-        </div>
+        
+        <button 
+          @click="completeWithUnusableRole"
+          class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transform hover:scale-105 active:scale-95 transition-all duration-300"
+        >
+          {{ hasPendingKills ? 'Continua' : 'Continua' }}
+        </button>
       </div>
 
       <!-- Normal role prompt when role can be used -->
@@ -346,13 +426,29 @@ function getRoleConstraintReason() {
     </div>
 
     <!-- Fallback if target role cannot be used -->
-    <div v-else class="text-center text-neutral-400">
-      <p>⚠️ Il ruolo selezionato non può essere utilizzato</p>
+    <div v-else class="text-center space-y-6">
+      <div class="w-16 h-16 mx-auto bg-gradient-to-br from-neutral-500/20 to-neutral-600/20 border border-neutral-500/40 rounded-2xl flex items-center justify-center shadow-lg shadow-neutral-500/20">
+        <svg class="w-8 h-8 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+      </div>
+      
+      <div class="space-y-3">
+        <h3 class="text-lg sm:text-xl font-semibold text-neutral-100">
+          {{ hasPendingKills ? 'Potere non disponibile' : 'Ruolo non utilizzabile' }}
+        </h3>
+        <div class="w-12 h-0.5 bg-gradient-to-r from-neutral-500 to-neutral-400 mx-auto rounded-full"></div>
+        <p class="text-neutral-300 text-sm">
+          {{ hasPendingKills ? 'Non puoi utilizzare il tuo potere perché stai morendo a causa della perdita di equilibrio tra le squadre' : 'Il ruolo selezionato non può essere utilizzato' }}
+        </p>
+      </div>
+      
       <button
         @click="goBack"
-        class="btn btn-secondary w-full mt-4"
+        :disabled="hasPendingKills"
+        class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-neutral-500/30 hover:shadow-2xl hover:shadow-neutral-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Torna alla selezione
+        {{ hasPendingKills ? 'Continua senza potere' : 'Torna alla selezione' }}
       </button>
     </div>
   </div>

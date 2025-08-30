@@ -52,8 +52,13 @@ const infectAction = computed(() => {
 
 <template>
   <div class="space-y-4">
-    <div v-if="!targetIds || targetIds.length === 0" class="text-slate-400">
-      Nessuna infezione effettuata.
+    <div v-if="!targetIds || targetIds.length === 0" class="p-4 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
+      <p class="text-neutral-400 text-base font-medium">
+        Nessuna infezione effettuata
+      </p>
+      <p class="text-neutral-500 text-sm mt-1">
+        Il Parassita ha scelto di non infettare nessuno
+      </p>
     </div>
     
     <div v-else class="space-y-3">

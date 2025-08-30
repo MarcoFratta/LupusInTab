@@ -19,14 +19,20 @@ function submit() {
 </script>
 
 <template>
-	<PromptSelect
-		label="Scegli un giocatore da salvare"
-		v-model="targetId"
-		:choices="choices"
-		buttonText="Conferma"
-		accent="emerald"
-		@confirm="submit"
-	/>
+	<div class="space-y-6">
+		<div class="text-center space-y-3">
+			<p class="text-neutral-400 text-base font-medium">Scegli un giocatore da proteggere questa notte</p>
+		</div>
+		
+		<PromptSelect
+			label="Scegli un giocatore da salvare"
+			v-model="targetId"
+			:choices="choices"
+			buttonText="Conferma"
+			accent="emerald"
+			@confirm="submit"
+		/>
+	</div>
 </template>
 
 

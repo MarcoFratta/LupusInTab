@@ -31,28 +31,13 @@ export class WinConditionManager {
   }
 
   /**
-   * Evaluate custom win conditions by checking role-specific win functions
    * Returns the winning team id, or null if no winner
    */
   static evaluateWinner(state: GameState, roles: RolesRegistry): string[] | null {
     const alivePlayers = GameStateManager.getAlivePlayers(state);
     if (alivePlayers.length === 0) return null;
     
-    // First, check if any role's checkWinConstraint blocks all wins
-    for (const p of alivePlayers) {
-      const def = roles[p.roleId];
-      if (def && typeof def.checkWinConstraint === 'function') {
-        try {
-          if (def.checkWinConstraint(state as any)) {
-            return null; // This role blocks all wins
-          }
-        } catch (error) {
-          console.error(`Error in checkWinConstraint for role ${p.roleId}:`, error);
-        }
-      }
-    }
-    
-    // Let roles declare their faction win
+    // First, let roles declare their faction win
     const winningTeams = new Set<string>();
     for (const p of alivePlayers) {
       const def = roles[p.roleId];
@@ -70,7 +55,43 @@ export class WinConditionManager {
       }
     }
     
-    return winningTeams.size > 0 ? Array.from(winningTeams) : null;
+    if (winningTeams.size === 0) return null;
+    
+    // Now check win constraints - each role can only block OTHER teams from winning
+    const finalWinningTeams = new Set<string>();
+    
+    for (const winningTeam of winningTeams) {
+      let teamCanWin = true;
+      
+      // Check if any role's checkWinConstraint blocks this specific team from winning
+      for (const p of alivePlayers) {
+        const def = roles[p.roleId];
+        if (def && typeof def.checkWinConstraint === 'function') {
+          try {
+            // Only apply constraint if it would block this team AND the role is not from the same team
+            const roleTeam = p.roleState?.realTeam || def.team;
+            if (roleTeam !== winningTeam && def.checkWinConstraint(state as any)) {
+              teamCanWin = false;
+              break;
+            }
+          } catch (error) {
+            console.error(`Error in checkWinConstraint for role ${p.roleId}:`, error);
+          }
+        }
+      }
+      
+      if (teamCanWin) {
+        finalWinningTeams.add(winningTeam);
+      }
+    }
+    
+    // Ensure only one team can win at a time
+    const winners = Array.from(finalWinningTeams);
+    if (winners.length === 0) return null;
+    
+    // If multiple teams could win, prioritize based on specific conditions
+    // For now, return the first team that can win (you can customize this logic)
+    return [winners[0]];
   }
 
   /**
@@ -113,8 +134,9 @@ export class WinConditionManager {
    */
   static validateGameContinuation(state: GameState, roles: RolesRegistry): boolean {
     const winners = WinConditionManager.checkGameEndCondition(state, roles);
-    if (winners) {
-      state.winner = winners;
+    if (winners && winners.length > 0) {
+      // Ensure only one winner is set
+      state.winner = winners.length === 1 ? winners[0] : winners;
       state.phase = 'end';
       return false; // Game should end
     }

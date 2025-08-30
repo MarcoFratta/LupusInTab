@@ -30,12 +30,18 @@ const availableRoles = computed(() => {
 </script>
 
 <template>
-    <PromptDeclare 
-        :gameState="props.gameState" 
-        :player="props.player" 
-        :onComplete="props.onComplete"
-        :availablePlayers="availablePlayers"
-        :availableRoles="availableRoles"
-    />
+    <div class="space-y-6">
+        <div class="text-center space-y-3">
+            <p class="text-neutral-400 text-base font-medium">Condanna un giocatore o rivela un ruolo</p>
+        </div>
+        
+        <PromptDeclare 
+            :gameState="props.gameState" 
+            :player="props.player" 
+            :onComplete="props.onComplete"
+            :availablePlayers="availablePlayers"
+            :availableRoles="availableRoles"
+        />
+    </div>
 </template>
 

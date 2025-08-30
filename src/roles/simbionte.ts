@@ -2,7 +2,6 @@ import type { RoleDef } from '../types';
 import { ROLES } from './index';
 import {componentFactory} from "../utils/roleUtils";
 import { PlayerManager } from '../core/managers/PlayerManager';
-import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 
 export const simbionte: RoleDef = {
     id: 'simbionte',
@@ -14,7 +13,7 @@ export const simbionte: RoleDef = {
     numberOfUsage: 1,
     countAs: 'alieni',
     visibleAsTeam: 'villaggio',
-    score: 25,
+    score: 0,
     startNight: 1,
     phaseOrder: -20,
     canTargetDead: false,

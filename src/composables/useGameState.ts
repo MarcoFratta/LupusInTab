@@ -2,6 +2,7 @@ import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useGameStore } from '../stores/game';
 import { loadGameState, loadPlayersSetup, loadSettings, saveGameState, savePlayersSetup, saveSettings, clearSavedGame } from '../utils/storage';
+import { initSetupPlayers } from '../core/engine';
 
 export function useGameState() {
     const route = useRoute();
@@ -32,7 +33,15 @@ export function useGameState() {
     
     const canStart = computed(() => {
         const numWolves = roleCounts.value['lupo'] || 0;
-        return state.setup.players.length >= 4 && numWolves >= 1 && totalRolesSelected.value === state.setup.numPlayers;
+        const totalsMatch = totalRolesSelected.value === state.setup.players.length;
+        
+        const hasDuplicateNames = (() => {
+            const names = state.setup.players.map((p: any) => p.name?.trim().toLowerCase()).filter(Boolean);
+            const duplicates = names.filter((name: string, index: number) => names.indexOf(name) !== index);
+            return duplicates.length > 0;
+        })();
+        
+        return state.setup.players.length >= 4 && numWolves >= 1 && totalsMatch && !hasDuplicateNames;
     });
 
     function initializeGameState() {
@@ -57,6 +66,9 @@ export function useGameState() {
                 if (savedPlayers.rolesEnabled && typeof savedPlayers.rolesEnabled === 'object') {
                     state.setup.rolesEnabled = { ...savedPlayers.rolesEnabled };
                 }
+            } else {
+                // Initialize default setup if no saved players
+                initSetupPlayers(state);
             }
         }
 
@@ -73,11 +85,33 @@ export function useGameState() {
     }
 
     function setupWatchers() {
+        // Watch specific properties instead of the entire state to avoid Set corruption
         watch(
-            () => state,
+            () => ({
+                phase: state.phase,
+                nightNumber: state.nightNumber,
+                dayNumber: state.dayNumber,
+                players: state.players,
+                setup: state.setup,
+                revealIndex: state.revealIndex,
+                settings: state.settings,
+                sindacoId: state.sindacoId,
+                winner: state.winner,
+                lynchedHistory: state.lynchedHistory,
+                usedPowers: state.usedPowers,
+                showRoleResee: state.showRoleResee,
+                revealPhaseState: state.revealPhaseState,
+                nightDeathsByNight: state.nightDeathsByNight,
+                lynchedHistoryByDay: state.lynchedHistoryByDay
+            }),
             () => {
                 if (state.phase !== 'setup') {
-                    saveGameState(state);
+                    // Convert Set to array before saving for proper serialization
+                    const stateToSave = { ...state };
+                    if (stateToSave.night?.context?.calledRoles instanceof Set) {
+                        stateToSave.night.context.calledRoles = Array.from(stateToSave.night.context.calledRoles);
+                    }
+                    saveGameState(stateToSave);
                 }
             },
             { deep: true }

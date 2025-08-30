@@ -5,6 +5,7 @@ import { useGameStore } from '../../stores/game';
 import { ROLE_LIST } from '../../roles/index';
 import { FACTIONS } from '../../factions';
 import { setRoleEnabled as engineSetRoleEnabled, normalizeRoleCounts as engineNormalizeRoleCounts } from '../../core/engine';
+import { SetupTitle } from '../ui';
 
 const store = useGameStore();
 const state = store.state as any;
@@ -49,37 +50,15 @@ function openRoleDetails(roleId: string): void {
 
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
-    <div class="text-center space-y-3 md:space-y-4">
-      <div class="relative">
-        <div class="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 blur-2xl md:blur-3xl rounded-full"></div>
-        <h2 class="relative text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-          Seleziona i Ruoli
-        </h2>
-      </div>
-      
-      <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
-      
-      <p class="text-sm md:text-base text-neutral-400 max-w-md mx-auto leading-relaxed">
-        Scegli quali ruoli sono disponibili in questa partita. Contadini e Lupi sono sempre abilitati.
-      </p>
-      
-      <div class="flex items-center justify-center gap-3">
-        <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
-          <div class="w-3 h-3 rounded-full bg-violet-500"></div>
-          <span class="text-sm font-medium text-neutral-200">Abilitati</span>
-          <span class="text-sm font-bold text-violet-400">
-            {{ Object.values(state.setup.rolesEnabled || {}).filter(Boolean).length + 2 }}
-          </span>
-        </div>
-        <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-500/10 border border-neutral-500/20">
-          <div class="w-3 h-3 rounded-full bg-neutral-500"></div>
-          <span class="text-sm font-medium text-neutral-200">Disabilitati</span>
-          <span class="text-sm font-bold text-neutral-400">
-            {{ Object.values(state.setup.rolesEnabled || {}).filter(v => !v).length }}
-          </span>
-        </div>
-      </div>
-    </div>
+    <SetupTitle 
+      title="Seleziona i Ruoli"
+      subtitle="Scegli quali ruoli sono disponibili in questa partita. Contadini e Lupi sono sempre abilitati."
+      :showStats="true"
+      :statsData="{
+        enabled: Object.values(state.setup.rolesEnabled || {}).filter(Boolean).length + 2,
+        disabled: Object.values(state.setup.rolesEnabled || {}).filter(v => !v).length
+      }"
+    />
 
     <div class="space-y-6">
       <div v-for="faction in rolesByFaction" :key="faction.name" class="space-y-4">
@@ -113,7 +92,7 @@ function openRoleDetails(roleId: string): void {
                   <div v-if="role.id === 'lupo' || role.id === 'villico'" 
                        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
                     Sempre
                   </div>

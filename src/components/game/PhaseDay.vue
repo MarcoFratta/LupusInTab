@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { DiscussionTimer } from '../ui';
+import { DiscussionTimer, SetupTitle } from '../ui';
 
 const props = defineProps<{
   state: any;
@@ -37,17 +37,15 @@ function confirmSindaco() {
 </script>
 
 <template>
-  <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
-    <div class="text-center space-y-3 md:space-y-4">
-      <h2 class="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-        Giorno {{ props.state.dayNumber }}
-      </h2>
-      <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
-    </div>
-
-    <div class="space-y-4 md:space-y-6">
-      <!-- Sindaco election step (first day only, when enabled and not yet elected) -->
-      <div v-if="needsSindacoElection" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6 space-y-4">
+  <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4 overflow-visible">
+    <SetupTitle :title="`Giorno ${props.state.dayNumber}`" />
+    
+    <div class="w-full max-w-2xl space-y-4 mt-2 text-center">
+      <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 blur-3xl rounded-3xl"></div>
+        <div class="relative space-y-4">
+          <!-- Sindaco election step (first day only, when enabled and not yet elected) -->
+          <div v-if="needsSindacoElection" class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6 space-y-4">
         <div class="text-center mb-4">
           <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">Eleggi il Sindaco</h3>
           <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 mx-auto rounded-full"></div>
@@ -103,7 +101,7 @@ function confirmSindaco() {
       </div>
 
       <!-- First day skipped (only after Sindaco election if enabled) -->
-      <div v-else-if="showSkipCard" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6 space-y-4 text-center">
+      <div v-else-if="showSkipCard" class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6 space-y-4 text-center">
         <div class="space-y-4">
           <div class="w-16 h-16 mx-auto bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-full flex items-center justify-center">
             <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,7 +116,8 @@ function confirmSindaco() {
         </div>
 
         <button 
-          class="group relative px-6 py-3 text-base font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
+          class="group relative w-full px-6 py-3 text-base
+          font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25"
           @click="props.onSkipDay"
         >
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -126,7 +125,7 @@ function confirmSindaco() {
             <div class="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 opacity-80"></div>
           </div>
           
-          <div class="relative z-10 flex items-center gap-2">
+          <div class="relative z-10 flex justify-center items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
@@ -138,7 +137,7 @@ function confirmSindaco() {
       </div>
 
       <!-- Regular lynch voting (or first day lynch if not skipped) -->
-      <div v-else class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6 space-y-4">
+      <div v-else class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6 space-y-4">
         <div class="text-center mb-4">
           <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">Seleziona il giocatore da linciare</h3>
           <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 mx-auto rounded-full"></div>
@@ -194,6 +193,8 @@ function confirmSindaco() {
         </div>
         
         <div class="pb-4"></div>
+      </div>
+        </div>
       </div>
     </div>
   </div>

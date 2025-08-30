@@ -10,7 +10,8 @@ export const parassita: RoleDef = {
     color: '#ec4899',
     phaseOrder: "any",
     actsAtNight: "alive",
-    effectType: 'required',
+    effectType: 'optional',
+    visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     numberOfUsage: 'unlimited',
     minCount: 1,
@@ -19,8 +20,8 @@ export const parassita: RoleDef = {
     getResolveDetailsComponent: componentFactory('Parassita', "details"),
     resolve(gameState: any, action: any) {
         const targetIds = action?.data?.targetIds;
-        
-        if (!targetIds || !Array.isArray(targetIds) || targetIds.length === 0) {
+        console.log("infecting " + targetIds)
+        if (!targetIds || targetIds.length === 0) {
             return null;
         }
 
@@ -34,21 +35,41 @@ export const parassita: RoleDef = {
         const infetti = gameState.custom.parassita.infetti;
         const usageCount = gameState.custom.parassita.usageCount;
 
-        if (infetti.length >= gameState.players.filter((p: any) => p.alive).length - 1) {
+        const alivePlayers = gameState.players.filter((p: any) => p.alive);
+        const parassitaPlayers = alivePlayers.filter((p: any) => p.roleId === 'parassita');
+        const otherAlivePlayers = alivePlayers.filter((p: any) => !parassitaPlayers.some((parassita: any) => parassita.id === p.id));
+        
+        if (otherAlivePlayers.length === 0) {
             return {
                 type: 'parassita_action',
                 nightNumber: gameState.nightNumber,
                 roleId: 'parassita',
                 playerIds: action.playerIds || [],
-                data: { ...action.data, skipped: true, reason: 'All players already infected' }
+                data: { ...action.data, skipped: true, reason: 'No other players to infect' }
             };
         }
 
+        const uninfectedPlayers = otherAlivePlayers.filter((p: any) => !infetti.includes(p.id));
+        if (uninfectedPlayers.length === 0) {
+            return {
+                type: 'parassita_action',
+                nightNumber: gameState.nightNumber,
+                roleId: 'parassita',
+                playerIds: action.playerIds || [],
+                data: { ...action.data, skipped: true, reason: 'All other players already infected' }
+            };
+        }
+
+        let newInfections = 0;
         for (const targetId of targetIds) {
             if (targetId && !infetti.includes(targetId) && gameState.players.find((p: any) => p.id === targetId)?.alive) {
                 infetti.push(targetId);
-                gameState.custom.parassita.usageCount = usageCount + 1;
+                newInfections++;
             }
+        }
+
+        if (newInfections > 0) {
+            gameState.custom.parassita.usageCount = usageCount + 1;
         }
 
         return {

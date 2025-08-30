@@ -28,44 +28,30 @@ export class DayPhaseManager {
    * Call restore functions for roles in reverse order
    */
   private static callRestoreFunctions(state: GameState, roles: RolesRegistry): void {
-    // First, get roles that acted during the night in their execution order
     const nightTurns = state.night?.turns || [];
     const rolesThatActed = nightTurns.map(turn => turn.roleId);
     
-    // Get all roles that have restore functions
-    const allRolesWithRestore = Object.entries(roles)
-      .map(([roleId, role]) => ({ roleId, role, phaseOrder: role.phaseOrder }))
+    if (rolesThatActed.length === 0) {
+      console.log(`🔄 [DayPhase] No roles acted during the night, skipping restore functions`);
+      return;
+    }
+    
+    const rolesToRestore = rolesThatActed
+      .map(roleId => {
+        const role = roles[roleId];
+        return { roleId, role, phaseOrder: role?.phaseOrder };
+      })
       .filter(({ role }) => role && typeof role.restoreFunction === 'function');
     
-    // Sort by execution order (reverse of night turns) + phase order for non-acting roles
-    const sortedRoles = allRolesWithRestore.sort((a, b) => {
-      const aActedIndex = rolesThatActed.indexOf(a.roleId);
-      const bActedIndex = rolesThatActed.indexOf(b.roleId);
-      
-      // If both acted during the night, reverse their order
-      if (aActedIndex !== -1 && bActedIndex !== -1) {
-        return bActedIndex - aActedIndex; // Reverse order
-      }
-      
-      // If only one acted, the acting one comes first (higher priority)
-      if (aActedIndex !== -1) return -1;
-      if (bActedIndex !== -1) return 1;
-      
-      // If neither acted, sort by phase order (higher phase numbers first for restore)
-      if (a.phaseOrder === "any" && b.phaseOrder === "any") {
-        return a.roleId.localeCompare(b.roleId);
-      }
-      if (a.phaseOrder === "any") return 1;
-      if (b.phaseOrder === "any") return -1;
-      
-      const aNum = Number(a.phaseOrder);
-      const bNum = Number(b.phaseOrder);
-      
-      if (Number.isFinite(aNum) && Number.isFinite(bNum)) {
-        return bNum - aNum; // Higher phase numbers first for restore
-      }
-      
-      return a.roleId.localeCompare(b.roleId);
+    if (rolesToRestore.length === 0) {
+      console.log(`🔄 [DayPhase] No roles with restore functions found`);
+      return;
+    }
+    
+    const sortedRoles = rolesToRestore.sort((a, b) => {
+      const aIndex = rolesThatActed.indexOf(a.roleId);
+      const bIndex = rolesThatActed.indexOf(b.roleId);
+      return bIndex - aIndex; // Reverse order for restore
     });
     
     console.log(`🔄 [DayPhase] Restore order: ${sortedRoles.map(r => `${r.roleId}(${r.phaseOrder})`).join(' → ')}`);

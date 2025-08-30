@@ -1,10 +1,6 @@
 <template>
   <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-6">
     <div class="text-center mb-6">
-      <div class="w-16 h-16 mx-auto mb-4 bg-neutral-800/40 rounded-full flex items-center justify-center">
-        <span class="text-neutral-300 text-3xl">🧞‍♂️</span>
-      </div>
-
       <p class="text-neutral-300 text-sm">
         Scegli uno dei tre ruoli disponibili per trasformarti
       </p>
@@ -15,14 +11,11 @@
         v-for="(role, index) in availableRoles"
         :key="`${role.id}-${shuffleKey}`"
         @click="selectRole(role)"
-        :class="getRoleCardClasses(role.factionConfig)"
+        :class="getRoleCardClasses()"
         class="rounded-lg p-4 cursor-pointer transition-all duration-200"
       >
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg">
-            {{ getRoleIcon(role.id) }}
-          </div>
-          <div class="flex-1">
+          <div class="flex-1 text-left">
             <div class="font-semibold text-neutral-100">{{ role.name }}</div>
             <div 
               class="text-xs font-medium"
@@ -32,7 +25,7 @@
             </div>
           </div>
           <div 
-            :class="getRoleNumberClasses(role.factionConfig)"
+            :class="getRoleNumberClasses()"
             class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
           >
             <span class="text-xs font-bold">{{ index + 1 }}</span>
@@ -44,9 +37,13 @@
     <div class="text-center">
       <button
         @click="reshuffleRoles"
-        class="px-4 py-2 bg-neutral-700/60 hover:bg-neutral-700/80 border border-neutral-600/40 hover:border-neutral-500/60 rounded-lg text-neutral-300 text-sm font-medium transition-all duration-200 flex items-center gap-2 mx-auto"
+        class="px-6 py-3 bg-neutral-800/60 hover:bg-neutral-700/80 border border-neutral-600/40 hover:border-neutral-500/60 rounded-xl text-neutral-200 text-sm font-medium transition-all duration-200 flex items-center gap-3 mx-auto shadow-lg hover:shadow-xl"
       >
-        <span>🔄</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-neutral-300">
+          <path d="M1 4v6h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         Rimescola i ruoli
       </button>
     </div>
@@ -79,6 +76,12 @@ const getAvailableRoleIds = () => {
   // Debug logging
   console.log('Enabled roles from game state:', enabledRoles);
   console.log('Available roles in ROLES:', Object.keys(allRoles));
+  
+  // If rolesEnabled is not properly populated, fall back to all available roles
+  if (!enabledRoles || Object.keys(enabledRoles).length === 0) {
+    console.log('No enabled roles found, using all available roles');
+    return Object.keys(allRoles).filter(roleId => roleId !== 'genio');
+  }
   
   const availableRoleIds = Object.keys(enabledRoles).filter(roleId => {
     const isEnabled = enabledRoles[roleId];
@@ -125,135 +128,12 @@ const reshuffleRoles = () => {
   console.log('Roles reshuffled, new shuffle key:', shuffleKey.value);
 };
 
-const getRoleIcon = (roleId: string) => {
-  const icons: Record<string, string> = {
-    // Core roles
-    lupo: '🐺',
-    villico: '👨‍🌾',
-    guardia: '🛡️',
-    veggente: '🔮',
-    
-    // Special roles
-    massone: '💕',
-    matto: '🤪',
-    giustiziere: '⚖️',
-    boia: '🔨',
-    medium: '🧙‍♀️',
-    lupomannaro: '🐕',
-    indemoniato: '😈',
-    insinuo: '🤐',
-    barabba: '🗡️',
-    angelo: '👼',
-    illusionista: '🎭',
-    genio: '🧞‍♂️',
-    parassita: '🦠',
-    
-    // Additional roles (if more are added later)
-    sindaco: '👑',
-    cacciatore: '🏹',
-    profeta: '⭐',
-    investigatore: '🕵️',
-    medico: '👨‍⚕️',
-    prete: '✝️',
-    mercante: '💰',
-    soldato: '⚔️',
-    ladro: '🥷',
-    vampiro: '🧛',
-    zombi: '🧟',
-    fantasma: '👻',
-    stregone: '🔮',
-    negromante: '💀',
-    druido: '🌿',
-    alchimista: '⚗️',
-    oracolo: '🔯',
-    monaco: '🧘',
-    pirata: '🏴‍☠️',
-    cavaliere: '🏇',
-    assassino: '🗡️',
-    spia: '🕴️',
-    cuoco: '👨‍🍳',
-    bibliotecario: '📚',
-    artista: '🎨',
-    musicista: '🎵',
-    scrittore: '✍️',
-    poeta: '📜',
-    filosofo: '🤔',
-    scienziato: '🔬',
-    inventore: '💡',
-    esploratore: '🗺️',
-    archeologo: '⛏️',
-    astronomo: '🔭',
-    marinaio: '⚓',
-    pilota: '✈️',
-    giardiniere: '🌱',
-    fabbro: '🔨',
-    sarto: '🧵',
-    pescatore: '🎣',
-    pastore: '🐑',
-    contadino: '🚜',
-    minatore: '⛏️',
-    boscaiolo: '🪓',
-    mugnaio: '🌾',
-    fornaio: '🍞',
-    macellaio: '🥩',
-    orefice: '💎',
-    ceramista: '🏺',
-    tessitore: '🧶',
-    cordaio: '🪢',
-    carrettiere: '🛒',
-    stalliere: '🐴',
-    maniscalco: '🔧',
-    carpentiere: '🔨',
-    muratore: '🧱',
-    architetto: '📐',
-    ingegnere: '⚙️',
-    cartografo: '🗺️',
-    navigatore: '🧭'
-  };
-  
-  return icons[roleId] || '❓';
+const getRoleCardClasses = () => {
+  return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
 };
 
-const getRoleCardClasses = (factionConfig: any) => {
-  if (!factionConfig) {
-    return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
-  }
-  
-  switch (factionConfig.id) {
-    case 'villaggio':
-      return 'bg-emerald-900/30 border border-emerald-700/40 hover:bg-emerald-900/50 hover:border-emerald-600/60';
-    case 'lupi':
-      return 'bg-red-900/30 border border-red-700/40 hover:bg-red-900/50 hover:border-red-600/60';
-    case 'mannari':
-      return 'bg-indigo-900/30 border border-indigo-700/40 hover:bg-indigo-900/50 hover:border-indigo-600/60';
-    case 'matti':
-      return 'bg-violet-900/30 border border-violet-700/40 hover:bg-violet-900/50 hover:border-violet-600/60';
-    case 'parassita':
-      return 'bg-pink-900/30 border border-pink-700/40 hover:bg-pink-900/50 hover:border-pink-600/60';
-    default:
-      return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
-  }
-};
-
-const getRoleNumberClasses = (factionConfig: any) => {
-  if (!factionConfig) {
-    return 'border-neutral-400 text-neutral-400';
-  }
-  
-  switch (factionConfig.id) {
-    case 'villaggio':
-      return 'border-emerald-400 text-emerald-400';
-    case 'lupi':
-      return 'border-red-400 text-red-400';
-    case 'mannari':
-      return 'border-indigo-400 text-indigo-400';
-    case 'matti':
-      return 'border-violet-400 text-violet-400';
-    case 'parassita':
-      return 'border-pink-400 text-pink-400';
-    default:
-      return 'border-neutral-400 text-neutral-400';
-  }
+const getRoleNumberClasses = () => {
+  return 'border-neutral-400 text-neutral-400';
 };
 
 const selectRole = (role: any) => {

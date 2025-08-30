@@ -14,17 +14,21 @@ export function useNightPhase() {
     };
 
     const currentTurn = computed(() => {
-        if (state.phase !== PHASES.NIGHT) return null;
+        if (state.phase !== PHASES.NIGHT) {
+            return null;
+        }
+        
         const turn = NightPhaseManager.getCurrentTurn(state);
-        console.log(`🌙 [DEBUG] useNightPhase - currentTurn computed:`, turn);
         return turn;
     });
 
     const currentRole = computed(() => {
         const entry = currentTurn.value;
-        if (!entry) return null;
+        if (!entry) {
+            return null;
+        }
+        
         const role = ROLES[entry.roleId] || null;
-        console.log(`🌙 [DEBUG] useNightPhase - currentRole computed:`, role?.name || 'null');
         return role;
     });
 
@@ -35,24 +39,29 @@ export function useNightPhase() {
             return state.players.find(p => p.id === entry.playerId) || null;
         }
         const actor = { id: 0, name: currentRole.value?.name, roleId: entry.roleId };
-        console.log(`🌙 [DEBUG] useNightPhase - currentActor computed:`, actor);
         return actor;
     });
 
     const currentPromptComponent = computed(() => {
-        if (!currentActor.value || !currentActor.value.roleId) return null;
+        if (!currentActor.value || !currentActor.value.roleId) {
+            return null;
+        }
         
         const role = ROLES[currentActor.value.roleId];
-        if (!role || role.actsAtNight === 'never') return null;
+        if (!role) {
+            return null;
+        }
+        
+        if (role.actsAtNight === 'never') {
+            return null;
+        }
         
         const component = role.getPromptComponent;
-        console.log(`🌙 [DEBUG] useNightPhase - currentPromptComponent computed:`, component ? 'found' : 'null', 'for role:', currentActor.value.roleId);
         return component;
     });
 
     const isFirstNightSkipped = computed(() => {
         const skipped = !!state.settings?.skipFirstNightActions && state.nightNumber === 1;
-        console.log(`🌙 [DEBUG] useNightPhase - isFirstNightSkipped computed:`, skipped, `(nightNumber: ${state.nightNumber}, skipFirstNightActions: ${state.settings?.skipFirstNightActions})`);
         return skipped;
     });
 

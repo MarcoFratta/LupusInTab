@@ -56,7 +56,7 @@ describe('Parassita Role', () => {
       expect(parassita.team).toBe('parassita');
       expect(parassita.phaseOrder).toBe('any');
       expect(parassita.actsAtNight).toBe('alive');
-      expect(parassita.effectType).toBe('required');
+      expect(parassita.effectType).toBe('optional');
       expect(parassita.numberOfUsage).toBe('unlimited');
       expect(parassita.minCount).toBe(1);
       expect(parassita.maxCount).toBe(1);

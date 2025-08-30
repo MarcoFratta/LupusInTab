@@ -1,18 +1,19 @@
 import type { RoleDef } from '../types';
+import { mannariWin, mannariBlocksOtherWins } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const lupomannaro: RoleDef = {
     id: 'lupomannaro',
     name: 'Lupo Mannaro',
     team: 'mannari',
-    score: 30,
+    score: 45,
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
     description: 'Vince solo se rimane in vita con un altro giocatore. Di notte dichiara un giocatore e un ruolo:' +
         ' se indovina, la vittima muore sbranata. ' +
         'Se rimane in vita, nessun altro può vincere.' +
-        'I lupi non possono ucciderlo. ' +
+        ' I lupi non possono ucciderlo. ' +
         'Muore se il veggente lo indaga.',
     color: '#7c3aed',
     phaseOrder: "any",
@@ -57,15 +58,13 @@ const lupomannaro: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const alive = gameState.players.filter((p: any) => p.alive);
-        const anyLupomannaroAlive = alive.some((p: any) => p.roleId === 'lupomannaro');
-        return anyLupomannaroAlive && alive.length === 2;
+        return mannariWin(gameState);
     },
+    
     checkWinConstraint(gameState: any) {
-        const alive = gameState.players.filter((p: any) => p.alive);
-        const anyLupomannaroAlive = alive.some((p: any) => p.roleId === 'lupomannaro');
-        return anyLupomannaroAlive && alive.length > 2;
+        return mannariBlocksOtherWins(gameState);
     },
+    
     getPromptComponent: componentFactory('Lupomannaro', "prompt"),
     getResolveDetailsComponent: componentFactory('Lupomannaro', "details"),
 };

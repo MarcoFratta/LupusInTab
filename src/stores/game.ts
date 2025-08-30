@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import type { GameHistory, Player } from '../types';
+import type { GameHistory, Player, NightContext } from '../types';
 
 export type Phase = 'setup' | 'revealRoles' | 'preNight' | 'night' | 'resolve' | 'day' | 'end';
 
@@ -23,12 +23,19 @@ export interface GameState {
 	players: Player[];
 	setup: { numPlayers: number; players: Array<{ name: string }>; rolesCounts: Record<string, number>; rolesEnabled: Record<string, boolean> };
 	revealIndex: number;
-	night: { turns: NightTurn[]; currentIndex: number; results: any[]; context: any; summary: NightSummary | null };
+	night: { turns: NightTurn[]; currentIndex: number; results: any[]; context: NightContext | null; summary: NightSummary | null };
 	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean };
     sindacoId: number | null;
 	winner: string | null;
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
+    showRoleResee?: boolean;
+    revealPhaseState?: {
+        showIntro: boolean;
+        showPreNightInfo: boolean;
+        showRoleReveal: boolean;
+        roleRevealed: boolean;
+    };
 
     custom?: Record<string, any>;
     history?: GameHistory;
@@ -50,6 +57,13 @@ export const useGameStore = defineStore('game', () => {
 		winner: null,
 		lynchedHistory: [],
 		usedPowers: {},
+        showRoleResee: false,
+        revealPhaseState: {
+            showIntro: true,
+            showPreNightInfo: false,
+            showRoleReveal: false,
+            roleRevealed: false
+        },
 
 		nightDeathsByNight: {},
 		lynchedHistoryByDay: {},

@@ -1,5 +1,5 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import { wolvesWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const illusionista: RoleDef = {
@@ -45,7 +45,6 @@ const illusionista: RoleDef = {
 		};
 	},
     checkWin(gameState: any) {
-		const { wolvesWin } = useWinConditions();
 		return wolvesWin(gameState);
 	},
 	

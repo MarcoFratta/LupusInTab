@@ -57,7 +57,8 @@ export class RoleConstraintManager {
   private static checkStartNightConstraint(state: GameState, roleId: string, playerIds: number[], roleDef: any): boolean {
     const rolePlayers = state.players.filter(p => playerIds.includes(p.id));
     
-    return rolePlayers.some(player => {
+    // Return true only if ALL players have startNight restrictions that prevent them from acting
+    return rolePlayers.every(player => {
       const roleStartNight = roleDef.startNight;
       const playerStartNight = player.roleState?.startNight;
       const startNight = playerStartNight || roleStartNight;
@@ -145,9 +146,14 @@ export class RoleConstraintManager {
     const hasAction = result.action && result.action !== 'none';
     const hasChoice = result.choice !== null && result.choice !== undefined;
     const hasRoleId = result.roleId !== null && result.roleId !== undefined;
+    const hasLupiCount = result.lupiCount !== null && result.lupiCount !== undefined;
+    const hasInfetti = result.infetti !== null && result.infetti !== undefined;
+    const hasDiscoveredFaction = result.discoveredFaction !== null && result.discoveredFaction !== undefined;
+    const hasDiscoveredRole = result.discoveredRole !== null && result.discoveredRole !== undefined;
+    const hasDiscoveredRealTeam = result.discoveredRealTeam !== null && result.discoveredRealTeam !== undefined;
     
     // If any meaningful data is present, consider the role used
-    return hasTargetId || hasTargetIds || hasTarget || hasAction || hasChoice || hasRoleId;
+    return hasTargetId || hasTargetIds || hasTarget || hasAction || hasChoice || hasRoleId || hasLupiCount || hasInfetti || hasDiscoveredFaction || hasDiscoveredRole || hasDiscoveredRealTeam;
   }
 
   /**

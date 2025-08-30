@@ -12,6 +12,11 @@ export class SetupManager {
    * Initialize setup players array
    */
   static initSetupPlayers(state: GameState): void {
+    // If numPlayers is not set or is 0, default to 9
+    if (!state.setup.numPlayers || state.setup.numPlayers === 0) {
+      state.setup.numPlayers = 9;
+    }
+    
     state.setup.players = Array.from(
       { length: state.setup.numPlayers }, 
       (_, i) => ({ name: `Giocatore ${i + 1}` })
@@ -23,7 +28,7 @@ export class SetupManager {
    * Initialize default role counts based on number of players
    */
   static initDefaultRolesCounts(state: GameState): void {
-    const n = state.setup.numPlayers;
+    const n = state.setup.players.length;
     
     // Special case: 9 players get a specific balanced setup
     if (n === 9) {
@@ -68,7 +73,8 @@ export class SetupManager {
           angelo: false, 
           genio: false,
           parassita: false,
-          simbionte: false
+          simbionte: false,
+          mutaforma: false
         } as Record<string, boolean>;
       } else {
         state.setup.rolesEnabled = { 
@@ -88,7 +94,8 @@ export class SetupManager {
           angelo: false, 
           genio: false,
           parassita: false,
-          simbionte: false
+          simbionte: false,
+          mutaforma: false
         } as Record<string, boolean>;
       }
     }
@@ -102,7 +109,6 @@ export class SetupManager {
    */
   static resizePlayers(state: GameState, nextCount: number): void {
     const n = Math.max(4, Math.min(20, Number(nextCount) || 0));
-    state.setup.numPlayers = n;
     const current = state.setup.players.length;
     
     if (n > current) {
@@ -112,6 +118,9 @@ export class SetupManager {
     } else if (n < current) {
       state.setup.players.splice(n);
     }
+    
+    // Update numPlayers to match the actual player count
+    state.setup.numPlayers = state.setup.players.length;
     
     // Recalculate role counts after changing player count
     SetupManager.initDefaultRolesCounts(state);
@@ -231,7 +240,7 @@ export class SetupManager {
    */
   static validateAndFixRoleCounts(state: GameState): void {
     const totalRoles = Object.values(state.setup.rolesCounts).reduce((sum, count) => sum + (count || 0), 0);
-    const numPlayers = state.setup.numPlayers;
+    const numPlayers = state.setup.players.length;
     
     if (totalRoles !== numPlayers) {
       const currentVillici = state.setup.rolesCounts['villico'] || 0;
@@ -273,12 +282,12 @@ export class SetupManager {
       }
     }
     
-    if (pool.length !== state.setup.numPlayers) {
-      console.error(`Critical error: Role pool size (${pool.length}) doesn't match player count (${state.setup.numPlayers})`);
+    if (pool.length !== state.setup.players.length) {
+      console.error(`Critical error: Role pool size (${pool.length}) doesn't match player count (${state.setup.players.length})`);
       console.error('Role counts:', state.setup.rolesCounts);
       console.error('Roles enabled:', state.setup.rolesEnabled);
       
-      const missingRoles = state.setup.numPlayers - pool.length;
+      const missingRoles = state.setup.players.length - pool.length;
       if (missingRoles > 0) {
         console.warn(`Attempting to fix by adding ${missingRoles} villico roles`);
         for (let i = 0; i < missingRoles; i++) {
@@ -293,7 +302,7 @@ export class SetupManager {
       const roleId = randomized[idx];
       if (!roleId) {
         console.error(`No role available for player ${p.name} at index ${idx}`);
-        console.error('Pool size:', pool.length, 'Player count:', state.setup.numPlayers);
+        console.error('Pool size:', pool.length, 'Player count:', state.setup.players.length);
       }
       
       return { 

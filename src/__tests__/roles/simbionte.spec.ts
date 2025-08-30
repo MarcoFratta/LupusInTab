@@ -68,7 +68,7 @@ describe('Simbionte Role', () => {
       expect(simbionte.actsAtNight).toBe('alive');
       expect(simbionte.effectType).toBe('required');
       expect(simbionte.numberOfUsage).toBe(1);
-      expect(simbionte.score).toBe(25);
+      expect(simbionte.score).toBe(0);
       expect(simbionte.phaseOrder).toBe(-20);
     });
 
@@ -91,7 +91,7 @@ describe('Simbionte Role', () => {
       expect(result.type).toBe('simbionte_transform');
       expect(result.oldRoleId).toBe('simbionte');
       expect(result.newRoleId).toBe('villico');
-      expect(result.newRoleName).toBe('Villico');
+      expect(result.newRoleName).toBe('Contadino');
       expect(result.newRoleTeam).toBe('villaggio');
       expect(result.targetPlayerId).toBe(2);
       expect(result.targetPlayerName).toBe('Villico Player');

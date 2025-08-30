@@ -14,8 +14,6 @@ const indemoniato: RoleDef = {
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
-    getPromptComponent: componentFactory('Indemoniato', "prompt"),
-    getResolveDetailsComponent: componentFactory('Indemoniato', "details"),
     resolve() {},
 };
 

@@ -20,4 +20,7 @@ export { default as SecondaryButton } from './SecondaryButton.vue';
 export { default as SkipConfirmButtons } from './SkipConfirmButtons.vue';
 export { default as DiscussionTimer } from './DiscussionTimer.vue';
 export { default as CacheStatus } from './CacheStatus.vue';
+export { default as SetupTitle } from './SetupTitle.vue';
+export { default as LongPressButton } from './LongPressButton.vue';
+export { default as NewRolesPopup } from './NewRolesPopup.vue';
 export * from './prompts';

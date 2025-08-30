@@ -1,4 +1,4 @@
-import type { GameState, RolesRegistry } from '../../types';
+import type { GameState, RolesRegistry, NightContext } from '../../types';
 import { ROLES } from '../../roles';
 import { GameStateManager } from './GameStateManager';
 import { RoleConstraintManager } from './RoleConstraintManager';
@@ -15,27 +15,38 @@ export class NightPhaseManager {
   static beginNight(state: GameState, roles: RolesRegistry): void {
     state.nightNumber += 1;
     
-    // Initialize night tracking
     GameStateManager.initializeNightTracking(state, state.nightNumber);
     
-    // Create the night context with minimal tracking
-    const nightContext = { 
+    const nightContext: NightContext = { 
       pendingKills: {}, 
       savesBy: [], 
       checks: [],
-      calledRoles: new Set() // Track which roles have been called this night
+      calledRoles: []
     };
     
     state.night = { 
-      turns: [], // Will be computed dynamically each time
-      currentIndex: 0, // Not used in dynamic approach
+      turns: [],
+      currentIndex: 0,
       context: nightContext, 
       summary: null 
     } as any;
     
-    console.log(`🌙 [DEBUG] Night setup complete. Roles will be computed dynamically based on current player states.`);
-    
     state.phase = 'night';
+    
+    // Apply mutaforma passive effect at the start of night to check team balance
+    const mutaformaPlayers = state.players.filter(p => p.roleId === 'mutaforma' && p.alive);
+    if (mutaformaPlayers.length > 0) {
+      const mutaformaRole = ROLES['mutaforma'];
+      if (mutaformaRole && typeof mutaformaRole.passiveEffect === 'function') {
+        for (const player of mutaformaPlayers) {
+          try {
+            mutaformaRole.passiveEffect(state as any, player);
+          } catch (error) {
+            console.error(`Error in mutaforma passive effect for player ${player.id}:`, error);
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -87,31 +98,72 @@ export class NightPhaseManager {
 
   /**
    * Record the result of a night action and move to the next role
+   * Record the result of a night action and move to the next role
    */
   static recordNightResult(state: GameState, result: any): void {
-    if (!state.night || !state.night.context) return;
+    if (!state.night) {
+      console.warn(`🌙 [WARNING] recordNightResult - No night state, creating one`);
+      NightPhaseManager.beginNight(state, {} as any);
+      // After creating night state, we need to get the current turn again
+      const currentTurn = NightPhaseManager.getCurrentTurn(state);
+      if (!currentTurn) {
+        state.phase = 'resolve';
+        return;
+      }
+    }
+    
+    if (!state.night.context) {
+      console.warn(`🌙 [WARNING] recordNightResult - No night context, creating one`);
+      state.night.context = {
+        pendingKills: {},
+        savesBy: [],
+        checks: [],
+        calledRoles: []
+      };
+    }
 
     try {
       // Get the current turn that was just completed
       const currentTurn = NightPhaseManager.getCurrentTurn(state);
       if (!currentTurn) {
-        console.log(`🌙 [DEBUG] recordNightResult - No current turn, resolving night`);
         state.phase = 'resolve';
         return;
       }
 
       const { calledRoles } = state.night.context;
+      
+      // Ensure calledRoles is always an array
+      if (!Array.isArray(calledRoles)) {
+        console.warn(`🌙 [WARNING] recordNightResult - calledRoles is not an array, converting from:`, calledRoles);
+        
+        // Convert to array if it's a Set or other type
+        let rolesArray: string[] = [];
+        if (calledRoles instanceof Set) {
+          rolesArray = Array.from(calledRoles);
+        } else if (calledRoles && typeof calledRoles === 'object') {
+          // Handle case where it might be a reactive proxy
+          try {
+            rolesArray = Array.from(calledRoles as any);
+          } catch (e) {
+            console.warn(`🌙 [WARNING] Failed to convert calledRoles to array:`, e);
+            rolesArray = [];
+          }
+        }
+        
+        // Create a new array and replace the corrupted one
+        state.night.context.calledRoles = rolesArray;
+        console.log(`🌙 [INFO] Successfully converted calledRoles to array with ${rolesArray.length} items`);
+      }
+      
       const roleDef = ROLES[currentTurn.roleId];
       const playerIds = currentTurn.playerIds || [];
-      
-      console.log(`🌙 [DEBUG] recordNightResult - Processing role ${currentTurn.roleId} result`);
       
       // Check if this is the first night and first night actions are skipped
       const isFirstNightSkipped = state.settings?.skipFirstNightActions && state.nightNumber === 1;
       
       if (!isFirstNightSkipped) {
         // Apply passive effects if not first night skipped
-        NightPhaseManager.applyRolePassiveEffects(state, roleDef, playerIds, currentTurn.roleId);
+        NightPhaseManager.applyRolePassiveEffects(state, currentTurn.roleId, playerIds, currentTurn.roleId);
         
         // Initialize history for this night
         GameStateManager.initializeHistory(state, state.nightNumber);
@@ -119,7 +171,19 @@ export class NightPhaseManager {
         // Process the result and update history
         NightPhaseManager.processNightActionResult(state, currentTurn, result, roleDef, playerIds);
       } else {
-        console.log(`🌙 [DEBUG] First night actions skipped for role ${currentTurn.roleId}`);
+        // For first night skipped, still apply passive effects for roles with actsAtNight: "never"
+        if (roleDef && roleDef.actsAtNight === 'never' && typeof roleDef.passiveEffect === 'function') {
+          for (const playerId of playerIds) {
+            const player = state.players.find(p => p.id === playerId);
+            if (player && player.alive) {
+              try {
+                roleDef.passiveEffect(state as any, player);
+              } catch (error) {
+                console.error(`Error in passive effect for ${currentTurn.roleId} (player ${playerId}):`, error);
+              }
+            }
+          }
+        }
       }
       
       // Record this turn in the night.turns array for proper restore order
@@ -128,21 +192,16 @@ export class NightPhaseManager {
         roleId: currentTurn.roleId,
         playerIds: currentTurn.playerIds || [],
         phaseOrder: roleDef?.phaseOrder,
-        timestamp: Date.now() // Add timestamp for debugging
+        timestamp: Date.now()
       });
       
       // Mark this role as called for this night
-      calledRoles.add(currentTurn.roleId);
-      console.log(`🌙 [DEBUG] recordNightResult - Marked role ${currentTurn.roleId} as called. Called roles:`, Array.from(calledRoles));
-      console.log(`🌙 [DEBUG] recordNightResult - Night turns so far:`, state.night.turns.map(t => `${t.roleId}(${t.phaseOrder})`));
+      state.night.context.calledRoles.push(currentTurn.roleId);
       
       // Check if there are more roles to call
       const nextTurn = NightPhaseManager.getCurrentTurn(state);
       if (!nextTurn) {
-        console.log(`🌙 [DEBUG] recordNightResult - No more roles to call, resolving night`);
         state.phase = 'resolve';
-      } else {
-        console.log(`🌙 [DEBUG] recordNightResult - Next role to call: ${nextTurn.roleId}`);
       }
       
     } catch (error) {
@@ -251,7 +310,16 @@ export class NightPhaseManager {
   static resolveNight(state: GameState, roles: RolesRegistry): void {
     if (!state.night) return;
     
-    // Create night summary from context
+    // Ensure night context is properly initialized
+    if (!state.night.context) {
+      state.night.context = {
+        pendingKills: {},
+        savesBy: [],
+        checks: [],
+        calledRoles: []
+      };
+    }
+    
     if (state.night.context) {
       const summary = NightPhaseManager.createNightSummary(state);
       state.night.summary = summary;
@@ -325,28 +393,64 @@ export class NightPhaseManager {
 
   /**
    * Get the next role that should be called based on current player roles and phase order
+   * Get the next role that should be called based on current player roles and phase order
    */
   static getCurrentTurn(state: GameState): any {
-    if (!state.night || !state.night.context) return null;
+    if (!state.night) {
+      console.warn(`🌙 [WARNING] getCurrentTurn - No night state, creating one`);
+      NightPhaseManager.beginNight(state, {} as any);
+      return null;
+    }
+    
+    if (!state.night.context) {
+      console.warn(`🌙 [WARNING] getCurrentTurn - No night context, creating one`);
+      state.night.context = {
+        pendingKills: {},
+        savesBy: [],
+        checks: [],
+        calledRoles: []
+      };
+    }
     
     try {
       const { calledRoles } = state.night.context;
       
-      // Get all unique roles from current players
-      const uniqueRoles = new Set(state.players.map(p => p.roleId));
+      if (!Array.isArray(calledRoles)) {
+        console.warn(`🌙 [WARNING] getCurrentTurn - calledRoles is not an array, converting from:`, calledRoles);
+        
+        let rolesArray: string[] = [];
+        if (calledRoles instanceof Set) {
+          rolesArray = Array.from(calledRoles);
+        } else if (calledRoles && typeof calledRoles === 'object') {
+          try {
+            rolesArray = Array.from(calledRoles as any);
+          } catch (e) {
+            console.warn(`🌙 [WARNING] Failed to convert calledRoles to array:`, e);
+            rolesArray = [];
+          }
+        }
+        
+        state.night.context.calledRoles = rolesArray;
+        console.log(`🌙 [INFO] Successfully converted calledRoles to array with ${rolesArray.length} items`);
+      }
       
-      // Build current night turns based on actual player roles
-      const rolesWithPrompts = [];
+      const uniqueRoles = new Set(state.players.map(p => p.roleId));
+      const availableRoles = [];
       
       for (const roleId of uniqueRoles) {
         const roleDef = ROLES[roleId];
-        if (!roleDef || roleDef.actsAtNight === 'never') continue;
+        if (!roleDef) {
+          continue;
+        }
         
         const rolePlayers = state.players.filter(p => p.roleId === roleId);
-        if (rolePlayers.length === 0) continue;
+        if (rolePlayers.length === 0) {
+          continue;
+        }
         
-        // Skip roles that have already been called this night
-        if (calledRoles.has(roleId)) continue;
+        if (state.night.context.calledRoles.includes(roleId)) {
+          continue;
+        }
         
         const roleInfo = {
           roleId,
@@ -355,26 +459,46 @@ export class NightPhaseManager {
           phaseOrder: roleDef.phaseOrder !== undefined ? roleDef.phaseOrder : 'any'
         };
         
-        rolesWithPrompts.push(roleInfo);
+        availableRoles.push(roleInfo);
       }
       
-      // Sort by phase order
-      rolesWithPrompts.sort(NightPhaseManager.compareRolesByPhaseOrder);
-      
-      // Return the first role that hasn't been called yet
-      if (rolesWithPrompts.length === 0) {
-        console.log(`🌙 [DEBUG] getCurrentTurn - No more roles to call for this night`);
+      if (availableRoles.length === 0) {
         return null;
       }
       
-      const nextRole = rolesWithPrompts[0];
+      availableRoles.sort(NightPhaseManager.compareRolesByPhaseOrder);
+      
+      // Find the first role that actually needs a prompt (not actsAtNight: "never")
+      const nextRole = availableRoles.find(role => role.roleDef.actsAtNight !== 'never');
+      
+      if (!nextRole) {
+        // All remaining roles are actsAtNight: "never", apply their passive effects and return null
+        for (const role of availableRoles) {
+          if (typeof role.roleDef.passiveEffect === 'function') {
+            for (const player of role.players) {
+              if (player.alive) {
+                try {
+                  role.roleDef.passiveEffect(state as any, player);
+                } catch (error) {
+                  console.error(`Error in passive effect for ${role.roleId} (player ${player.id}):`, error);
+                }
+              }
+            }
+          }
+          // Mark this role as called
+          if (!state.night.context.calledRoles.includes(role.roleId)) {
+            state.night.context.calledRoles.push(role.roleId);
+          }
+        }
+        return null;
+      }
+      
       const turn = {
         kind: 'group' as const,
         roleId: nextRole.roleId,
         playerIds: nextRole.players.map(p => p.id)
       };
       
-      console.log(`🌙 [DEBUG] getCurrentTurn - Next role to call: ${nextRole.roleId} (phaseOrder: ${nextRole.phaseOrder})`);
       return turn;
       
     } catch (error) {

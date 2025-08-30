@@ -155,8 +155,8 @@ export interface RoleDef {
      * Optional per-role blocker. Return true if this role blocks declaring any winner (e.g., Lupomannaro alive blocks wins).
      */
     checkWinConstraint?: (gameState: any) => boolean;
-    getPromptComponent: () => Promise<any>;
-    getResolveDetailsComponent: () => Promise<any>;
+    getPromptComponent?: () => Promise<any>;
+    getResolveDetailsComponent?: () => Promise<any>;
 }
 
 export interface PlayerRoleState {
@@ -190,6 +190,13 @@ export interface Player {
     roleState: PlayerRoleState;
 }
 
+export interface NightContext {
+  pendingKills: Record<string, any>;
+  savesBy: string[];
+  checks: any[];
+  calledRoles: string[];
+}
+
 export interface GameState {
 	phase: Phase;
 	nightNumber: number;
@@ -197,7 +204,7 @@ export interface GameState {
 	players: Player[];
 	setup: { numPlayers: number; players: Array<{ name: string }>; rolesCounts: Record<string, number>; rolesEnabled: Record<string, boolean> };
 	revealIndex: number;
-	night: { turns: NightTurn[]; currentIndex: number; context: any; summary: NightSummary | null };
+	night: { turns: NightTurn[]; currentIndex: number; context: NightContext | null; summary: NightSummary | null };
 	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean };
     sindacoId: number | null;
 	    winner: string | null | 'tie';
@@ -208,6 +215,7 @@ export interface GameState {
     history?: GameHistory;
     nightDeathsByNight?: Record<number, number[]>;
     lynchedHistoryByDay?: Record<number, number[]>;
+    roleMeta?: Record<string, any>; // Test-specific property for role metadata
 }
 
 export interface NightTurn { kind: 'group'; roleId: string; playerIds: number[] }

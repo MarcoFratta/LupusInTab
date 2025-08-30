@@ -7,18 +7,13 @@ const matto: RoleDef = {
     team: 'matti',
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    score: 10,
+    score: 30,
     description: 'Vince da solo se viene linciato dal villaggio.',
     color: '#e9d5ff',
     phaseOrder: "any",
     actsAtNight: "never",
     effectType: 'optional',
     numberOfUsage: 'unlimited',
-    maxCount: 1,
-
-    getPromptComponent: componentFactory('Matto', "prompt"),
-    getResolveDetailsComponent: componentFactory('Matto', "details"),
-
     resolve() {},
     checkWin(gameState: any) {
         return false;

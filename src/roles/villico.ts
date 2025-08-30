@@ -1,10 +1,10 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import {villageWin} from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const villico: RoleDef = {
 	id: 'villico',
-	name: 'Villico',
+	name: 'Contadino',
 	team: 'villaggio',
 	icon: 'VillicoIcon',
     score: 1,
@@ -18,11 +18,8 @@ const villico: RoleDef = {
     numberOfUsage: 'unlimited',
     resolve() {},
     checkWin(gameState: any) {
-        const { villageWin } = useWinConditions();
         return villageWin(gameState);
-    },
-    getPromptComponent: componentFactory('Villico', "prompt"),
-    getResolveDetailsComponent: componentFactory('Villico', "details"),
+    }
 };
 
 export default villico;

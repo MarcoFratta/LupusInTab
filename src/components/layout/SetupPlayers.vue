@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useGameStore } from '../../stores/game';
 import { initSetupPlayers as engineInitSetupPlayers, resizePlayers as engineResizePlayers, normalizeRoleCounts as engineNormalizeRoleCounts } from '../../core/engine';
+import { SetupTitle } from '../ui';
 
 const store = useGameStore();
 const state = store.state as any;
 
 const playerCount = computed(() => state.setup.players.length);
+
+watch(() => state.setup.players.length, (newLength) => {
+  state.setup.numPlayers = newLength;
+});
 
 const duplicateNames = computed(() => {
   const names = state.setup.players.map((p: any) => p.name?.trim().toLowerCase()).filter(Boolean);
@@ -41,8 +46,8 @@ const hasNameErrors = computed(() => {
 });
 
 function resetNames() {
-  state.setup.numPlayers = 9;
   engineInitSetupPlayers(state);
+  state.setup.numPlayers = state.setup.players.length;
   engineNormalizeRoleCounts(state);
 }
 
@@ -84,26 +89,16 @@ function movePlayerDown(index: number) {
 
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
-    <div class="text-center space-y-3 md:space-y-4">
-      <div class="relative">
-        <div class="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 blur-2xl md:blur-3xl rounded-full"></div>
-        <h2 class="relative text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-          Gestione Giocatori
-        </h2>
-      </div>
-      
-      <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
-      
-      <p class="text-sm md:text-base text-neutral-400 max-w-md mx-auto leading-relaxed">
-        Aggiungi, rimuovi e personalizza i nomi dei giocatori per questa partita.
-      </p>
-      
-      <div class="flex items-center justify-center gap-3">
-        <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
-          <div class="w-3 h-3 rounded-full bg-violet-500"></div>
-          <span class="text-sm font-medium text-neutral-200">Giocatori</span>
-          <span class="text-sm font-bold text-violet-400">{{ playerCount }}</span>
-        </div>
+    <SetupTitle 
+      title="Gestione Giocatori"
+      subtitle="Aggiungi, rimuovi e personalizza i nomi dei giocatori per questa partita."
+    />
+    
+    <div class="flex items-center justify-center gap-3">
+      <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
+        <div class="w-3 h-3 rounded-full bg-violet-500"></div>
+        <span class="text-sm font-medium text-neutral-200">Giocatori</span>
+        <span class="text-sm font-bold text-violet-400">{{ playerCount }}</span>
       </div>
     </div>
 
@@ -197,15 +192,15 @@ function movePlayerDown(index: number) {
                 :class="{
                   'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50': getPlayerNameError(player.name)
                 }"
-                                :placeholder="`Giocatore ${index + 1}`"
+                :placeholder="`Giocatore ${index + 1}`"
                 maxlength="15"
               />
-                             <div v-if="getPlayerNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
-                 <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                 </svg>
-                 {{ getPlayerNameError(player.name) }}
-               </div>
+              <div v-if="getPlayerNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
+                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                {{ getPlayerNameError(player.name) }}
+              </div>
             </div>
             
             <button 

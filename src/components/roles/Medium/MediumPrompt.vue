@@ -39,24 +39,22 @@ function submitNoAction() {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <!-- Debug info -->
+  <div class="space-y-6">
+    <div class="text-center space-y-3">
+      <p class="text-neutral-400 text-base font-medium">Controlla la fazione di un giocatore morto</p>
+    </div>
     
-    <div v-if="deadPlayers.length === 0" class="text-center text-gray-500">
-      <p>Nessun giocatore morto da investigare</p>
+    <div v-if="deadPlayers.length === 0" class="text-center space-y-4">
+      <p class="text-neutral-400 text-base">Nessun giocatore morto da investigare</p>
       <button 
-        class="btn btn-primary w-full mt-4" 
+        class="btn btn-accent w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
         @click="submitNoAction"
       >
         Continua
       </button>
     </div>
     
-    <div v-else class="space-y-4">
-      <div class="text-center">
-        <p class="text-neutral-400 text-sm">Controlla la fazione di un giocatore morto</p>
-      </div>
-      
+    <div v-else class="space-y-6">
       <PromptSelect
         label="Chi vuoi controllare?"
         v-model="targetId"

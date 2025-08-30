@@ -31,6 +31,9 @@ export { default as LupoResolveDetails } from './Lupo/LupoResolveDetails.vue';
 export { default as LupomannaroPrompt } from './Lupomannaro/LupomannaroPrompt.vue';
 export { default as LupomannaroResolveDetails } from './Lupomannaro/LupomannaroResolveDetails.vue';
 
+export { default as MuccaMannaraPrompt } from './MuccaMannara/MuccaMannaraPrompt.vue';
+export { default as MuccaMannaraResolveDetails } from './MuccaMannara/MuccaMannaraResolveDetails.vue';
+
 export { default as MassonePrompt } from './Massone/MassonePrompt.vue';
 export { default as MassoneResolveDetails } from './Massone/MassoneResolveDetails.vue';
 
@@ -48,3 +51,18 @@ export { default as VeggenteResolveDetails } from './Veggente/VeggenteResolveDet
 
 export { default as VillicoPrompt } from './Villico/VillicoPrompt.vue';
 export { default as VillicoResolveDetails } from './Villico/VillicoResolveDetails.vue';
+
+export { default as MissPurplePrompt } from './MissPurple/MissPurplePrompt.vue';
+export { default as MissPurpleResolveDetails } from './MissPurple/MissPurpleResolveDetails.vue';
+
+export { default as BugiardoPrompt } from './Bugiardo/BugiardoPrompt.vue';
+export { default as BugiardoResolveDetails } from './Bugiardo/BugiardoResolveDetails.vue';
+
+export { default as MutaformaPrompt } from './Mutaforma/MutaformaPrompt.vue';
+export { default as MutaformaResolveDetails } from './Mutaforma/MutaformaResolveDetails.vue';
+
+export { default as ParassitaPrompt } from './Parassita/ParassitaPrompt.vue';
+export { default as ParassitaResolveDetails } from './Parassita/ParassitaResolveDetails.vue';
+
+export { default as SimbiontePrompt } from './Simbionte/SimbiontePrompt.vue';
+export { default as SimbionteResolveDetails } from './Simbionte/SimbionteResolveDetails.vue';

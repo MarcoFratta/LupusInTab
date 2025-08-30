@@ -1,11 +1,27 @@
 {
-  "version": "1.10.0",
-  "timestamp": 1756560395573,
+  "version": "1.0.4",
+  "timestamp": 1704067200000,
   "assets": [
+    "/",
     "/index.html",
+    "/manifest.webmanifest",
+    "/favicon.svg",
+    "/style.css",
     "/assets/index-*.js",
-    "/assets/index-*.css"
+    "/assets/index-*.css",
+    "/assets/vendor-*.js",
+    "/assets/*.js",
+    "/assets/*.css",
+    "/assets/*.woff2",
+    "/assets/*.woff",
+    "/assets/*.ttf",
+    "/assets/*.png",
+    "/assets/*.svg",
+    "/assets/*.ico",
+    "/sw.js",
+    "/workbox-*.js",
+    "/registerSW.js"
   ],
-  "changelog": "Auto-updated by CI workflow",
+  "changelog": "Restored comprehensive Vite build patterns for complete PWA caching",
   "minVersion": "1.0.0"
 }

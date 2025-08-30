@@ -10,27 +10,27 @@ jobs:
   test:
     name: 🧪 Multi-Node Tests
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x, 20.x]
-    
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm test
-      name: Run Tests (Node ${{ matrix.node-version }})
-    - name: 📊 Test Summary
-      if: always()
-      run: |
-        if [ ${{ job.status }} == 'success' ]; then
-          echo "## 🧪 Test Results (Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Tests passed!**" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "## 🧪 Test Results (Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
-          echo "❌ **Tests failed!**" >> $GITHUB_STEP_SUMMARY
-        fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm test
+        name: Run Tests (Node ${{ matrix.node-version }})
+      - name: 📊 Test Summary
+        if: always()
+        run: |
+          if [ ${{ job.status }} == 'success' ]; then
+            echo "## 🧪 Test Results (Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Tests passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 🧪 Test Results (Node ${{ matrix.node-version }})" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Tests failed!**" >> $GITHUB_STEP_SUMMARY
+          fi

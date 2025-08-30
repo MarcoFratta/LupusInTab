@@ -1,5 +1,5 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import { wolvesWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const lupo: RoleDef = {
@@ -17,6 +17,8 @@ const lupo: RoleDef = {
     effectType: 'required',
     numberOfUsage: 'unlimited',
     revealAlliesWithinRole: true,
+    knownTo: ['muccamannara'],
+    revealToAllies: "role",
     minCount: 1,
     maxCount: (state: any) => Math.max(1, Math.floor(((state?.setup?.numPlayers || 0) - 1) / 2)),
     getPromptComponent: componentFactory('Lupo', "prompt"),
@@ -42,7 +44,6 @@ const lupo: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const { wolvesWin } = useWinConditions();
         return wolvesWin(gameState);
     },
 };

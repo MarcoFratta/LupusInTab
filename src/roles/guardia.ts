@@ -1,5 +1,5 @@
 import type { RoleDef } from '../types';
-import { useWinConditions } from '../utils/winConditions';
+import { villageWin } from '../utils/winConditions';
 import {componentFactory} from "../utils/roleUtils";
 
 const guardia: RoleDef = {
@@ -15,7 +15,6 @@ const guardia: RoleDef = {
     actsAtNight: "alive",
     effectType: 'required',
     numberOfUsage: 'unlimited',
-    affectedRoles: ['lupo'],
     getPromptComponent: componentFactory('Guardia', "prompt"),
     getResolveDetailsComponent: componentFactory('Guardia', "details"),
     resolve(gameState: any, action: any) {
@@ -63,7 +62,6 @@ const guardia: RoleDef = {
         };
     },
     checkWin(gameState: any) {
-        const { villageWin } = useWinConditions();
         return villageWin(gameState);
     },
 };

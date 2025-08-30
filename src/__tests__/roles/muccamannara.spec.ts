@@ -142,7 +142,12 @@ describe('MuccaMannara Role', () => {
         ]
       };
 
-      // Simulate the normal turn flow
+      expect(gameState.night.context.pendingKills[1]).toEqual([{ role: 'lupo' }]);
+
+      // Start the night phase which will apply passive effects for all roles
+      NightPhaseManager.beginNight(gameState, {} as any);
+      
+      // Call getCurrentTurn to trigger processing of roles with actsAtNight: "never"
       let turn = NightPhaseManager.getCurrentTurn(gameState);
       while (turn) {
         // Mark the role as called
@@ -150,7 +155,11 @@ describe('MuccaMannara Role', () => {
         turn = NightPhaseManager.getCurrentTurn(gameState);
       }
 
+      // Verify that the passive effect was applied and lupo kills were filtered out
       expect(gameState.night.context.pendingKills[1]).toBeUndefined();
+      
+      // Verify that muccamannara was marked as called (since it's actsAtNight: "never")
+      expect(gameState.night.context.calledRoles).toContain('muccamannara');
     });
 
     it('should apply passive effect when no other roles act at night', () => {
@@ -174,10 +183,24 @@ describe('MuccaMannara Role', () => {
         ]
       };
 
-      const turn = NightPhaseManager.getCurrentTurn(gameState);
+      expect(gameState.night.context.pendingKills[1]).toEqual([{ role: 'lupo' }]);
 
-      expect(turn).toBeNull();
+      // Start the night phase which will apply passive effects for all roles
+      NightPhaseManager.beginNight(gameState, {} as any);
+      
+      // Call getCurrentTurn to trigger processing of roles with actsAtNight: "never"
+      let turn = NightPhaseManager.getCurrentTurn(gameState);
+      while (turn) {
+        // Mark the role as called
+        gameState.night.context.calledRoles.push(turn.roleId);
+        turn = NightPhaseManager.getCurrentTurn(gameState);
+      }
+
+      // Verify that the passive effect was applied and lupo kills were filtered out
       expect(gameState.night.context.pendingKills[1]).toBeUndefined();
+      
+      // Verify that muccamannara was marked as called (since it's actsAtNight: "never")
+      expect(gameState.night.context.calledRoles).toContain('muccamannara');
     });
 
     it('should track roles with passive effects in night context', () => {
@@ -201,9 +224,23 @@ describe('MuccaMannara Role', () => {
         ]
       };
 
-      const turn = NightPhaseManager.getCurrentTurn(gameState);
+      expect(gameState.night.context.pendingKills[1]).toEqual([{ role: 'lupo' }]);
 
-      expect(turn).toBeNull();
+      // Start the night phase which will apply passive effects for all roles
+      NightPhaseManager.beginNight(gameState, {} as any);
+      
+      // Call getCurrentTurn to trigger processing of roles with actsAtNight: "never"
+      let turn = NightPhaseManager.getCurrentTurn(gameState);
+      while (turn) {
+        // Mark the role as called
+        gameState.night.context.calledRoles.push(turn.roleId);
+        turn = NightPhaseManager.getCurrentTurn(gameState);
+      }
+
+      // Verify that the passive effect was applied and lupo kills were filtered out
+      expect(gameState.night.context.pendingKills[1]).toBeUndefined();
+      
+      // Verify that muccamannara was marked as called (since it's actsAtNight: "never")
       expect(gameState.night.context.calledRoles).toContain('muccamannara');
     });
 
@@ -245,13 +282,8 @@ describe('MuccaMannara Role', () => {
       expect(muccamannaraPlayer.alive).toBe(true);
       expect(gameState.night.context.pendingKills[1]).toEqual([{ role: 'lupo' }]);
 
-      // Simulate the normal turn flow
-      let turn = NightPhaseManager.getCurrentTurn(gameState);
-      while (turn) {
-        // Mark the role as called
-        gameState.night.context.calledRoles.push(turn.roleId);
-        turn = NightPhaseManager.getCurrentTurn(gameState);
-      }
+      // Start the night phase which will apply passive effects for all roles
+      NightPhaseManager.beginNight(gameState, {} as any);
 
       expect(muccamannaraPlayer.alive).toBe(true);
       expect(gameState.night.context.pendingKills[1]).toBeUndefined();

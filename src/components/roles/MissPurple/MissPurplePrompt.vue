@@ -29,7 +29,7 @@ function submit() {
 		<div class="text-center">
 			<button 
 				@click="submit"
-				class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+				class="bg-purple-600 hover:bg-purple-700 w-full text-white px-6 py-3 rounded-lg font-medium transition-colors"
 			>
 				Conferma
 			</button>

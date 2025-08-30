@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
 
 interface Props {
@@ -17,17 +16,9 @@ const misspurpleEvents = computed(() => {
     return [props.entry];
 });
 
-const misspurplePlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'misspurple'));
-
-const representativeMissPurple = computed(() => {
-  const misspurpleList = misspurplePlayers.value;
-  if (misspurpleList.length === 0) return null;
-  
-  return {
-    ...misspurpleList[0],
-    name: misspurpleList.length === 1 ? misspurpleList[0].name : misspurpleList.map(m => m.name).join(', '),
-    roleId: 'misspurple'
-  };
+const misspurplePlayers = computed(() => {
+    if (!props.entry || !props.entry.playerIds) return [];
+    return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 </script>
 
@@ -35,16 +26,18 @@ const representativeMissPurple = computed(() => {
   <div class="space-y-4">
     <template v-if="misspurpleEvents.length">
       <div v-for="event in misspurpleEvents" :key="'mp-' + event.playerId + '-' + event.nightNumber" class="space-y-3">
-        <RoleComparisonCard
-          :game-state="props.gameState"
-          :left-player="representativeMissPurple"
-          :right-player="null"
-          left-label="Miss Purple"
-          right-label=""
-          :center-content="{
-            action: misspurplePlayers.length > 1 ? 'hanno scoperto' : 'ha scoperto'
-          }"
-        />
+        <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
+          <div class="flex flex-wrap gap-1 justify-center">
+            <span 
+              v-for="player in misspurplePlayers" 
+              :key="player.id"
+              class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200 max-w-full truncate"
+              :title="player.name"
+            >
+              {{ player.name }}
+            </span>
+          </div>
+        </div>
         
         <InvestigationResultCard 
           title="Risultato Investigazione"

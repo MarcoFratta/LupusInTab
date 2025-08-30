@@ -31,7 +31,6 @@ export class WinConditionManager {
   }
 
   /**
-   * Evaluate custom win conditions by checking role-specific win functions
    * Returns the winning team id, or null if no winner
    */
   static evaluateWinner(state: GameState, roles: RolesRegistry): string[] | null {

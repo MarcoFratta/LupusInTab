@@ -6,7 +6,7 @@ const props = defineProps<{ gameState: any, player: any, playerIds: number[], on
 
 const lupiCount = computed(() => {
     return props.gameState.players.filter((p: any) => 
-        p.alive && (p.roleState?.visibleAsTeam === 'lupi' || p.roleState?.realTeam === 'lupi')
+        p.alive && (p.roleState?.visibleAsTeam === 'lupi' || p.roleState?.team === 'lupi')
     ).length;
 });
 

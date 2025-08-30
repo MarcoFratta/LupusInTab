@@ -20,7 +20,7 @@ const misspurple: RoleDef = {
     getResolveDetailsComponent: componentFactory('MissPurple', "details"),
     resolve(gameState: any, action: any) {
         const lupiCount = gameState.players.filter((p: any) => 
-            p.alive && (p.roleState?.visibleAsTeam === 'lupi' || p.roleState?.realTeam === 'lupi')
+            p.alive && (p.roleState?.visibleAsTeam === 'lupi')
         ).length;
         
         return {

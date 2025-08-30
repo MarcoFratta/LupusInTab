@@ -98,6 +98,7 @@ export class NightPhaseManager {
 
   /**
    * Record the result of a night action and move to the next role
+   * Record the result of a night action and move to the next role
    */
   static recordNightResult(state: GameState, result: any): void {
     if (!state.night) {
@@ -391,6 +392,7 @@ export class NightPhaseManager {
 
 
   /**
+   * Get the next role that should be called based on current player roles and phase order
    * Get the next role that should be called based on current player roles and phase order
    */
   static getCurrentTurn(state: GameState): any {

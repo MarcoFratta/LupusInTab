@@ -11,7 +11,7 @@
         v-for="(role, index) in availableRoles"
         :key="`${role.id}-${shuffleKey}`"
         @click="selectRole(role)"
-        :class="getRoleCardClasses(role.factionConfig)"
+        :class="getRoleCardClasses()"
         class="rounded-lg p-4 cursor-pointer transition-all duration-200"
       >
         <div class="flex items-center gap-3">
@@ -25,7 +25,7 @@
             </div>
           </div>
           <div 
-            :class="getRoleNumberClasses(role.factionConfig)"
+            :class="getRoleNumberClasses()"
             class="w-6 h-6 rounded-full border-2 flex items-center justify-center"
           >
             <span class="text-xs font-bold">{{ index + 1 }}</span>
@@ -77,6 +77,12 @@ const getAvailableRoleIds = () => {
   console.log('Enabled roles from game state:', enabledRoles);
   console.log('Available roles in ROLES:', Object.keys(allRoles));
   
+  // If rolesEnabled is not properly populated, fall back to all available roles
+  if (!enabledRoles || Object.keys(enabledRoles).length === 0) {
+    console.log('No enabled roles found, using all available roles');
+    return Object.keys(allRoles).filter(roleId => roleId !== 'genio');
+  }
+  
   const availableRoleIds = Object.keys(enabledRoles).filter(roleId => {
     const isEnabled = enabledRoles[roleId];
     const isNotGenio = roleId !== 'genio';
@@ -122,46 +128,12 @@ const reshuffleRoles = () => {
   console.log('Roles reshuffled, new shuffle key:', shuffleKey.value);
 };
 
-const getRoleCardClasses = (factionConfig: any) => {
-  if (!factionConfig) {
-    return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
-  }
-  
-  switch (factionConfig.id) {
-    case 'villaggio':
-      return 'bg-emerald-900/30 border border-emerald-700/40 hover:bg-emerald-900/50 hover:border-emerald-600/60';
-    case 'lupi':
-      return 'bg-red-900/30 border border-red-700/40 hover:bg-red-900/50 hover:border-red-600/60';
-    case 'mannari':
-      return 'bg-indigo-900/30 border border-indigo-700/40 hover:bg-indigo-900/50 hover:border-indigo-600/60';
-    case 'matti':
-      return 'bg-violet-900/30 border border-violet-700/40 hover:bg-violet-900/50 hover:border-violet-600/60';
-    case 'parassita':
-      return 'bg-pink-900/30 border border-pink-700/40 hover:bg-pink-900/50 hover:border-pink-600/60';
-    default:
-      return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
-  }
+const getRoleCardClasses = () => {
+  return 'bg-neutral-800/30 border border-neutral-700/40 hover:bg-neutral-800/50 hover:border-neutral-600/60';
 };
 
-const getRoleNumberClasses = (factionConfig: any) => {
-  if (!factionConfig) {
-    return 'border-neutral-400 text-neutral-400';
-  }
-  
-  switch (factionConfig.id) {
-    case 'villaggio':
-      return 'border-emerald-400 text-emerald-400';
-    case 'lupi':
-      return 'border-red-400 text-red-400';
-    case 'mannari':
-      return 'border-indigo-400 text-indigo-400';
-    case 'matti':
-      return 'border-violet-400 text-violet-400';
-    case 'parassita':
-      return 'border-pink-400 text-pink-400';
-    default:
-      return 'border-neutral-400 text-neutral-400';
-  }
+const getRoleNumberClasses = () => {
+  return 'border-neutral-400 text-neutral-400';
 };
 
 const selectRole = (role: any) => {

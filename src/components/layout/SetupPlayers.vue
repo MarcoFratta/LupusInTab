@@ -192,15 +192,15 @@ function movePlayerDown(index: number) {
                 :class="{
                   'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50': getPlayerNameError(player.name)
                 }"
-                                :placeholder="`Giocatore ${index + 1}`"
+                :placeholder="`Giocatore ${index + 1}`"
                 maxlength="15"
               />
-                             <div v-if="getPlayerNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
-                 <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                 </svg>
-                 {{ getPlayerNameError(player.name) }}
-               </div>
+              <div v-if="getPlayerNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
+                <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                {{ getPlayerNameError(player.name) }}
+              </div>
             </div>
             
             <button 

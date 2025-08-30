@@ -9,6 +9,7 @@ const state = store.state as any;
 
 const activeSettingsCount = computed(() => Object.values(state.settings).filter(Boolean).length);
 
+
 watch(() => state.settings, () => {
   saveSettings({
     skipFirstNightActions: !!state.settings.skipFirstNightActions,

@@ -220,6 +220,7 @@ window.addEventListener('resize', updateTimelineLine);
                     ></div>
                   </div>
                 </div>
+                <div class="absolute inset-0 rounded-full bg-blue-400/20 animate-pulse pointer-events-none"></div>
               </div>
             </div>
           </div>
@@ -364,6 +365,7 @@ window.addEventListener('resize', updateTimelineLine);
 @media (max-width: 640px) {
   .min-h-screen {
     min-height: 100vh;
+    min-height: 100dvh;
     min-height: 100dvh;
   }
   

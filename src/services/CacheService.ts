@@ -374,10 +374,13 @@ class CacheService {
     } catch (error) {
       console.error('Failed to load cache:', error);
       return null;
+      console.error('Failed to load cache:', error);
+      return null;
     }
   }
 
   async clearCache(): Promise<void> {
+    if (!this.isMobile) {
     if (!this.isMobile) {
       return;
     }
@@ -385,10 +388,13 @@ class CacheService {
     try {
       localStorage.removeItem(CACHE_KEY);
       console.log('Cache cleared');
+      localStorage.removeItem(CACHE_KEY);
+      console.log('Cache cleared');
     } catch (error) {
       console.error('Failed to clear cache:', error);
     }
   }
+}
 
   private stopAutomaticUpdates(): void {
     if (this.updateInterval) {

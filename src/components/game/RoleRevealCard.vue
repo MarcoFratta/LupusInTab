@@ -9,6 +9,8 @@ const props = defineProps<{
   roleDef: any;
   knownRoleAllies?: any[];
   knownTeamAllies?: any[];
+  knownRoleAllies?: any[];
+  knownTeamAllies?: any[];
 }>();
 
 const emit = defineEmits<{

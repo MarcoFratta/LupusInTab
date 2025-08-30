@@ -16,6 +16,7 @@ import {
   computeWinner,
 } from '../core/engine';
 import { NightPhaseManager } from '../core/managers/NightPhaseManager';
+import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 import { useWinConditions } from '../utils/winConditions';
 import { ROLES } from '../roles/index';
 
@@ -76,12 +77,14 @@ describe('engine setup', () => {
     const s = createEmptyState();
     expect(s.phase).toBe('setup');
     expect(s.setup.numPlayers).toBe(9);
+    expect(s.setup.numPlayers).toBe(9);
     expect(s.settings.skipFirstNightActions).toBe(true);
   });
 
   it('initializes players and role counts', () => {
     const s = createEmptyState();
     initSetupPlayers(s);
+    expect(s.setup.players.length).toBe(9);
     expect(s.setup.players.length).toBe(9);
     initDefaultRolesCounts(s);
     normalizeRoleCounts(s);
@@ -113,6 +116,7 @@ describe('engine flow', () => {
     initSetupPlayers(s);
             s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 1, villico: 2 } as any;
     beginReveal(s as any, ROLE_LIST as any, fakeShuffle);
+    expect(s.players.length).toBe(9);
     expect(s.players.length).toBe(9);
     expect(s.phase).toBe('revealRoles');
   });
@@ -387,6 +391,7 @@ describe('new roles logic', () => {
       } },
     } as any);
     // Lupomannaro should win with 2 players alive (lupomannaro + villico)
+    expect(winner).toEqual(['mannari']);
     expect(winner).toEqual(['mannari']);
   });
 

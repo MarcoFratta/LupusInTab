@@ -38,6 +38,7 @@ export function villageWin(state: GameState): boolean {
 	}
 	
 	// Village wins when no lupi remain AND no lupomannaro remain
+	// Village wins when no lupi remain AND no lupomannaro remain
 	const lupiAlive = countAlive(state, (p) => isLupoForWin(state, p.roleId));
 	const lupomannaroAliveForWin = countAlive(state, (p) => p.roleId === 'lupomannaro');
 	

@@ -67,8 +67,8 @@ export function useTeamBalance() {
     // Ideal power per team (total power / number of teams)
     const idealPowerPerTeam = totalActivePower / numActiveTeams;
     
-         let totalDeviation = 0;
-     let totalWeightedDeviation = 0;
+    let totalDeviation = 0;
+    let totalWeightedDeviation = 0;
     
     Object.entries(teamData).forEach(([teamName, team]) => {
       if (team.players === 0) return; // Skip disabled teams
@@ -79,16 +79,16 @@ export function useTeamBalance() {
       // Convert to percentage deviation for fairness calculation
       const percentageDeviation = (powerDeviation / idealPowerPerTeam) * 100;
       
-           // No weighting - each team contributes equally to the balance calculation
-     const weightedDeviation = percentageDeviation;
-     
-     totalDeviation += percentageDeviation;
-     totalWeightedDeviation += weightedDeviation;
+      // No weighting - each team contributes equally to the balance calculation
+      const weightedDeviation = percentageDeviation;
+      
+      totalDeviation += percentageDeviation;
+      totalWeightedDeviation += weightedDeviation;
     });
     
     // Convert deviation to fairness (0 deviation = 100% fairness)
-         // Use a balanced sensitivity factor for gradual but realistic changes
-     const sensitivityFactor = 0.5; // Balanced sensitivity for gradual fairness changes
+    // Use a balanced sensitivity factor for gradual but realistic changes
+    const sensitivityFactor = 0.5; // Balanced sensitivity for gradual fairness changes
     const adjustedDeviation = totalWeightedDeviation * sensitivityFactor;
     
     // Maximum possible deviation is when one team has 100% and others have 0%
@@ -99,7 +99,7 @@ export function useTeamBalance() {
     // Small bonus for having multiple teams (variety)
     const varietyBonus = Object.keys(teamData).length > 2 ? 0.05 : 0;
     
-         const finalFairness = Math.min(1, Math.max(0, baseFairness + varietyBonus));
+    const finalFairness = Math.min(1, Math.max(0, baseFairness + varietyBonus));
     
     return {
       fairness: Math.round(finalFairness * 100),

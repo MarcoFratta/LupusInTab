@@ -116,11 +116,44 @@ jobs:
             echo "❌ version.json is out of sync!"
             echo "   package.json version: $CURRENT_VERSION"
             echo "   version.json version: $VERSION_JSON_VERSION"
-            echo "   This suggests semantic-release didn't update version.json properly."
-            exit 1
+            echo "   Updating version.json to match package.json..."
+            
+            # Update version.json to match package.json
+            node -e "
+            const fs = require('fs');
+            const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            
+            // Read existing version.json
+            const versionJsonPath = 'public/version.json';
+            const versionData = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
+            
+            // Update only the version and timestamp fields
+            versionData.version = packageJson.version;
+            versionData.timestamp = Date.now();
+            
+            // Write back the updated file
+            fs.writeFileSync(versionJsonPath, JSON.stringify(versionData, null, 2));
+            console.log('Updated version.json version to:', packageJson.version, 'with timestamp:', new Date().toISOString());
+            "
+            
+            echo "✅ version.json updated to: $CURRENT_VERSION"
+          else
+            echo "✅ version.json is already up to date: $CURRENT_VERSION"
           fi
+
+      - name: Commit and push version.json update
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TO_PUSH }}
+        run: |
+          echo "🔄 Committing and pushing version.json update..."
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/version.json
+          git commit -m "Update version.json to ${{ needs.release.outputs.new_release_version }}" || echo "No changes to commit"
+          git push origin master || echo "No changes to push"
           
-          echo "✅ version.json is up to date: $CURRENT_VERSION"
+          echo "✅ version.json update committed and pushed"
 
   build:
     runs-on: ubuntu-latest

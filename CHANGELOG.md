@@ -1,3 +1,37 @@
+# [1.11.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.10.0...v1.11.0) (2025-08-30)
+
+
+### Bug Fixes
+
+* add proguard and terser ([d96a4cc](https://github.com/MarcoFratta/LupusInTab/commit/d96a4ccc45ba6aca14f5ccd11f4e8edeba03cd12))
+* add signed aab to release ([2b52cf3](https://github.com/MarcoFratta/LupusInTab/commit/2b52cf3345cca67efc665e5e45dcc99f143b7335))
+* fix aab release ([84c0bea](https://github.com/MarcoFratta/LupusInTab/commit/84c0bea945acc43c4d2bf432c9b63dd7e3fe9d3e))
+* fix aab release ([b266e77](https://github.com/MarcoFratta/LupusInTab/commit/b266e771201e8d0a3bafec0378cd56aa453af45a))
+* fix aab release ([5a0df72](https://github.com/MarcoFratta/LupusInTab/commit/5a0df7243fb7c30351ab3534e4f158d8e061aada))
+* fix aab release ([eba4e35](https://github.com/MarcoFratta/LupusInTab/commit/eba4e359add23b1d9f8c533fcccaa58c47a51e8b))
+* fix aab release ([6435958](https://github.com/MarcoFratta/LupusInTab/commit/64359582758cb88afa1b68f5927588bbb772e29e))
+* fix aab release ([20dbc87](https://github.com/MarcoFratta/LupusInTab/commit/20dbc875e1e6c173226d69e40b10efcb991863d0))
+* fix aab version ([536e1ee](https://github.com/MarcoFratta/LupusInTab/commit/536e1eebe66040490ac80dfc5f05044174f98f19))
+* fix background color and app bg ([0a01fc7](https://github.com/MarcoFratta/LupusInTab/commit/0a01fc70d46abd18e043f987af5c70de33a75ee9))
+* fix release ([73da340](https://github.com/MarcoFratta/LupusInTab/commit/73da340696504202e604d95d02d5c11db0e78df3))
+* fix release ([4e01378](https://github.com/MarcoFratta/LupusInTab/commit/4e01378053e3191221adea4f23baad8cac774c8c))
+* fix release ([b4c5c2c](https://github.com/MarcoFratta/LupusInTab/commit/b4c5c2cfae803b1deac54c80fefd615a79b6f626))
+* release workflow ([b605462](https://github.com/MarcoFratta/LupusInTab/commit/b605462817a756a37694c37455af56f77f1bb8fc))
+* test-workflow ([8fea56e](https://github.com/MarcoFratta/LupusInTab/commit/8fea56ef43a217f568593a1db0d1384dc1b653f9))
+* update workflow ([9292864](https://github.com/MarcoFratta/LupusInTab/commit/92928649b358cf0d4e053b79ab52f6bb720b592d))
+
+
+### Features
+
+* add signed aab ([649fb3b](https://github.com/MarcoFratta/LupusInTab/commit/649fb3bc19e84ddf24ca4fe86fc04d0dabf09bab))
+* better caching ([b447001](https://github.com/MarcoFratta/LupusInTab/commit/b44700153656ca45a70e50637653ae24656419a5))
+* change ui ([357e7e0](https://github.com/MarcoFratta/LupusInTab/commit/357e7e0d853b2f7c8e4c31d78cc69b6e61c485c7))
+* create privacy ([99a303f](https://github.com/MarcoFratta/LupusInTab/commit/99a303fab75479466e696b5d5cadac18d97f6c09))
+* create privacy.html ([8abf099](https://github.com/MarcoFratta/LupusInTab/commit/8abf099705683cf0fff1bfce4d4da6f42031efca))
+* create privacy.yml ([837b91b](https://github.com/MarcoFratta/LupusInTab/commit/837b91b797a647c8ae9bd31ced74b5f34a012933))
+* update build-mobile.yml ([3fc705d](https://github.com/MarcoFratta/LupusInTab/commit/3fc705d00a8c2616b7ce9356d1820515b3420aa3))
+* update ui ([2cff36c](https://github.com/MarcoFratta/LupusInTab/commit/2cff36c78dd50e875a1f3bbecc7119c5af52f4f3))
+
 # [1.10.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.9.4...v1.10.0) (2025-08-28)
 
 

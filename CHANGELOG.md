@@ -1,3 +1,10 @@
+## [1.11.4](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.3...v1.11.4) (2025-08-30)
+
+
+### Bug Fixes
+
+* fix ci ([71fad91](https://github.com/MarcoFratta/LupusInTab/commit/71fad91e8786a3afda6a8c8412109a946827a1f1))
+
 ## [1.11.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.2...v1.11.3) (2025-08-30)
 
 

@@ -16,15 +16,10 @@
     </div>
     
     <div class="cache-actions">
-      <button 
-        @click="checkForUpdates" 
-        :disabled="isUpdating"
-        class="update-btn"
-        :class="{ 'updating': isUpdating }"
-      >
-        <span v-if="isUpdating">Updating...</span>
-        <span v-else>Check for Updates</span>
-      </button>
+      <div class="auto-update-info">
+        <span class="auto-update-text">🔄 Automatic updates enabled</span>
+        <span class="update-frequency">Checks every hour</span>
+      </div>
       
       <button 
         @click="clearCache" 
@@ -46,10 +41,8 @@ import { useCache } from '../../composables/useCache';
 
 const {
   isInitialized,
-  isUpdating,
   lastUpdate,
   cacheInfo,
-  checkForUpdates,
   clearCache
 } = useCache();
 
@@ -108,6 +101,23 @@ const formatTimestamp = (timestamp: number | undefined): string => {
   margin-bottom: 12px;
 }
 
+.auto-update-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.auto-update-text {
+  font-weight: 600;
+  color: #495057;
+}
+
+.update-frequency {
+  font-size: 12px;
+}
+
 .update-btn,
 .clear-btn {
   padding: 8px 16px;
@@ -116,24 +126,6 @@ const formatTimestamp = (timestamp: number | undefined): string => {
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
-}
-
-.update-btn {
-  background: #007bff;
-  color: white;
-}
-
-.update-btn:hover:not(:disabled) {
-  background: #0056b3;
-}
-
-.update-btn:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-}
-
-.update-btn.updating {
-  background: #28a745;
 }
 
 .clear-btn {

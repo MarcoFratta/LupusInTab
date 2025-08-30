@@ -12,6 +12,7 @@ import ButtonGroup from './components/ui/ButtonGroup.vue';
 import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
 import { useNewRolesPopup } from './composables';
+import { useCache } from './composables';
 
 
 const savedGameAtBoot = loadGameState();
@@ -80,6 +81,8 @@ const {
 	closePopup: closeNewRolesPopup
 } = useNewRolesPopup();
 
+const { initialize: initializeCache } = useCache();
+
 
 // Manual test function for resume
 const testResume = () => {
@@ -130,10 +133,13 @@ setTimeout(checkForSavedGames, 1000);
 
 // Also check after component is mounted
 onMounted(() => {
-    // Wait a bit more for any async operations to complete
-    setTimeout(() => {
-        checkForSavedGames();
-    }, 200);
+	// Wait a bit more for any async operations to complete
+	setTimeout(() => {
+		checkForSavedGames();
+	}, 200);
+	
+	// Initialize cache service
+	initializeCache();
 });
 
 // Handle bottom navigation conditional CSS classes

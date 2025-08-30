@@ -3,7 +3,6 @@ import { cacheService } from '../services/CacheService';
 
 export function useCache() {
   const isInitialized = ref(false);
-  const isUpdating = ref(false);
   const lastUpdate = ref<Date | null>(null);
   const cacheInfo = ref<{ version: string; timestamp: number; assetCount: number } | null>(null);
 
@@ -16,21 +15,6 @@ export function useCache() {
       await updateCacheInfo();
     } catch (error) {
       console.error('Failed to initialize cache:', error);
-    }
-  };
-
-  const checkForUpdates = async () => {
-    if (isUpdating.value) return;
-    
-    isUpdating.value = true;
-    try {
-      await cacheService.forceUpdate();
-      await updateCacheInfo();
-      lastUpdate.value = new Date();
-    } catch (error) {
-      console.error('Failed to check for updates:', error);
-    } finally {
-      isUpdating.value = false;
     }
   };
 
@@ -66,11 +50,9 @@ export function useCache() {
 
   return {
     isInitialized,
-    isUpdating,
     lastUpdate,
     cacheInfo,
     initialize,
-    checkForUpdates,
     getCachedContent,
     getCachedContentWithFallback,
     clearCache,

@@ -15,6 +15,7 @@ import { useTeamBalance } from '../../composables/useTeamBalance';
 import { SetupTitle } from '../ui';
 import { useCache } from '../../composables/useCache';
 import { cacheService } from '../../services/CacheService';
+import { Capacitor } from '@capacitor/core';
 
 const store = useGameStore();
 const state = store.state as any;
@@ -22,6 +23,8 @@ const state = store.state as any;
 const { teamBalance } = useTeamBalance();
 const { canStart: canStartFromState } = useGameState();
 const { currentVersion, newVersion, forceUpdateCheck, isUpdating, clearCache: cacheClearCache, cacheLogs } = useCache();
+
+const isMobile = computed(() => Capacitor.isNativePlatform());
 
 const debugLogs = computed(() => cacheLogs.value);
 
@@ -187,8 +190,8 @@ const sortedEnabledRoles = computed(() => {
     <!-- Setup Title -->
     <SetupTitle title="Configurazione" />
     
-    <!-- Cache Status Display -->
-    <div class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
+    <!-- Cache Status Display (Mobile Only) -->
+    <div v-if="isMobile" class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
       <div class="flex items-center justify-between text-sm">
         <span class="text-neutral-400">Cache Status:</span>
         <div class="flex items-center gap-2">
@@ -207,11 +210,28 @@ const sortedEnabledRoles = computed(() => {
         >
           {{ isUpdating ? 'Checking...' : 'Check Updates' }}
         </button>
+        <button 
+          @click="testVersionFetch" 
+          class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors ml-2"
+        >
+          Test Fetch
+        </button>
       </div>
     </div>
 
-    <!-- Cache Debug Card -->
-    <div class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
+    <!-- Browser Cache Info (Desktop Only) -->
+    <div v-else class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
+      <div class="text-center text-sm">
+        <span class="text-neutral-400">Browser Mode: </span>
+        <span class="text-neutral-300">Content updates automatically on refresh</span>
+        <div class="mt-1 text-xs text-neutral-500">
+          Cache system is only active on mobile devices
+        </div>
+      </div>
+    </div>
+
+    <!-- Cache Debug Card (Mobile Only) -->
+    <div v-if="isMobile" class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
       <div class="flex items-center justify-between mb-3">
         <h4 class="text-sm font-medium text-neutral-300">Cache Debug</h4>
         <button 

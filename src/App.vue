@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Capacitor } from '@capacitor/core';
 import { PhaseReveal, PhaseNight, PhaseResolve, PhasePreNight, PhaseDay, WinResults, useGameLogic, useGameState, useNightPhase } from './components';
 import { SetupHome, SetupPlayers, SetupRoles, SetupSettings } from './components';
 import { RoleDetails } from './components';
@@ -89,8 +90,13 @@ onMounted(() => {
 		checkForSavedGames();
 	}, 200);
 	
-	// Initialize cache service
-	initializeCache();
+	// Initialize cache service only on mobile platforms
+	if (Capacitor.isNativePlatform()) {
+		console.log('App: Mobile platform detected, initializing cache service');
+		initializeCache();
+	} else {
+		console.log('App: Browser platform detected, skipping cache service initialization');
+	}
 	
 	// Add capacitor-mobile class to body for scrollbar hiding
 	document.body.classList.add('capacitor-mobile');

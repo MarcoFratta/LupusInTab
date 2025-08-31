@@ -142,8 +142,9 @@ class CacheService {
   private async fetchVersionInfo(): Promise<VersionInfo | null> {
     try {
       const versionUrl = `${CACHE_CONFIG.WEBSITE_URL}${CACHE_CONFIG.VERSION_ENDPOINT}`;
-      console.log(`Cache service: Fetching version info from ${versionUrl}`);
+      this.log(`Fetching version info from: ${versionUrl}`, 'info');
       
+      this.log('Making fetch request...', 'info');
       const response = await fetch(versionUrl, {
         method: 'GET',
         headers: {
@@ -152,28 +153,38 @@ class CacheService {
         }
       });
       
+      this.log(`Response status: ${response.status} ${response.statusText}`, 'info');
+      this.log(`Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`, 'info');
+      
       if (!response.ok) {
-        console.error(`Cache service: Failed to fetch version.json: HTTP ${response.status} ${response.statusText}`);
+        this.log(`Failed to fetch version.json: HTTP ${response.status} ${response.statusText}`, 'error');
         return null;
       }
       
       const contentType = response.headers.get('content-type');
+      this.log(`Content-Type header: ${contentType}`, 'info');
+      
       if (!contentType || !contentType.includes('application/json')) {
-        console.error(`Cache service: Invalid content type for version.json: ${contentType}`);
+        this.log(`Invalid content type for version.json: ${contentType}`, 'error');
+        this.log('This suggests Vercel is not serving the file correctly', 'error');
         return null;
       }
       
-      const versionInfo = await response.json();
-      console.log(`Cache service: Successfully fetched version info: ${JSON.stringify(versionInfo)}`);
+      const responseText = await response.text();
+      this.log(`Response body length: ${responseText.length} characters`, 'info');
+      this.log(`Response body preview: ${responseText.substring(0, 200)}...`, 'info');
       
-      if (!versionInfo.version) {
-        console.error('Cache service: Version info missing version field');
+      try {
+        const versionInfo = JSON.parse(responseText);
+        this.log(`Successfully parsed version info: ${JSON.stringify(versionInfo)}`, 'success');
+        return versionInfo;
+      } catch (parseError) {
+        this.log(`Failed to parse JSON response: ${parseError}`, 'error');
+        this.log(`Raw response: ${responseText}`, 'error');
         return null;
       }
-      
-      return versionInfo;
     } catch (error) {
-      console.error('Cache service: Failed to fetch version info:', error);
+      this.log(`Network error fetching version info: ${error}`, 'error');
       return null;
     }
   }
@@ -402,15 +413,28 @@ class CacheService {
       const asset = cacheData.assets[url];
       if (!asset) return null;
 
-      // Cache never expires - removed expiration check
       return asset.content;
     } catch (error) {
-      console.error('Failed to get cached content:', error);
+      this.log(`Failed to get cached content: ${error}`, 'error');
       return null;
     }
   }
 
   async getCachedContentWithFallback(url: string): Promise<string | null> {
+    if (!this.isMobile) {
+      // On browser, always fetch from network
+      try {
+        const response = await fetch(url);
+        if (response.ok) {
+          return await response.text();
+        }
+      } catch (error) {
+        this.log(`Failed to fetch ${url}: ${error}`, 'error');
+      }
+      return null;
+    }
+
+    // On mobile, use cache with fallback
     const cached = await this.getCachedContent(url);
     if (cached) {
       return cached;
@@ -422,7 +446,7 @@ class CacheService {
         return await response.text();
       }
     } catch (error) {
-      console.error(`Failed to fetch ${url}:`, error);
+      this.log(`Failed to fetch ${url}: ${error}`, 'error');
     }
 
     return null;

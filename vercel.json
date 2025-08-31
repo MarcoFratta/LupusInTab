@@ -1,4 +1,7 @@
 {
+  "static": {
+    "public": "public"
+  },
   "rewrites": [
     {
       "source": "/version.json",

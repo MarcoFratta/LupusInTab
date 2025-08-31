@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.12.0...v1.13.0) (2025-08-31)
+
+
+### Features
+
+* add new roles ([3fdab78](https://github.com/MarcoFratta/LupusInTab/commit/3fdab78ffd262d7cbc71d06ec8692692d68115f3))
+
 # [1.12.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.19...v1.12.0) (2025-08-31)
 
 

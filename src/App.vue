@@ -13,7 +13,6 @@ import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
 import { useNewRolesPopup } from './composables';
 import { useCache } from './composables';
-import { AppUpdateOverlay } from './components/ui';
 
 
 const savedGameAtBoot = loadGameState();
@@ -84,13 +83,6 @@ const {
 	closePopup: closeNewRolesPopup
 } = useNewRolesPopup();
 
-const {
-	isUpdating,
-	updateProgress,
-	currentVersion,
-	newVersion
-} = useCache();
-
 onMounted(() => {
 	// Wait a bit more for any async operations to complete
 	setTimeout(() => {
@@ -99,6 +91,9 @@ onMounted(() => {
 	
 	// Initialize cache service
 	initializeCache();
+	
+	// Add capacitor-mobile class to body for scrollbar hiding
+	document.body.classList.add('capacitor-mobile');
 });
 
 // Handle bottom navigation conditional CSS classes
@@ -139,7 +134,7 @@ function resumeGame() {
 	<!-- Main Game Container -->
 	<div v-if="!isRoleDetails" class="w-full min-h-full bg-neutral-950 sm:max-w-4xl
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl
-	 backdrop-blur-sm sm:p-4 md:p-6 lg:p-8 text-neutral-200"
+	 backdrop-blur-sm sm:p-4 md:p-6 lg:p-8 text-neutral-200 capacitor-mobile"
        :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
 
 		<!-- Resume banner -->
@@ -160,20 +155,6 @@ function resumeGame() {
 
 		<!-- Setup Phase -->
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center py-2 px-4 sm:px-0 sm:pb-0">
-			<!-- Cache Status Display -->
-			<div class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
-				<div class="flex items-center justify-between text-sm">
-					<span class="text-neutral-400">Cache Status:</span>
-					<div class="flex items-center gap-2">
-						<span class="text-neutral-300">v{{ currentVersion || 'None' }}</span>
-						<span v-if="newVersion && newVersion !== currentVersion" class="text-violet-400">
-							→ v{{ newVersion }}
-						</span>
-						<span v-if="isUpdating" class="text-yellow-400">Updating...</span>
-					</div>
-				</div>
-			</div>
-
 			<!-- Desktop Page Navigation (hidden on mobile) -->
 			<div class="hidden sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
 				<router-link 
@@ -338,13 +319,7 @@ function resumeGame() {
 	/>
 
 	<!-- App Update Overlay -->
-	<AppUpdateOverlay
-		:is-updating="isUpdating"
-		:current-version="currentVersion"
-		:new-version="newVersion"
-		:progress="updateProgress?.current || 0"
-		:status="updateProgress?.status || ''"
-	/>
+	<!-- Removed cache visual components -->
 </template>
 
  

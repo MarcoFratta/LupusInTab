@@ -130,6 +130,54 @@ body {
   display: none !important;
 }
 
+/* Enhanced mobile scrollbar hiding for Capacitor */
+@media (max-width: 768px) {
+  html, body {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    overflow-x: hidden !important;
+  }
+  
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+  
+  /* Force hide scrollbars on all elements */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+  
+  /* Specific elements that commonly show scrollbars */
+  .overflow-auto,
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-scroll {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .overflow-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-scroll::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+}
+
 /* Hide scrollbars for specific elements that might need scrolling */
 html, body, #app, .min-h-screen, .w-full, .space-y-6, .space-y-4, .max-h-96 {
   scrollbar-width: none !important;
@@ -277,6 +325,39 @@ html {
   }
 }
 
+/* Comprehensive scrollbar hiding for Capacitor mobile apps */
+.capacitor-mobile * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.capacitor-mobile *::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+/* Force hide scrollbars on all scrollable elements in mobile */
+@media (max-width: 768px) {
+  .capacitor-mobile .overflow-auto,
+  .capacitor-mobile .overflow-y-auto,
+  .capacitor-mobile .overflow-x-auto,
+  .capacitor-mobile .overflow-scroll {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .capacitor-mobile .overflow-auto::-webkit-scrollbar,
+  .capacitor-mobile .overflow-y-auto::-webkit-scrollbar,
+  .capacitor-mobile .overflow-x-auto::-webkit-scrollbar,
+  .capacitor-mobile .overflow-scroll::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+}
+
 /* Mobile bottom navigation bar styling */
 @media (max-width: 768px) {
   /* Safe area support for bottom navigation */
@@ -349,4 +430,47 @@ html {
 
 .navigation-icon[fill="currentColor"] {
   stroke: none;
+}
+
+/* Additional mobile scrollbar hiding for Capacitor */
+@media (max-width: 768px) {
+  /* Force hide scrollbars on all elements */
+  html, body, #app, * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Hide webkit scrollbars */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  #app::-webkit-scrollbar,
+  *::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+  
+  /* Ensure smooth scrolling without scrollbars */
+  .overflow-auto,
+  .overflow-y-auto,
+  .overflow-x-auto,
+  .overflow-scroll,
+  [class*="overflow"] {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+  
+  /* Hide scrollbars on specific overflow elements */
+  .overflow-auto::-webkit-scrollbar,
+  .overflow-y-auto::-webkit-scrollbar,
+  .overflow-x-auto::-webkit-scrollbar,
+  .overflow-scroll::-webkit-scrollbar,
+  [class*="overflow"]::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
 }

@@ -1,6 +1,7 @@
 import type { GameState, Player } from '../../types';
 import { ROLES } from '../../roles';
 import { PlayerManager } from './PlayerManager';
+import { DEFAULT_ROLES_CONFIG } from '../../config/defaultRoles';
 
 /**
  * SetupManager - Responsible for game setup and initialization
@@ -12,9 +13,9 @@ export class SetupManager {
    * Initialize setup players array
    */
   static initSetupPlayers(state: GameState): void {
-    // If numPlayers is not set or is 0, default to 9
+    // If numPlayers is not set or is 0, default to configured value
     if (!state.setup.numPlayers || state.setup.numPlayers === 0) {
-      state.setup.numPlayers = 9;
+      state.setup.numPlayers = DEFAULT_ROLES_CONFIG.defaultPlayerCount;
     }
     
     state.setup.players = Array.from(
@@ -31,16 +32,8 @@ export class SetupManager {
     const n = state.setup.players.length;
     
     // Special case: 9 players get a specific balanced setup
-    if (n === 9) {
-      state.setup.rolesCounts = { 
-        veggente: 1, 
-        medium: 1, 
-        guardia: 1, 
-        lupo: 2, 
-        indemoniato: 1, 
-        massone: 2, 
-        villico: 1 
-      } as Record<string, number>;
+    if (n === DEFAULT_ROLES_CONFIG.defaultPlayerCount) {
+      state.setup.rolesCounts = { ...DEFAULT_ROLES_CONFIG.defaultCounts[DEFAULT_ROLES_CONFIG.defaultPlayerCount] } as Record<string, number>;
     } else {
       // Default logic for other player counts
       const lupi = Math.max(SetupManager.getMinCountForRole(state, 'lupo'), Math.floor(n / 4));
@@ -55,28 +48,10 @@ export class SetupManager {
     
     if (!state.setup.rolesEnabled) {
       // Enable roles based on player count
-      if (n === 9) {
-        state.setup.rolesEnabled = { 
-          lupo: true, 
-          villico: true, 
-          guardia: true, 
-          veggente: true, 
-          massone: true, 
-          matto: false, 
-          giustiziere: false, 
-          boia: false, 
-          medium: true, 
-          lupomannaro: false, 
-          indemoniato: true, 
-          insinuo: false, 
-          barabba: false, 
-          angelo: false, 
-          genio: false,
-          parassita: false,
-          simbionte: false,
-          mutaforma: false
-        } as Record<string, boolean>;
+      if (n === DEFAULT_ROLES_CONFIG.defaultPlayerCount) {
+        state.setup.rolesEnabled = { ...DEFAULT_ROLES_CONFIG.rolesEnabled };
       } else {
+        // For other player counts, use a subset of roles
         state.setup.rolesEnabled = { 
           lupo: true, 
           villico: true, 

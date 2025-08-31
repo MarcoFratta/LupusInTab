@@ -1,4 +1,5 @@
 import type { GameState, Player } from '../../types';
+import { DEFAULT_ROLES_CONFIG } from '../../config/defaultRoles';
 
 /**
  * GameStateManager - Responsible for basic game state operations
@@ -16,29 +17,10 @@ export class GameStateManager {
       dayNumber: 0,
       players: [],
       setup: { 
-        numPlayers: 9, 
+        numPlayers: DEFAULT_ROLES_CONFIG.defaultPlayerCount, 
         players: [], 
         rolesCounts: {}, 
-        rolesEnabled: { 
-          lupo: true, 
-          villico: true, 
-          guardia: true, 
-          veggente: true, 
-          massone: true, 
-          matto: false, 
-          giustiziere: false, 
-          boia: false, 
-          medium: true, 
-          lupomannaro: false, 
-          indemoniato: true, 
-          insinuo: false, 
-          barabba: false, 
-          angelo: false,
-          genio: false,
-          parassita: false,
-          simbionte: false,
-          mutaforma: false
-        } 
+        rolesEnabled: { ...DEFAULT_ROLES_CONFIG.rolesEnabled } 
       },
       revealIndex: 0,
       night: { turns: [], currentIndex: 0, context: null, summary: null },

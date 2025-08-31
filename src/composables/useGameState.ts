@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router';
 import { useGameStore } from '../stores/game';
 import { loadGameState, loadPlayersSetup, loadSettings, saveGameState, savePlayersSetup, saveSettings, clearSavedGame } from '../utils/storage';
 import { initSetupPlayers } from '../core/engine';
+import { DEFAULT_ROLES_CONFIG } from '../config/defaultRoles';
 
 export function useGameState() {
     const route = useRoute();
@@ -50,7 +51,7 @@ export function useGameState() {
         }
         
         if (!(state as any).setup?.rolesEnabled) {
-            (state as any).setup.rolesEnabled = { lupo: true, villico: true, parassita: false } as any;
+            (state as any).setup.rolesEnabled = { ...DEFAULT_ROLES_CONFIG.rolesEnabled };
         }
 
         if (state.phase === 'setup') {

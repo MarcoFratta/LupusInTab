@@ -12,7 +12,7 @@ import {
 } from '../../core/engine';
 import RoleCard from '../game/RoleCard.vue';
 import { useTeamBalance } from '../../composables/useTeamBalance';
-import { SetupTitle, CacheDebug } from '../ui';
+import { SetupTitle } from '../ui';
 
 const store = useGameStore();
 const state = store.state as any;
@@ -228,7 +228,6 @@ const sortedEnabledRoles = computed(() => {
         </div>
       </div>
     </div>
-    <CacheDebug />
   </div>
 </template>
 

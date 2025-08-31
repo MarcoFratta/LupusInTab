@@ -1,3 +1,10 @@
+## [1.11.18](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.17...v1.11.18) (2025-08-31)
+
+
+### Bug Fixes
+
+* fix vercel.json ([a1d8756](https://github.com/MarcoFratta/LupusInTab/commit/a1d87561293f28931b13f5edcb70a48db8122300))
+
 ## [1.11.17](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.16...v1.11.17) (2025-08-31)
 
 

@@ -7,7 +7,7 @@ export const lupoCieco: RoleDef = {
     name: 'Lupo Cieco',
     team: 'lupi',
     visibleAsTeam: 'lupi',
-    score: 8,
+    score: 14,
     countAs: 'lupi',
     color: '#7c2d12',
     description: 'Può investigare 3 giocatori contigui per scoprire se tra loro c\'è almeno un lupo. Se tutti i lupi sono morti, può anche uccidere.',

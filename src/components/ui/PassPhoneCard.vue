@@ -26,6 +26,7 @@ const defaultButtonSize = props.buttonSize || 'lg';
           {{ playerName }}
         </div>
       </div>
+      <div class="text-xs text-neutral-400 mb-2">tieni premuto per rivelare</div>
       <LongPressButton
         class="w-full"
         :size="defaultButtonSize"

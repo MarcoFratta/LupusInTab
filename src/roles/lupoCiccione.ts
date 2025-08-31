@@ -6,7 +6,7 @@ export const lupoCiccione: RoleDef = {
 	name: 'Lupo Ciccione',
 	team: 'lupi',
 	visibleAsTeam: 'lupi',
-	score: 3,
+	score: 15,
 	countAs: 'lupi',
 	color: '#dc2626',
 	description: "É un lupo a tutti gli effetti, ma sua mole disturba la vista del veggente o ruoli simili. " +

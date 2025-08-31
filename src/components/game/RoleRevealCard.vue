@@ -9,8 +9,6 @@ const props = defineProps<{
   roleDef: any;
   knownRoleAllies?: any[];
   knownTeamAllies?: any[];
-  knownRoleAllies?: any[];
-  knownTeamAllies?: any[];
 }>();
 
 const emit = defineEmits<{
@@ -80,6 +78,7 @@ function handleNext() {
 
         <!-- Prossimo button inside the card -->
         <div class="pt-4">
+          <div class="text-xs text-neutral-400 mb-2 text-center">tieni premuto per continuare</div>
           <LongPressButton 
             size="lg"
             fullWidth
@@ -118,7 +117,7 @@ function handleNext() {
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
         </svg>
-        Tieni premuto per continuare (1.5s)
+        Tieni premuto per continuare
       </LongPressButton>
     </div>
   </div>

@@ -1,0 +1,23 @@
+{
+  "rewrites": [
+    {
+      "source": "/version.json",
+      "destination": "/public/version.json"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/version.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}

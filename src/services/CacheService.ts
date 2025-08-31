@@ -118,13 +118,39 @@ class CacheService {
 
   private async fetchVersionInfo(): Promise<VersionInfo | null> {
     try {
-      const response = await fetch(`${CACHE_CONFIG.WEBSITE_URL}/public/version.json`);
+      const versionUrl = `${CACHE_CONFIG.WEBSITE_URL}${CACHE_CONFIG.VERSION_ENDPOINT}`;
+      console.log(`Cache service: Fetching version info from ${versionUrl}`);
+      
+      const response = await fetch(versionUrl, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        console.error(`Cache service: Failed to fetch version.json: HTTP ${response.status} ${response.statusText}`);
+        return null;
       }
-      return await response.json();
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.error(`Cache service: Invalid content type for version.json: ${contentType}`);
+        return null;
+      }
+      
+      const versionInfo = await response.json();
+      console.log(`Cache service: Successfully fetched version info: ${JSON.stringify(versionInfo)}`);
+      
+      if (!versionInfo.version) {
+        console.error('Cache service: Version info missing version field');
+        return null;
+      }
+      
+      return versionInfo;
     } catch (error) {
-      console.error('Failed to fetch version info:', error);
+      console.error('Cache service: Failed to fetch version info:', error);
       return null;
     }
   }
@@ -419,13 +445,10 @@ class CacheService {
     } catch (error) {
       console.error('Failed to load cache:', error);
       return null;
-      console.error('Failed to load cache:', error);
-      return null;
     }
   }
 
   async clearCache(): Promise<void> {
-    if (!this.isMobile) {
     if (!this.isMobile) {
       return;
     }
@@ -433,13 +456,10 @@ class CacheService {
     try {
       localStorage.removeItem(CACHE_KEY);
       console.log('Cache cleared');
-      localStorage.removeItem(CACHE_KEY);
-      console.log('Cache cleared');
     } catch (error) {
       console.error('Failed to clear cache:', error);
     }
   }
-}
 
   private stopAutomaticUpdates(): void {
     if (this.updateInterval) {
@@ -955,6 +975,47 @@ class CacheService {
     } catch (error) {
       console.error(`Failed to discover Vite assets for ${name}.${extension}:`, error);
       return [];
+    }
+  }
+
+  async forceUpdateNow(): Promise<void> {
+    if (!this.isMobile) {
+      console.log('Cache service: Not on mobile platform, skipping force update');
+      return;
+    }
+
+    try {
+      console.log('Cache service: Force update requested...');
+      const isConnected = await this.checkInternetConnection();
+      if (!isConnected) {
+        throw new Error('No internet connection available');
+      }
+
+      await this.checkForUpdates();
+      console.log('Cache service: Force update completed');
+    } catch (error) {
+      console.error('Cache service: Force update failed:', error);
+      throw error;
+    }
+  }
+
+  async getCurrentCacheVersion(): Promise<string | null> {
+    try {
+      const cacheData = await this.loadCache();
+      return cacheData?.version || null;
+    } catch (error) {
+      console.error('Failed to get current cache version:', error);
+      return null;
+    }
+  }
+
+  async getServerVersion(): Promise<string | null> {
+    try {
+      const versionInfo = await this.fetchVersionInfo();
+      return versionInfo?.version || null;
+    } catch (error) {
+      console.error('Failed to get server version:', error);
+      return null;
     }
   }
 }

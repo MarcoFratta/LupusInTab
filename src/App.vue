@@ -91,55 +91,6 @@ const {
 	newVersion
 } = useCache();
 
-
-// Manual test function for resume
-const testResume = () => {
-    const result = checkForSavedGames();
-    
-    if (result.hasSavedGame) {
-        resumeGame();
-    }
-};
-
-// Function to manually save a test game state
-const saveTestGame = () => {
-    const testState = {
-        phase: PHASES.REVEAL,
-        nightNumber: 0,
-        dayNumber: 0,
-        players: [
-            		{ id: 1, name: 'Test Player 1', roleId: 'lupo', alive: true, roleState: {} },
-            		{ id: 2, name: 'Test Player 2', roleId: 'villico', alive: true, roleState: {} }
-        ],
-        setup: { numPlayers: 2, players: [], rolesCounts: {}, rolesEnabled: {} },
-        revealIndex: 0,
-        night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
-        settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
-        sindacoId: null,
-        winner: null,
-        lynchedHistory: [],
-        usedPowers: {},
-
-        custom: {},
-        history: {},
-        nightDeathsByNight: {},
-        lynchedHistoryByDay: {}
-    };
-    
-    saveGameState(testState);
-    
-    // Force a check for saved games
-    setTimeout(() => {
-        checkForSavedGames();
-    }, 100);
-};
-
-// Check for saved games after a delay to ensure all watchers are set up
-setTimeout(checkForSavedGames, 100);
-setTimeout(checkForSavedGames, 500);
-setTimeout(checkForSavedGames, 1000);
-
-// Also check after component is mounted
 onMounted(() => {
 	// Wait a bit more for any async operations to complete
 	setTimeout(() => {
@@ -209,6 +160,20 @@ function resumeGame() {
 
 		<!-- Setup Phase -->
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center py-2 px-4 sm:px-0 sm:pb-0">
+			<!-- Cache Status Display -->
+			<div class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
+				<div class="flex items-center justify-between text-sm">
+					<span class="text-neutral-400">Cache Status:</span>
+					<div class="flex items-center gap-2">
+						<span class="text-neutral-300">v{{ currentVersion || 'None' }}</span>
+						<span v-if="newVersion && newVersion !== currentVersion" class="text-violet-400">
+							→ v{{ newVersion }}
+						</span>
+						<span v-if="isUpdating" class="text-yellow-400">Updating...</span>
+					</div>
+				</div>
+			</div>
+
 			<!-- Desktop Page Navigation (hidden on mobile) -->
 			<div class="hidden sm:flex gap-1 p-1 bg-white/5 border border-white/10 rounded-lg w-full text-sm">
 				<router-link 
@@ -250,11 +215,7 @@ function resumeGame() {
 			</div>
 
 			<!-- Page Content -->
-			<SetupHome v-show="isHome"
-				@save-test-game="saveTestGame"
-				@test-resume="testResume"
-				@check-saved-games="checkForSavedGames"
-			/>
+			<SetupHome v-show="isHome" />
 			<SetupRoles v-show="isRoles" />
 			<SetupPlayers v-show="isPlayers" />
 			<SetupSettings v-show="isSettings" />

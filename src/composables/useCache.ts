@@ -72,6 +72,27 @@ export function useCache() {
     }
   };
 
+  const forceUpdate = async () => {
+    try {
+      isUpdating.value = true;
+      await cacheService.forceUpdateNow();
+      await updateCacheInfo();
+    } catch (error) {
+      console.error('Failed to force update:', error);
+      throw error;
+    } finally {
+      isUpdating.value = false;
+    }
+  };
+
+  const getCurrentVersion = async () => {
+    return await cacheService.getCurrentCacheVersion();
+  };
+
+  const getServerVersion = async () => {
+    return await cacheService.getServerVersion();
+  };
+
   onMounted(() => {
     initialize();
   });
@@ -88,6 +109,9 @@ export function useCache() {
     getCachedContent,
     getCachedContentWithFallback,
     clearCache,
-    updateCacheInfo
+    updateCacheInfo,
+    forceUpdate,
+    getCurrentVersion,
+    getServerVersion
   };
 }

@@ -66,3 +66,6 @@ export { default as ParassitaResolveDetails } from './Parassita/ParassitaResolve
 
 export { default as SimbiontePrompt } from './Simbionte/SimbiontePrompt.vue';
 export { default as SimbionteResolveDetails } from './Simbionte/SimbionteResolveDetails.vue';
+
+export { default as AmmaestratorePrompt } from './Ammaestratore/AmmaestratorePrompt.vue';
+export { default as AmmaestratoreResolveDetails } from './Ammaestratore/AmmaestratoreResolveDetails.vue';

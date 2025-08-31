@@ -1,7 +1,6 @@
 const KEY = 'lupus_gm_state_v1';
 const PLAYERS_KEY = 'lupus_players_v1';
 const SETTINGS_KEY = 'lupus_settings_v1';
-const NEW_ROLES_VERSION_KEY = 'lupus_new_roles_version_v1';
 
 // Role ID migration map for old saved games
 const ROLE_ID_MIGRATIONS: Record<string, string> = {
@@ -102,21 +101,6 @@ export function loadSettings(): { skipFirstNightActions: boolean; enableSindaco:
 
 export function clearSettings(): void {
 	try { localStorage.removeItem(SETTINGS_KEY); } catch {}
-}
-
-export function saveNewRolesVersionSeen(version: string): void {
-	try {
-		localStorage.setItem(NEW_ROLES_VERSION_KEY, version);
-	} catch {}
-}
-
-export function loadNewRolesVersionSeen(): string {
-	try {
-		const raw = localStorage.getItem(NEW_ROLES_VERSION_KEY);
-		return raw || '';
-	} catch {
-		return '';
-	}
 }
 
 export function clearAllSavedData(): void {

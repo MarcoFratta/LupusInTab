@@ -21,6 +21,7 @@ import { simbionte } from './simbionte';
 import mutaforma from './mutaforma';
 import misspurple from './misspurple';
 import bugiardo from './bugiardo';
+import ammaestratore from './ammaestratore';
 
 const rolesArray: RoleDef[] = [
 	lupo,
@@ -45,6 +46,7 @@ const rolesArray: RoleDef[] = [
 	mutaforma,
 	misspurple,
 	bugiardo,
+	ammaestratore,
 ];
 
 export const ROLES: Record<string, RoleDef> = rolesArray.reduce((acc, role) => {

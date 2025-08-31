@@ -224,6 +224,10 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
         'Bugiardo': {
             prompt: () => import('../components/roles/Bugiardo/BugiardoPrompt.vue'),
             details: () => import('../components/roles/Bugiardo/BugiardoResolveDetails.vue')
+        },
+        'Ammaestratore': {
+            prompt: () => import('../components/roles/Ammaestratore/AmmaestratorePrompt.vue'),
+            details: () => import('../components/roles/Ammaestratore/AmmaestratoreResolveDetails.vue')
         }
     };
     

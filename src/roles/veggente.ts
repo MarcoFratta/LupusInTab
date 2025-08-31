@@ -16,6 +16,7 @@ const veggente: RoleDef = {
     actsAtNight: "alive",
     effectType: 'required',
     numberOfUsage: 'unlimited',
+    affectedRoles: ['lupomannaro', 'muccamannara'],
     getPromptComponent: componentFactory('Veggente', "prompt"),
     getResolveDetailsComponent: componentFactory('Veggente', "details"),
     resolve(gameState: any, action: any) {

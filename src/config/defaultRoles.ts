@@ -21,7 +21,8 @@ export const DEFAULT_ROLES_CONFIG = {
     misspurple: false,
     bugiardo: false,
     simbionte: false,
-    mutaforma: false
+    mutaforma: false,
+    ammaestratore: false
   },
   defaultCounts: {
     10: {

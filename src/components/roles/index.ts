@@ -28,6 +28,9 @@ export { default as InsinuoResolveDetails } from './Insinuo/InsinuoResolveDetail
 export { default as LupoPrompt } from './Lupo/LupoPrompt.vue';
 export { default as LupoResolveDetails } from './Lupo/LupoResolveDetails.vue';
 
+export { default as LupoCiecoPrompt } from './LupoCieco/LupoCiecoPrompt.vue';
+export { default as LupoCiecoResolveDetails } from './LupoCieco/LupoCiecoResolveDetails.vue';
+
 export { default as LupomannaroPrompt } from './Lupomannaro/LupomannaroPrompt.vue';
 export { default as LupomannaroResolveDetails } from './Lupomannaro/LupomannaroResolveDetails.vue';
 

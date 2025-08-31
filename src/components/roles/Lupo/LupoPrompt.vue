@@ -19,7 +19,7 @@ const choices = computed(() => [
 ]);
 
 function submit() {
-	props.onComplete({ targetId: targetId.value });
+	props.onComplete({ targetIds: targetId.value ? [targetId.value] : [] });
 }
 </script>
 

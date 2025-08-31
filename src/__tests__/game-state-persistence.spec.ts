@@ -15,7 +15,7 @@ describe('Game State Persistence', () => {
     vi.clearAllMocks();
   });
 
-  it('should reset showRoleResee to false when resuming game to ensure proper reveal flow', () => {
+  it('should reset showRoleResee to false when resuming game to ensure proper reveal flow', async () => {
     const initialState = {
       phase: 'revealRoles',
       nightNumber: 0,
@@ -52,7 +52,7 @@ describe('Game State Persistence', () => {
     expect(store.state.showRoleResee).toBe(false);
   });
 
-  it('should persist and restore revealPhaseState', () => {
+  it('should persist and restore revealPhaseState', async () => {
     const initialState = {
       phase: 'revealRoles',
       nightNumber: 0,
@@ -90,14 +90,14 @@ describe('Game State Persistence', () => {
     expect(saved.revealPhaseState.showIntro).toBe(false);
     expect(saved.revealPhaseState.showPreNightInfo).toBe(true);
 
-    gameLogic.resumeGame(saved);
+    await gameLogic.resumeGame(saved);
     
     expect(store.state.revealPhaseState).toBeDefined();
     expect(store.state.revealPhaseState.showIntro).toBe(false);
     expect(store.state.revealPhaseState.showPreNightInfo).toBe(true);
   });
 
-  it('should smart restore revealPhaseState when no saved state exists', () => {
+  it('should smart restore revealPhaseState when no saved state exists', async () => {
     const initialState = {
       phase: 'revealRoles',
       nightNumber: 0,
@@ -128,7 +128,7 @@ describe('Game State Persistence', () => {
     expect(saved).toBeDefined();
     expect(saved.revealPhaseState).toBeUndefined();
 
-    gameLogic.resumeGame(saved);
+    await gameLogic.resumeGame(saved);
     
     // Should smart restore to prenight state since revealIndex >= players.length
     expect(store.state.revealPhaseState).toBeDefined();
@@ -167,7 +167,7 @@ describe('Game State Persistence', () => {
     expect(store.state.showRoleResee).toBe(false);
   });
 
-  it('should reset showRoleResee to false when resuming prenight phase to ensure proper reveal flow', () => {
+  it('should reset showRoleResee to false when resuming prenight phase to ensure proper reveal flow', async () => {
     // Simulate the exact scenario: user is in prenight phase and has clicked "Rivela di nuovo un ruolo"
     const initialState = {
       phase: 'revealRoles',
@@ -205,7 +205,7 @@ describe('Game State Persistence', () => {
     expect(saved.showRoleResee).toBe(true);
     expect(saved.revealPhaseState.showPreNightInfo).toBe(true);
 
-    gameLogic.resumeGame(saved);
+    await gameLogic.resumeGame(saved);
     
     // When resuming a game, showRoleResee should be reset to false to ensure
     // the game resumes in the proper reveal flow instead of showing a revealed role
@@ -218,7 +218,7 @@ describe('Game State Persistence', () => {
     // "Rivela di nuovo un ruolo" again if needed
   });
 
-  it('should correctly handle role resee button click', () => {
+  it('should correctly handle role resee button click', async () => {
     // Test that clicking the role resee button properly sets the state
     const initialState = {
       phase: 'revealRoles',
@@ -252,7 +252,7 @@ describe('Game State Persistence', () => {
     const saved = loadGameState();
     
     // Resume the game
-    gameLogic.resumeGame(saved);
+    await gameLogic.resumeGame(saved);
     
     // Verify initial state - should be reset to false when resuming
     expect(store.state.showRoleResee).toBe(false);
@@ -268,9 +268,62 @@ describe('Game State Persistence', () => {
     
     // Resume again to verify persistence - but it should still reset to false
     const savedUpdated = loadGameState();
-    gameLogic.resumeGame(savedUpdated);
+    await gameLogic.resumeGame(savedUpdated);
     
     // Verify the state was reset to false when resuming (to ensure proper reveal flow)
     expect(store.state.showRoleResee).toBe(false);
+  });
+
+  it('should restore role groupings when resuming game', async () => {
+    const initialState = {
+      phase: 'night',
+      nightNumber: 1,
+      dayNumber: 1,
+      players: [
+        { id: 1, name: 'Player 1', roleId: 'lupo', alive: true, roleState: {} },
+        { id: 2, name: 'Player 2', roleId: 'lupo', alive: true, roleState: {} },
+        { id: 3, name: 'Player 3', roleId: 'villico', alive: true, roleState: {} }
+      ],
+      setup: { numPlayers: 3, players: [], rolesCounts: {}, rolesEnabled: {} },
+      revealIndex: 3,
+      night: { 
+        turns: [], 
+        currentIndex: 0, 
+        results: [], 
+        context: { 
+          calledRoles: ['lupo'],
+          pendingKills: {},
+          savesBy: [],
+          checks: []
+        }, 
+        summary: null 
+      },
+      settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
+      sindacoId: null,
+      winner: null,
+      lynchedHistory: [],
+      usedPowers: {},
+      showRoleResee: false,
+      groupings: [
+        { fromRole: 'lupo', toRole: 'lupo' }
+      ],
+      custom: {},
+      history: {},
+      nightDeathsByNight: {},
+      lynchedHistoryByDay: {}
+    };
+
+    saveGameState(initialState);
+    
+    const saved = loadGameState();
+    expect(saved).toBeDefined();
+    expect(saved.groupings).toEqual([{ fromRole: 'lupo', toRole: 'lupo' }]);
+
+    await gameLogic.resumeGame(saved);
+    
+    // When resuming a game, groupings should be properly restored
+    expect(store.state.groupings).toEqual([{ fromRole: 'lupo', toRole: 'lupo' }]);
+    expect(store.state.phase).toBe('night');
+    expect(store.state.nightNumber).toBe(1);
   });
 });

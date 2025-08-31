@@ -103,6 +103,27 @@ export function clearSettings(): void {
 	try { localStorage.removeItem(SETTINGS_KEY); } catch {}
 }
 
+const SEEN_ROLES_KEY = 'lupus_seen_roles_v1';
+
+export function saveSeenRoles(roles: string[]): void {
+	try {
+		localStorage.setItem(SEEN_ROLES_KEY, JSON.stringify(roles));
+	} catch {}
+}
+
+export function loadSeenRoles(): string[] {
+	try {
+		const raw = localStorage.getItem(SEEN_ROLES_KEY);
+		return raw ? JSON.parse(raw) : [];
+	} catch {
+		return [];
+	}
+}
+
+export function clearSeenRoles(): void {
+	try { localStorage.removeItem(SEEN_ROLES_KEY); } catch {}
+}
+
 export function clearAllSavedData(): void {
 	try { 
 		localStorage.removeItem(KEY); 

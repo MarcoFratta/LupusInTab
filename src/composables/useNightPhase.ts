@@ -18,7 +18,8 @@ export function useNightPhase() {
             return null;
         }
         
-        const turn = NightPhaseManager.getCurrentTurn(state);
+        const turn = NightPhaseManager.nextRole(state as any);
+        console.log(`🌙 [DEBUG] useNightPhase.currentTurn - turn:`, turn);
         return turn;
     });
 
@@ -36,7 +37,7 @@ export function useNightPhase() {
         const entry = currentTurn.value;
         if (!entry) return null;
         if (entry.kind === 'single') {
-            return state.players.find(p => p.id === entry.playerId) || null;
+            return state.players.find(p => p.id === entry.playerId);
         }
         const actor = { id: 0, name: currentRole.value?.name, roleId: entry.roleId };
         return actor;
@@ -68,9 +69,9 @@ export function useNightPhase() {
     const shouldShowDeadPrompt = computed(() => {
         const entry = currentTurn.value;
         if (!entry) return false;
-        const alivePlayers = state.players.filter(p => p.alive);
-        const anyAlive = alivePlayers.some(p => p.roleId === entry.roleId);
-        return !anyAlive;
+        const turnPlayers = entry.playerIds
+        const alivePlayers = state.players.filter(p => turnPlayers.includes(p.id) && p.alive);
+        return alivePlayers.length == 0;
     });
 
     const shouldShowAlivePrompt = computed(() => {
@@ -155,8 +156,8 @@ export function useNightPhase() {
         const entry = currentTurn.value;
         if (!entry) return null as string[] | null;
         return entry.playerIds
-            .map(id => state.players.find(p => p.id === id)?.name)
-            .filter((n): n is string => !!n);
+            .map((id: number) => state.players.find(p => p.id === id)?.name)
+            .filter((n: string | undefined): n is string => !!n);
     });
 
     const roleDisplayInfo = computed(() => {

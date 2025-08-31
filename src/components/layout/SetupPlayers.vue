@@ -91,7 +91,7 @@ function movePlayerDown(index: number) {
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
     <SetupTitle 
       title="Gestione Giocatori"
-      subtitle="Aggiungi, rimuovi e personalizza i nomi dei giocatori per questa partita."
+      subtitle="Inserisci i nomi nello stesso ordine in cui siete posizionati"
     />
     
     <div class="flex items-center justify-center gap-3">
@@ -114,7 +114,10 @@ function movePlayerDown(index: number) {
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <button 
-          class="group relative flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105 active:scale-95 overflow-hidden bg-neutral-800/60 text-neutral-200 border border-neutral-700/50 hover:bg-neutral-700/60 hover:border-neutral-600/50"
+          class="group relative flex items-center justify-center gap-2 px-3 py-2 rounded-lg
+          font-medium text-sm transition-all duration-300 transform hover:scale-105
+          active:scale-95 overflow-hidden bg-neutral-800/60 text-neutral-200 border
+          border-neutral-700/50 hover:bg-neutral-700/60 hover:border-neutral-600/50"
           @click="resetNames"
         >
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

@@ -31,6 +31,7 @@ export interface GameState {
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
     showRoleResee?: boolean;
+    groupings?: Array<{ fromRole: string; toRole: string }>;
     revealPhaseState?: {
         showIntro: boolean;
         showPreNightInfo: boolean;
@@ -59,6 +60,7 @@ export const useGameStore = defineStore('game', () => {
 		lynchedHistory: [],
 		usedPowers: {},
         showRoleResee: false,
+        groupings: [],
         revealPhaseState: {
             showIntro: true,
             showPreNightInfo: false,

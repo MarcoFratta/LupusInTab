@@ -29,17 +29,16 @@ export class DayPhaseManager {
    */
   private static callRestoreFunctions(state: GameState, roles: RolesRegistry): void {
     const nightTurns = state.night?.turns || [];
-    const rolesThatActed = nightTurns.map(turn => turn.roleId);
     
-    if (rolesThatActed.length === 0) {
+    if (nightTurns.length === 0) {
       console.log(`🔄 [DayPhase] No roles acted during the night, skipping restore functions`);
       return;
     }
     
-    const rolesToRestore = rolesThatActed
-      .map(roleId => {
-        const role = roles[roleId];
-        return { roleId, role, phaseOrder: role?.phaseOrder };
+    const rolesToRestore = nightTurns
+      .map(turn => {
+        const role = roles[turn.roleId];
+        return { roleId: turn.roleId, role, turnIndex: nightTurns.indexOf(turn) };
       })
       .filter(({ role }) => role && typeof role.restoreFunction === 'function');
     
@@ -48,13 +47,9 @@ export class DayPhaseManager {
       return;
     }
     
-    const sortedRoles = rolesToRestore.sort((a, b) => {
-      const aIndex = rolesThatActed.indexOf(a.roleId);
-      const bIndex = rolesThatActed.indexOf(b.roleId);
-      return bIndex - aIndex; // Reverse order for restore
-    });
+    const sortedRoles = rolesToRestore.sort((a, b) => b.turnIndex - a.turnIndex);
     
-    console.log(`🔄 [DayPhase] Restore order: ${sortedRoles.map(r => `${r.roleId}(${r.phaseOrder})`).join(' → ')}`);
+    console.log(`🔄 [DayPhase] Restore order: ${sortedRoles.map(r => `${r.roleId}`).join(' → ')}`);
     
     for (const { roleId, role } of sortedRoles) {
       try {
@@ -71,13 +66,19 @@ export class DayPhaseManager {
    */
   static lynchPlayer(state: GameState, playerId: number): void {
     const target = PlayerManager.lynchPlayer(state, playerId);
-    if (!target) return;
     
-    // Store day event in history
-    if (!state.history) state.history = {} as any;
-    
-    // Check for immediate win condition (like Matto being lynched)
-    WinConditionManager.checkImmediateWinOnLynch(state, playerId);
+    if (target) {
+      if (!state.lynchedHistory) state.lynchedHistory = [];
+      state.lynchedHistory.push(playerId);
+      
+      if (!state.lynchedHistoryByDay) state.lynchedHistoryByDay = {};
+      if (!state.lynchedHistoryByDay[state.dayNumber]) {
+        state.lynchedHistoryByDay[state.dayNumber] = [];
+      }
+      state.lynchedHistoryByDay[state.dayNumber].push(playerId);
+      
+      WinConditionManager.checkImmediateWinOnLynch(state, playerId);
+    }
   }
 
   /**

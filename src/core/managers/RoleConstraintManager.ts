@@ -9,6 +9,32 @@ import { GameStateManager } from './GameStateManager';
 export class RoleConstraintManager {
   
   /**
+   * Get all players for a role, including those from grouped roles
+   * This centralizes the grouping logic and makes the code cleaner
+   */
+  static getPlayersForRole(roleId: string, state: GameState): any[] {
+    const directPlayers = state.players.filter((p: any) => p.roleId === roleId);
+    const groupedPlayers: any[] = [];
+    
+    if (state.groupings) {
+      for (const grouping of state.groupings) {
+        if (grouping.fromRole === roleId) {
+          const groupedRolePlayers = state.players.filter((p: any) => p.roleId === grouping.toRole);
+          groupedPlayers.push(...groupedRolePlayers);
+        }
+      }
+    }
+    
+    const allPlayers = [...directPlayers, ...groupedPlayers];
+    
+    if (groupedPlayers.length > 0) {
+      console.log(`🔍 [DEBUG] getPlayersForRole - Role ${roleId}: ${directPlayers.length} direct + ${groupedPlayers.length} grouped players`);
+    }
+    
+    return allPlayers;
+  }
+  
+  /**
    * Check if a role can act based on various constraints
    * Returns null if role can act, or a string describing the constraint
    */
@@ -19,35 +45,45 @@ export class RoleConstraintManager {
     const aliveMembers = state.players.filter(p => playerIds.includes(p.id) && p.alive);
     const deadMembers = state.players.filter(p => playerIds.includes(p.id) && !p.alive);
 
+    console.log(`🔍 [DEBUG] checkRoleConstraints - Role: ${roleId}, Player IDs: ${playerIds}, Alive: ${aliveMembers.length}, Dead: ${deadMembers.length}`);
+    console.log(`🔍 [DEBUG] Alive members:`, aliveMembers.map(p => ({ id: p.id, name: p.name, roleId: p.roleId })));
+    console.log(`🔍 [DEBUG] Dead members:`, deadMembers.map(p => ({ id: p.id, name: p.name, roleId: p.roleId })));
+
     // Check if all players with this role are blocked
     if (aliveMembers.length > 0 && aliveMembers.every(player => 
       player.roleState?.actsAtNight === 'blocked'
     )) {
+      console.log(`🔍 [DEBUG] Role ${roleId} blocked - all alive members are blocked`);
       return "blocked";
     }
 
     // Check if role requires alive players but ALL players are dead
     if (roleDef.actsAtNight === 'alive' && aliveMembers.length === 0) {
+      console.log(`🔍 [DEBUG] Role ${roleId} dead - requires alive players but all are dead`);
       return "dead";
     }
 
     // Check if role requires dead players but ALL players are alive
     if (roleDef.actsAtNight === 'dead' && deadMembers.length === 0) {
+      console.log(`🔍 [DEBUG] Role ${roleId} alive - requires dead players but all are alive`);
       return "alive";
     }
 
     // Check if role has reached usage limit for ALL players
     const hasUsageLimit = RoleConstraintManager.checkUsageLimitConstraint(state, roleId, playerIds);
     if (hasUsageLimit) {
+      console.log(`🔍 [DEBUG] Role ${roleId} usage limit reached`);
       return "usageLimit";
     }
 
     // Check if role cannot be used yet due to startNight restriction
     const hasStartNightRestriction = RoleConstraintManager.checkStartNightConstraint(state, roleId, playerIds, roleDef);
     if (hasStartNightRestriction) {
+      console.log(`🔍 [DEBUG] Role ${roleId} start night restriction`);
       return "startNight";
     }
 
+    console.log(`🔍 [DEBUG] Role ${roleId} can act - no constraints`);
     return null;
   }
 
@@ -152,8 +188,15 @@ export class RoleConstraintManager {
     const hasDiscoveredRole = result.discoveredRole !== null && result.discoveredRole !== undefined;
     const hasDiscoveredRealTeam = result.discoveredRealTeam !== null && result.discoveredRealTeam !== undefined;
     
+    // lupoCieco-specific properties
+    const hasInvestigationTargets = result.investigationTargets !== null && result.investigationTargets !== undefined;
+    const hasInvestigationResult = result.investigationResult !== null && result.investigationResult !== undefined;
+    const hasKillTargetId = result.killTargetId !== null && result.killTargetId !== undefined;
+    
     // If any meaningful data is present, consider the role used
-    return hasTargetId || hasTargetIds || hasTarget || hasAction || hasChoice || hasRoleId || hasLupiCount || hasInfetti || hasDiscoveredFaction || hasDiscoveredRole || hasDiscoveredRealTeam;
+    return hasTargetId || hasTargetIds || hasTarget || hasAction || hasChoice || hasRoleId || 
+           hasLupiCount || hasInfetti || hasDiscoveredFaction || hasDiscoveredRole || hasDiscoveredRealTeam ||
+           hasInvestigationTargets || hasInvestigationResult || hasKillTargetId;
   }
 
   /**

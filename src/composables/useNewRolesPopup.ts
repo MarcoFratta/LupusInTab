@@ -1,6 +1,6 @@
 import { ref, computed, onMounted } from 'vue';
-import { loadPlayersSetup } from '../utils/storage';
 import { NEW_ROLES_CONFIG } from '../config/newRoles';
+import { loadSeenRoles, saveSeenRoles, clearSeenRoles } from '../utils/storage';
 
 export function useNewRolesPopup() {
 	const showPopup = ref(false);
@@ -11,11 +11,10 @@ export function useNewRolesPopup() {
 	});
 	
 	const checkForNewRoles = () => {
-		const localSetup = loadPlayersSetup();
-		const localRoles = localSetup?.rolesEnabled ? Object.keys(localSetup.rolesEnabled) : [];
+		const seenRoles = loadSeenRoles();
 		const currentNewRoles = NEW_ROLES_CONFIG.currentRoles;
 		
-		const trulyNewRoles = currentNewRoles.filter(roleId => !localRoles.includes(roleId));
+		const trulyNewRoles = currentNewRoles.filter(roleId => !seenRoles.includes(roleId));
 		
 		if (trulyNewRoles.length > 0) {
 			newRoles.value = trulyNewRoles;
@@ -32,23 +31,17 @@ export function useNewRolesPopup() {
 	
 	const closePopup = () => {
 		showPopup.value = false;
-		const localSetup = loadPlayersSetup();
-		if (localSetup) {
-			const updatedRolesEnabled = { ...localSetup.rolesEnabled };
-			newRoles.value.forEach(roleId => {
-				updatedRolesEnabled[roleId] = false;
-			});
-			
-			const updatedSetup = {
-				...localSetup,
-				rolesEnabled: updatedRolesEnabled,
-				rolesCounts: localSetup.rolesCounts || {}
-			};
-			
-			import('../utils/storage').then(({ savePlayersSetup }) => {
-				savePlayersSetup(updatedSetup);
-			});
-		}
+		
+		const currentSeenRoles = loadSeenRoles();
+		const updatedSeenRoles = [...currentSeenRoles, ...newRoles.value];
+		saveSeenRoles(updatedSeenRoles);
+		
+		newRoles.value = [];
+	};
+	
+	const resetSeenRoles = () => {
+		clearSeenRoles();
+		checkForNewRoles();
 	};
 	
 	onMounted(() => {
@@ -61,6 +54,7 @@ export function useNewRolesPopup() {
 		shouldShowPopup,
 		checkForNewRoles,
 		forceCheckForNewRoles,
-		closePopup
+		closePopup,
+		resetSeenRoles
 	};
 }

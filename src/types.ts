@@ -148,6 +148,12 @@ export interface RoleDef {
      */
     passiveEffect?: (gameState: any, player: any) => void;
     /**
+     * Optional function to define role groupings for the night phase.
+     * Returns an array of { fromRole, toRole } pairs indicating which roles should act together.
+     * Example: [{ fromRole: 'lupo', toRole: 'lupoCiccione' }] means lupoCiccione acts during lupo phase.
+     */
+    groups?: (gameState: any) => Array<{ fromRole: string; toRole: string }>;
+    /**
      * Optional per-role win check. It should return true when this role's faction has met its winning condition.
      */
     checkWin?: (gameState: any) => boolean;
@@ -195,6 +201,7 @@ export interface NightContext {
   savesBy: string[];
   checks: any[];
   calledRoles: string[];
+  currentRoleId?: string;
 }
 
 export interface GameState {
@@ -210,12 +217,13 @@ export interface GameState {
 	    winner: string | null | 'tie';
     lynchedHistory?: number[];
     usedPowers?: Record<string, number[]>;
+    groupings?: Array<{ fromRole: string; toRole: string }>;
 
     custom?: Record<string, any>;
     history?: GameHistory;
     nightDeathsByNight?: Record<number, number[]>;
-    lynchedHistoryByDay?: Record<number, number[]>;
-    roleMeta?: Record<string, any>; // Test-specific property for role metadata
+    lynchedHistoryByNight?: Record<number, number[]>;
+    roleMeta?: Record<string, any>;
 }
 
 export interface NightTurn { kind: 'group'; roleId: string; playerIds: number[] }

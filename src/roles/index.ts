@@ -22,6 +22,8 @@ import mutaforma from './mutaforma';
 import misspurple from './misspurple';
 import bugiardo from './bugiardo';
 import ammaestratore from './ammaestratore';
+import { lupoCiccione } from './lupoCiccione';
+import { lupoCieco } from './lupoCieco';
 
 const rolesArray: RoleDef[] = [
 	lupo,
@@ -47,6 +49,8 @@ const rolesArray: RoleDef[] = [
 	misspurple,
 	bugiardo,
 	ammaestratore,
+	lupoCiccione,
+	lupoCieco,
 ];
 
 export const ROLES: Record<string, RoleDef> = rolesArray.reduce((acc, role) => {

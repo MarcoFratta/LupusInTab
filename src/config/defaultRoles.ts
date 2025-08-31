@@ -22,7 +22,9 @@ export const DEFAULT_ROLES_CONFIG = {
     bugiardo: false,
     simbionte: false,
     mutaforma: false,
-    ammaestratore: false
+    ammaestratore: false,
+    lupoCiccione: false,
+    lupoCieco: false
   },
   defaultCounts: {
     10: {

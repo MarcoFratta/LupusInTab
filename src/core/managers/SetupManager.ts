@@ -70,7 +70,10 @@ export class SetupManager {
           genio: false,
           parassita: false,
           simbionte: false,
-          mutaforma: false
+          mutaforma: false,
+          lupocieco: false,
+          lupociccione: false,
+          ammaestratore: false,
         } as Record<string, boolean>;
       }
     }

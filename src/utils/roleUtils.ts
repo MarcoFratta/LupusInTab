@@ -228,6 +228,10 @@ export function componentFactory(name: string, type: "prompt" | "details"): () =
         'Ammaestratore': {
             prompt: () => import('../components/roles/Ammaestratore/AmmaestratorePrompt.vue'),
             details: () => import('../components/roles/Ammaestratore/AmmaestratoreResolveDetails.vue')
+        },
+        'LupoCieco': {
+            prompt: () => import('../components/roles/LupoCieco/LupoCiecoPrompt.vue'),
+            details: () => import('../components/roles/LupoCieco/LupoCiecoResolveDetails.vue')
         }
     };
     

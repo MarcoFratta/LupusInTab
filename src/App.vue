@@ -49,7 +49,7 @@ const {
 const {
     PHASES,
     resetAll,
-    resumeGame: resumeGameLogic,
+    resumeGame,
     initDefaultRolesCounts,
     initSetupPlayers,
     resizePlayers,
@@ -59,12 +59,12 @@ const {
     navigateToPage,
     updatePlayersFromEditor,
     beginReveal,
-    nextReveal,
+    nextRevealLocal,
     beginNight,
     onPromptComplete,
-    resolveNight,
-    continueToDay,
-    startNextNight,
+    resolveNightLocal,
+    continueToDayLocal,
+    startNextNightLocal,
     quitAndReset,
     onLynch,
     onSkipDay,
@@ -127,11 +127,10 @@ watch(
 );
 
 
-function resumeGame() {
+async function resumeGameLocal() {
 	const saved = loadGameState();
 	if (saved && (saved as any).phase !== PHASES.SETUP) {
-		resumeGameLogic(saved);
-		resumeGameLogic(saved);
+		await resumeGame(saved);
 		resumeAvailable.value = false;
 	}
 }
@@ -175,7 +174,7 @@ function resumeGame() {
 				</div>
 				<div class="flex gap-1.5 sm:gap-2 w-full sm:w-auto">
 					<button class="btn btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="dismissResumeBanner">Ignora</button>
-					<button class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="resumeGame">Riprendi</button>
+					<button class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="resumeGameLocal">Riprendi</button>
 				</div>
 			</div>
 		</div>
@@ -240,7 +239,7 @@ function resumeGame() {
 		<PhaseNight v-else-if="state.phase === PHASES.NIGHT" :state="state" :onPromptComplete="onPromptComplete" />
 
 		<!-- Resolve Phase -->
-		<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDay" :onReset="quitAndReset" />
+		<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDayLocal" :onReset="quitAndReset" />
 
 		<!-- Day Phase -->
 		<PhaseDay v-else-if="state.phase === PHASES.DAY" :state="state" :onLynch="onLynch" :onElectSindaco="onElectSindaco" :onSkipDay="onSkipDay" :onReset="quitAndReset" />

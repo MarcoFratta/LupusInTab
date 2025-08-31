@@ -1,27 +1,29 @@
+import { computed, ref, watch } from 'vue';
 import { useGameStore } from '../stores/game';
 import { useRouter } from 'vue-router';
-import {
-    createEmptyState as engineCreateEmptyState,
+import { 
+    beginReveal, 
+    nextReveal, 
+    startNextNight, 
+    recordNightResult, 
+    resolveNight, 
+    continueToDay, 
+    completeDay, 
+    lynchPlayer, 
+    setSindaco, 
+    evaluateWinner,
+    createEmptyState,
     initDefaultRolesCounts as engineInitDefaultRolesCounts,
     initSetupPlayers as engineInitSetupPlayers,
     resizePlayers as engineResizePlayers,
     normalizeRoleCounts as engineNormalizeRoleCounts,
     updateRoleCount as engineUpdateRoleCount,
-    getMaxCountForRole as engineGetMaxCountForRole,
-    beginReveal as engineBeginReveal,
-    nextReveal as engineNextReveal,
-    startNextNight as engineStartNextNight,
-    recordNightResult as engineRecordNightResult,
-    resolveNight as engineResolveNight,
-    continueToDay as engineContinueToDay,
-    lynchPlayer as engineLynchPlayer,
-    completeDay as engineCompleteDay,
-    setSindaco as engineSetSindaco,
-    evaluateWinner as engineEvaluateWinner,
+    getMaxCountForRole as engineGetMaxCountForRole
 } from '../core/engine';
-import { loadPlayersSetup, clearSavedGame } from '../utils/storage';
+import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 import { ROLE_LIST, ROLES } from '../roles';
 import { shuffled } from '../utils/random';
+import { loadGameState, saveGameState, clearSavedGame, loadPlayersSetup } from '../utils/storage';
 
 export function useGameLogic() {
     const store = useGameStore();
@@ -31,17 +33,17 @@ export function useGameLogic() {
     const PHASES = {
         SETUP: 'setup',
         REVEAL: 'revealRoles',
-        PRE_NIGHT: 'preNight',
         NIGHT: 'night',
         RESOLVE: 'resolve',
         DAY: 'day',
-        END: 'end',
-    };
+        PRE_NIGHT: 'preNight',
+        END: 'end'
+    } as const;
 
     function resetAll() {
         const currentSettings = { ...state.settings };
         
-        Object.assign(store.state, engineCreateEmptyState());
+        Object.assign(store.state, createEmptyState());
         
         state.settings = currentSettings;
         state.showRoleResee = false;
@@ -60,21 +62,21 @@ export function useGameLogic() {
             if (savedPlayers.rolesCounts && typeof savedPlayers.rolesCounts === 'object') {
                 state.setup.rolesCounts = { ...savedPlayers.rolesCounts };
             } else {
-                initDefaultRolesCounts();
+                engineInitDefaultRolesCounts(state as any);
             }
             
             if (savedPlayers.rolesEnabled && typeof savedPlayers.rolesEnabled === 'object') {
                 state.setup.rolesEnabled = { ...savedPlayers.rolesEnabled };
             }
             
-            normalizeRoleCounts();
+            engineNormalizeRoleCounts(state as any);
         } else {
-            initSetupPlayers();
+            engineInitSetupPlayers(state as any);
         }
         clearSavedGame();
     }
 
-    function resumeGame(saved: any) {
+    async function resumeGame(saved: any) {
         if (saved && saved.phase !== PHASES.SETUP) {
 
             
@@ -130,7 +132,7 @@ export function useGameLogic() {
                         pendingKills: saved.night.context.pendingKills || {},
                         savesBy: saved.night.context.savesBy || [],
                         checks: saved.night.context.checks || [],
-                        calledRoles: reconstructedCalledRoles
+                        calledRoles: Array.from(reconstructedCalledRoles)
                     } : null
                 };
             } else {
@@ -196,7 +198,13 @@ export function useGameLogic() {
             state.history = saved.history || {};
             state.nightDeathsByNight = saved.nightDeathsByNight || {};
             state.lynchedHistoryByDay = saved.lynchedHistoryByDay || {};
+            state.groupings = saved.groupings || [];
             
+            // If resuming to night phase, ensure proper night state restoration
+            if (state.phase === PHASES.NIGHT && state.night?.context) {
+                const { NightPhaseManager } = await import('../core/managers/NightPhaseManager');
+                NightPhaseManager.resumeNight(state as any, ROLES as any);
+            }
 
         }
     }
@@ -237,40 +245,60 @@ export function useGameLogic() {
         normalizeRoleCounts();
     }
 
-    function beginReveal() { 
-        engineBeginReveal(state as any, ROLE_LIST as any, shuffled); 
+    function beginRevealLocal() { 
+        beginReveal(state as any, ROLE_LIST as any, shuffled); 
     }
 
-    function nextReveal() { 
-        engineNextReveal(state as any, () => beginNight()); 
+    function nextRevealLocal() { 
+        nextReveal(state as any, () => beginNight()); 
     }
 
     function beginNight() { 
+        console.log(`🌙 [DEBUG] useGameLogic.beginNight called - Current phase: ${state.phase}, Night: ${state.nightNumber}`);
         state.showRoleResee = false;
-        engineStartNextNight(state as any, ROLES as any); 
+        startNextNight(state as any, ROLES as any); 
+        console.log(`🌙 [DEBUG] useGameLogic.beginNight completed - New phase: ${state.phase}, Night: ${state.nightNumber}`);
     }
 
     function onPromptComplete(result: any) {
-        engineRecordNightResult(state as any, result);
-        if (state.phase === PHASES.RESOLVE) engineResolveNight(state as any, ROLES as any);
+        console.log(`🌙 [DEBUG] useGameLogic.onPromptComplete called with result:`, result);
+        
+        recordNightResult(state as any, result);
+        console.log(`🌙 [DEBUG] useGameLogic.onPromptComplete - After recordNightResult, phase: ${state.phase}`);
+        
+        if (state.phase === PHASES.NIGHT) {
+            const nextTurn = NightPhaseManager.nextRole(state as any);
+            if (!nextTurn) {
+                console.log(`🌙 [DEBUG] useGameLogic.onPromptComplete - No more turns, transitioning to resolve`);
+                state.phase = PHASES.RESOLVE;
+                resolveNight(state as any, ROLES as any);
+            }
+        }
     }
 
-    function resolveNight() { 
-        engineResolveNight(state as any, ROLES as any); 
+    function resolveNightLocal() { 
+        console.log(`🌙 [DEBUG] useGameLogic.resolveNight called - Current phase: ${state.phase}`);
+        resolveNight(state as any, ROLES as any); 
+        console.log(`🌙 [DEBUG] useGameLogic.resolveNight completed - Phase: ${state.phase}`);
     }
 
-    function continueToDay() {
-        const winners = engineEvaluateWinner(state as any, ROLES as any);
+    function continueToDayLocal() {
+        console.log(`🌙 [DEBUG] useGameLogic.continueToDay called - Current phase: ${state.phase}`);
+        const winners = evaluateWinner(state as any, ROLES as any);
         if (winners) {
+            console.log(`🌙 [DEBUG] useGameLogic.continueToDay - Winners found:`, winners);
             state.winner = winners as any;
             state.phase = PHASES.END as any;
             return;
         }
-        engineContinueToDay(state as any, ROLES as any);
+        continueToDay(state as any, ROLES as any);
+        console.log(`🌙 [DEBUG] useGameLogic.continueToDay completed - Phase: ${state.phase}`);
     }
 
-    function startNextNight() { 
-        engineStartNextNight(state as any, ROLES as any); 
+    function startNextNightLocal() { 
+        console.log(`🌙 [DEBUG] useGameLogic.startNextNight called - Current phase: ${state.phase}, Night: ${state.nightNumber}`);
+        startNextNight(state as any, ROLES as any); 
+        console.log(`🌙 [DEBUG] useGameLogic.startNextNight completed - New phase: ${state.phase}, Night: ${state.nightNumber}`);
     }
 
     function quitAndReset() { 
@@ -278,16 +306,16 @@ export function useGameLogic() {
     }
 
     function onLynch(playerId: number) {
-        engineLynchPlayer(state as any, playerId);
-        engineCompleteDay(state as any, ROLES as any);
+        lynchPlayer(state as any, playerId);
+        completeDay(state as any, ROLES as any);
     }
 
     function onSkipDay() {
-        engineCompleteDay(state as any, ROLES as any);
+        completeDay(state as any, ROLES as any);
     }
 
     function onElectSindaco(playerId: number) {
-        engineSetSindaco(state as any, playerId);
+        setSindaco(state as any, playerId);
     }
 
     return {
@@ -302,13 +330,13 @@ export function useGameLogic() {
         getMaxCountForRole,
         navigateToPage,
         updatePlayersFromEditor,
-        beginReveal,
-        nextReveal,
+        beginRevealLocal,
+        nextRevealLocal,
         beginNight,
         onPromptComplete,
-        resolveNight,
-        continueToDay,
-        startNextNight,
+        resolveNightLocal,
+        continueToDayLocal,
+        startNextNightLocal,
         quitAndReset,
         onLynch,
         onSkipDay,

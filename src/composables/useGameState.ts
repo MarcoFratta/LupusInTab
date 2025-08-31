@@ -101,6 +101,9 @@ export function useGameState() {
                 lynchedHistory: state.lynchedHistory,
                 usedPowers: state.usedPowers,
                 showRoleResee: state.showRoleResee,
+                groupings: state.groupings,
+                custom: state.custom,
+                history: state.history,
                 revealPhaseState: state.revealPhaseState,
                 nightDeathsByNight: state.nightDeathsByNight,
                 lynchedHistoryByDay: state.lynchedHistoryByDay

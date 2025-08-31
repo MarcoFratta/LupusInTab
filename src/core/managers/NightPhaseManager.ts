@@ -3,278 +3,230 @@ import { ROLES } from '../../roles';
 import { GameStateManager } from './GameStateManager';
 import { RoleConstraintManager } from './RoleConstraintManager';
 
-/**
- * NightPhaseManager - Responsible for night phase logic and execution
- * Following Single Responsibility Principle
- */
 export class NightPhaseManager {
   
-  /**
-   * Begin the night phase
-   */
   static beginNight(state: GameState, roles: RolesRegistry): void {
+    console.log(`🌙 [DEBUG] beginNight - Starting night ${state.nightNumber + 1}`);
+    
     state.nightNumber += 1;
-    
     GameStateManager.initializeNightTracking(state, state.nightNumber);
-    
-    const nightContext: NightContext = { 
-      pendingKills: {}, 
-      savesBy: [], 
-      checks: [],
-      calledRoles: []
-    };
     
     state.night = { 
       turns: [],
       currentIndex: 0,
-      context: nightContext, 
+      context: { 
+        pendingKills: {}, 
+        savesBy: [], 
+        checks: [],
+        calledRoles: []
+      }, 
       summary: null 
     } as any;
     
     state.phase = 'night';
+    
+    NightPhaseManager.processRoleGroupings(state, roles);
   }
 
-  /**
-   * Compare roles by their phase order for sorting
-   */
-  private static compareRolesByPhaseOrder(a: any, b: any): number {
-    const aOrder = a.phaseOrder;
-    const bOrder = b.phaseOrder;
+  static resumeNight(state: GameState, roles: RolesRegistry): void {
+    console.log(`🌙 [DEBUG] resumeNight - Resuming night ${state.nightNumber}`);
     
-    if (aOrder === "any" && bOrder === "any") {
-      return a.roleId.localeCompare(b.roleId);
+    if (!state.night?.context) {
+      console.warn(`🌙 [WARNING] resumeNight - No night context found, initializing new night`);
+      this.beginNight(state, roles);
+      return;
     }
     
-    if (aOrder === "any") return 1;
-    if (bOrder === "any") return -1;
-    
-    const aNum = Number(aOrder);
-    const bNum = Number(bOrder);
-    
-    if (Number.isFinite(aNum) && Number.isFinite(bNum)) {
-      return aNum - bNum;
+    // Ensure calledRoles is synchronized with completed turns
+    if (state.night.turns.length > 0) {
+      const completedRoles = new Set();
+      for (const turn of state.night.turns) {
+        if (turn.roleId) {
+          completedRoles.add(turn.roleId);
+        }
+      }
+      
+      // Update calledRoles to reflect completed turns
+      if (state.night.context.calledRoles) {
+        state.night.context.calledRoles = Array.from(completedRoles) as string[];
+      }
+      
+      console.log(`🌙 [DEBUG] resumeNight - Synchronized calledRoles with ${completedRoles.size} completed roles:`, Array.from(completedRoles));
     }
     
-    if (Number.isFinite(aNum)) return -1;
-    if (Number.isFinite(bNum)) return 1;
+    // Always reprocess role groupings when resuming to ensure effects are properly applied
+    console.log(`🌙 [DEBUG] resumeNight - Reprocessing role groupings for resume`);
+    NightPhaseManager.processRoleGroupings(state, roles);
     
-    return a.roleId.localeCompare(b.roleId);
+    // Reapply passive effects for all roles that should have them active
+    NightPhaseManager.reapplyPassiveEffects(state, roles);
+    
+    console.log(`🌙 [DEBUG] resumeNight - Resuming existing night with ${state.night.turns.length} turns and ${state.groupings?.length || 0} groupings`);
   }
 
-  /**
-   * Apply passive effects for roles that don't have prompts
-   */
-  private static applyPassiveEffects(state: GameState, rolesWithPassiveOnly: any[]): void {
-    for (const roleInfo of rolesWithPassiveOnly) {
-      const { roleDef, players } = roleInfo;
-      if (typeof roleDef.passiveEffect === 'function') {
-        for (const player of players) {
-          if (player.alive) {
-            try {
-              roleDef.passiveEffect(state as any, player);
-            } catch (error) {
-              console.error(`Error in passive effect for ${roleInfo.roleId} (player ${player.id}):`, error);
-            }
+  private static processRoleGroupings(state: GameState, roles: RolesRegistry): void {
+    if (!state.groupings) {
+      state.groupings = [];
+    }
+    
+    state.groupings = [];
+    
+    for (const player of state.players) {
+      const roleDef = roles[player.roleId];
+      if (roleDef && typeof roleDef.groups === 'function') {
+        try {
+          const groupings = roleDef.groups(state);
+          if (Array.isArray(groupings)) {
+            state.groupings.push(...groupings);
           }
+        } catch (error) {
+          console.error(`Error in groups function for role ${player.roleId}:`, error);
         }
-      }
-    }
-  }
-
-  /**
-   * Apply passive effects for all roles in the game state
-   */
-  private static applyAllRolePassiveEffects(state: GameState): void {
-    const uniqueRoles = new Set(state.players.map(p => p.roleId));
-    
-    for (const roleId of uniqueRoles) {
-      const roleDef = ROLES[roleId];
-      if (!roleDef) continue;
-      
-      const rolePlayers = state.players.filter(p => p.roleId === roleId);
-      if (rolePlayers.length === 0) continue;
-      
-      // Apply passive effects if the role has them
-      if (typeof roleDef.passiveEffect === 'function') {
-        for (const player of rolePlayers) {
-          if (player.alive) {
-            try {
-              roleDef.passiveEffect(state as any, player);
-            } catch (error) {
-              console.error(`Error in passive effect for ${roleDef.id} (player ${player.id}):`, error);
-            }
-          }
-        }
-      }
-      
-      // For roles with actsAtNight: "never", add them to turns array for proper restore order
-      // but don't show them to the game master
-      if (roleDef.actsAtNight === 'never') {
-        if (!state.night.turns) state.night.turns = [];
-        (state.night.turns as any).push({
-          roleId: roleId,
-          playerIds: rolePlayers.map(p => p.id),
-          phaseOrder: roleDef.phaseOrder,
-          timestamp: Date.now()
-        });
-        
-        // Mark them as called so they won't be returned by getCurrentTurn
-        if (state.night.context && !state.night.context.calledRoles.includes(roleId)) {
-          state.night.context.calledRoles.push(roleId);
-        }
-      }
-    }
-  }
-
-  /**
-   * Record the result of a night action and move to the next role
-   * Record the result of a night action and move to the next role
-   */
-  static recordNightResult(state: GameState, result: any): void {
-    if (!state.night) {
-      console.warn(`🌙 [WARNING] recordNightResult - No night state, creating one`);
-      NightPhaseManager.beginNight(state, {} as any);
-      // After creating night state, we need to get the current turn again
-      const currentTurn = NightPhaseManager.getCurrentTurn(state);
-      if (!currentTurn) {
-        state.phase = 'resolve';
-        return;
       }
     }
     
-    if (!state.night.context) {
-      console.warn(`🌙 [WARNING] recordNightResult - No night context, creating one`);
-      state.night.context = {
-        pendingKills: {},
-        savesBy: [],
-        checks: [],
-        calledRoles: []
+    console.log(`🌙 [DEBUG] processRoleGroupings - Processed groupings:`, state.groupings);
+  }
+
+  static nextRole(state: GameState): any {
+    if (!state.night?.context) return null;
+    
+    const availableRoles = this.getAvailableRoles(state);
+    
+    if (availableRoles.length === 0) {
+      return null;
+    }
+    
+    const nextRole = availableRoles[0];
+    
+    this.processPassiveEffects(nextRole, state);
+    
+    if (nextRole.roleDef.actsAtNight !== 'never') {
+      state.night.context.currentRoleId = nextRole.roleId;
+      
+      return {
+        roleId: nextRole.roleId,
+        kind: 'group',
+        playerIds: nextRole.players.map((p: any) => p.id)
       };
     }
+    
+    this.completeRole(nextRole, state);
+    return this.nextRole(state);
+  }
 
-    try {
-      // Get the current turn that was just completed
-      const currentTurn = NightPhaseManager.getCurrentTurn(state);
-      if (!currentTurn) {
-        state.phase = 'resolve';
-        return;
-      }
-
-      const { calledRoles } = state.night.context;
-      
-      // Ensure calledRoles is always an array
-      if (!Array.isArray(calledRoles)) {
-        console.warn(`🌙 [WARNING] recordNightResult - calledRoles is not an array, converting from:`, calledRoles);
+  private static getAvailableRoles(state: GameState): any[] {
+    const uniqueRoles = new Set(state.players.map((p: any) => p.roleId));
+    
+    return Array.from(uniqueRoles)
+      .filter((roleId: string) => !state.night?.context?.calledRoles.includes(roleId))
+      .map(roleId => ({
+        roleId,
+        roleDef: ROLES[roleId],
+        players: RoleConstraintManager.getPlayersForRole(roleId, state)
+      }))
+      .filter(role => role.roleDef && role.players.length > 0)
+      .sort((a, b) => {
+        const aOrder = a.roleDef.phaseOrder;
+        const bOrder = b.roleDef.phaseOrder;
         
-        // Convert to array if it's a Set or other type
-        let rolesArray: string[] = [];
-        if (calledRoles instanceof Set) {
-          rolesArray = Array.from(calledRoles);
-        } else if (calledRoles && typeof calledRoles === 'object') {
+        if (aOrder === "any" && bOrder === "any") {
+          return a.roleId.localeCompare(b.roleId);
+        }
+        if (aOrder === "any") return 1;
+        if (bOrder === "any") return -1;
+        
+        return Number(aOrder) - Number(bOrder);
+      });
+  }
+
+  private static getPlayersForRole(roleId: string, state: GameState): any[] {
+    // Use the centralized function from RoleConstraintManager
+    return RoleConstraintManager.getPlayersForRole(roleId, state);
+  }
+
+  private static processPassiveEffects(roleInfo: any, state: GameState): void {
+    const { roleDef, players } = roleInfo;
+    
+    if (typeof roleDef.passiveEffect === 'function') {
+      for (const player of players) {
+        if (player.alive) {
           try {
-            rolesArray = Array.from(calledRoles as any);
-          } catch (e) {
-            console.warn(`🌙 [WARNING] Failed to convert calledRoles to array:`, e);
-            rolesArray = [];
+            const result = roleDef.passiveEffect(state as any, player);
+            if (result != null) {
+              if (!(state as any).history[state.nightNumber]) {
+                (state as any).history[state.nightNumber] = {};
+              }
+              (state as any).history[state.nightNumber][roleInfo.roleId] = result;
+            }
+          } catch (error) {
+            console.error(`Error in passive effect for ${roleInfo.roleId}:`, error);
           }
         }
-        
-        // Create a new array and replace the corrupted one
-        state.night.context.calledRoles = rolesArray;
-        console.log(`🌙 [INFO] Successfully converted calledRoles to array with ${rolesArray.length} items`);
       }
-      
-      const roleDef = ROLES[currentTurn.roleId];
-      const playerIds = currentTurn.playerIds || [];
-      
-      // Check if this is the first night and first night actions are skipped
-      const isFirstNightSkipped = state.settings?.skipFirstNightActions && state.nightNumber === 1;
-      
-      if (!isFirstNightSkipped) {
-        // First: Apply passive effects for this role (if it has any)
-        NightPhaseManager.applyRolePassiveEffects(state, currentTurn.roleId, playerIds);
-        
-        // Initialize history for this night
-        GameStateManager.initializeHistory(state, state.nightNumber);
+    }
+  }
 
-        // Then: Process the result and update history for active roles
-        NightPhaseManager.processNightActionResult(state, currentTurn, result, roleDef, playerIds);
-      }
-      
-      // Record this turn in the night.turns array for proper restore order
-      if (!state.night.turns) state.night.turns = [];
+  private static completeRole(roleInfo: any, state: GameState): void {
+    if (state.night?.context) {
       state.night.turns.push({
-        roleId: currentTurn.roleId,
-        playerIds: currentTurn.playerIds || [],
-        phaseOrder: roleDef?.phaseOrder,
-        timestamp: Date.now()
-      });
+        roleId: roleInfo.roleId,
+        playerIds: roleInfo.players.map((p: any) => p.id)
+      } as any);
       
-      // Mark this role as called for this night
-      state.night.context.calledRoles.push(currentTurn.roleId);
-      
-      // Check if there are more roles to call
-      const nextTurn = NightPhaseManager.getCurrentTurn(state);
-      if (!nextTurn) {
-        state.phase = 'resolve';
-      }
-      
-    } catch (error) {
-      console.error(`🌙 [DEBUG] Error in recordNightResult:`, error);
+      state.night.context.calledRoles.push(roleInfo.roleId);
     }
   }
 
-  /**
-   * Apply passive effects for a specific role
-   */
-  private static applyRolePassiveEffects(state: GameState, roleId: string, playerIds: number[]): void {
-    const roleDef = ROLES[roleId];
-    if (!roleDef || typeof roleDef.passiveEffect !== 'function') return;
+  static recordNightResult(state: GameState, result: any): void {
+    if (!state.night?.context) return;
     
-    for (const playerId of playerIds) {
-      const player = state.players.find(p => p.id === playerId);
-      if (player && player.alive) {
-        try {
-          roleDef.passiveEffect(state as any, player);
-        } catch (error) {
-          console.error(`Error in passive effect for ${roleId} (player ${playerId}):`, error);
-        }
-      }
+    const currentRoleId = state.night.context.currentRoleId;
+    if (!currentRoleId) return;
+    
+    const roleDef = ROLES[currentRoleId];
+    const allPlayers = NightPhaseManager.getPlayersForRole(currentRoleId, state);
+    const playerIds = allPlayers.map(p => p.id);
+    
+    const isFirstNightSkipped = state.settings?.skipFirstNightActions && state.nightNumber === 1;
+    
+    if (!isFirstNightSkipped) {
+      GameStateManager.initializeHistory(state, state.nightNumber);
+      NightPhaseManager.processNightActionResult(state, {
+        roleId: currentRoleId,
+        kind: 'group',
+        playerIds: playerIds
+      }, result, roleDef, playerIds);
     }
+    
+    NightPhaseManager.completeRole({
+      roleId: currentRoleId,
+      roleDef,
+      players: allPlayers
+    }, state);
+    
+    delete state.night.context.currentRoleId;
   }
 
-  /**
-   * Process the result of a night action and update history
-   */
   private static processNightActionResult(state: GameState, entry: any, result: any, roleDef: any, playerIds: number[]): void {
     if (result?.skipped === true) {
-      // Role was explicitly skipped by player choice
       (state as any).history[state.nightNumber][entry.roleId] = "skipped";
     } else if (result?.blocked === true) {
-      // Role was blocked by another role
       (state as any).history[state.nightNumber][entry.roleId] = "blocked";
     } else {
-      // Check if role can act based on constraints
       const constraintCheck = RoleConstraintManager.checkRoleConstraints(state, entry.roleId, playerIds);
       
       if (constraintCheck !== null) {
-        // Role cannot act due to constraints
         (state as any).history[state.nightNumber][entry.roleId] = constraintCheck;
       } else if (RoleConstraintManager.isRoleUsed(result)) {
-        // Role was actually used (has meaningful data)
         NightPhaseManager.recordRoleUsage(state, entry, result, roleDef, playerIds);
       } else {
-        // Role can act but wasn't used (no meaningful data provided)
         (state as any).history[state.nightNumber][entry.roleId] = "skipped";
       }
     }
   }
 
-  /**
-   * Record that a role was used and process its effects
-   */
   private static recordRoleUsage(state: GameState, entry: any, result: any, roleDef: any, playerIds: number[]): void {
-    // Record power usage
     for (const playerId of playerIds) {
       GameStateManager.recordPowerUsage(state, entry.roleId, playerId);
     }
@@ -287,26 +239,18 @@ export class NightPhaseManager {
       data: result
     };
     
-    if (roleDef && typeof roleDef.resolve === 'function') {
-      // Each role's resolve function returns its own history object
+    if (roleDef?.resolve) {
       const roleHistory = roleDef.resolve(state as any, action);
-      
       if (roleHistory) {
-        // Store the role's history object
         (state as any).history[state.nightNumber][entry.roleId] = roleHistory;
       } else {
-        // Fallback to generic history if role doesn't return anything
         (state as any).history[state.nightNumber][entry.roleId] = NightPhaseManager.createGenericHistory(entry, result, playerIds, state.nightNumber);
       }
     } else {
-      // Role has no resolve function, create generic history
-              (state as any).history[state.nightNumber][entry.roleId] = NightPhaseManager.createGenericHistory(entry, result, playerIds, state.nightNumber);
+      (state as any).history[state.nightNumber][entry.roleId] = NightPhaseManager.createGenericHistory(entry, result, playerIds, state.nightNumber);
     }
   }
 
-  /**
-   * Create generic history object for roles without custom resolve function
-   */
   private static createGenericHistory(entry: any, result: any, playerIds: number[], nightNumber: number): any {
     return {
       type: `${entry.roleId}_action`,
@@ -318,36 +262,18 @@ export class NightPhaseManager {
     };
   }
 
-  /**
-   * Resolve the night phase and create summary
-   */
   static resolveNight(state: GameState, roles: RolesRegistry): void {
-    if (!state.night) return;
+    if (!state.night?.context) return;
     
-    // Ensure night context is properly initialized
-    if (!state.night.context) {
-      state.night.context = {
-        pendingKills: {},
-        savesBy: [],
-        checks: [],
-        calledRoles: []
-      };
-    }
-    
-    if (state.night.context) {
-      const summary = NightPhaseManager.createNightSummary(state);
-      state.night.summary = summary;
-      GameStateManager.recordNightDeaths(state, state.nightNumber, summary.died);
-    }
+    const summary = NightPhaseManager.createNightSummary(state);
+    state.night.summary = summary;
+    GameStateManager.recordNightDeaths(state, state.nightNumber, summary.died);
   }
 
-  /**
-   * Create night summary from the night context
-   */
   private static createNightSummary(state: GameState): any {
-    const context = state.night.context;
+    const context = state.night?.context;
+    if (!context) return { died: [], saved: [], targeted: [], resurrected: [], checks: [] };
     
-    // Get players who were dead at the start of the night
     const deadAtNightStart = (state as any).deadAtNightStart?.[state.nightNumber] || [];
     
     const summary: any = {
@@ -358,34 +284,32 @@ export class NightPhaseManager {
       checks: context.checks || []
     };
 
-    // Process pending kills (roles have already handled saves/immunities)
     if (context.pendingKills) {
       for (const [playerId, kills] of Object.entries(context.pendingKills)) {
         const pid = Number(playerId);
         const player = state.players.find(p => p.id === pid);
         if (player && player.alive && (kills as any[]).length > 0) {
-          // If there are any remaining kills, the player dies
           summary.died.push(pid);
           player.alive = false;
         }
       }
     }
 
-    // Build saved list from savesBy (for display purposes)
     if (context.savesBy) {
       for (const save of context.savesBy) {
-        if (!summary.saved.includes(save.target)) {
-          summary.saved.push(save.target);
+        if (typeof save === 'object' && save !== null && 'target' in save) {
+          const target = (save as any).target;
+          if (!summary.saved.includes(target)) {
+            summary.saved.push(target);
+          }
         }
       }
     }
 
-    // Process targeted players (for roles that don't kill but target)
     if (context.targeted) {
       summary.targeted = [...context.targeted];
     }
 
-    // Detect resurrected players: those who were dead at night start but are now alive
     for (const playerId of deadAtNightStart) {
       const player = state.players.find(p => p.id === playerId);
       if (player && player.alive) {
@@ -396,139 +320,39 @@ export class NightPhaseManager {
     return summary;
   }
 
-  /**
-   * Start the next night phase
-   */
   static startNextNight(state: GameState, roles: RolesRegistry): void {
     NightPhaseManager.beginNight(state, roles);
   }
 
-
-
-  /**
-   * Get the next role that should be called based on current player roles and phase order
-   * Get the next role that should be called based on current player roles and phase order
-   */
-  static getCurrentTurn(state: GameState): any {
-    if (!state.night) {
-      console.warn(`🌙 [WARNING] getCurrentTurn - No night state, creating one`);
-      NightPhaseManager.beginNight(state, {} as any);
-      return null;
-    }
+  private static reapplyPassiveEffects(state: GameState, roles: RolesRegistry): void {
+    console.log(`🌙 [DEBUG] reapplyPassiveEffects - Reapplying passive effects for all roles`);
     
-    if (!state.night.context) {
-      console.warn(`🌙 [WARNING] getCurrentTurn - No night context, creating one`);
-      state.night.context = {
-        pendingKills: {},
-        savesBy: [],
-        checks: [],
-        calledRoles: []
-      };
-    }
+    const uniqueRoles = new Set(state.players.map((p: any) => p.roleId));
     
-    try {
-      const { calledRoles } = state.night.context;
-      
-      if (!Array.isArray(calledRoles)) {
-        console.warn(`🌙 [WARNING] getCurrentTurn - calledRoles is not an array, converting from:`, calledRoles);
+    for (const roleId of uniqueRoles) {
+      const roleDef = roles[roleId];
+      if (roleDef && typeof roleDef.passiveEffect === 'function') {
+        const players = state.players.filter((p: any) => p.roleId === roleId);
         
-        let rolesArray: string[] = [];
-        if (calledRoles instanceof Set) {
-          rolesArray = Array.from(calledRoles);
-        } else if (calledRoles && typeof calledRoles === 'object') {
-          try {
-            rolesArray = Array.from(calledRoles as any);
-          } catch (e) {
-            console.warn(`🌙 [WARNING] Failed to convert calledRoles to array:`, e);
-            rolesArray = [];
-          }
-        }
-        
-        state.night.context.calledRoles = rolesArray;
-        console.log(`🌙 [INFO] Successfully converted calledRoles to array with ${rolesArray.length} items`);
-      }
-      
-      const uniqueRoles = new Set(state.players.map(p => p.roleId));
-      const availableRoles = [];
-      
-      for (const roleId of uniqueRoles) {
-        const roleDef = ROLES[roleId];
-        if (!roleDef) {
-          continue;
-        }
-        
-        const rolePlayers = state.players.filter(p => p.roleId === roleId);
-        if (rolePlayers.length === 0) {
-          continue;
-        }
-        
-        if (state.night.context.calledRoles.includes(roleId)) {
-          continue;
-        }
-        
-        const roleInfo = {
-          roleId,
-          roleDef,
-          players: rolePlayers,
-          phaseOrder: roleDef.phaseOrder !== undefined ? roleDef.phaseOrder : 'any'
-        };
-        
-        availableRoles.push(roleInfo);
-      }
-      
-      if (availableRoles.length === 0) {
-        return null;
-      }
-      
-      availableRoles.sort(NightPhaseManager.compareRolesByPhaseOrder);
-      
-      // Find the first role that actually needs a prompt (not actsAtNight: "never")
-      const nextRole = availableRoles.find(role => role.roleDef.actsAtNight !== 'never');
-      
-      if (!nextRole) {
-        // All remaining roles are actsAtNight: "never", process them and return null
-        for (const role of availableRoles) {
-          // Apply passive effects for roles with actsAtNight: "never"
-          if (typeof role.roleDef.passiveEffect === 'function') {
-            for (const player of role.players) {
-              if (player.alive) {
-                try {
-                  role.roleDef.passiveEffect(state as any, player);
-                } catch (error) {
-                  console.error(`Error in passive effect for ${role.roleId} (player ${player.id}):`, error);
+        for (const player of players) {
+          if (player.alive) {
+            try {
+              console.log(`🌙 [DEBUG] reapplyPassiveEffects - Reapplying passive effect for ${roleId} player ${player.name}`);
+              const result = roleDef.passiveEffect(state as any, player);
+              if (result != null) {
+                if (!(state as any).history[state.nightNumber]) {
+                  (state as any).history[state.nightNumber] = {};
                 }
+                (state as any).history[state.nightNumber][roleId] = result;
               }
+            } catch (error) {
+              console.error(`Error reapplying passive effect for ${roleId}:`, error);
             }
           }
-          
-          // Add them to turns array for proper restore order
-          if (!state.night.turns) state.night.turns = [];
-          (state.night.turns as any).push({
-            roleId: role.roleId,
-            playerIds: role.players.map(p => p.id),
-            phaseOrder: role.roleDef.phaseOrder,
-            timestamp: Date.now()
-          });
-          
-          // Mark them as called
-          if (!state.night.context.calledRoles.includes(role.roleId)) {
-            state.night.context.calledRoles.push(role.roleId);
-          }
         }
-        return null;
       }
-      
-      const turn = {
-        kind: 'group' as const,
-        roleId: nextRole.roleId,
-        playerIds: nextRole.players.map(p => p.id)
-      };
-      
-      return turn;
-      
-    } catch (error) {
-      console.error(`🌙 [DEBUG] Error in getCurrentTurn:`, error);
-      return null;
     }
+    
+    console.log(`🌙 [DEBUG] reapplyPassiveEffects - Completed reapplying passive effects`);
   }
 }

@@ -24,13 +24,20 @@ const lupo: RoleDef = {
     getPromptComponent: componentFactory('Lupo', "prompt"),
     getResolveDetailsComponent: componentFactory('Lupo', "details"),
     resolve(gameState: any, action: any) {
-        const id = Number(action?.data?.targetId || action?.result?.targetId);
-        if (Number.isFinite(id)) {
+        const targetIds = action?.data?.targetIds || action?.result?.targetIds || [];
+        
+        if (Array.isArray(targetIds) && targetIds.length > 0) {
             const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-            if (!pk[id]) pk[id] = [];
-            const hasLupoKill = pk[id].some(kill => kill.role === 'lupo');
-            if (!hasLupoKill) {
-                pk[id].push({ role: 'lupo' });
+            
+            for (const targetId of targetIds) {
+                const id = Number(targetId);
+                if (Number.isFinite(id) && id > 0) {
+                    if (!pk[id]) pk[id] = [];
+                    const hasLupoKill = pk[id].some(kill => kill.role === 'lupo');
+                    if (!hasLupoKill) {
+                        pk[id].push({ role: 'lupo' });
+                    }
+                }
             }
         }
         
@@ -39,7 +46,7 @@ const lupo: RoleDef = {
             nightNumber: gameState.nightNumber,
             roleId: 'lupo',
             playerIds: action.playerIds || [],
-            targetId: id,
+            targetIds: targetIds,
             data: action.data
         };
     },

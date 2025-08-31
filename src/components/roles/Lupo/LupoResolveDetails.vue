@@ -11,17 +11,12 @@ const props = defineProps({
 
 const wolfKills = computed(() => {
   // The entry is now the role-specific history object
-  if (!props.entry || !props.entry.targetId) return [];
+  if (!props.entry || !props.entry.targetIds) return [];
   
-  const targetId = Number(props.entry.targetId);
-  if (Number.isFinite(targetId) && targetId > 0) {
-    return [targetId];
-  }
-  
-  return [];
+  return props.entry.targetIds.filter(id => Number.isFinite(id) && id > 0);
 });
 
-	const wolves = computed(() => {
+const wolves = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
@@ -43,7 +38,7 @@ const representativeWolf = computed(() => {
   return {
     ...wolvesList[0],
     name: wolfNames.value, // Show all wolf names
-    		roleId: 'lupo'
+    roleId: 'lupo'
   };
 });
 
@@ -57,20 +52,26 @@ const attackAction = computed(() => {
 
 <template>
   <div class="space-y-4">
-    <div v-if="!wolfKills || wolfKills.length === 0" class="text-slate-400">Nessun attacco effettuato.</div>
+    <div v-if="!wolfKills || wolfKills.length === 0" class="p-4 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
+      <p class="text-neutral-400 text-base font-medium">
+        Nessun attacco effettuato
+      </p>
+      <p class="text-neutral-500 text-sm mt-1">
+        I Lupi hanno scelto di non attaccare nessuno
+      </p>
+    </div>
+    
     <div v-else class="space-y-3">
-      <div v-for="targetId in wolfKills" :key="targetId" class="space-y-3">
-        <RoleComparisonCard
-          :game-state="props.gameState"
-          :left-player="representativeWolf"
-          :right-player="props.gameState.players.find(p=>p.id===targetId)"
-          left-label="Lupi"
-          right-label="Bersaglio"
-          :center-content="{
-            action: attackAction
-          }"
-        />
-      </div>
+      <RoleComparisonCard
+        :game-state="props.gameState"
+        :left-player="representativeWolf"
+        :right-player="wolfKills.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
+        left-label="Lupi"
+        right-label="Bersagli"
+        :center-content="{
+          action: attackAction
+        }"
+      />
     </div>
   </div>
 </template>

@@ -1,6 +1,6 @@
 {
-  "version": "1.11.18",
-  "timestamp": 1756635023293,
+  "version": "1.11.17",
+  "timestamp": 1756633338116,
   "assets": [
     "/",
     "/index.html",
@@ -22,6 +22,6 @@
     "/workbox-*.js",
     "/registerSW.js"
   ],
-  "changelog": "Restored comprehensive Vite build patterns for complete PWA caching",
+  "changelog": "Fixed service worker caching for version.json and improved update mechanism",
   "minVersion": "1.0.0"
 }

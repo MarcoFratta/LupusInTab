@@ -3,7 +3,7 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import './style.css';
 import { router } from './router';
-import { cacheService } from './services/CacheService';
+import './registerSW';
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -12,9 +12,5 @@ app.use(pinia);
 app.use(router);
 
 app.mount('#app');
-
-cacheService.initialize().catch(error => {
-  console.error('Cache service failed to initialize:', error);
-});
 
 

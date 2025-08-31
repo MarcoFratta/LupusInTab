@@ -40,6 +40,7 @@
     "@capacitor/status-bar": "^7.0.2",
     "@headlessui/vue": "^1.7.23",
     "pinia": "^3.0.3",
+    "register-service-worker": "^1.7.2",
     "vue": "^3.3.4",
     "vue-router": "^4.3.2"
   },

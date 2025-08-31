@@ -13,90 +13,12 @@ import {
 import RoleCard from '../game/RoleCard.vue';
 import { useTeamBalance } from '../../composables/useTeamBalance';
 import { SetupTitle } from '../ui';
-import { useCache } from '../../composables/useCache';
-import { cacheService } from '../../services/CacheService';
-import { Capacitor } from '@capacitor/core';
 
 const store = useGameStore();
 const state = store.state as any;
 
 const { teamBalance } = useTeamBalance();
 const { canStart: canStartFromState } = useGameState();
-const { currentVersion, newVersion, forceUpdateCheck, isUpdating, clearCache: cacheClearCache, cacheLogs } = useCache();
-
-const isMobile = computed(() => Capacitor.isNativePlatform());
-
-const debugLogs = computed(() => cacheLogs.value);
-
-const addDebugLog = (message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info') => {
-  // This will now use the cache service logs
-  console.log(`Debug: ${message}`);
-};
-
-const clearDebugLogs = () => {
-  // Clear cache logs by clearing the cache
-  cacheClearCache();
-};
-
-const getLogClass = (type: string) => {
-  switch (type) {
-    case 'success': return 'text-green-400';
-    case 'error': return 'text-red-400';
-    case 'warning': return 'text-yellow-400';
-    default: return 'text-neutral-200';
-  }
-};
-
-const testCacheInit = async () => {
-  addDebugLog('Testing cache initialization...', 'info');
-  try {
-    // This will trigger the cache service initialization
-    addDebugLog('Triggering cache service initialization...', 'info');
-    await cacheService.initialize();
-    addDebugLog('Cache service initialization completed', 'success');
-  } catch (error) {
-    addDebugLog(`Cache init test failed: ${error}`, 'error');
-  }
-};
-
-const testNetworkCheck = async () => {
-  addDebugLog('Testing network connection...', 'info');
-  try {
-    const response = await fetch('https://httpbin.org/status/200');
-    if (response.ok) {
-      addDebugLog('Network test successful - internet connection available', 'success');
-    } else {
-      addDebugLog('Network test failed - no internet connection', 'error');
-    }
-  } catch (error) {
-    addDebugLog(`Network test failed: ${error}`, 'error');
-  }
-};
-
-const testVersionFetch = async () => {
-  addDebugLog('Testing version.json fetch...', 'info');
-  try {
-    const response = await fetch('https://lupus-in-tabula.vercel.app/version.json');
-    if (response.ok) {
-      const versionInfo = await response.json();
-      addDebugLog(`Version fetch successful: ${versionInfo.version}`, 'success');
-    } else {
-      addDebugLog(`Version fetch failed: HTTP ${response.status}`, 'error');
-    }
-  } catch (error) {
-    addDebugLog(`Version fetch failed: ${error}`, 'error');
-  }
-};
-
-const clearCache = async () => {
-  addDebugLog('Clearing cache...', 'warning');
-  try {
-    await cacheClearCache();
-    addDebugLog('Cache cleared successfully', 'success');
-  } catch (error) {
-    addDebugLog(`Cache clear failed: ${error}`, 'error');
-  }
-};
 
 const roleCounts = computed(() => ({ ...state.setup.rolesCounts }));
 const totalRolesSelected = computed(() => {
@@ -190,105 +112,6 @@ const sortedEnabledRoles = computed(() => {
     <!-- Setup Title -->
     <SetupTitle title="Configurazione" />
     
-    <!-- Cache Status Display (Mobile Only) -->
-    <div v-if="isMobile" class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
-      <div class="flex items-center justify-between text-sm">
-        <span class="text-neutral-400">Cache Status:</span>
-        <div class="flex items-center gap-2">
-          <span class="text-neutral-300">v{{ currentVersion || 'None' }}</span>
-          <span v-if="newVersion && newVersion !== currentVersion" class="text-violet-400">
-            → v{{ newVersion }}
-          </span>
-          <span v-if="isUpdating" class="text-yellow-400">Updating...</span>
-        </div>
-      </div>
-      <div class="mt-2 flex justify-end">
-        <button 
-          @click="forceUpdateCheck" 
-          :disabled="isUpdating"
-          class="px-3 py-1 text-xs bg-violet-600 hover:bg-violet-700 disabled:bg-neutral-600 rounded-lg transition-colors"
-        >
-          {{ isUpdating ? 'Checking...' : 'Check Updates' }}
-        </button>
-        <button 
-          @click="testVersionFetch" 
-          class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors ml-2"
-        >
-          Test Fetch
-        </button>
-      </div>
-    </div>
-
-    <!-- Browser Cache Info (Desktop Only) -->
-    <div v-else class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
-      <div class="text-center text-sm">
-        <span class="text-neutral-400">Browser Mode: </span>
-        <span class="text-neutral-300">Content updates automatically on refresh</span>
-        <div class="mt-1 text-xs text-neutral-500">
-          Cache system is only active on mobile devices
-        </div>
-      </div>
-    </div>
-
-    <!-- Cache Debug Card (Mobile Only) -->
-    <div v-if="isMobile" class="bg-neutral-800/50 border border-neutral-700/40 rounded-xl p-3 mx-4 sm:mx-0">
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="text-sm font-medium text-neutral-300">Cache Debug</h4>
-        <button 
-          @click="clearDebugLogs" 
-          class="px-2 py-1 text-xs bg-neutral-600 hover:bg-neutral-500 rounded transition-colors"
-        >
-          Clear Logs
-        </button>
-      </div>
-      
-      <!-- Debug Actions -->
-      <div class="flex flex-wrap gap-2 mb-3">
-        <button 
-          @click="testCacheInit" 
-          class="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-500 rounded transition-colors"
-        >
-          Test Init
-        </button>
-        <button 
-          @click="testNetworkCheck" 
-          class="px-2 py-1 text-xs bg-green-600 hover:bg-green-500 rounded transition-colors"
-        >
-          Test Network
-        </button>
-        <button 
-          @click="testVersionFetch" 
-          class="px-2 py-1 text-xs bg-purple-600 hover:bg-purple-500 rounded transition-colors"
-        >
-          Test Version
-        </button>
-        <button 
-          @click="clearCache" 
-          class="px-2 py-1 text-xs bg-red-600 hover:bg-red-500 rounded transition-colors"
-        >
-          Clear Cache
-        </button>
-      </div>
-
-      <!-- Debug Logs -->
-      <div class="bg-neutral-900/80 rounded-lg p-2 max-h-40 overflow-y-auto">
-        <div v-if="debugLogs.length === 0" class="text-xs text-neutral-500 text-center py-2">
-          No debug logs yet. Try the actions above or wait for auto-updates.
-        </div>
-        <div v-else class="space-y-1">
-          <div 
-            v-for="(log, index) in debugLogs" 
-            :key="index" 
-            class="text-xs font-mono"
-            :class="getLogClass(log.type)"
-          >
-            <span class="text-neutral-500">{{ log.time }}</span>
-            <span class="ml-2">{{ log.message }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Player Count and Start Button -->
     <!-- Quick Status Bar - Mobile Optimized -->
     <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 md:p-4">

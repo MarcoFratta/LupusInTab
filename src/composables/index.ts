@@ -1,7 +1,6 @@
 export { useGameLogic } from './useGameLogic';
 export { useGameState } from './useGameState';
 export { useNightPhase } from './useNightPhase';
-export { useCache } from './useCache';
+export { useNewRolesPopup } from './useNewRolesPopup';
 export { useTeamBalance } from './useTeamBalance';
 export { useWinLogic } from './useWinLogic';
-export { useNewRolesPopup } from './useNewRolesPopup';

@@ -13,7 +13,6 @@ import ButtonGroup from './components/ui/ButtonGroup.vue';
 import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
 import { useNewRolesPopup } from './composables';
-import { useCache } from './composables';
 
 
 const savedGameAtBoot = loadGameState();
@@ -76,7 +75,6 @@ const {
 initializeGameState();
 setupWatchers();
 
-const { initialize: initializeCache } = useCache();
 
 const {
 	showPopup: showNewRolesPopup,
@@ -84,23 +82,30 @@ const {
 	closePopup: closeNewRolesPopup
 } = useNewRolesPopup();
 
+const showUpdateNotification = ref(false);
+
 onMounted(() => {
 	// Wait a bit more for any async operations to complete
 	setTimeout(() => {
 		checkForSavedGames();
 	}, 200);
 	
-	// Initialize cache service only on mobile platforms
-	if (Capacitor.isNativePlatform()) {
-		console.log('App: Mobile platform detected, initializing cache service');
-		initializeCache();
-	} else {
-		console.log('App: Browser platform detected, skipping cache service initialization');
-	}
-	
 	// Add capacitor-mobile class to body for scrollbar hiding
 	document.body.classList.add('capacitor-mobile');
+	
+	// Listen for service worker update events
+	document.addEventListener('swUpdated', () => {
+		showUpdateNotification.value = true;
+	});
+	
+	document.addEventListener('swOffline', () => {
+		console.log('App is now offline');
+	});
 });
+
+const refreshApp = () => {
+	window.location.reload();
+};
 
 // Handle bottom navigation conditional CSS classes
 watch(
@@ -137,6 +142,22 @@ function resumeGame() {
 	<!-- Role Details Page -->
 	<RoleDetails v-if="isRoleDetails" />
 	
+	<!-- PWA Update Notification -->
+	<div v-if="showUpdateNotification" class="fixed top-4 left-4 right-4 z-50 bg-violet-600 text-white p-4 rounded-lg shadow-lg">
+		<div class="flex items-center justify-between">
+			<div>
+				<h3 class="font-semibold">App Update Available</h3>
+				<p class="text-sm opacity-90">A new version of the app is ready. Refresh to get the latest features.</p>
+			</div>
+			<button 
+				@click="refreshApp" 
+				class="bg-white text-violet-600 px-4 py-2 rounded-lg font-medium hover:bg-violet-50 transition-colors"
+			>
+				Refresh Now
+			</button>
+		</div>
+	</div>
+
 	<!-- Main Game Container -->
 	<div v-if="!isRoleDetails" class="w-full min-h-full bg-neutral-950 sm:max-w-4xl
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl

@@ -8,11 +8,13 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             workbox: {
+                skipWaiting: true,
+                clientsClaim: true,
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
                 runtimeCaching: [
                     {
                         urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/.*/i,
-                        handler: 'CacheFirst',
+                        handler: 'StaleWhileRevalidate',
                         options: {
                             cacheName: 'lupus-in-tabula-api',
                             expiration: {

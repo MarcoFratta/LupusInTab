@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.13.1...v1.13.2) (2025-08-31)
+
+
+### Bug Fixes
+
+* fix mutaforma ([68c2230](https://github.com/MarcoFratta/LupusInTab/commit/68c2230a861c8ee965a5277a48fed91d7b9f4fac))
+
 ## [1.13.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.13.0...v1.13.1) (2025-08-31)
 
 

@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.19...v1.12.0) (2025-08-31)
+
+
+### Features
+
+* add Ammaestratore ([f5ed5a0](https://github.com/MarcoFratta/LupusInTab/commit/f5ed5a024a46738f75bc131986037ce55786e1cf))
+
 ## [1.11.19](https://github.com/MarcoFratta/LupusInTab/compare/v1.11.18...v1.11.19) (2025-08-31)
 
 

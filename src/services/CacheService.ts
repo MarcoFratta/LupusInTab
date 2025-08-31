@@ -33,6 +33,7 @@ interface UpdateProgress {
 }
 
 type UpdateProgressCallback = (progress: UpdateProgress) => void;
+type LogCallback = (message: string, type: 'info' | 'success' | 'error' | 'warning') => void;
 
 const CACHE_KEY = 'website_cache';
 
@@ -41,9 +42,21 @@ class CacheService {
   private currentVersion: string | null = null;
   private updateInterval: NodeJS.Timeout | null = null;
   private progressCallback: UpdateProgressCallback | null = null;
+  private logCallback: LogCallback | null = null;
 
   setProgressCallback(callback: UpdateProgressCallback): void {
     this.progressCallback = callback;
+  }
+
+  setLogCallback(callback: LogCallback): void {
+    this.logCallback = callback;
+  }
+
+  private log(message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info'): void {
+    console.log(`Cache service [${type}]:`, message);
+    if (this.logCallback) {
+      this.logCallback(message, type);
+    }
   }
 
   private updateProgress(current: number, total: number, status: string): void {
@@ -53,36 +66,46 @@ class CacheService {
   }
 
   async initialize(): Promise<void> {
+    this.log('Initialize called', 'info');
+    this.log(`Capacitor.isNativePlatform() = ${Capacitor.isNativePlatform()}`, 'info');
+    this.log(`this.isMobile = ${this.isMobile}`, 'info');
+    
     if (!this.isMobile) {
-      console.log('Cache service: Not on mobile platform, skipping initialization');
+      this.log('Not on mobile platform, skipping initialization', 'info');
       return;
     }
 
-    console.log('Cache service: Initializing on mobile platform...');
+    this.log('Initializing on mobile platform...', 'info');
 
     try {
+      this.log('Checking internet connection...', 'info');
       const isConnected = await this.checkInternetConnection();
+      this.log(`Internet connection status: ${isConnected}`, isConnected ? 'success' : 'warning');
+      
       if (!isConnected) {
-        console.log('Cache service: No internet connection, using existing cache');
+        this.log('No internet connection, using existing cache', 'warning');
         return;
       }
 
-      console.log('Cache service: Internet connection available, checking for updates...');
+      this.log('Internet connection available, checking for updates...', 'info');
       await this.checkForUpdates();
       
       // Start automatic periodic updates
+      this.log('Starting automatic updates...', 'info');
       this.startAutomaticUpdates();
     } catch (error) {
-      console.error('Cache service: Failed to initialize:', error);
+      this.log(`Failed to initialize: ${error}`, 'error');
     }
   }
 
   private async checkInternetConnection(): Promise<boolean> {
     try {
+      this.log('Checking network status...', 'info');
       const status = await Network.getStatus();
+      this.log(`Network status: ${JSON.stringify(status)}`, 'info');
       return status.connected;
     } catch (error) {
-      console.error('Failed to check network status:', error);
+      this.log(`Failed to check network status: ${error}`, 'error');
       return false;
     }
   }
@@ -991,6 +1014,10 @@ class CacheService {
         throw new Error('No internet connection available');
       }
 
+      console.log('Cache service: Clearing existing cache...');
+      await this.clearCache();
+      
+      console.log('Cache service: Performing fresh cache...');
       await this.checkForUpdates();
       console.log('Cache service: Force update completed');
     } catch (error) {

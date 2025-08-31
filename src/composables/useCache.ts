@@ -9,6 +9,18 @@ export function useCache() {
   const updateProgress = ref<{ current: number; total: number; status: string } | null>(null);
   const currentVersion = ref<string>('');
   const newVersion = ref<string>('');
+  const cacheLogs = ref<Array<{ time: string; message: string; type: 'info' | 'success' | 'error' | 'warning' }>>([]);
+
+  const addCacheLog = (message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info') => {
+    cacheLogs.value.unshift({
+      time: new Date().toLocaleTimeString(),
+      message,
+      type
+    });
+    if (cacheLogs.value.length > 100) {
+      cacheLogs.value = cacheLogs.value.slice(0, 100);
+    }
+  };
 
   const initialize = async () => {
     if (isInitialized.value) return;
@@ -19,16 +31,19 @@ export function useCache() {
         updateProgress.value = progress;
         if (progress.current === 0) {
           isUpdating.value = true;
-          // Update version information when update starts
           updateCacheInfo();
         } else if (progress.current === progress.total) {
           setTimeout(() => {
             isUpdating.value = false;
             updateProgress.value = null;
-            // Update cache info after update completes
             updateCacheInfo();
           }, 1000);
         }
+      });
+
+      // Set up log callback
+      cacheService.setLogCallback((message, type) => {
+        addCacheLog(message, type);
       });
       
       await cacheService.initialize();
@@ -36,6 +51,7 @@ export function useCache() {
       await updateCacheInfo();
     } catch (error) {
       console.error('Failed to initialize cache:', error);
+      addCacheLog(`Failed to initialize cache: ${error}`, 'error');
     }
   };
 
@@ -93,6 +109,19 @@ export function useCache() {
     return await cacheService.getServerVersion();
   };
 
+  const forceUpdateCheck = async () => {
+    try {
+      // Assuming addLog is defined elsewhere or will be added
+      // addLog('Manual update check requested'); 
+      await cacheService.forceUpdateNow();
+      await updateCacheInfo();
+      // addLog('Manual update check completed');
+    } catch (error) {
+      // addLog(`Manual update check failed: ${error}`);
+      throw error;
+    }
+  };
+
   onMounted(() => {
     initialize();
   });
@@ -112,6 +141,9 @@ export function useCache() {
     updateCacheInfo,
     forceUpdate,
     getCurrentVersion,
-    getServerVersion
+    getServerVersion,
+    forceUpdateCheck,
+    cacheLogs,
+    addCacheLog
   };
 }

@@ -1,13 +1,5 @@
 {
-  "static": {
-    "public": "public"
-  },
-  "rewrites": [
-    {
-      "source": "/version.json",
-      "destination": "/public/version.json"
-    }
-  ],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "headers": [
     {
       "source": "/version.json",

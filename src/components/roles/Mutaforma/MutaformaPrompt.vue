@@ -117,7 +117,8 @@ function mutaformaCanUseTargetRole(role: any) {
   
   // Role can only start from a certain night
   if (role.startNight && typeof role.startNight === 'number') {
-    if (props.gameState.nightNumber < role.startNight) return false;
+     const startNight = props.gameState.settings.skipFirstNightActions ? role.startNight + 1 : role.startNight;
+    if (props.gameState.nightNumber < startNight) return false;
   }
   
   // Role has usage limits that are already exhausted
@@ -230,7 +231,8 @@ function completeWithUnusableRole() {
   } else if (targetRole.value?.actsAtNight === 'dead') {
     reason = 'alive';
   } else if (targetRole.value?.startNight && typeof targetRole.value.startNight === 'number') {
-    if (props.gameState.nightNumber < targetRole.value.startNight) {
+    const startNight = props.gameState.settings.skipFirstNightActions ? targetRole.value.startNight + 1 : targetRole.value.startNight;
+    if (props.gameState.nightNumber < startNight) {
       reason = 'startNight';
     }
   } else if (targetRole.value?.numberOfUsage !== 'unlimited' && targetRole.value?.numberOfUsage !== undefined) {
@@ -287,8 +289,10 @@ function getRoleConstraintReason() {
   }
 
   if (targetRole.value.startNight && typeof targetRole.value.startNight === 'number') {
-    if (props.gameState.nightNumber < targetRole.value.startNight) {
-      return `Questo ruolo può essere utilizzato solo a partire dalla notte ${targetRole.value.startNight}.`;
+    const startNight = props.gameState.settings.skipFirstNightActions ? targetRole.value.startNight + 1 :
+        targetRole.value.startNight;
+    if (props.gameState.nightNumber < startNight) {
+      return `Questo ruolo può essere utilizzato solo a partire dalla notte ${startNight}.`;
     }
   }
  console.log('checking -> ' + targetRole.value.id)

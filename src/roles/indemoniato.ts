@@ -6,7 +6,7 @@ const indemoniato: RoleDef = {
     name: 'Indemoniato',
     team: 'lupi',
     visibleAsTeam: 'villaggio',
-    score: 2,
+    score: 4,
     countAs: 'villaggio',
     description: 'Villico che gioca per i lupi. Vince se i lupi vincono.',
     color: '#581c87',

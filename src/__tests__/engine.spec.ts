@@ -76,16 +76,16 @@ describe('engine setup', () => {
   it('creates empty state with defaults', () => {
     const s = createEmptyState();
     expect(s.phase).toBe('setup');
-    expect(s.setup.numPlayers).toBe(9);
-    expect(s.setup.numPlayers).toBe(9);
+    expect(s.setup.numPlayers).toBe(10);
+    expect(s.setup.numPlayers).toBe(10);
     expect(s.settings.skipFirstNightActions).toBe(true);
   });
 
   it('initializes players and role counts', () => {
     const s = createEmptyState();
     initSetupPlayers(s);
-    expect(s.setup.players.length).toBe(9);
-    expect(s.setup.players.length).toBe(9);
+    expect(s.setup.players.length).toBe(10);
+    expect(s.setup.players.length).toBe(10);
     initDefaultRolesCounts(s);
     normalizeRoleCounts(s);
     expect(Object.values(s.setup.rolesCounts).reduce((a, b) => a + (b || 0), 0)).toBe(s.setup.numPlayers);
@@ -114,10 +114,10 @@ describe('engine flow', () => {
   it('assigns roles on reveal', () => {
     const s = createEmptyState();
     initSetupPlayers(s);
-            s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 1, villico: 2 } as any;
+            s.setup.rolesCounts = { lupo: 2, guardia: 1, veggente: 1, villico: 4, medium: 1, indemoniato: 1 } as any;
     beginReveal(s as any, ROLE_LIST as any, fakeShuffle);
-    expect(s.players.length).toBe(9);
-    expect(s.players.length).toBe(9);
+    expect(s.players.length).toBe(10);
+    expect(s.players.length).toBe(10);
     expect(s.phase).toBe('revealRoles');
   });
 

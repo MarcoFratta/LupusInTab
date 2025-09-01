@@ -42,7 +42,7 @@ const mutaforma: RoleDef = {
     countAs: 'alieni',
     score: 35,
     description: 'Di notte può copiare il potere di un altro giocatore, solo per quella notte.' +
-' Se almeno un'altra fazione perde tutti i suoi membri, lui non può più usare il suo ruolo e la prossima notte morirà',
+" Se almeno un'altra fazione perde tutti i suoi membri, lui non può più usare il suo ruolo e la prossima notte morirà",
     color: '#10b981',
     phaseOrder: 2,
     actsAtNight: "alive",

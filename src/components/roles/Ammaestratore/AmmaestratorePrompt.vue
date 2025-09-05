@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 
-const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any,playerIds: number[], onComplete: (r:any)=>void }>();
 
 const targetId = ref<number | null>(null);
 const choices = computed(() => {

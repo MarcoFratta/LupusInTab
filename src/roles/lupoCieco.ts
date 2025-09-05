@@ -1,6 +1,7 @@
 import type { RoleDef } from '../types';
 import { wolvesWin } from '../utils/winConditions';
 import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from '../utils/roleAPI';
 
 export const lupoCieco: RoleDef = {
     id: 'lupoCieco',
@@ -10,7 +11,14 @@ export const lupoCieco: RoleDef = {
     score: 14,
     countAs: 'lupi',
     color: '#7c2d12',
-    description: 'Può investigare 3 giocatori contigui per scoprire se tra loro c\'è almeno un lupo. Se tutti i lupi sono morti, può anche uccidere.',
+    description: 'Investiga 3 giocatori contigui per trovare lupi',
+    longDescription: `Il Lupo Cieco può investigare gruppi di giocatori per trovare lupi.
+
+COME FUNZIONA:
+• Può investigare 3 giocatori contigui per scoprire se c'è almeno un lupo
+• Se tutti i lupi sono morti, può anche uccidere un giocatore
+• L'azione è obbligatoria: deve investigare ogni notte
+• Può iniziare ad agire dalla 2ª notte`,
     phaseOrder: 2,
     actsAtNight: "alive",
     effectType: 'required',
@@ -18,19 +26,20 @@ export const lupoCieco: RoleDef = {
     startNight: 2,
     getPromptComponent: componentFactory('LupoCieco', "prompt"),
     getResolveDetailsComponent: componentFactory('LupoCieco', "details"),
+    
     resolve(gameState: any, action: any) {
         const investigationTargets = action?.data?.investigationTargets || [];
         const killTargetId = action?.data?.killTargetId;
         
         // Helper function to get all lupi players (including grouped roles)
         function getLupiPlayers() {
-            const directLupi = gameState.players.filter((p: any) => p.roleId === 'lupo');
+            const directLupi = RoleAPI.getAlivePlayersWithRole('lupo');
             const groupedLupi = [];
             
             if (gameState.groupings) {
                 for (const grouping of gameState.groupings) {
                     if (grouping.fromRole === 'lupo') {
-                        const groupedRolePlayers = gameState.players.filter((p: any) => p.roleId === grouping.toRole);
+                        const groupedRolePlayers = RoleAPI.getAlivePlayersWithRole(grouping.toRole);
                         groupedLupi.push(...groupedRolePlayers);
                     }
                 }
@@ -45,19 +54,14 @@ export const lupoCieco: RoleDef = {
         let investigationResult = null;
         if (investigationTargets && investigationTargets.length === 3) {
             const hasLupiAmongTargets = investigationTargets.some((targetId: number) => {
-                const player = gameState.players.find((p: any) => p.id === targetId);
+                const player = RoleAPI.getPlayer(targetId);
                 return player && (player.roleState?.visibleAsTeam === 'lupi' || player.roleState?.team === 'lupi');
             });
             investigationResult = hasLupiAmongTargets;
         }
         
         if (killTargetId && !hasLupiAlive) {
-            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-            if (!pk[killTargetId]) pk[killTargetId] = [];
-            const hasLupoCiecoKill = pk[killTargetId].some(kill => kill.role === 'lupo');
-            if (!hasLupoCiecoKill) {
-                pk[killTargetId].push({ role: 'lupo' });
-            }
+            RoleAPI.addKill(killTargetId, 'lupo');
         }
         
         return {

@@ -40,7 +40,7 @@ const representativeGuardia = computed(() => {
 <template>
   <div class="space-y-4">
     <div v-if="doctorChoices.length" class="space-y-3">
-      <div v-for="s in doctorChoices" :key="'dc-' + props.player.id + '-' + s.target" class="space-y-3">
+      <div v-for="s in doctorChoices" :key="'dc-' + s.target" class="space-y-3">
         <RoleComparisonCard
           :game-state="props.gameState"
           :left-player="representativeGuardia"

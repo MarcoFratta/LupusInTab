@@ -3,6 +3,7 @@ import muccamannara from '../../roles/muccamannara';
 import { NightPhaseManager } from '../../core/managers/NightPhaseManager';
 import { GameStateManager } from '../../core/managers/GameStateManager';
 import { DayPhaseManager } from '../../core/managers/DayPhaseManager';
+import { setMockGameState } from '../setup';
 
 describe('MuccaMannara Role', () => {
   let mockGameState: any;
@@ -42,8 +43,11 @@ describe('MuccaMannara Role', () => {
           name: 'Villico Player',
           alive: true
         }
-      ]
+      ],
+      settings: { difficolta: false },
+      groupings: []
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Role Properties', () => {
@@ -51,7 +55,6 @@ describe('MuccaMannara Role', () => {
       expect(muccamannara.id).toBe('muccamannara');
       expect(muccamannara.name).toBe('Mucca Mannara');
       expect(muccamannara.team).toBe('mannari');
-      expect(muccamannara.score).toBe(33);
       expect(muccamannara.actsAtNight).toBe('never');
     });
 

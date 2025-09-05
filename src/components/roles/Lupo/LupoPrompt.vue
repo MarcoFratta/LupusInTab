@@ -1,44 +1,49 @@
 <script setup>
-import { computed, ref } from 'vue';
-import PromptSelect from '../../ui/prompts/PromptSelect.vue';
+import { computed } from 'vue';
+import { useGameStore } from '../../../stores/game';
+import GenericTargetSelectPrompt from '../../ui/prompts/GenericTargetSelectPrompt.vue';
 
 const props = defineProps({
-	gameState: { type: Object, required: true },
-	player: { type: Object, required: false },
-	playerIds: { type: Array, required: true },
-	onComplete: { type: Function, required: true },
+    gameState: { type: Object, required: true },
+    playerIds: { type: Array, required: true },
+    onComplete: { type: Function, required: true }
 });
 
-const targetId = ref(null);
-const selectable = computed(() => {
-	return props.gameState.players.filter(p => p.alive && !props.playerIds.includes(p.id));
-});
-const choices = computed(() => [
-	{ label: 'Seleziona un giocatore…', value: null },
-	...selectable.value.map((p) => ({ label: p.name, value: p.id }))
-]);
+const store = useGameStore();
+const state = store.state;
 
-function submit() {
-	props.onComplete({ targetIds: targetId.value ? [targetId.value] : [] });
+const choices = computed(() => {
+	const alivePlayers = state.players.filter((p) =>
+		p && p.alive && !props.playerIds.includes(p.id)
+	);
+
+	return alivePlayers.map((p) => ({
+		label: p.name,
+		value: p.id
+	}));
+});
+
+function handleComplete(data) {
+	const result = { 
+		targetIds: data.targetId ? [data.targetId] : [],
+		targetId: data.targetId || 0,
+		killerRole: 'lupo',
+		killerPlayerId: props.playerIds[0] || 0
+	};
+	props.onComplete(result);
 }
 </script>
 
 <template>
-    <div class="space-y-6">
-        <div class="text-center space-y-3">
-            <p class="text-neutral-400 text-base font-medium">Scegliete una vittima da eliminare questa notte</p>
-        </div>
-        
-        <PromptSelect
-            label="Chi vuoi eliminare?"
-            v-model="targetId"
-            :choices="choices"
-            buttonText="Conferma selezione"
-            accent="red"
-            :disabled="choices.length === 0"
-            @confirm="submit"
-        />
-    </div>
+    <GenericTargetSelectPrompt
+        title="Lupo"
+        description="Scegliete una vittima da eliminare questa notte"
+        label="Chi vuoi eliminare?"
+        buttonText="Conferma selezione"
+        accent="red"
+        :choices="choices"
+        @complete="handleComplete"
+    />
 </template>
 
 

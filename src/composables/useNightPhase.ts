@@ -155,9 +155,16 @@ export function useNightPhase() {
     const currentGroupNames = computed(() => {
         const entry = currentTurn.value;
         if (!entry) return null as string[] | null;
-        return entry.playerIds
-            .map((id: number) => state.players.find(p => p.id === id)?.name)
-            .filter((n: string | undefined): n is string => !!n);
+        
+        // Deduplicate player IDs to prevent duplicate keys in Vue template
+        const uniquePlayerIds = [...new Set(entry.playerIds)];
+        
+        return uniquePlayerIds
+            .map((id: number) => {
+                const player = state.players.find(p => p.id === id);
+                return player ? { name: player.name, id: player.id } : null;
+            })
+            .filter((p): p is { name: string; id: number } => !!p);
     });
 
     const roleDisplayInfo = computed(() => {

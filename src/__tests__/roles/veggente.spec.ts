@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import veggente from '../../roles/veggente';
+import { setMockGameState } from '../setup';
 
 describe('Veggente Role', () => {
   let mockGameState: any;
@@ -14,10 +15,14 @@ describe('Veggente Role', () => {
           lupomannaro: true
         }
       },
+      settings: {
+        difficolta: false
+      },
       nightNumber: 1,
       night: {
         context: {
-          checks: []
+          checks: [],
+          pendingKills: {}
         }
       },
       players: [
@@ -50,19 +55,21 @@ describe('Veggente Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should investigate alive player faction', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
 
       const result = veggente.resolve(mockGameState, action);
 
-      expect(mockGameState.night.context.checks).toHaveLength(0);
+      expect(mockGameState.night.context.checks).toHaveLength(1);
       expect(result).toBeDefined();
       expect(result.type).toBe('veggente_action');
       expect(result.discoveredFaction).toBe('villaggio');
@@ -71,13 +78,14 @@ describe('Veggente Role', () => {
     it('should handle lupomannaro special rule', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 4 },
         used: true
       };
 
       const result = veggente.resolve(mockGameState, action);
 
-      expect(mockGameState.night.context.checks).toHaveLength(0);
+      expect(mockGameState.night.context.checks).toHaveLength(1);
       expect(result).toBeDefined();
       expect(result.discoveredFaction).toBe('villaggio');
     });
@@ -85,6 +93,7 @@ describe('Veggente Role', () => {
     it('should handle invalid target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 'invalid' },
         used: true
       };
@@ -98,6 +107,7 @@ describe('Veggente Role', () => {
     it('should handle missing target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: {},
         used: true
       };
@@ -111,6 +121,7 @@ describe('Veggente Role', () => {
     it('should handle non-existent target', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 999 },
         used: true
       };
@@ -124,6 +135,7 @@ describe('Veggente Role', () => {
     it('should use visibleAsTeam when available', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 2 },
         used: true
       };
@@ -145,6 +157,7 @@ describe('Veggente Role', () => {
 
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 5 },
         used: true
       };
@@ -165,6 +178,7 @@ describe('Veggente Role', () => {
 
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 6 },
         used: true
       };
@@ -186,6 +200,7 @@ describe('Veggente Role', () => {
     it('should add pending kill when investigating lupomannaro', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 4 },
         used: true
       };
@@ -220,6 +235,7 @@ describe('Veggente Role', () => {
 
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 5 },
         used: true
       };
@@ -244,6 +260,7 @@ describe('Veggente Role', () => {
     it('should not add pending kill when investigating non-mannari players', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 2 },
         used: true
       };
@@ -264,6 +281,7 @@ describe('Veggente Role', () => {
     it('should handle multiple pending kills for the same target', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 4 },
         used: true
       };
@@ -294,9 +312,17 @@ describe('Veggente Role', () => {
 
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 4 },
         used: true
       };
+
+      // Ensure gameState has proper structure for checkPlayerRole
+      mockGameState.settings = { difficolta: false };
+      mockGameState.groupings = [];
+
+      // Update the mock game state after deleting context
+      setMockGameState(mockGameState);
 
       const result = veggente.resolve(mockGameState, action);
 

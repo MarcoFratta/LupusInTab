@@ -5,18 +5,17 @@ import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
-    player: { type: Object, required: true },
     playerIds: { type: Array, required: true },
-    onComplete: { type: Function, required: true },
+    onComplete: { type: Function, required: true }
 });
 
 const hasActed = computed(() => {
     const used = props.gameState.usedPowers?.['justicer'] || [];
-    return used.includes(props.player.id);
+    return props.playerIds.some(playerId => used.includes(playerId));
 });
 
 const targetId = ref(null);
-const selectable = computed(() => props.gameState.players.filter(p => p.alive && p.id !== props.player.id && !props.playerIds.includes(p.id)));
+const selectable = computed(() => props.gameState.players.filter(p => p.alive && !props.playerIds.includes(p.id)));
 const choices = computed(() => [
     { label: 'Seleziona un giocatore…', value: null },
     ...selectable.value.map((p) => ({ label: p.name, value: p.id }))

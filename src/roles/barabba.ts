@@ -1,6 +1,7 @@
 import type { RoleDef } from '../types';
 import { villageWin } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from '../utils/roleAPI';
 
 const barabba: RoleDef = {
     id: 'barabba',
@@ -9,7 +10,14 @@ const barabba: RoleDef = {
     visibleAsTeam: 'villaggio',
     score: 6,
     countAs: 'villaggio',
-    description: 'Quando è morto, può portare con sé un giocatore nell\'aldilà una volta per partita.',
+    description: 'Porta un giocatore nell\'aldilà quando è morto',
+    longDescription: `Barabba può portare un giocatore nell'aldilà quando è morto.
+
+COME FUNZIONA:
+• Quando è morto, può portare con sé un giocatore nell'aldilà
+• L'azione è opzionale: può scegliere di non usarla
+• Può essere usata solo una volta per partita
+• Il giocatore scelto muore immediatamente`,
     color: '#c4b5fd',
     phaseOrder: "any",
     actsAtNight: "dead",
@@ -17,13 +25,12 @@ const barabba: RoleDef = {
     numberOfUsage: 1,
     getPromptComponent: componentFactory('Barabba', "prompt"),
     getResolveDetailsComponent: componentFactory('Barabba', "details"),
+    
     resolve(gameState: any, action: any) {
         const id = Number(action?.data?.targetId);
         if (!Number.isFinite(id)) return;
         
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-        if (!pk[id]) pk[id] = [];
-        pk[id].push({ role: 'barabba' });
+        RoleAPI.addKill(id, 'barabba');
 
         return {
             type: 'barabba_action',
@@ -34,6 +41,7 @@ const barabba: RoleDef = {
             data: action.data
         };
     },
+    
     checkWin(gameState: any) {
         return villageWin(gameState);
     },

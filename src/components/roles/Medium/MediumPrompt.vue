@@ -5,7 +5,6 @@ import DisplayFaction from '../../ui/DisplayFaction.vue';
 
 interface Props {
     gameState: any;
-    player: any;
     playerIds: number[];
     onComplete: (r: any) => void;
 }

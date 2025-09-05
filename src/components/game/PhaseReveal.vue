@@ -4,6 +4,7 @@ import RoleRevealCard from './RoleRevealCard.vue';
 import RoleReseeCard from './RoleReseeCard.vue';
 import { nextReveal as engineNextReveal } from '../../core/engine';
 import { getFactionConfig } from '../../factions';
+import { shouldRolesKnowEachOther, getRevealRoleLabel } from '../../utils/revealUtils';
 import FactionLabel from '../ui/FactionLabel.vue';
 import { ROLES } from '../../roles';
 import { SetupTitle, LongPressButton, PassPhoneCard } from '../ui';
@@ -120,14 +121,22 @@ const knownRoleAllies = computed(() => {
     const otherRoleDef = ROLES[p.roleId];
     if (!otherRoleDef) continue;
     
-    if (otherRoleDef.id === myRoleDef.id) {
+    // Check if roles should know each other (considering groupings)
+    if (shouldRolesKnowEachOther(myRoleDef.id, otherRoleDef.id, props.state)) {
       const myRoleState = me.roleState;
       const otherRoleState = p.roleState;
       
+      // If roles are grouped, they should know each other regardless of actsAtNight
+      // If roles are not grouped, apply the normal actsAtNight checks
+      const areGrouped = myRoleDef.id !== otherRoleDef.id; // Different roles means they're grouped
+      
       if (myRoleState && otherRoleState && 
-          myRoleState.actsAtNight !== "never" && 
-          otherRoleState.actsAtNight !== "never") {
-        const labelText = otherRoleDef.name;
+          (areGrouped || (myRoleState.actsAtNight !== "never" && otherRoleState.actsAtNight !== "never")) &&
+          otherRoleState.actsAtNight !== "blocked") {
+        // Use the grouped role name for display if applicable
+        const displayRoleId = getRevealRoleLabel(otherRoleDef.id, props.state);
+        const displayRoleDef = ROLES[displayRoleId] || otherRoleDef;
+        const labelText = displayRoleDef.name;
         result.push({ 
           id: p.id, 
           name: p.name, 
@@ -137,6 +146,7 @@ const knownRoleAllies = computed(() => {
       }
     }
   }
+  
   return result;
 });
 

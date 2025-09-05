@@ -1,52 +1,50 @@
 import { defineStore } from 'pinia';
 import { reactive } from 'vue';
-import type { GameHistory, Player, NightContext } from '../types';
+import type { 
+	GameState, 
+	Player, 
+	NightContext, 
+	NightTurn, 
+	NightSummary, 
+	DaySummary,
+	Phase 
+} from '../types';
 import { DEFAULT_ROLES_CONFIG } from '../config/defaultRoles';
 
-export type Phase = 'setup' | 'revealRoles' | 'preNight' | 'night' | 'resolve' | 'day' | 'end';
-
-export interface RoleMeta { id: string; name: string; team: string; visibleAsTeam?: string; phaseOrder: number | string; usage?: 'unlimited' | 'once' | 'requiredEveryNight'; canTargetDead?: boolean }
+export interface RoleMeta { 
+	id: string; 
+	name: string; 
+	team: string; 
+	visibleAsTeam?: string; 
+	phaseOrder: number | string; 
+	usage?: 'unlimited' | 'once' | 'requiredEveryNight'; 
+	canTargetDead?: boolean 
+}
 
 export interface NightTurnSingle { kind: 'single'; roleId: string; playerId: number }
 export interface NightTurnGroup { kind: 'group'; roleId: string; playerIds: number[] }
 export type NightTurn = NightTurnSingle | NightTurnGroup;
 
-export interface NightSummary { targeted: number[]; saved: number[]; died: number[]; resurrected: number[]; checks: Array<{by:number; target:number; team:string}> }
-
-export interface DaySummary { lynched: number | null; day: number; }
-
-
-
-export interface GameState {
-	phase: Phase;
-	nightNumber: number;
-	dayNumber: number;
-	players: Player[];
-	setup: { numPlayers: number; players: Array<{ name: string }>; rolesCounts: Record<string, number>; rolesEnabled: Record<string, boolean> };
-	revealIndex: number;
-	night: { turns: NightTurn[]; currentIndex: number; results: any[]; context: NightContext | null; summary: NightSummary | null };
-	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean };
-    sindacoId: number | null;
-	winner: string | null;
-    lynchedHistory?: number[];
-    usedPowers?: Record<string, number[]>;
-    showRoleResee?: boolean;
-    groupings?: Array<{ fromRole: string; toRole: string }>;
-    revealPhaseState?: {
-        showIntro: boolean;
-        showPreNightInfo: boolean;
-        showRoleReveal: boolean;
-        roleRevealed: boolean;
-    };
-
-    custom?: Record<string, any>;
-    history?: GameHistory;
-    nightDeathsByNight?: Record<number, number[]>;
-    lynchedHistoryByDay?: Record<number, number[]>;
+// Extended GameState interface for the store with additional properties
+export interface StoreGameState extends GameState {
+	night: { 
+		turns: NightTurn[]; 
+		currentIndex: number; 
+		results: unknown[]; 
+		context: NightContext | null; 
+		summary: NightSummary | null 
+	};
+	showRoleResee?: boolean;
+	revealPhaseState?: {
+		showIntro: boolean;
+		showPreNightInfo: boolean;
+		showRoleReveal: boolean;
+		roleRevealed: boolean;
+	};
 }
 
 export const useGameStore = defineStore('game', () => {
-	const state = reactive<GameState>({
+	const state = reactive<StoreGameState>({
 		phase: 'setup',
 		nightNumber: 0,
 		dayNumber: 0,
@@ -54,7 +52,7 @@ export const useGameStore = defineStore('game', () => {
 		setup: { numPlayers: DEFAULT_ROLES_CONFIG.defaultPlayerCount, players: [], rolesCounts: {}, rolesEnabled: { ...DEFAULT_ROLES_CONFIG.rolesEnabled } },
 		revealIndex: 0,
 		night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
-		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
+		settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false, difficolta: false },
         sindacoId: null,
 		winner: null,
 		lynchedHistory: [],

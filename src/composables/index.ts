@@ -4,3 +4,6 @@ export { useNightPhase } from './useNightPhase';
 export { useNewRolesPopup } from './useNewRolesPopup';
 export { useTeamBalance } from './useTeamBalance';
 export { useWinLogic } from './useWinLogic';
+export { useGameAPI } from './useGameAPI';
+export { useGameSimulation } from './useGameSimulation';
+export { useRoleTesting } from './useRoleTesting';

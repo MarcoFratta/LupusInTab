@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { parassita } from '../../roles/parassita';
+import { setMockGameState } from '../setup';
+import { RoleAPI } from '../../utils/roleAPI';
 
 describe('Parassita Role', () => {
   let mockGameState: any;
@@ -47,6 +49,7 @@ describe('Parassita Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Role Definition', () => {
@@ -63,7 +66,7 @@ describe('Parassita Role', () => {
     });
 
     it('should have correct description and color', () => {
-      expect(parassita.description).toBe('Di notte infetta gli altri giocatori. Vince se tutti i giocatori vivi sono infetti.');
+      expect(parassita.description).toBe('Infetta i giocatori ogni notte');
       expect(parassita.color).toBe('#ec4899');
     });
   });
@@ -169,7 +172,9 @@ describe('Parassita Role', () => {
 
       const result = parassita.resolve(mockGameState, action);
 
-      expect(mockGameState.custom.parassita.infetti).toHaveLength(0);
+      // Custom data is only set when there are new infections
+      const customData = RoleAPI.getCustomData('parassita');
+      expect(customData.infetti || []).toHaveLength(0);
     });
 
     it('should return correct result object', () => {

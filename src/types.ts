@@ -54,6 +54,8 @@ export interface RoleDef {
     revealAlliesWithinRole?: boolean;
     /** Short description to show under the role name on reveal */
     description?: string;
+    /** Long description to show in role details card with examples and strategy tips */
+    longDescription?: string;
     /** Hex color (e.g. #ef4444) used as role identifier color in UI */
     color?: string;
 	/**
@@ -212,7 +214,7 @@ export interface GameState {
 	setup: { numPlayers: number; players: Array<{ name: string }>; rolesCounts: Record<string, number>; rolesEnabled: Record<string, boolean> };
 	revealIndex: number;
 	night: { turns: NightTurn[]; currentIndex: number; context: NightContext | null; summary: NightSummary | null };
-	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean };
+	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean; difficolta?: boolean };
     sindacoId: number | null;
 	    winner: string | null | 'tie';
     lynchedHistory?: number[];

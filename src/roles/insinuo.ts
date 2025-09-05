@@ -1,5 +1,6 @@
 import type { RoleDef } from '../types';
-import { getRoleCustomData, setRoleCustomData, clearRoleCustomData, componentFactory } from '../utils/roleUtils';
+import { componentFactory } from '../utils/roleUtils';
+import { RoleAPI } from '../utils/roleAPI';
 
 export const insinuo: RoleDef = {
 	id: 'insinuo',
@@ -9,19 +10,27 @@ export const insinuo: RoleDef = {
 	score: 3,
 	countAs: 'villaggio',
 	color: '#8b5cf6',
-	description: 'Di notte cambia la fazione di un giocatore agli occhi di chi lo indaga.',
+	description: 'Cambia la fazione visibile di un giocatore',
+    longDescription: `L'Insinuo può modificare come un giocatore appare alle investigazioni.
+
+COME FUNZIONA:
+• Di notte può scegliere un giocatore da modificare
+• Cambia la fazione visibile del giocatore per le investigazioni
+• L'effetto dura per il resto della partita
+• L'azione è obbligatoria: deve modificare un giocatore ogni notte`,
 	phaseOrder: 1,
 	actsAtNight: "alive",
 	effectType: 'required',
 	numberOfUsage: 'unlimited',
+	
 	resolve: (gameState: any, action: any) => {
 		const targetId = action.data?.targetId;
 		if (!targetId) return;
 
-		const target = gameState.players.find((p: any) => p.id === targetId);
+		const target = RoleAPI.getPlayer(targetId);
 		if (!target) return;
 
-		const insinuoData = getRoleCustomData(gameState, 'insinuo');
+		const insinuoData = RoleAPI.getCustomData('insinuo');
 		
 		if (!insinuoData.targets) insinuoData.targets = [];
 		
@@ -44,12 +53,14 @@ export const insinuo: RoleDef = {
 				nextVisible = 'lupi';
 			}
 
-			target.roleState.visibleAsTeam = nextVisible;
+			RoleAPI.setPlayerVisibleTeam(targetId, nextVisible);
 			
 			const targetDataRef = insinuoData.targets.find((t: any) => t.playerId === targetId);
 			if (targetDataRef) {
 				targetDataRef.newFaction = nextVisible;
 			}
+
+			RoleAPI.setCustomData('insinuo', insinuoData);
 
 			return {
 				type: 'insinuo_action',
@@ -63,19 +74,21 @@ export const insinuo: RoleDef = {
 			};
 		}
 	},
+	
 	restoreFunction: (gameState: any) => {
-		const insinuoData = getRoleCustomData(gameState, 'insinuo');
+		const insinuoData = RoleAPI.getCustomData('insinuo');
 		if (!insinuoData.targets) return;
 
 		for (const targetData of insinuoData.targets) {
-			const player = gameState.players.find((p: any) => p.id === targetData.playerId);
+			const player = RoleAPI.getPlayer(targetData.playerId);
 			if (player && targetData.originalVisibleAsTeam !== undefined) {
-				player.roleState.visibleAsTeam = targetData.originalVisibleAsTeam;
+				RoleAPI.setPlayerVisibleTeam(targetData.playerId, targetData.originalVisibleAsTeam);
 			}
 		}
 
-		clearRoleCustomData(gameState, 'insinuo');
+		RoleAPI.clearCustomData('insinuo');
 	},
+	
 	getPromptComponent: componentFactory('Insinuo', "prompt"),
 	getResolveDetailsComponent: componentFactory('Insinuo', "details"),
 };

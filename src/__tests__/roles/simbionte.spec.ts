@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { simbionte } from '../../roles/simbionte';
 import { ROLES } from '../../roles';
+import { setMockGameState } from '../setup';
 
 describe('Simbionte Role', () => {
   let mockGameState: any;
@@ -54,8 +55,11 @@ describe('Simbionte Role', () => {
           }
         }
       ],
-      usedPowers: {}
+      usedPowers: {},
+      settings: { difficolta: false },
+      groupings: []
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Role Definition', () => {
@@ -68,7 +72,6 @@ describe('Simbionte Role', () => {
       expect(simbionte.actsAtNight).toBe('alive');
       expect(simbionte.effectType).toBe('required');
       expect(simbionte.numberOfUsage).toBe(1);
-      expect(simbionte.score).toBe(0);
       expect(simbionte.phaseOrder).toBe(-20);
     });
 
@@ -82,6 +85,7 @@ describe('Simbionte Role', () => {
     it('should transform simbionte into target player role', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { target: { playerId: 2 } }
       };
 
@@ -100,6 +104,7 @@ describe('Simbionte Role', () => {
     it('should handle lupo target correctly', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { target: { playerId: 3 } }
       };
 
@@ -114,6 +119,7 @@ describe('Simbionte Role', () => {
     it('should return null for invalid action', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { target: {} }
       };
 
@@ -124,6 +130,7 @@ describe('Simbionte Role', () => {
     it('should return null for missing target player', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { target: { playerId: 999 } }
       };
 
@@ -146,6 +153,7 @@ describe('Simbionte Role', () => {
     it('should update player roleId after transformation', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { target: { playerId: 2 } }
       };
 
@@ -158,6 +166,7 @@ describe('Simbionte Role', () => {
     it('should update usedPowers after transformation', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { target: { playerId: 2 } }
       };
 

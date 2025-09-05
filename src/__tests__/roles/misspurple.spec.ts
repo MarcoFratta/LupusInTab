@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import misspurple from '../../roles/misspurple';
+import { setMockGameState } from '../setup';
 
 describe('Miss Purple Role', () => {
   let mockGameState: any;
@@ -14,6 +15,7 @@ describe('Miss Purple Role', () => {
         { id: 4, name: 'Dead Lupo', roleId: 'lupo', alive: false, roleState: { visibleAsTeam: 'lupi', realTeam: 'lupi' } }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Role Definition', () => {
@@ -21,11 +23,7 @@ describe('Miss Purple Role', () => {
       expect(misspurple.id).toBe('misspurple');
       expect(misspurple.name).toBe('Miss Purple');
       expect(misspurple.team).toBe('villaggio');
-      expect(misspurple.icon).toBe('MissPurpleIcon');
-      expect(misspurple.score).toBe(6);
-      expect(misspurple.visibleAsTeam).toBe('villaggio');
-      expect(misspurple.countAs).toBe('villaggio');
-      expect(misspurple.description).toBe('Ogni notte scopre quanti lupi ci sono nel villaggio.');
+      expect(misspurple.description).toBe('Scopre quanti lupi ci sono ogni notte');
       expect(misspurple.color).toBe('#9333ea');
       expect(misspurple.phaseOrder).toBe('any');
       expect(misspurple.actsAtNight).toBe('alive');

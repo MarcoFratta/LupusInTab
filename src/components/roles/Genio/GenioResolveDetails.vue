@@ -7,7 +7,7 @@
       <div class="flex items-center justify-center mb-4">
         <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-800/60 border border-neutral-700/40">
           <span class="text-neutral-300 text-lg">🧞‍♂️</span>
-          <span class="text-xs font-medium text-neutral-300">{{ genioNames }} si è trasformato</span>
+          <span class="text-xs font-medium text-neutral-300">{{ genioNames }} {{ players.length === 1 ? 'si è trasformato' : 'si sono trasformati' }}</span>
         </div>
       </div>
       
@@ -46,11 +46,6 @@ const players = computed(() => {
 const genioNames = computed(() => {
   const genioList = players.value;
   if (genioList.length === 0) {
-    // If no players found, try to get the name from the entry
-    if (props.entry && props.entry.playerId) {
-      const player = props.gameState.players.find(p => p.id === props.entry.playerId);
-      return player ? player.name : 'Genio della Lampada';
-    }
     return 'Genio della Lampada';
   }
   if (genioList.length === 1) return genioList[0].name;

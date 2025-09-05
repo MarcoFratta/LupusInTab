@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import lupomannaro from '../../roles/lupomannaro';
+import { setMockGameState } from '../setup';
 
 describe('Lupomannaro Role', () => {
   let mockGameState: any;
@@ -19,6 +20,8 @@ describe('Lupomannaro Role', () => {
           pendingKills: {}
         }
       },
+      settings: { difficolta: false },
+      groupings: [],
       players: [
         { 
           id: 1, 
@@ -40,12 +43,14 @@ describe('Lupomannaro Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should add kill to pendingKills when target is valid', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3, roleId: 'villico' },
         used: true
       };
@@ -63,6 +68,7 @@ describe('Lupomannaro Role', () => {
     it('should handle targetId from result.targetId', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         result: { targetId: 3 },
         data: { targetId: 3, roleId: 'villico' },
         used: true
@@ -77,11 +83,13 @@ describe('Lupomannaro Role', () => {
     it('should not duplicate kills for the same target', () => {
       const action1 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3, roleId: 'villico' },
         used: true
       };
       const action2 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3, roleId: 'villico' },
         used: true
       };
@@ -97,6 +105,7 @@ describe('Lupomannaro Role', () => {
     it('should handle invalid target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 'invalid', roleId: 'villico' },
         used: true
       };
@@ -110,6 +119,7 @@ describe('Lupomannaro Role', () => {
     it('should handle missing target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { roleId: 'villico' },
         used: true
       };
@@ -123,6 +133,7 @@ describe('Lupomannaro Role', () => {
     it('should handle non-existent target', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 999, roleId: 'villico' },
         used: true
       };
@@ -136,11 +147,13 @@ describe('Lupomannaro Role', () => {
     it('should handle multiple targets correctly', () => {
       const action1 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3, roleId: 'villico' },
         used: true
       };
       const action2 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 2, roleId: 'lupo' },
         used: true
       };

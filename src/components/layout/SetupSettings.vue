@@ -31,6 +31,7 @@ watch(() => state.settings, () => {
     skipFirstNightActions: !!state.settings.skipFirstNightActions,
     enableSindaco: !!state.settings.enableSindaco,
     discussionTimerEnabled: !!state.settings.discussionTimerEnabled,
+    difficolta: !!state.settings.difficolta,
   });
 }, { deep: true });
 
@@ -63,6 +64,12 @@ const gameSettings = [
     key: 'discussionTimerEnabled',
     title: 'Timer discussione (giorno)',
     description: 'Mostra un timer compatto nella fase di linciaggio per la discussione (max 60 minuti).',
+    disabled: false
+  },
+  {
+    key: 'difficolta',
+    title: 'Difficoltà Massima',
+    description: 'Considera i raggruppamenti di ruoli durante i controlli. Es: Lupo Mannaro rileva Lupo Ciccione come Lupo.',
     disabled: false
   }
 ];

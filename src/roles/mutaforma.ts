@@ -2,33 +2,51 @@ import type { RoleDef } from '../types';
 import { alieniWin, villageWin, wolvesWin } from '../utils/winConditions';
 import { componentFactory } from '../utils/roleUtils';
 import { ROLES } from '../roles';
+import { RoleAPI } from '../utils/roleAPI';
 
 // Helper function to check if a target role can be used by mutaforma
 function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutaformaPlayerId: number) {
     if (!targetRole) return false;
 
-    // Check if role acts at night
-    if (targetRole.actsAtNight === 'never') return false;
+    // Check if role acts at night, considering groupings
+    let effectiveRole = targetRole;
+    if (targetRole.actsAtNight === 'never') {
+        // Check if this role is grouped with a role that can act at night
+        const groupings = gameState.groupings || [];
+        const grouping = groupings.find((g: any) => g.toRole === targetRole.id); // Pick first grouping found
+        
+        if (grouping) {
+            // Use the grouped role instead
+            const groupedRole = ROLES[grouping.fromRole];
+            if (groupedRole && groupedRole.actsAtNight !== 'never') {
+                effectiveRole = groupedRole;
+                console.log(`🔄 [DEBUG] Mutaforma using grouped role: ${groupedRole.id} instead of ${targetRole.id}`);
+            } else {
+                return false; // No valid grouping found
+            }
+        } else {
+            return false; // No grouping and actsAtNight is never
+        }
+    }
 
     // Check if role requires being dead but mutaforma is alive
-    if (targetRole.actsAtNight === 'dead') return false;
+    if (effectiveRole.actsAtNight === 'dead') return false;
 
     // Check if role requires being alive but mutaforma is dead
-    if (targetRole.actsAtNight === 'alive') {
-        const mutaformaPlayer = gameState.players.find((p: any) => p.id === mutaformaPlayerId);
+    if (effectiveRole.actsAtNight === 'alive') {
+        const mutaformaPlayer = RoleAPI.getPlayer(mutaformaPlayerId);
         if (!mutaformaPlayer || !mutaformaPlayer.alive) return false;
     }
 
     // Check start night restriction
-    if (targetRole.startNight && typeof targetRole.startNight === 'number') {
-        if (gameState.nightNumber < targetRole.startNight) return false;
+    if (effectiveRole.startNight && typeof effectiveRole.startNight === 'number') {
+        if (RoleAPI.getNightNumber() < effectiveRole.startNight) return false;
     }
 
     // Check usage limit restriction
-    if (targetRole.numberOfUsage !== 'unlimited' && targetRole.numberOfUsage !== undefined) {
-        const usedPowers = gameState.usedPowers?.[targetRole.id] || [];
-        const timesUsed = usedPowers.filter((playerId: number) => playerId === mutaformaPlayerId).length;
-        if (timesUsed >= targetRole.numberOfUsage) return false;
+    if (effectiveRole.numberOfUsage !== 'unlimited' && effectiveRole.numberOfUsage !== undefined) {
+        const timesUsed = RoleAPI.getPowerUsageCount(effectiveRole.id, mutaformaPlayerId);
+        if (timesUsed >= effectiveRole.numberOfUsage) return false;
     }
 
     return true;
@@ -41,8 +59,19 @@ const mutaforma: RoleDef = {
     visibleAsTeam: 'villaggio',
     countAs: 'alieni',
     score: 35,
-    description: 'Di notte può copiare il potere di un altro giocatore, solo per quella notte.' +
-" Se almeno un'altra fazione perde tutti i suoi membri, lui non può più usare il suo ruolo e la prossima notte morirà",
+    description: 'Copia il potere di un altro giocatore ogni notte',
+    longDescription: `La Mutaforma può copiare i poteri di altri giocatori.
+
+COME FUNZIONA:
+• Ogni notte può scegliere un giocatore e copiare il suo potere
+• Usa il potere del giocatore scelto per quella notte
+• Può copiare solo ruoli che possono agire di notte
+• L'azione è obbligatoria: deve copiare un potere ogni notte
+
+ATTENZIONE: 
+Se almeno una fazione perde tutti i suoi giocatori vivi, il mutaforma 
+non potrà usare il suo ruolo e morirà nella notte successiva.
+`,
     color: '#10b981',
     phaseOrder: 2,
     actsAtNight: "alive",
@@ -52,11 +81,10 @@ const mutaforma: RoleDef = {
     getResolveDetailsComponent: componentFactory('Mutaforma', "details"),
     
     resolve(gameState: any, action: any) {
-        
         const targetId = Number(action?.data?.targetId || action?.targetId);
         if (!Number.isFinite(targetId) || targetId <= 0) return;
         
-        const targetPlayer = gameState.players.find((p: any) => p.id === targetId);
+        const targetPlayer = RoleAPI.getPlayer(targetId);
         if (!targetPlayer) return;
         
         const targetRoleId = targetPlayer.roleId;
@@ -82,6 +110,19 @@ const mutaforma: RoleDef = {
             };
         }
         
+        // Determine the effective role to use (considering groupings)
+        let effectiveRoleId = targetRoleId;
+        let effectiveRole = targetRole;
+        if (targetRole.actsAtNight === 'never') {
+            const groupings = gameState.groupings || [];
+            const grouping = groupings.find((g: any) => g.toRole === targetRoleId);
+            if (grouping) {
+                effectiveRoleId = grouping.fromRole;
+                effectiveRole = ROLES[effectiveRoleId];
+                console.log(`🔄 [DEBUG] Mutaforma will use effective role: ${effectiveRoleId} instead of ${targetRoleId}`);
+            }
+        }
+        
         // Create the mutaforma action
         const mutaformaAction = {
             type: 'mutaforma_action',
@@ -89,13 +130,13 @@ const mutaforma: RoleDef = {
             roleId: 'mutaforma',
             playerIds: action.playerIds || [],
             targetId: targetId,
-            targetRoleId: targetRoleId,
+            targetRoleId: effectiveRoleId, // Use effective role ID
             targetPlayerName: targetPlayer.name,
             canUseRole: canUseRole,
             data: {
                 ...action.data,
                 targetId: targetId,
-                targetRoleId: targetRoleId,
+                targetRoleId: effectiveRoleId, // Use effective role ID
                 targetRoleResult: action.data?.targetRoleResult
             }
         };
@@ -136,7 +177,7 @@ const mutaforma: RoleDef = {
 
     passiveEffect(gameState: any, player: any) {
         const teams = new Set<string>();
-        const alivePlayers = gameState.players.filter((p: any) => p.alive);
+        const alivePlayers = RoleAPI.getAlivePlayers();
         
         for (const alivePlayer of alivePlayers) {
             const roleDef = ROLES[alivePlayer.roleId];
@@ -147,7 +188,8 @@ const mutaforma: RoleDef = {
         }
         
         const allTeams = new Set<string>();
-        for (const gamePlayer of gameState.players) {
+        const allPlayers = [...RoleAPI.getAlivePlayers(), ...RoleAPI.getDeadPlayers()];
+        for (const gamePlayer of allPlayers) {
             const roleDef = ROLES[gamePlayer.roleId];
             if (!roleDef) continue;
             
@@ -158,26 +200,12 @@ const mutaforma: RoleDef = {
         const teamsWithNoAlivePlayers = Array.from(allTeams).filter(team => !teams.has(team));
         
         if (teamsWithNoAlivePlayers.length > 0) {
-            const mutaformaPlayers = gameState.players.filter((p: any) => 
-                p.roleId === 'mutaforma' && p.alive
-            );
+            const mutaformaPlayers = RoleAPI.getAlivePlayersWithRole('mutaforma');
             
             // Add mutaforma players to pending kills instead of directly killing them
             if (mutaformaPlayers.length > 0) {
-                if (!gameState.night?.context) {
-                    gameState.night = { ...gameState.night, context: {} };
-                }
-                if (!gameState.night.context.pendingKills) {
-                    gameState.night.context.pendingKills = {};
-                }
-                
                 for (const mutaformaPlayer of mutaformaPlayers) {
-                    if (!gameState.night.context.pendingKills[mutaformaPlayer.id]) {
-                        gameState.night.context.pendingKills[mutaformaPlayer.id] = [];
-                    }
-                    gameState.night.context.pendingKills[mutaformaPlayer.id].push({
-                        role: 'mutaforma'
-                    });
+                    RoleAPI.addKill(mutaformaPlayer.id, 'mutaforma');
                 }
             }
         }

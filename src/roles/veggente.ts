@@ -1,6 +1,9 @@
 import type { RoleDef } from '../types';
 import { villageWin } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from "../utils/roleAPI";
+import { checkPlayerRole } from '../utils/roleChecking';
+import { GameStateManager } from '../core/managers/GameStateManager';
 
 const veggente: RoleDef = {
 	id: 'veggente',
@@ -10,7 +13,14 @@ const veggente: RoleDef = {
     score: 7,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Ogni notte scopre la fazione di un giocatore.',
+    description: 'Scopre la fazione di un giocatore ogni notte',
+    longDescription: `Il Veggente è l'investigatore del villaggio, capace di scoprire le fazioni dei giocatori.
+
+COME FUNZIONA:
+• Ogni notte può scegliere un giocatore da investigare
+• Scopre la fazione visibile del giocatore (come appare agli altri)
+• L'azione è obbligatoria: deve investigare ogni notte
+• I risultati vengono mostrati solo al Veggente`,
     color: '#8b5cf6',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -19,28 +29,22 @@ const veggente: RoleDef = {
     affectedRoles: ['lupomannaro', 'muccamannara'],
     getPromptComponent: componentFactory('Veggente', "prompt"),
     getResolveDetailsComponent: componentFactory('Veggente', "details"),
+    
     resolve(gameState: any, action: any) {
         const targetId = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(targetId)) return;
         
-        const target = gameState.players.find((p: any) => p.id === targetId);
+        const target = RoleAPI.getPlayer(targetId);
         
         // If target is lupomannaro or muccamannara, add pending kill
-        if (target && (target.roleId === 'lupomannaro' || target.roleId === 'muccamannara')) {
-            if (!gameState.night?.context) {
-                gameState.night = { ...gameState.night, context: {} };
-            }
-            if (!gameState.night.context.pendingKills) {
-                gameState.night.context.pendingKills = {};
-            }
-            if (!gameState.night.context.pendingKills[targetId]) {
-                gameState.night.context.pendingKills[targetId] = [];
-            }
-            
-            gameState.night.context.pendingKills[targetId].push({
-                role: 'veggente',
-                reason: 'Investigated by veggente'
-            });
+        if (target && (checkPlayerRole(targetId, 'lupomannaro', gameState) || checkPlayerRole(targetId, 'muccamannara', gameState))) {
+            RoleAPI.addKill(targetId, 'veggente', { reason: 'Investigated by veggente' });
+        }
+        
+        // Add investigation check - Veggente sees what the player appears as
+        const discoveredTeam = target ? GameStateManager.getPlayerRealTimeVisibleTeam(gameState, targetId) : undefined;
+        if (discoveredTeam) {
+            RoleAPI.addCheck(action.playerId, targetId, discoveredTeam);
         }
         
         return {
@@ -49,10 +53,11 @@ const veggente: RoleDef = {
             roleId: 'veggente',
             playerIds: action.playerIds || [],
             targetId: targetId,
-            discoveredFaction: target ? (target.roleState?.visibleAsTeam || target.roleState?.realTeam) : undefined,
+            discoveredFaction: discoveredTeam,
             data: action.data
         };
     },
+    
     checkWin(gameState: any) {
         return villageWin(gameState);
     },

@@ -4,7 +4,7 @@ import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 import DisplayFaction from '../../ui/DisplayFaction.vue';
 
-const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any,playerIds: number[], onComplete: (r:any)=>void }>();
 
 const targetId = ref<number | null>(null);
 const deadPlayers = computed(() => props.gameState.players.filter(p => !p.alive));

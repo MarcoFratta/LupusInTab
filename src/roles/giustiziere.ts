@@ -1,6 +1,7 @@
 import type { RoleDef } from '../types';
 import { villageWin } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from '../utils/roleAPI';
 
 const giustiziere: RoleDef = {
 	id: 'giustiziere',
@@ -10,7 +11,14 @@ const giustiziere: RoleDef = {
     visibleAsTeam: 'villaggio',
     score: 4,
     countAs: 'villaggio',
-    description: 'Una volta per partita, di notte giustizia un giocatore.',
+    description: 'Giustizia un giocatore una volta per partita',
+    longDescription: `Il Giustiziere può eliminare un giocatore durante la notte.
+
+COME FUNZIONA:
+• Una volta per partita, di notte può giustiziare un giocatore
+• Il giocatore giustiziato muore immediatamente
+• L'azione è opzionale: può scegliere di non usarla
+• Non può essere usata più di una volta per partita`,
     color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -18,16 +26,12 @@ const giustiziere: RoleDef = {
     numberOfUsage: 1,
     getPromptComponent: componentFactory('Giustiziere', "prompt"),
     getResolveDetailsComponent: componentFactory('Giustiziere', "details"),
+    
     resolve(gameState: any, action: any) {
         const id = Number(action?.data?.targetId);
         if (!Number.isFinite(id)) return;
         
-        if (!gameState.night.context.pendingKills) {
-            gameState.night.context.pendingKills = {};
-        }
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-        if (!pk[id]) pk[id] = [];
-        pk[id].push({ role: 'giustiziere' });
+        RoleAPI.addKill(id, 'giustiziere');
 
         return {
             type: 'giustiziere_action',
@@ -38,6 +42,7 @@ const giustiziere: RoleDef = {
             data: action.data
         };
     },
+    
     checkWin(gameState: any) {
         return villageWin(gameState);
     },

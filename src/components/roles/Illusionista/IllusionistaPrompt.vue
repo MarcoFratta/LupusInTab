@@ -5,9 +5,8 @@ import { ROLES } from '../../../roles/index';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
-    player: { type: Object, required: true },
     playerIds: { type: Array, required: true },
-    onComplete: { type: Function, required: true },
+    onComplete: { type: Function, required: true }
 });
 
 const targetId = ref(null);
@@ -19,10 +18,7 @@ const aliveChoices = computed(() => [
             // Only show alive players
             if (!p.alive) return false;
             
-            // Don't show the current player (Illusionista)
-            if (p.id === props.player.id) return false;
-            
-            // Don't show other players with the same role (using playerIds)
+            // Don't show the current player (Illusionista) or other players with the same role
             if (props.playerIds.includes(p.id)) return false;
             
             return true;

@@ -8,7 +8,8 @@ import { ROLES } from '../../../roles';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
-    player: { type: Object, required: true },
+    player: { type: Object, required: false },
+    playerIds: { type: Array, required: false },
     onComplete: { type: Function, required: true },
     skippable: { type: Boolean, default: true },
     availablePlayers: { type: Array, default: null },
@@ -17,6 +18,16 @@ const props = defineProps({
 
 const targetId = ref(null);
 const roleId = ref(null);
+
+const currentPlayer = computed(() => {
+    if (props.player) {
+        return props.player;
+    }
+    if (props.playerIds && props.playerIds.length > 0) {
+        return props.gameState.players.find(p => p.id === props.playerIds[0]);
+    }
+    return null;
+});
 
 const aliveChoices = computed(() => {
     if (props.availablePlayers) {
@@ -29,7 +40,7 @@ const aliveChoices = computed(() => {
     return [
         { label: 'Giocatore…', value: null },
         ...props.gameState.players
-            .filter(p => p.alive && p.id !== props.player.id)
+            .filter(p => p.alive && (!currentPlayer.value || p.id !== currentPlayer.value.id))
             .map(p => ({ label: p.name, value: p.id }))
     ];
 });
@@ -48,7 +59,7 @@ const roleChoices = computed(() => {
     const playersInGame = props.gameState.players || [];
     const rolesInGame = [...new Set(playersInGame.map(p => p.roleId))];
     
-    const availableRoles = rolesInGame.filter(roleId => roleId !== props.player.roleId);
+    const availableRoles = rolesInGame.filter(roleId => !currentPlayer.value || roleId !== currentPlayer.value.roleId);
     
     return [
         { label: 'Ruolo…', value: null }, 

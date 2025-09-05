@@ -1,5 +1,6 @@
 import type { RoleDef } from '../types';
 import { mannariWin, mannariBlocksOtherWins } from '../utils/winConditions';
+import { RoleAPI } from '../utils/roleAPI';
 
 const muccamannara: RoleDef = {
     id: 'muccamannara',
@@ -9,24 +10,23 @@ const muccamannara: RoleDef = {
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Vince solo se rimane in vita con un altro giocatore. ' +
-        'Se rimane in vita, nessun altro può vincere. ' +
-        'I lupi non possono ucciderla. ' +
-        "Conosce l'identità dei lupi. " +
-        'Muore se il veggente la indaga.',
+    description: 'Vince solo se rimane viva con un altro giocatore',
+    longDescription: `La Mucca Mannara è un ruolo solitario con poteri speciali.
+
+COME FUNZIONA:
+• Vince solo se rimane in vita con esattamente un altro giocatore
+• Se rimane in vita, nessun altro può vincere
+• I lupi non possono ucciderla
+• Conosce l'identità dei lupi
+• Muore se il Veggente la investiga`,
     color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "never",
     resolve(){},
+    
     passiveEffect(gameState: any, player: any) {
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-        if (pk[player.id]) {
-            pk[player.id] = pk[player.id].filter(kill => kill.role !== 'lupo');
-            
-            if (pk[player.id].length === 0) {
-                delete pk[player.id];
-            }
-        }
+        // Remove lupo kills from muccamannara
+        RoleAPI.removeKills(player.id, 'lupo');
     },
 
     checkWin(gameState: any) {

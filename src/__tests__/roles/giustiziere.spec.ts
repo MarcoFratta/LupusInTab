@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import giustiziere from '../../roles/giustiziere';
+import { setMockGameState } from '../setup';
 
 describe('Giustiziere Role', () => {
   let mockGameState: any;
@@ -19,6 +20,8 @@ describe('Giustiziere Role', () => {
           pendingKills: {}
         }
       },
+      settings: { difficolta: false },
+      groupings: [],
       players: [
         { 
           id: 1, 
@@ -40,12 +43,14 @@ describe('Giustiziere Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should add kill to pendingKills when target is valid', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -63,6 +68,7 @@ describe('Giustiziere Role', () => {
     it('should handle targetId from result.targetId', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         result: { targetId: 3 },
         data: { targetId: 3 },
         used: true
@@ -77,11 +83,13 @@ describe('Giustiziere Role', () => {
     it('should not duplicate kills for the same target', () => {
       const action1 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
       const action2 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -97,6 +105,7 @@ describe('Giustiziere Role', () => {
     it('should handle invalid target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 'invalid' },
         used: true
       };
@@ -110,6 +119,7 @@ describe('Giustiziere Role', () => {
     it('should handle missing target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: {},
         used: true
       };
@@ -123,6 +133,7 @@ describe('Giustiziere Role', () => {
     it('should handle non-existent target', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 999 },
         used: true
       };
@@ -136,11 +147,13 @@ describe('Giustiziere Role', () => {
     it('should handle multiple targets correctly', () => {
       const action1 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
       const action2 = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 2 },
         used: true
       };

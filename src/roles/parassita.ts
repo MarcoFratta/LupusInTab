@@ -1,12 +1,20 @@
 import type { RoleDef } from '../types';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from "../utils/roleAPI";
 
 export const parassita: RoleDef = {
     id: 'parassita',
     name: 'Parassita',
     team: 'parassita',
     score: 25,
-    description: 'Di notte infetta gli altri giocatori. Vince se tutti i giocatori vivi sono infetti.',
+    description: 'Infetta i giocatori ogni notte',
+    longDescription: `Il Parassita infetta i giocatori per vincere la partita.
+
+COME FUNZIONA:
+• Ogni notte può infettare altri giocatori
+• I giocatori infetti rimangono infetti per il resto della partita
+• Vince se tutti i giocatori vivi sono infetti
+• L'azione è opzionale: può scegliere di non infettare`,
     color: '#ec4899',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -18,6 +26,7 @@ export const parassita: RoleDef = {
     maxCount: 1,
     getPromptComponent: componentFactory('Parassita', "prompt"),
     getResolveDetailsComponent: componentFactory('Parassita', "details"),
+    
     resolve(gameState: any, action: any) {
         const targetIds = action?.data?.targetIds;
         console.log("infecting " + targetIds)
@@ -25,17 +34,18 @@ export const parassita: RoleDef = {
             return null;
         }
 
-        if (!gameState.custom) {
-            gameState.custom = {};
+        const customData = RoleAPI.getCustomData('parassita');
+        if (!customData.infetti) {
+            customData.infetti = [];
         }
-        if (!gameState.custom.parassita) {
-            gameState.custom.parassita = { infetti: [], usageCount: 0 };
+        if (!customData.usageCount) {
+            customData.usageCount = 0;
         }
 
-        const infetti = gameState.custom.parassita.infetti;
-        const usageCount = gameState.custom.parassita.usageCount;
+        const infetti = customData.infetti;
+        const usageCount = customData.usageCount;
 
-        const alivePlayers = gameState.players.filter((p: any) => p.alive);
+        const alivePlayers = RoleAPI.getAlivePlayers();
         const parassitaPlayers = alivePlayers.filter((p: any) => p.roleId === 'parassita');
         const otherAlivePlayers = alivePlayers.filter((p: any) => !parassitaPlayers.some((parassita: any) => parassita.id === p.id));
         
@@ -62,14 +72,15 @@ export const parassita: RoleDef = {
 
         let newInfections = 0;
         for (const targetId of targetIds) {
-            if (targetId && !infetti.includes(targetId) && gameState.players.find((p: any) => p.id === targetId)?.alive) {
+            if (targetId && !infetti.includes(targetId) && RoleAPI.getPlayer(targetId)?.alive) {
                 infetti.push(targetId);
                 newInfections++;
             }
         }
 
         if (newInfections > 0) {
-            gameState.custom.parassita.usageCount = usageCount + 1;
+            customData.usageCount = usageCount + 1;
+            RoleAPI.setCustomData('parassita', customData);
         }
 
         return {
@@ -81,12 +92,14 @@ export const parassita: RoleDef = {
             data: { ...action.data, infetti: [...infetti] }
         };
     },
+    
     checkWin(gameState: any) {
-        if (!gameState.custom || !gameState.custom.parassita || !gameState.custom.parassita.infetti) {
+        const customData = RoleAPI.getCustomData('parassita');
+        if (!customData.infetti) {
             return false;
         }
 
-        const alivePlayers = gameState.players.filter((p: any) => p.alive);
+        const alivePlayers = RoleAPI.getAlivePlayers();
         if (alivePlayers.length === 0) {
             return false;
         }
@@ -105,7 +118,7 @@ export const parassita: RoleDef = {
             return false;
         }
 
-        const infetti = gameState.custom.parassita.infetti;
+        const infetti = customData.infetti;
         const allInfected = otherAlivePlayers.every((p: any) => infetti.includes(p.id));
 
         return allInfected;

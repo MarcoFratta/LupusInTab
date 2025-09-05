@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import medium from '../../roles/medium';
+import { setMockGameState } from '../setup';
 
 describe('Medium Role', () => {
   let mockGameState: any;
@@ -21,6 +22,8 @@ describe('Medium Role', () => {
           pendingKills: {}
         }
       },
+      settings: { difficolta: false },
+      groupings: [],
       players: [
         { 
           id: 1, 
@@ -51,12 +54,14 @@ describe('Medium Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should discover dead player faction', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -75,6 +80,7 @@ describe('Medium Role', () => {
     it('should handle lupomannaro special rule', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 4 },
         used: true
       };

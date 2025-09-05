@@ -27,11 +27,16 @@ export class RoleConstraintManager {
     
     const allPlayers = [...directPlayers, ...groupedPlayers];
     
+    // Deduplicate players by ID to prevent duplicate entries
+    const uniquePlayers = allPlayers.filter((player, index, self) => 
+      self.findIndex(p => p.id === player.id) === index
+    );
+    
     if (groupedPlayers.length > 0) {
-      console.log(`🔍 [DEBUG] getPlayersForRole - Role ${roleId}: ${directPlayers.length} direct + ${groupedPlayers.length} grouped players`);
+      console.log(`🔍 [DEBUG] getPlayersForRole - Role ${roleId}: ${directPlayers.length} direct + ${groupedPlayers.length} grouped = ${uniquePlayers.length} unique players`);
     }
     
-    return allPlayers;
+    return uniquePlayers;
   }
   
   /**

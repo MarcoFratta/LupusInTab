@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import lupo from '../../roles/lupo';
+import { setMockGameState } from '../setup';
 
 describe('Lupo Role', () => {
   let mockGameState: any;
@@ -40,13 +41,15 @@ describe('Lupo Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should add kill to pendingKills when target is valid', () => {
       const action = {
         playerId: 1,
-        data: { targetId: 3 },
+        playerIds: [1],
+        data: { targetIds: [3] },
         used: true
       };
 
@@ -57,13 +60,14 @@ describe('Lupo Role', () => {
       expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupo');
       expect(result).toBeDefined();
       expect(result.type).toBe('lupo_action');
-      expect(result.targetId).toBe(3);
+      expect(result.targetIds).toEqual([3]);
     });
 
-    it('should handle targetId from result.targetId', () => {
+    it('should handle targetIds from result.targetIds', () => {
       const action = {
         playerId: 1,
-        result: { targetId: 3 },
+        playerIds: [1],
+        result: { targetIds: [3] },
         used: true
       };
 
@@ -76,26 +80,30 @@ describe('Lupo Role', () => {
     it('should not duplicate kills for the same target', () => {
       const action1 = {
         playerId: 1,
-        data: { targetId: 3 },
+        playerIds: [1],
+        data: { targetIds: [3] },
         used: true
       };
       const action2 = {
         playerId: 2,
-        data: { targetId: 3 },
+        playerIds: [2],
+        data: { targetIds: [3] },
         used: true
       };
 
       lupo.resolve(mockGameState, action1);
       lupo.resolve(mockGameState, action2);
 
-      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(2);
       expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupo');
+      expect(mockGameState.night.context.pendingKills[3][1].role).toBe('lupo');
     });
 
     it('should handle invalid target ID', () => {
       const action = {
         playerId: 1,
-        data: { targetId: 'invalid' },
+        playerIds: [1],
+        data: { targetIds: ['invalid'] },
         used: true
       };
 
@@ -108,6 +116,7 @@ describe('Lupo Role', () => {
     it('should handle missing target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: {},
         used: true
       };
@@ -121,7 +130,8 @@ describe('Lupo Role', () => {
     it('should handle non-existent target', () => {
       const action = {
         playerId: 1,
-        data: { targetId: 999 },
+        playerIds: [1],
+        data: { targetIds: [999] },
         used: true
       };
 
@@ -134,12 +144,14 @@ describe('Lupo Role', () => {
     it('should handle multiple targets correctly', () => {
       const action1 = {
         playerId: 1,
-        data: { targetId: 3 },
+        playerIds: [1],
+        data: { targetIds: [3] },
         used: true
       };
       const action2 = {
         playerId: 2,
-        data: { targetId: 1 },
+        playerIds: [2],
+        data: { targetIds: [1] },
         used: true
       };
 

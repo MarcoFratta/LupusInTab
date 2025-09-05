@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { ROLES } from '../../../roles';
 
-const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any,playerIds: number[], onComplete: (r:any)=>void }>();
 
 const lupiCount = computed(() => {
     return props.gameState.players.filter((p: any) => 

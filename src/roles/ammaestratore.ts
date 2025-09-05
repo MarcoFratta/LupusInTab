@@ -1,6 +1,8 @@
 import type { RoleDef } from '../types';
 import { villageWin } from '../utils/winConditions';
 import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from '../utils/roleAPI';
+import { checkPlayerRole } from '../utils/roleChecking';
 
 const ammaestratore: RoleDef = {
 	id: 'ammaestratore',
@@ -10,9 +12,14 @@ const ammaestratore: RoleDef = {
 	score: 6,
 	visibleAsTeam: 'villaggio',
 	countAs: 'villaggio',
-	description: 'A partire dalla seconda notte, una volta per partita può scegliere di ammaestrare i lupi, ' +
-    'scegliendo lui stesso chi verrà sbranato quella notte. ' +
-        "Se il giocatore scelto dall'ammaestratore è un lupo, allora nessuno verrà sbranato",
+	description: 'Ammaestra i lupi dalla 2ª notte, una volta per partita',
+    longDescription: `L'Ammaestratore può controllare l'azione dei lupi per una notte.
+
+COME FUNZIONA:
+• Dalla 2ª notte in poi, una volta per partita può ammaestrare i lupi
+• Sceglie lui stesso chi verrà ucciso quella notte
+• Se sceglie un lupo, nessuno viene ucciso quella notte
+• L'azione è opzionale: può scegliere di non usarla`,
 	color: '#059669',
 	phaseOrder: 2,
 	actsAtNight: "alive",
@@ -22,25 +29,25 @@ const ammaestratore: RoleDef = {
 	affectedRoles: ['lupo'],
 	getPromptComponent: componentFactory('Ammaestratore', "prompt"),
 	getResolveDetailsComponent: componentFactory('Ammaestratore', "details"),
+	
 	resolve(gameState: any, action: any) {
 		const targetId = action?.data?.targetId || action?.result?.targetId;
 		
 		const numericTargetId = Number(targetId);
 		if (!Number.isFinite(numericTargetId)) return;
 
-		const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-		if (!pk) return;
-
-		const lupoKills: Array<{ role: string; originalTarget?: number }> = [];
-		const newTarget = gameState.players.find((p: any) => p.id === numericTargetId);
-		
+		const newTarget = RoleAPI.getPlayer(numericTargetId);
 		if (!newTarget) return;
 
 		// Find lupo kills to redirect
-		Object.keys(pk).forEach(playerId => {
-			const kills = pk[Number(playerId)];
+		const lupoKills: Array<{ role: string; originalTarget?: number }> = [];
+		const pendingKills = RoleAPI.getPendingKills(gameState);
+		
+		// Find all lupo kills
+		Object.keys(pendingKills).forEach(playerId => {
+			const kills = pendingKills[Number(playerId)];
 			if (kills) {
-				const lupoKill = kills.find(kill => kill.role === 'lupo');
+				const lupoKill = kills.find((kill: any) => kill.role === 'lupo');
 				if (lupoKill) {
 					lupoKills.push({
 						...lupoKill,
@@ -57,21 +64,13 @@ const ammaestratore: RoleDef = {
 			const originalTarget = killToRedirect.originalTarget;
 			
 			// Remove this kill from its original target
-			if (originalTarget && pk[originalTarget]) {
-				const kills = pk[originalTarget];
-				const lupoKill = kills.find(kill => kill.role === 'lupo');
-				if (lupoKill) {
-					kills.splice(kills.indexOf(lupoKill), 1);
-					if (kills.length === 0) {
-						delete pk[originalTarget];
-					}
-				}
+			if (originalTarget) {
+				RoleAPI.removeKills(originalTarget, 'lupo');
 			}
 			
 			// Only add the redirected kill if target is NOT a lupo
-			if (newTarget.roleId !== 'lupo') {
-				if (!pk[numericTargetId]) pk[numericTargetId] = [];
-				pk[numericTargetId].push({ role: 'lupo' });
+			if (!checkPlayerRole(numericTargetId, 'lupo', gameState)) {
+				RoleAPI.addKill(numericTargetId, 'lupo');
 			}
 			
 			// Keep only the first kill in the array for the redirect info
@@ -88,10 +87,11 @@ const ammaestratore: RoleDef = {
 			redirectInfo: {
 				targetId: numericTargetId,
 				originalKills: lupoKills,
-				result: newTarget.roleId === 'lupo' ? 'blocked' : 'redirected'
+				result: checkPlayerRole(numericTargetId, 'lupo', gameState) ? 'blocked' : 'redirected'
 			}
 		};
 	},
+	
 	checkWin(gameState: any) {
 		return villageWin(gameState);
 	},

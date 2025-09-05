@@ -76,8 +76,8 @@ describe('Indemoniato Role', () => {
   });
 
   describe('Win Condition', () => {
-    it('should use village win condition', () => {
-      expect(typeof indemoniato.checkWin).toBe('undefined');
+    it('should use wolves win condition', () => {
+      expect(typeof indemoniato.checkWin).toBe('function');
     });
   });
 });

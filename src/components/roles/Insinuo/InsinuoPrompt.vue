@@ -32,7 +32,7 @@ import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import FactionComparisonCard from '../../ui/FactionComparisonCard.vue';
 
-const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any, playerIds: number[], onComplete: (r:any)=>void }>();
 
 const selectedTargetId = ref<number | null>(null);
 

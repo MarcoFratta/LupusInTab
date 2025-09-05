@@ -71,11 +71,11 @@ const asyncPromptComponent = computed(() => {
               <p class="text-sm text-neutral-300 font-medium">Giocatori attivi:</p>
               <div class="flex flex-wrap justify-center gap-2">
                 <span 
-                  v-for="name in currentGroupNames" 
-                  :key="name"
+                  v-for="player in currentGroupNames" 
+                  :key="player.id"
                   class="inline-flex items-center px-3 py-1 rounded-lg bg-violet-500/20 border border-violet-500/40 text-violet-300 text-sm font-medium"
                 >
-                  {{ name }}
+                  {{ player.name }}
                 </span>
               </div>
             </div>
@@ -118,7 +118,6 @@ const asyncPromptComponent = computed(() => {
             v-else-if="asyncPromptComponent" 
             :is="asyncPromptComponent"
             :gameState="props.state" 
-            :player="currentTurn?.playerIds?.length > 0 ? props.state.players.find(p => p.id === currentTurn.playerIds[0]) : currentActor" 
             :playerIds="currentTurn?.playerIds || []"
             :onComplete="props.onPromptComplete" 
           />

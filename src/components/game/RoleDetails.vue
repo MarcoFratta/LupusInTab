@@ -172,8 +172,8 @@ watch(roleId, () => {
       <div class="space-y-6">
         <!-- Role description card -->
         <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-4">
-          <div class="space-y-3">
-            <!-- Role description -->
+          <div class="space-y-4">
+            <!-- Short description -->
             <div class="flex items-start gap-3">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center" 
                    :style="{ backgroundColor: getFactionConfig(role.team)?.color + '20' || '#374151' }">
@@ -183,6 +183,21 @@ watch(roleId, () => {
               <div class="flex-1">
                 <h3 class="text-sm font-semibold text-neutral-200 mb-1">Descrizione</h3>
                 <p class="text-sm text-neutral-400 leading-relaxed">{{ role.description }}</p>
+              </div>
+            </div>
+            
+            <!-- Long description with examples and strategy -->
+            <div v-if="role.longDescription" class="border-t border-neutral-800/40 pt-4">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/20">
+                  <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-sm font-semibold text-neutral-200 mb-2">Descrizione Dettagliata</h3>
+                  <div class="text-sm text-neutral-300 leading-relaxed whitespace-pre-line">{{ role.longDescription }}</div>
+                </div>
               </div>
             </div>
           </div>

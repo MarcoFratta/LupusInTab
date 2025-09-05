@@ -78,6 +78,7 @@ export function useGameState() {
             state.settings.skipFirstNightActions = !!savedSettings.skipFirstNightActions;
             state.settings.enableSindaco = !!savedSettings.enableSindaco;
             state.settings.discussionTimerEnabled = !!savedSettings.discussionTimerEnabled;
+            state.settings.difficolta = !!savedSettings.difficolta;
         }
 
         const p = route.params.page as string | undefined;

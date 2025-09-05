@@ -303,11 +303,47 @@ export class SetupManager {
       }
     }
     
+    // Process role groupings for reveal phase
+    SetupManager.processRoleGroupings(state, roleList);
+    
     // Adjust startNight values if first night actions are skipped
     PlayerManager.adjustStartNightForFirstNightSkip(state);
     
     state.revealIndex = 0;
     state.phase = 'revealRoles';
+  }
+
+  /**
+   * Process role groupings for the reveal phase
+   */
+  static processRoleGroupings(state: GameState, roleList: any[]): void {
+    if (!state.groupings) {
+      state.groupings = [];
+    }
+    
+    state.groupings = [];
+    
+    for (const player of state.players) {
+      const roleDef = ROLES[player.roleId];
+      if (roleDef && typeof roleDef.groups === 'function') {
+        try {
+          const groupings = roleDef.groups(state);
+          if (Array.isArray(groupings)) {
+            state.groupings.push(...groupings);
+          }
+        } catch (error) {
+          console.error(`Error in groups function for role ${player.roleId}:`, error);
+        }
+      }
+    }
+    
+    // Deduplicate groupings to prevent duplicates
+    const uniqueGroupings = state.groupings.filter((grouping, index, self) => 
+      self.findIndex(g => g.fromRole === grouping.fromRole && g.toRole === grouping.toRole) === index
+    );
+    state.groupings = uniqueGroupings;
+    
+    console.log(`🔍 [DEBUG] SetupManager.processRoleGroupings - Processed groupings:`, state.groupings);
   }
 
   /**

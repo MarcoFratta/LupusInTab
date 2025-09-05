@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { insinuo } from '../../roles/insinuo';
+import { setMockGameState } from '../setup';
 
 describe('Insinuo Role', () => {
   let mockGameState: any;
@@ -19,6 +20,9 @@ describe('Insinuo Role', () => {
           pendingKills: {}
         }
       },
+      settings: { difficolta: false },
+      groupings: [],
+      custom: {},
       players: [
         { 
           id: 1, 
@@ -52,12 +56,14 @@ describe('Insinuo Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should not perform any night actions', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -71,6 +77,7 @@ describe('Insinuo Role', () => {
     it('should handle any action without errors', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 2 },
         used: true
       };

@@ -1,6 +1,8 @@
 import type { RoleDef } from '../types';
 import { mannariWin, mannariBlocksOtherWins } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from "../utils/roleAPI";
+import { checkPlayerRole } from '../utils/roleChecking';
 
 const lupomannaro: RoleDef = {
     id: 'lupomannaro',
@@ -10,11 +12,15 @@ const lupomannaro: RoleDef = {
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Vince solo se rimane in vita con un altro giocatore. Di notte dichiara un giocatore e un ruolo:' +
-        ' se indovina, la vittima muore sbranata. ' +
-        'Se rimane in vita, nessun altro può vincere.' +
-        ' I lupi non possono ucciderlo. ' +
-        'Muore se il veggente lo indaga.',
+    description: 'Vince solo se rimane vivo con un altro giocatore',
+    longDescription: `Il Lupo Mannaro è un ruolo solitario con poteri speciali.
+
+COME FUNZIONA:
+• Vince solo se rimane in vita con esattamente un altro giocatore
+• Di notte può dichiarare un giocatore e un ruolo: se indovina, la vittima muore
+• Se rimane in vita, nessun altro può vincere
+• I lupi non possono ucciderlo
+• Muore se il Veggente lo investiga`,
     color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -22,28 +28,21 @@ const lupomannaro: RoleDef = {
     numberOfUsage: 'unlimited',
 
     passiveEffect(gameState: any, player: any) {
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-        if (pk[player.id]) {
-            pk[player.id] = pk[player.id].filter(kill => kill.role !== 'lupo');
-            
-            if (pk[player.id].length === 0) {
-                delete pk[player.id];
-            }
-        }
+        // Remove lupo kills from lupomannaro
+        RoleAPI.removeKills(player.id, 'lupo');
     },
+    
     resolve(gameState: any, action: any) {
         const targetId = Number(action?.data?.targetId);
         const roleId = String(action?.data?.roleId || '');
         const lupomannaroId = action.playerId || 0;
         
         if (!Number.isFinite(targetId) || targetId <= 0 || !roleId) return;
-        const target = gameState.players.find((p: any) => p.id === targetId);
+        const target = RoleAPI.getPlayer(targetId);
         if (!target) return;
-        const isCorrect = target.roleId === roleId;
+        const isCorrect = checkPlayerRole(targetId, roleId, gameState);
         if (isCorrect) {
-            const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string }>>;
-            if (!pk[targetId]) pk[targetId] = [];
-            pk[targetId].push({ role: 'lupomannaro' });
+            RoleAPI.addKill(targetId, 'lupomannaro');
         }
         
         return {
@@ -57,6 +56,7 @@ const lupomannaro: RoleDef = {
             data: action.data
         };
     },
+    
     checkWin(gameState: any) {
         return mannariWin(gameState);
     },

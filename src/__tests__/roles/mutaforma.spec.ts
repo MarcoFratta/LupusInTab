@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import mutaforma from '../../roles/mutaforma';
+import { setMockGameState } from '../setup';
 
 vi.mock('../../roles', () => ({
   ROLES: {
@@ -98,6 +99,8 @@ describe('Mutaforma Role', () => {
       playerIds: [1],
       data: { targetId: 2 }
     };
+    
+    setMockGameState(mockGameState);
   });
 
   describe('Role Definition', () => {
@@ -253,6 +256,7 @@ describe('Mutaforma Role', () => {
         ]
       };
       
+      setMockGameState(mockStateWithInvalidRole);
       const result = mutaforma.resolve(mockStateWithInvalidRole, action);
       expect(result).toBeUndefined();
     });

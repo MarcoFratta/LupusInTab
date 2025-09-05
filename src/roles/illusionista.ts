@@ -1,6 +1,7 @@
 import type { RoleDef } from '../types';
 import { wolvesWin } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from "../utils/roleAPI";
 
 const illusionista: RoleDef = {
     id: 'illusionista',
@@ -9,29 +10,37 @@ const illusionista: RoleDef = {
 	score: 6,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Di notte blocca le abilità notturne di un giocatore.',
+    description: 'Blocca le abilità notturne di un giocatore',
+    longDescription: `L'Illusionista può impedire a un giocatore di usare le sue abilità notturne.
+
+COME FUNZIONA:
+• Di notte può scegliere un giocatore da bloccare
+• Il giocatore bloccato non può usare le sue abilità notturne
+• Il blocco dura per quella notte
+• L'azione è opzionale: può scegliere di non usarla`,
     color: '#a78bfa',
     phaseOrder: -3,
     actsAtNight: "alive",
     effectType: 'optional',
     getPromptComponent: componentFactory('Illusionista', "prompt"),
     getResolveDetailsComponent: componentFactory('Illusionista', "details"),
+    
     resolve(gameState: any, action: any) {
 		const targetId = Number(action?.data?.targetId);
 		if (!Number.isFinite(targetId) || targetId <= 0) return;
 		
-		const targetPlayer = gameState.players.find(p => p.id === targetId);
+		const targetPlayer = RoleAPI.getPlayer(targetId);
 		if (targetPlayer) {
 			const originalActsAtNight = targetPlayer.roleState.actsAtNight;
 			
 			if (originalActsAtNight !== 'never') {
-				if (!gameState.custom) gameState.custom = {};
-				if (!gameState.custom['illusionista']) gameState.custom['illusionista'] = {};
-				gameState.custom['illusionista'][targetId] = {
+				const customData = RoleAPI.getCustomData('illusionista');
+				customData[targetId] = {
 					originalActsAtNight: originalActsAtNight
 				};
+				RoleAPI.setCustomData('illusionista', customData);
 				
-				targetPlayer.roleState.actsAtNight = 'blocked';
+				RoleAPI.blockPlayer(targetId);
 			}
 		}
 		
@@ -44,26 +53,26 @@ const illusionista: RoleDef = {
 			data: action.data
 		};
 	},
+    
     checkWin(gameState: any) {
 		return wolvesWin(gameState);
 	},
 	
 	restoreFunction(gameState: any) {
 		// Always restore blocked players, regardless of whether illusionista is alive or dead
-		if (gameState.custom && gameState.custom['illusionista']) {
-			Object.entries(gameState.custom['illusionista']).forEach(([targetIdStr, data]: [string, any]) => {
-				const targetId = Number(targetIdStr);
-				const targetPlayer = gameState.players.find(p => p.id === targetId);
-				if (targetPlayer && data.originalActsAtNight !== undefined) {
-					// Restore the original actsAtNight value
-					targetPlayer.roleState.actsAtNight = data.originalActsAtNight;
-					console.log(`🔓 [Illusionista] Restored player ${targetPlayer.name} actsAtNight from 'blocked' to '${data.originalActsAtNight}'`);
-				}
-			});
-			
-			// Clean up the custom data
-			delete gameState.custom['illusionista'];
-		}
+		const customData = RoleAPI.getCustomData('illusionista');
+		Object.entries(customData).forEach(([targetIdStr, data]: [string, any]) => {
+			const targetId = Number(targetIdStr);
+			const targetPlayer = RoleAPI.getPlayer(targetId);
+			if (targetPlayer && data.originalActsAtNight !== undefined) {
+				// Restore the original actsAtNight value
+				RoleAPI.unblockPlayer(targetId, data.originalActsAtNight);
+				console.log(`🔓 [Illusionista] Restored player ${targetPlayer.name} actsAtNight from 'blocked' to '${data.originalActsAtNight}'`);
+			}
+		});
+		
+		// Clean up the custom data
+		RoleAPI.clearCustomData('illusionista');
 	},
 };
 

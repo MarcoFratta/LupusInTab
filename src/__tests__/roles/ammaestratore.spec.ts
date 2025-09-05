@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import ammaestratore from '../../roles/ammaestratore';
+import { setMockGameState } from '../setup';
 
 describe('Ammaestratore Role', () => {
   let mockGameState: any;
@@ -19,6 +20,8 @@ describe('Ammaestratore Role', () => {
           pendingKills: {}
         }
       },
+      settings: { difficolta: false },
+      groupings: [],
       players: [
         { 
           id: 1, 
@@ -46,6 +49,7 @@ describe('Ammaestratore Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Role Properties', () => {

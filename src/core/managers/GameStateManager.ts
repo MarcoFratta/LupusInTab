@@ -27,7 +27,8 @@ export class GameStateManager {
       settings: { 
         skipFirstNightActions: true, 
         enableSindaco: false, 
-        discussionTimerEnabled: false 
+        discussionTimerEnabled: false,
+        difficolta: false
       },
       sindacoId: null as any,
       winner: null,

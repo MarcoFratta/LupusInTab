@@ -4,10 +4,10 @@ import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import DisplayFaction from '../../ui/DisplayFaction.vue';
 import { ROLES } from '../../../roles';
 
-const props = defineProps<{ gameState: any, player: any, playerIds: number[], onComplete: (r:any)=>void }>();
+const props = defineProps<{ gameState: any, playerIds: number[], onComplete: (r:any)=>void }>();
 
 const targetId = ref<number | null>(null);
-const selectable = computed(() => props.gameState.players.filter((p: any) => p.alive && p.id !== props.player?.id && !props.playerIds.includes(p.id)));
+const selectable = computed(() => props.gameState.players.filter((p: any) => p.alive && !props.playerIds.includes(p.id)));
 const choices = computed(() => [
 	{ label: 'Seleziona un giocatore…', value: null },
 	...selectable.value.map((p: any) => ({ label: p.name, value: p.id }))

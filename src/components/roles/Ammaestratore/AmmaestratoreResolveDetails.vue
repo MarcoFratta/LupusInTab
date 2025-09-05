@@ -58,10 +58,6 @@ const targetPlayer = computed(() => {
           action: redirectInfo.result === 'blocked' ? 'ha bloccato gli attacchi' : 'ha reindirizzato gli attacchi verso'
         }"
       />
-      
-      <div v-if="redirectInfo.result === 'blocked'" class="text-center">
-        <p class="text-sm text-neutral-600">Nessuno è morto questa notte</p>
-      </div>
     </div>
   </div>
 </template>

@@ -171,7 +171,7 @@ window.addEventListener('resize', updateTimelineLine);
       <div class="w-full">
         <div class="relative">
           <div class="overflow-x-auto pb-4 scrollbar-hide">
-            <div ref="timelineContainerRef" class="flex items-start justify-start gap-8 min-w-max px-4 relative timeline-container">
+            <div ref="timelineContainerRef" class="flex items-start justify-between gap-8 w-full px-4 relative timeline-container">
               <div 
                 v-if="timelineDays.length > 1"
                 ref="timelineLineRef"

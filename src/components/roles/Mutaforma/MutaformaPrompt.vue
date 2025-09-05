@@ -6,7 +6,6 @@ import { getFactionConfig } from '../../../factions';
 
 const props = defineProps<{
   gameState: any;
-  player: any;
   playerIds: number[];
   onComplete: (result: any) => void;
 }>();
@@ -20,7 +19,6 @@ const selectable = computed(() => {
   
   return props.gameState.players.filter((p: any) => 
     p.alive && 
-    p.id !== props.player?.id && 
     !props.playerIds.includes(p.id)
   );
 });
@@ -46,20 +44,20 @@ const hasPendingKills = computed(() => {
   if (!props.gameState.night?.context?.pendingKills) return false;
   
   // Get all alive mutaforma players
-  const aliveMutaformaPlayers = props.playerIds.filter(playerId => {
-    const player = props.gameState.players.find(p => p.id === playerId);
+  const aliveMutaformaPlayers = props.playerIds.filter((playerId: number) => {
+    const player = props.gameState.players.find((p: any) => p.id === playerId);
     return player && player.alive;
   });
   
   if (aliveMutaformaPlayers.length === 0) return false;
   
   // Check if ANY alive mutaforma player has pending kills from mutaforma passive effect
-  return aliveMutaformaPlayers.some(playerId => {
+  return aliveMutaformaPlayers.some((playerId: number) => {
     const pendingKills = props.gameState.night.context.pendingKills[playerId];
     if (!pendingKills || pendingKills.length === 0) return false;
     
     // Check if any of the pending kills are from mutaforma passive effect
-    return pendingKills.some(kill => kill.role === 'mutaforma');
+    return pendingKills.some((kill: any) => kill.role === 'mutaforma');
   });
 });
 
@@ -70,7 +68,26 @@ const targetPlayer = computed(() => {
 
 const targetRole = computed(() => {
   if (!targetPlayer.value) return null;
-  return ROLES[targetPlayer.value.roleId];
+  
+  const originalRole = ROLES[targetPlayer.value.roleId];
+  if (!originalRole) return null;
+  
+  // Check if this role is grouped with another role that can act at night
+  if (originalRole.actsAtNight === 'never') {
+    const groupings = props.gameState.groupings || [];
+    const grouping = groupings.find((g: any) => g.toRole === originalRole.id);
+    
+    if (grouping) {
+      // Use the grouped role instead
+      const groupedRole = ROLES[grouping.fromRole];
+      if (groupedRole && groupedRole.actsAtNight !== 'never') {
+        console.log(`🔄 [DEBUG] Mutaforma UI using grouped role: ${groupedRole.id} instead of ${originalRole.id}`);
+        return groupedRole;
+      }
+    }
+  }
+  
+  return originalRole;
 });
 
 const targetRoleFactionColor = computed(() => {
@@ -88,14 +105,34 @@ const targetRoleCanBeUsed = computed(() => {
 
 const AsyncTargetRolePrompt = computed(() => {
   if (!targetRole.value || !targetRoleCanBeUsed.value) return null;
-  return defineAsyncComponent(targetRole.value.getPromptComponent);
+  const promptComponent = targetRole.value.getPromptComponent;
+  if (!promptComponent) return null;
+  return defineAsyncComponent(promptComponent as () => Promise<any>);
 });
 
 function mutaformaCanUseTargetRole(role: any) {
   if (!role || hasPendingKills.value) return false;
   
-  // Role doesn't act at night
-  if (role.actsAtNight === 'never') return false;
+  // Check if role acts at night, considering groupings
+  let effectiveRole = role;
+  if (role.actsAtNight === 'never') {
+    // Check if this role is grouped with a role that can act at night
+    const groupings = props.gameState.groupings || [];
+    const grouping = groupings.find((g: any) => g.toRole === role.id);
+    
+    if (grouping) {
+      // Use the grouped role instead
+      const groupedRole = ROLES[grouping.fromRole];
+      if (groupedRole && groupedRole.actsAtNight !== 'never') {
+        effectiveRole = groupedRole;
+        console.log(`🔄 [DEBUG] Mutaforma check using grouped role: ${groupedRole.id} instead of ${role.id}`);
+      } else {
+        return false; // No valid grouping found
+      }
+    } else {
+      return false; // No grouping and actsAtNight is never
+    }
+  }
   
   // Check if the target player's roleState.actsAtNight is blocked
   if (targetPlayer.value?.roleState?.actsAtNight === 'blocked') return false;
@@ -104,32 +141,32 @@ function mutaformaCanUseTargetRole(role: any) {
   if (!targetPlayer.value?.alive) return false;
   
   // Role requires being dead but Mutaforma is alive
-  if (role.actsAtNight === 'dead') return false;
+  if (effectiveRole.actsAtNight === 'dead') return false;
   
   // Role requires being alive but ALL Mutaforma players are dead
-  if (role.actsAtNight === 'alive') {
-    const aliveMutaformaPlayers = props.playerIds.filter(playerId => {
-      const player = props.gameState.players.find(p => p.id === playerId);
+  if (effectiveRole.actsAtNight === 'alive') {
+    const aliveMutaformaPlayers = props.playerIds.filter((playerId: number) => {
+      const player = props.gameState.players.find((p: any) => p.id === playerId);
       return player && player.alive;
     });
     if (aliveMutaformaPlayers.length === 0) return false;
   }
   
   // Role can only start from a certain night
-  if (role.startNight && typeof role.startNight === 'number') {
-     const startNight = props.gameState.settings.skipFirstNightActions ? role.startNight + 1 : role.startNight;
+  if (effectiveRole.startNight && typeof effectiveRole.startNight === 'number') {
+     const startNight = props.gameState.settings.skipFirstNightActions ? effectiveRole.startNight + 1 : effectiveRole.startNight;
     if (props.gameState.nightNumber < startNight) return false;
   }
   
   // Role has usage limits that are already exhausted
-  if (role.numberOfUsage !== 'unlimited' && role.numberOfUsage !== undefined) {
-    const usedPowers = props.gameState.usedPowers?.[role.id] || [];
+  if (effectiveRole.numberOfUsage !== 'unlimited' && effectiveRole.numberOfUsage !== undefined) {
+    const usedPowers = props.gameState.usedPowers?.[effectiveRole.id] || [];
     const timesUsed = usedPowers.length;
-    if (timesUsed >= role.numberOfUsage) return false;
+    if (timesUsed >= effectiveRole.numberOfUsage) return false;
   }
   
   // Role is blocked or has other constraints
-  if (role.effectType === 'blocked') return false;
+  if (effectiveRole.effectType === 'blocked') return false;
   
   return true;
 }
@@ -166,8 +203,8 @@ function onTargetRoleComplete(result: any) {
       // Create a proper action context for the target role
       const targetAction = {
         data: result,
-        playerId: props.player?.id,
-        playerIds: props.playerIds,
+        playerId: targetPlayer.value?.id || props.playerIds[0], // Use target player's ID
+        playerIds: targetPlayer.value ? [targetPlayer.value.id] : props.playerIds,
         roleId: targetRole.value.id,
         nightNumber: props.gameState.nightNumber
       };
@@ -230,6 +267,8 @@ function completeWithUnusableRole() {
     reason = 'dead';
   } else if (targetRole.value?.actsAtNight === 'dead') {
     reason = 'alive';
+  } else if (targetRole.value?.actsAtNight === 'never') {
+    reason = 'never';
   } else if (targetRole.value?.startNight && typeof targetRole.value.startNight === 'number') {
     const startNight = props.gameState.settings.skipFirstNightActions ? targetRole.value.startNight + 1 : targetRole.value.startNight;
     if (props.gameState.nightNumber < startNight) {
@@ -237,7 +276,7 @@ function completeWithUnusableRole() {
     }
   } else if (targetRole.value?.numberOfUsage !== 'unlimited' && targetRole.value?.numberOfUsage !== undefined) {
     const usedPowers = props.gameState.usedPowers?.[targetRole.value.id] || [];
-    const timesUsed = usedPowers.filter((playerId: number) => playerId === props.player?.id).length;
+    const timesUsed = usedPowers.filter((playerId: number) => props.playerIds.includes(playerId)).length;
     if (timesUsed >= targetRole.value.numberOfUsage) {
       reason = 'usageLimit';
     }
@@ -279,8 +318,8 @@ function getRoleConstraintReason() {
   }
 
   if (targetRole.value.actsAtNight === 'alive') {
-    const aliveMutaformaPlayers = props.playerIds.filter(playerId => {
-      const player = props.gameState.players.find(p => p.id === playerId);
+    const aliveMutaformaPlayers = props.playerIds.filter((playerId: number) => {
+      const player = props.gameState.players.find((p: any) => p.id === playerId);
       return player && player.alive;
     });
     if (aliveMutaformaPlayers.length === 0) {
@@ -424,7 +463,6 @@ function getRoleConstraintReason() {
         <AsyncTargetRolePrompt
           v-if="AsyncTargetRolePrompt"
           :gameState="props.gameState"
-          :player="props.player"
           :playerIds="props.playerIds"
           :onComplete="onTargetRoleComplete"
         />

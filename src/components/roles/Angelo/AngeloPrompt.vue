@@ -5,14 +5,13 @@ import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
-    player: { type: Object, required: true },
     playerIds: { type: Array, required: true },
-    onComplete: { type: Function, required: true },
+    onComplete: { type: Function, required: true }
 });
 
 const hasActed = computed(() => {
     const used = props.gameState.usedPowers?.['angelo'] || [];
-    return used.includes(props.player.id);
+    return props.playerIds.some(playerId => used.includes(playerId));
 });
 
 const targetId = ref(null);

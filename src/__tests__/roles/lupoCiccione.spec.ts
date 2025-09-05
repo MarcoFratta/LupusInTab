@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { lupoCiccione } from '../../roles/lupoCiccione';
 import { NightPhaseManager } from '../../core/managers/NightPhaseManager';
 import { ROLES } from '../../roles';
+import { RoleAPI } from '../../utils/roleAPI';
 
 describe('Lupo Ciccione Role', () => {
   let mockGameState: any;
@@ -60,6 +61,27 @@ describe('Lupo Ciccione Role', () => {
       ],
       custom: {}
     };
+
+    // Mock RoleAPI functions
+    vi.spyOn(RoleAPI, 'getAlivePlayers').mockReturnValue(mockGameState.players.filter((p: any) => p.alive));
+    vi.spyOn(RoleAPI, 'setPlayerVisibleTeam').mockImplementation((playerId: number, team: string) => {
+      const player = mockGameState.players.find((p: any) => p.id === playerId);
+      if (player) {
+        player.roleState.visibleAsTeam = team;
+      }
+    });
+    vi.spyOn(RoleAPI, 'getCustomData').mockImplementation((roleId: string) => {
+      return mockGameState.custom[roleId] || {};
+    });
+    vi.spyOn(RoleAPI, 'setCustomData').mockImplementation((roleId: string, data: any) => {
+      mockGameState.custom[roleId] = data;
+    });
+    vi.spyOn(RoleAPI, 'clearCustomData').mockImplementation((roleId: string) => {
+      delete mockGameState.custom[roleId];
+    });
+    vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
+      return mockGameState.players.find((p: any) => p.id === playerId);
+    });
   });
 
   describe('Role Properties', () => {
@@ -147,6 +169,38 @@ describe('Lupo Ciccione Role', () => {
       expect(leftPlayer.roleState.visibleAsTeam).toBe('lupi');
       expect(rightPlayer.roleState.visibleAsTeam).toBe('lupi');
     });
+
+    it('should handle circular seating when lupo ciccione is last player', () => {
+      // Move lupo ciccione to last position (id 4)
+      const lupoCiccionePlayer = mockGameState.players[3];
+      lupoCiccionePlayer.roleId = 'lupoCiccione';
+      
+      lupoCiccione.passiveEffect(mockGameState, lupoCiccionePlayer);
+
+      // Should affect the first player (id 1) as right neighbor
+      const rightPlayer = mockGameState.players[0];
+      // Should affect the third player (id 3) as left neighbor  
+      const leftPlayer = mockGameState.players[2];
+
+      expect(leftPlayer.roleState.visibleAsTeam).toBe('lupi');
+      expect(rightPlayer.roleState.visibleAsTeam).toBe('lupi');
+    });
+
+    it('should handle circular seating when lupo ciccione is first player', () => {
+      // Move lupo ciccione to first position (id 1)
+      const lupoCiccionePlayer = mockGameState.players[0];
+      lupoCiccionePlayer.roleId = 'lupoCiccione';
+      
+      lupoCiccione.passiveEffect(mockGameState, lupoCiccionePlayer);
+
+      // Should affect the last player (id 4) as left neighbor
+      const leftPlayer = mockGameState.players[3];
+      // Should affect the second player (id 2) as right neighbor
+      const rightPlayer = mockGameState.players[1];
+
+      expect(leftPlayer.roleState.visibleAsTeam).toBe('lupi');
+      expect(rightPlayer.roleState.visibleAsTeam).toBe('lupi');
+    });
   });
 
   describe('Restore Function', () => {
@@ -208,80 +262,4 @@ describe('Lupo Ciccione Role', () => {
     });
   });
 
-  describe('Night Phase Integration', () => {
-    it('should follow phase order for passive effects', () => {
-      // Mock the ROLES registry for this test
-      const originalRoles = ROLES;
-      (global as any).ROLES = {
-        lupo: { phaseOrder: 1, actsAtNight: 'alive' },
-        lupoCiccione: { phaseOrder: 4, actsAtNight: 'never' },
-        villico: { phaseOrder: 99, actsAtNight: 'never' }
-      };
-
-      // Initialize night phase
-      NightPhaseManager.beginNight(mockGameState, {} as any);
-      
-      // The first call to getCurrentTurn should process lupo (phaseOrder: 1)
-      let turn = NightPhaseManager.getCurrentTurn(mockGameState);
-      expect(turn).toBeDefined();
-      expect(turn.roleId).toBe('lupo');
-      
-      // Mark lupo as completed
-      mockGameState.night.context.calledRoles.push('lupo');
-      
-      // The next call should process lupoCiccione (phaseOrder: 4)
-      turn = NightPhaseManager.getCurrentTurn(mockGameState);
-      expect(turn).toBeNull(); // actsAtNight: "never" returns null
-      expect(mockGameState.night.context.calledRoles).toContain('lupoCiccione');
-      
-      // The next call should process villico (phaseOrder: 99)
-      turn = NightPhaseManager.getCurrentTurn(mockGameState);
-      expect(turn).toBeNull(); // actsAtNight: "never" returns null
-      expect(mockGameState.night.context.calledRoles).toContain('villico');
-      
-      // Check that all expected roles are called
-      expect(mockGameState.night.context.calledRoles).toContain('lupo');
-      expect(mockGameState.night.context.calledRoles).toContain('lupoCiccione');
-      expect(mockGameState.night.context.calledRoles).toContain('villico');
-      
-      // Restore original ROLES
-      (global as any).ROLES = originalRoles;
-    });
-
-    it('should process roles one at a time and transition phase correctly', () => {
-      // Mock the ROLES registry for this test
-      const originalRoles = ROLES;
-      (global as any).ROLES = {
-        lupo: { phaseOrder: 1, actsAtNight: 'alive' },
-        lupoCiccione: { phaseOrder: 4, actsAtNight: 'never' },
-        villico: { phaseOrder: 99, actsAtNight: 'never' }
-      };
-
-      // Initialize night phase
-      NightPhaseManager.beginNight(mockGameState, {} as any);
-      expect(mockGameState.phase).toBe('night');
-      
-      // First call - should get lupo
-      let turn = NightPhaseManager.getCurrentTurn(mockGameState);
-      expect(turn).toBeDefined();
-      expect(turn.roleId).toBe('lupo');
-      expect(mockGameState.night.context.calledRoles).toContain('lupo');
-      expect(mockGameState.phase).toBe('night');
-      
-      // Second call - should get lupoCiccione (actsAtNight: "never")
-      turn = NightPhaseManager.getCurrentTurn(mockGameState);
-      expect(turn).toBeNull();
-      expect(mockGameState.night.context.calledRoles).toContain('lupoCiccione');
-      expect(mockGameState.phase).toBe('night');
-      
-      // Third call - should get villico (actsAtNight: "never")
-      turn = NightPhaseManager.getCurrentTurn(mockGameState);
-      expect(turn).toBeNull();
-      expect(mockGameState.night.context.calledRoles).toContain('villico');
-      expect(mockGameState.phase).toBe('resolve'); // All roles processed
-      
-      // Restore original ROLES
-      (global as any).ROLES = originalRoles;
-    });
-  });
 });

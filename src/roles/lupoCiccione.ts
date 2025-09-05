@@ -1,5 +1,6 @@
 import type { RoleDef } from '../types';
-import { getRoleCustomData, setRoleCustomData, clearRoleCustomData } from '../utils/roleUtils';
+import { componentFactory } from '../utils/roleUtils';
+import { RoleAPI } from '../utils/roleAPI';
 
 export const lupoCiccione: RoleDef = {
 	id: 'lupoCiccione',
@@ -9,41 +10,50 @@ export const lupoCiccione: RoleDef = {
 	score: 15,
 	countAs: 'lupi',
 	color: '#dc2626',
-	description: "É un lupo a tutti gli effetti, ma sua mole disturba la vista del veggente o ruoli simili. " +
-        "I primi giocatori alla sua destra e alla sua sinistra verranno visti come lupi agli occhi del veggente o ruoli simili." +
-        " Fate attenzione ad assegnare correttamente i nomi rispetto all'ordine di gioco.",
-	phaseOrder: 0,
+	description: 'È un lupo che confonde le investigazioni',
+    longDescription: `Il Lupo Ciccione è un lupo che disturba le investigazioni.
+
+COME FUNZIONA:
+• È un lupo a tutti gli effetti
+• I primi giocatori vivi alla sua destra e sinistra appaiono come lupi alle investigazioni
+• Non può agire di notte (agisce con gli altri lupi)
+• L'effetto è passivo e permanente`,
+	phaseOrder: 4,
 	actsAtNight: "never",
 	effectType: 'optional',
 	numberOfUsage: 'unlimited',
     resolve() {},
+    
 	groups: (gameState: any) => {
 		return [{ fromRole: 'lupo', toRole: 'lupoCiccione' }];
 	},
+	
 	passiveEffect: (gameState: any, player: any) => {
 		if (!player.alive) return;
 
-		const players = gameState.players;
-		const playerIndex = players.findIndex((p: any) => p.id === player.id);
+		const allPlayers = gameState.players.filter((p: any) => p.alive).sort((a: any, b: any) => a.id - b.id);
+		const playerIndex = allPlayers.findIndex((p: any) => p.id === player.id);
 		if (playerIndex === -1) return;
 
-		const numPlayers = players.length;
+		const numPlayers = allPlayers.length;
 		let leftPlayer = null;
 		let rightPlayer = null;
 
+		// Find the first alive player to the left (circular)
 		let leftIndex = (playerIndex - 1 + numPlayers) % numPlayers;
 		while (leftIndex !== playerIndex) {
-			if (players[leftIndex].alive) {
-				leftPlayer = players[leftIndex];
+			if (allPlayers[leftIndex].alive) {
+				leftPlayer = allPlayers[leftIndex];
 				break;
 			}
 			leftIndex = (leftIndex - 1 + numPlayers) % numPlayers;
 		}
 
+		// Find the first alive player to the right (circular)
 		let rightIndex = (playerIndex + 1) % numPlayers;
 		while (rightIndex !== playerIndex) {
-			if (players[rightIndex].alive) {
-				rightPlayer = players[rightIndex];
+			if (allPlayers[rightIndex].alive) {
+				rightPlayer = allPlayers[rightIndex];
 				break;
 			}
 			rightIndex = (rightIndex + 1) % numPlayers;
@@ -57,7 +67,7 @@ export const lupoCiccione: RoleDef = {
 				originalVisibleAsTeam: leftPlayer.roleState.visibleAsTeam,
 				position: 'left'
 			});
-			leftPlayer.roleState.visibleAsTeam = 'lupi';
+			RoleAPI.setPlayerVisibleTeam(leftPlayer.id, 'lupi');
 		}
 
 		if (rightPlayer) {
@@ -66,25 +76,27 @@ export const lupoCiccione: RoleDef = {
 				originalVisibleAsTeam: rightPlayer.roleState.visibleAsTeam,
 				position: 'right'
 			});
-			rightPlayer.roleState.visibleAsTeam = 'lupi';
+			RoleAPI.setPlayerVisibleTeam(rightPlayer.id, 'lupi');
 		}
 
-		if (!gameState.custom) gameState.custom = {};
-		if (!gameState.custom.lupoCiccione) gameState.custom.lupoCiccione = {};
-		gameState.custom.lupoCiccione.affectedPlayers = affectedPlayers;
+		const customData = RoleAPI.getCustomData('lupoCiccione');
+		customData.affectedPlayers = affectedPlayers;
+		RoleAPI.setCustomData('lupoCiccione', customData);
 	},
+	
 	restoreFunction: (gameState: any) => {
-		if (!gameState.custom?.lupoCiccione?.affectedPlayers) return;
+		const customData = RoleAPI.getCustomData('lupoCiccione');
+		if (!customData.affectedPlayers) return;
 
-		const affectedPlayers = gameState.custom.lupoCiccione.affectedPlayers;
+		const affectedPlayers = customData.affectedPlayers;
 
 		for (const affectedPlayer of affectedPlayers) {
-			const player = gameState.players.find((p: any) => p.id === affectedPlayer.playerId);
+			const player = RoleAPI.getPlayer(affectedPlayer.playerId);
 			if (player && affectedPlayer.originalVisibleAsTeam !== undefined) {
-				player.roleState.visibleAsTeam = affectedPlayer.originalVisibleAsTeam;
+				RoleAPI.setPlayerVisibleTeam(affectedPlayer.playerId, affectedPlayer.originalVisibleAsTeam);
 			}
 		}
 
-		delete gameState.custom.lupoCiccione;
+		RoleAPI.clearCustomData('lupoCiccione');
 	}
 };

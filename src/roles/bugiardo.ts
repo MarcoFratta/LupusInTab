@@ -1,6 +1,7 @@
 import type { RoleDef } from '../types';
 import { wolvesWin } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from '../utils/roleAPI';
 
 const bugiardo: RoleDef = {
 	id: 'bugiardo',
@@ -10,7 +11,14 @@ const bugiardo: RoleDef = {
     score: 8,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Un aiutante dei lupi che può scoprire il ruolo di un morto una sola volta per partita.',
+    description: 'Scopre il ruolo di un morto una volta per partita',
+    longDescription: `Il Bugiardo è un aiutante dei lupi che può investigare i morti.
+
+COME FUNZIONA:
+• Una volta per partita può scoprire il ruolo di un giocatore morto
+• L'azione è opzionale: può scegliere di non usarla
+• Può iniziare ad agire dalla 2ª notte
+• Appare come villaggio alle investigazioni`,
     color: '#dc2626',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -20,13 +28,14 @@ const bugiardo: RoleDef = {
     canTargetDead: true,
     getPromptComponent: componentFactory('Bugiardo', "prompt"),
     getResolveDetailsComponent: componentFactory('Bugiardo', "details"),
+    
     resolve(gameState: any, action: any) {
-        if (gameState.nightNumber < this.startNight!) return;
+        if (RoleAPI.getNightNumber() < this.startNight!) return;
         
         const targetId = Number(action?.data?.targetId || action?.result?.targetId);
         if (!Number.isFinite(targetId)) return;
         
-        const target = gameState.players.find((p: any) => p.id === targetId);
+        const target = RoleAPI.getPlayer(targetId);
         if (!target) return;
         
         return {
@@ -40,6 +49,7 @@ const bugiardo: RoleDef = {
             data: action.data
         };
     },
+    
     checkWin(gameState: any) {
         return wolvesWin(gameState);
     },

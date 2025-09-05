@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, onErrorCaptured, onBeforeUnmount } from 'vue';
 import { getFactionConfig } from '../../factions';
+import { shouldRolesKnowEachOther, getRevealRoleLabel } from '../../utils/revealUtils';
 import FactionLabel from '../ui/FactionLabel.vue';
 import { LongPressButton, PassPhoneCard } from '../ui';
 import PromptSelect from '../ui/prompts/PromptSelect.vue';
@@ -108,14 +109,22 @@ const knownRoleAllies = computed(() => {
     const otherRoleDef = (ROLES as any)[p.roleId];
     if (!otherRoleDef) continue;
     
-    if (otherRoleDef.id === myRoleDef.id) {
+    // Check if roles should know each other (considering groupings)
+    if (shouldRolesKnowEachOther(myRoleDef.id, otherRoleDef.id, props.state)) {
       const myRoleState = me.roleState;
       const otherRoleState = p.roleState;
       
+      // If roles are grouped, they should know each other regardless of actsAtNight
+      // If roles are not grouped, apply the normal actsAtNight checks
+      const areGrouped = myRoleDef.id !== otherRoleDef.id; // Different roles means they're grouped
+      
       if (myRoleState && otherRoleState && 
-          myRoleState.actsAtNight !== "never" && 
-          otherRoleState.actsAtNight !== "never") {
-        const labelText = otherRoleDef.name;
+          (areGrouped || (myRoleState.actsAtNight !== "never" && otherRoleState.actsAtNight !== "never")) &&
+          otherRoleState.actsAtNight !== "blocked") {
+        // Use the grouped role name for display if applicable
+        const displayRoleId = getRevealRoleLabel(otherRoleDef.id, props.state);
+        const displayRoleDef = (ROLES as any)[displayRoleId] || otherRoleDef;
+        const labelText = displayRoleDef.name;
         result.push({ 
           id: p.id, 
           name: p.name, 

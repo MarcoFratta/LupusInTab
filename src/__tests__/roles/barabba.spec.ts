@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import barabba from '../../roles/barabba';
+import { setMockGameState } from '../setup';
 
 describe('Barabba Role', () => {
   let mockGameState: any;
@@ -19,6 +20,8 @@ describe('Barabba Role', () => {
           pendingKills: {}
         }
       },
+      settings: { difficolta: false },
+      groupings: [],
       players: [
         { 
           id: 1, 
@@ -40,12 +43,14 @@ describe('Barabba Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should add kill to pendingKills when target is valid', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -61,6 +66,7 @@ describe('Barabba Role', () => {
     it('should handle invalid target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 'invalid' },
         used: true
       };
@@ -74,6 +80,7 @@ describe('Barabba Role', () => {
     it('should handle missing target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: {},
         used: true
       };
@@ -87,6 +94,7 @@ describe('Barabba Role', () => {
     it('should handle non-existent target', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 999 },
         used: true
       };

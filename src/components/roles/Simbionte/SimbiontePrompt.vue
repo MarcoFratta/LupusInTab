@@ -7,7 +7,6 @@ import { getFactionConfig } from '../../../factions';
 
 const props = defineProps<{
   gameState: any;
-  player: any;
   playerIds: number[];
   onComplete: (result: any) => void;
 }>();
@@ -17,7 +16,6 @@ const targetId = ref<number | null>(null);
 const choices = computed(() => {
   const alive = props.gameState.players.filter((p: any) => 
     p.alive && 
-    p.id !== props.player?.id && 
     !props.playerIds.includes(p.id)
   );
   return [

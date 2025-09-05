@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { genio } from '../../roles/genio';
 import { NightPhaseManager } from '../../core/managers/NightPhaseManager';
 import { ROLES } from '../../roles/index';
+import { RoleAPI } from '../../utils/roleAPI';
 
 vi.mock('../../roles', () => ({
   ROLES: {
@@ -73,6 +74,11 @@ describe('Genio della Lampada', () => {
         }
       ]
     };
+
+    // Mock RoleAPI functions
+    vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
+      return mockGameState.players.find((p: any) => p.id === playerId);
+    });
   });
 
   describe('resolve function', () => {
@@ -98,9 +104,8 @@ describe('Genio della Lampada', () => {
     it('should not transform if action is invalid', () => {
       const action = null;
 
-      expect(() => {
-        genio.resolve(mockGameState, action);
-      }).toThrow();
+      const result = genio.resolve(mockGameState, action);
+      expect(result).toBeNull();
     });
 
     it('should not transform if target role is not enabled', () => {
@@ -197,10 +202,15 @@ describe('Genio della Lampada', () => {
             { kind: 'group', roleId: 'lupo', playerIds: [2] }
           ],
           currentIndex: 0,
-          context: { pendingKills: {}, savesBy: [], checks: [], calledRoles: new Set() }
+          context: { pendingKills: {}, savesBy: [], checks: [], calledRoles: [] }
         },
         phase: 'night'
       };
+
+      // Mock RoleAPI for this specific test
+      vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
+        return gameState.players.find((p: any) => p.id === playerId);
+      });
 
       const genioAction = {
         playerId: 1,
@@ -334,6 +344,11 @@ describe('Genio della Lampada', () => {
         ]
       };
 
+      // Mock RoleAPI for this specific test
+      vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
+        return gameState.players.find((p: any) => p.id === playerId);
+      });
+
       const action = {
         playerId: 1,
         data: {
@@ -387,6 +402,11 @@ describe('Genio della Lampada', () => {
           }
         ]
       };
+
+      // Mock RoleAPI for this specific test
+      vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
+        return gameState.players.find((p: any) => p.id === playerId);
+      });
 
       const action = {
         playerId: 1,

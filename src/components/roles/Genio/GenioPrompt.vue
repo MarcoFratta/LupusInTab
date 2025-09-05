@@ -57,7 +57,6 @@ import { getFactionConfig } from '../../../factions';
 
 const props = defineProps<{
   gameState: any;
-  player: any;
   playerIds: number[];
   onComplete: (result: any) => void;
 }>();

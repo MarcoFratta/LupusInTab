@@ -1,6 +1,8 @@
 import type { RoleDef } from '../types';
 import { villageWin } from '../utils/winConditions';
-import {componentFactory} from "../utils/roleUtils";
+import { componentFactory } from "../utils/roleUtils";
+import { RoleAPI } from '../utils/roleAPI';
+import { checkPlayerRole } from '../utils/roleChecking';
 
 const boia: RoleDef = {
     id: 'boia',
@@ -9,7 +11,14 @@ const boia: RoleDef = {
     score: 4,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Di notte impicca un giocatore se ne indovina il ruolo. Se sbaglia muore',
+    description: 'Uccide un giocatore se indovina il suo ruolo',
+    longDescription: `Il Boia è un assassino preciso che deve indovinare il ruolo per colpire.
+
+COME FUNZIONA:
+• Ogni notte può scegliere un giocatore e dichiarare il suo ruolo
+• Se indovina il ruolo, il giocatore muore immediatamente
+• Se sbaglia, il Boia muore al suo posto
+• L'azione è opzionale: può scegliere di non agire`,
     color: '#5b21b6',
     phaseOrder: "any",
     actsAtNight: "alive",
@@ -19,25 +28,22 @@ const boia: RoleDef = {
     revealToAllies: "role",
     getPromptComponent: componentFactory('Boia', "prompt"),
     getResolveDetailsComponent: componentFactory('Boia', "details"),
+    
     resolve(gameState: any, action: any) {
         const id = Number(action?.data?.targetId);
         const declaredRoleId = action?.data?.roleId ? String(action.data.roleId) : '';
         if (!Number.isFinite(id)) return;
         
-        const targetPlayer = gameState.players.find((p: any) => p.id === id);
+        const targetPlayer = RoleAPI.getPlayer(id);
         if (!targetPlayer) return;
         
-        const isCorrect = targetPlayer.roleId === declaredRoleId;
-        
-        const pk = gameState.night.context.pendingKills as Record<number, Array<{ role: string; notSavable: boolean }>>;
+        const isCorrect = checkPlayerRole(id, declaredRoleId, gameState);
         
         if (isCorrect) {
-            if (!pk[id]) pk[id] = [];
-            pk[id].push({ role: 'boia', notSavable: true });
+            RoleAPI.addKill(id, 'boia', { notSavable: true });
         } else {
             const boiaId = action.playerId || 0;
-            if (!pk[boiaId]) pk[boiaId] = [];
-            pk[boiaId].push({ role: 'boia', notSavable: true });
+            RoleAPI.addKill(boiaId, 'boia', { notSavable: true });
         }
 
         return {
@@ -51,6 +57,7 @@ const boia: RoleDef = {
             data: action.data
         };
     },
+    
     checkWin(gameState: any) {
         return villageWin(gameState);
     },

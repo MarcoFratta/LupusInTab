@@ -17,8 +17,8 @@ declare module './utils/storage' {
   } | null;
   export function clearPlayersSetup(): void;
 
-  export function saveSettings(payload: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean }): void;
-  export function loadSettings(): { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean } | null;
+  export function saveSettings(payload: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean; difficolta?: boolean }): void;
+  export function loadSettings(): { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean; difficolta?: boolean } | null;
   export function clearSettings(): void;
 }
 

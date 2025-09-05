@@ -116,6 +116,7 @@ export class NightPhaseManager {
   }
 
   private static getAvailableRoles(state: GameState): any[] {
+    // Get current unique roles dynamically (in case roles changed during the night)
     const uniqueRoles = new Set(state.players.map((p: any) => p.roleId));
     
     return Array.from(uniqueRoles)
@@ -169,6 +170,19 @@ export class NightPhaseManager {
 
   private static completeRole(roleInfo: any, state: GameState): void {
     if (state.night?.context) {
+      // Check if this role has already been completed to prevent duplicates
+      if (state.night.context.calledRoles.includes(roleInfo.roleId)) {
+        console.log(`🌙 [DEBUG] Role ${roleInfo.roleId} already completed, skipping duplicate`);
+        return;
+      }
+      
+      // Check if this role is already in turns array to prevent duplicate entries
+      const existingTurn = state.night.turns.find(turn => turn.roleId === roleInfo.roleId);
+      if (existingTurn) {
+        console.log(`🌙 [DEBUG] Role ${roleInfo.roleId} already in turns array, skipping duplicate`);
+        return;
+      }
+      
       state.night.turns.push({
         roleId: roleInfo.roleId,
         playerIds: roleInfo.players.map((p: any) => p.id)
@@ -184,23 +198,30 @@ export class NightPhaseManager {
     const currentRoleId = state.night.context.currentRoleId;
     if (!currentRoleId) return;
     
-    const roleDef = ROLES[currentRoleId];
     const allPlayers = NightPhaseManager.getPlayersForRole(currentRoleId, state);
     const playerIds = allPlayers.map(p => p.id);
+    
+    // Get the role definition from the actual player's current role (handles transformations)
+    const actualRoleId = allPlayers[0]?.roleId || currentRoleId;
+    const roleDef = ROLES[actualRoleId];
+    
+    console.log(`🔄 [DEBUG] recordNightResult - currentRoleId: ${currentRoleId}, actualRoleId: ${actualRoleId}`);
+    console.log(`🔄 [DEBUG] recordNightResult - allPlayers:`, allPlayers.map(p => ({ id: p.id, name: p.name, roleId: p.roleId, actsAtNight: p.roleState?.actsAtNight })));
+    console.log(`🔄 [DEBUG] recordNightResult - roleDef:`, roleDef?.id, roleDef?.name);
     
     const isFirstNightSkipped = state.settings?.skipFirstNightActions && state.nightNumber === 1;
     
     if (!isFirstNightSkipped) {
       GameStateManager.initializeHistory(state, state.nightNumber);
       NightPhaseManager.processNightActionResult(state, {
-        roleId: currentRoleId,
+        roleId: actualRoleId, // Use actual role ID
         kind: 'group',
         playerIds: playerIds
       }, result, roleDef, playerIds);
     }
     
     NightPhaseManager.completeRole({
-      roleId: currentRoleId,
+      roleId: actualRoleId, // Use actual role ID
       roleDef,
       players: allPlayers
     }, state);

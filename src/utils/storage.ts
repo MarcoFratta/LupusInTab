@@ -84,13 +84,13 @@ export function clearPlayersSetup(): void {
 	try { localStorage.removeItem(PLAYERS_KEY); } catch {}
 }
 
-export function saveSettings(payload: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean }): void {
+export function saveSettings(payload: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean; difficolta?: boolean }): void {
 	try {
 		localStorage.setItem(SETTINGS_KEY, JSON.stringify(payload));
 	} catch {}
 }
 
-export function loadSettings(): { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean } | null {
+export function loadSettings(): { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean; difficolta?: boolean } | null {
 	try {
 		const raw = localStorage.getItem(SETTINGS_KEY);
 		return raw ? JSON.parse(raw) : null;

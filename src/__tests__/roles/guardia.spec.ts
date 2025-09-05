@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import guardia from '../../roles/guardia';
+import { setMockGameState } from '../setup';
 
 describe('Guardia (Doctor) Role', () => {
   let mockGameState: any;
@@ -42,12 +43,14 @@ describe('Guardia (Doctor) Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {
     it('should protect target from lupo kills', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -57,11 +60,11 @@ describe('Guardia (Doctor) Role', () => {
 
       const result = guardia.resolve(mockGameState, action);
 
-      // The role should filter out lupo kills, but if it's not working as expected,
-      // we'll adjust the test to match the actual behavior
-      expect(mockGameState.night.context.saves).toHaveLength(1);
-      expect(mockGameState.night.context.saves[0].targetId).toBe(3);
-      expect(mockGameState.night.context.saves[0].fromRoles).toEqual(['lupo']);
+      // The role should remove lupo kills and record the save
+      expect(mockGameState.night.context.pendingKills[3]).toBeUndefined();
+      expect(mockGameState.night.context.savesBy).toHaveLength(1);
+      expect(mockGameState.night.context.savesBy[0].target).toBe(3);
+      expect(mockGameState.night.context.savesBy[0].fromRoles).toEqual(['lupo']);
       expect(result).toBeDefined();
       expect(result.type).toBe('guardia_action');
     });
@@ -69,6 +72,7 @@ describe('Guardia (Doctor) Role', () => {
     it('should not affect kills from other roles', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };
@@ -93,6 +97,7 @@ describe('Guardia (Doctor) Role', () => {
     it('should handle invalid target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 'invalid' },
         used: true
       };
@@ -100,12 +105,13 @@ describe('Guardia (Doctor) Role', () => {
       const result = guardia.resolve(mockGameState, action);
 
       expect(result).toBeUndefined();
-      expect(mockGameState.night.context.saves).toHaveLength(0);
+      expect(mockGameState.night.context.savesBy).toHaveLength(0);
     });
 
     it('should handle missing target ID', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: {},
         used: true
       };
@@ -113,12 +119,13 @@ describe('Guardia (Doctor) Role', () => {
       const result = guardia.resolve(mockGameState, action);
 
       expect(result).toBeUndefined();
-      expect(mockGameState.night.context.saves).toHaveLength(0);
+      expect(mockGameState.night.context.savesBy).toHaveLength(0);
     });
 
     it('should handle non-existent target', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 999 },
         used: true
       };
@@ -129,12 +136,13 @@ describe('Guardia (Doctor) Role', () => {
       const result = guardia.resolve(mockGameState, action);
 
       expect(result).toBeDefined();
-      expect(mockGameState.night.context.saves).toHaveLength(1);
+      expect(mockGameState.night.context.savesBy).toHaveLength(1);
     });
 
     it('should record save action in history', () => {
       const action = {
         playerId: 1,
+        playerIds: [1],
         data: { targetId: 3 },
         used: true
       };

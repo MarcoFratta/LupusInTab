@@ -1,3 +1,15 @@
+# [1.14.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.13.2...v1.14.0) (2025-09-05)
+
+
+### Bug Fixes
+
+* fix insinuo role order ([493f7ac](https://github.com/MarcoFratta/LupusInTab/commit/493f7ac286a3935c6787c0ce99bc9d51cff3298e))
+
+
+### Features
+
+* better code ([ab0576d](https://github.com/MarcoFratta/LupusInTab/commit/ab0576df7d17eec0fc6c66e707f2a8c9adcded7c))
+
 ## [1.13.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.13.1...v1.13.2) (2025-08-31)
 
 

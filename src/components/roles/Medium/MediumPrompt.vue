@@ -17,8 +17,8 @@ const deadPlayers = computed(() => {
     const dead = allPlayers.filter((p: any) => !p.alive);
     console.log('Medium Prompt Debug:', {
         totalPlayers: allPlayers.length,
-        allPlayers: allPlayers.map(p => ({ id: p.id, name: p.name, alive: p.alive })),
-        deadPlayers: dead.map(p => ({ id: p.id, name: p.name, alive: p.alive }))
+        allPlayers: allPlayers.map((p: any) => ({ id: p.id, name: p.name, alive: p.alive })),
+        deadPlayers: dead.map((p: any) => ({ id: p.id, name: p.name, alive: p.alive }))
     });
     return dead;
 });

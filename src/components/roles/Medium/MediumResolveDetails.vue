@@ -21,7 +21,7 @@ const investigationEvents = computed(() => {
 
 const mediumPlayers = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
-  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+  return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
 const representativeMedium = computed(() => {
@@ -30,7 +30,7 @@ const representativeMedium = computed(() => {
   
   return {
     ...mediumList[0],
-    name: mediumList.length === 1 ? mediumList[0].name : mediumList.map(m => m.name).join(', '),
+    name: mediumList.length === 1 ? mediumList[0].name : mediumList.map((m: any) => m.name).join(', '),
     roleId: 'medium'
   };
 });
@@ -48,7 +48,7 @@ const getFactionColor = (faction: string) => {
         <RoleComparisonCard
           :game-state="props.gameState"
           :left-player="representativeMedium"
-          :right-player="event.targetId && props.gameState.players.find((p)=>p.id===Number(event.targetId))"
+          :right-player="event.targetId && props.gameState.players.find((p: any)=>p.id===Number(event.targetId))"
           left-label="Medium"
           right-label="Bersaglio"
           :center-content="{

@@ -195,37 +195,13 @@ function onTargetRoleComplete(result: any) {
     return;
   }
   
-  // Call the target role's resolve function to get the proper result
-  let targetRoleResult = result;
-  
-  if (targetRole.value?.resolve && typeof targetRole.value.resolve === 'function') {
-    try {
-      // Create a proper action context for the target role
-      const targetAction = {
-        data: result,
-        playerId: targetPlayer.value?.id || props.playerIds[0], // Use target player's ID
-        playerIds: targetPlayer.value ? [targetPlayer.value.id] : props.playerIds,
-        roleId: targetRole.value.id,
-        nightNumber: props.gameState.nightNumber
-      };
-      
-      // Call the target role's resolve function
-      const resolvedResult = targetRole.value.resolve(props.gameState, targetAction);
-      if (resolvedResult) {
-        targetRoleResult = resolvedResult;
-      }
-    } catch (error) {
-      console.error('Error calling target role resolve function:', error);
-    }
-  }
-  
-  // Complete with both the target selection and the target role's result
+  // Complete with the target selection - the target role's resolve will be called later
   props.onComplete({
     targetId: targetId.value,
     targetRoleId: targetRole.value?.id,
     targetPlayerName: targetPlayer.value?.name,
     canUseRole: true,
-    targetRoleResult: targetRoleResult
+    targetRoleAction: result // Pass the target role's action data to be resolved later
   });
 }
 

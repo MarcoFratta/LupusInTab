@@ -15,9 +15,7 @@ const massone: RoleDef = {
 
 COME FUNZIONA:
 • Conosce gli altri massoni durante la fase di rivelazione
-• Non ha poteri speciali di notte
-• Appare come villaggio alle investigazioni
-• Conta come villaggio per le condizioni di vittoria`,
+• Non ha poteri speciali di notte`,
     color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "never",

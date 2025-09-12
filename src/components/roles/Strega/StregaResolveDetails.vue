@@ -22,7 +22,7 @@ const investigationEvents = computed(() => {
 
 const witchPlayers = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
-  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+  return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
 const representativeWitch = computed(() => {
@@ -32,7 +32,7 @@ const representativeWitch = computed(() => {
   // Create a representative witch object that shows all names
   return {
     ...witchList[0],
-    name: witchList.length === 1 ? witchList[0].name : witchList.map(w => w.name).join(', '),
+    name: witchList.length === 1 ? witchList[0].name : witchList.map((w: any) => w.name).join(', '),
     roleId: 'witch'
   };
 });
@@ -52,7 +52,7 @@ const getFactionColor = (faction: string) => {
           v-if="representativeWitch"
           :game-state="props.gameState"
           :left-player="representativeWitch"
-          :right-player="props.gameState.players.find((p)=>p.id===event.targetId)"
+          :right-player="props.gameState.players.find((p: any)=>p.id===event.targetId)"
           left-label="Strega"
           right-label="Bersaglio"
           :center-content="{

@@ -13,8 +13,26 @@ const props = defineProps<{
 }>();
 
 const targetRole = computed(() => {
-  if (!props.entry?.data?.targetRoleId) return null;
-  return ROLES[props.entry.data.targetRoleId];
+  // Get the original target role first
+  if (!props.entry?.targetRoleId) return null;
+  const originalRole = ROLES[props.entry.targetRoleId];
+  if (!originalRole) return null;
+  
+  // Check if this role is grouped with another role that can act at night
+  if (originalRole.actsAtNight === 'never') {
+    const groupings = props.gameState.groupings || [];
+    const grouping = groupings.find((g: any) => g.toRole === originalRole.id);
+    
+    if (grouping) {
+      // Use the grouped role instead for resolve details
+      const groupedRole = ROLES[grouping.fromRole];
+      if (groupedRole && groupedRole.actsAtNight !== 'never') {
+        return groupedRole; // Returns lupo instead of lupoCiccione
+      }
+    }
+  }
+  
+  return originalRole;
 });
 
 const targetRoleFaction = computed(() => {
@@ -40,14 +58,33 @@ const representativeMutaforma = computed(() => {
   
   return {
     ...mutaformaList[0],
-    name: mutaformaList.length === 1 ? mutaformaList[0].name : mutaformaList.map(m => m.name).join(', '),
+    name: mutaformaList.length === 1 ? mutaformaList[0].name : mutaformaList.map((m: any) => m.name).join(', '),
     roleId: 'mutaforma'
+  };
+});
+
+const mutaformaUsingTargetRole = computed(() => {
+  if (!representativeMutaforma.value || !targetRole.value) return null;
+  
+  return {
+    ...representativeMutaforma.value,
+    roleId: targetRole.value.id,
+    name: representativeMutaforma.value.name
   };
 });
 
 const canUseRole = computed(() => props.entry?.data?.canUseRole === true);
 
 const targetRoleResult = computed(() => props.entry?.data?.targetRoleResult);
+
+// Use the actual target role result from Mutaforma's action
+const targetRoleActionEntry = computed(() => {
+  if (!canUseRole.value || !targetRoleResult.value) return null;
+  
+  // The target role result is the object returned by the target role's resolve function
+  // It should already have the correct structure with Mutaforma players as actors
+  return targetRoleResult.value;
+});
 
 const targetRoleResolveDetailsComponent = computed(() => {
   if (!targetRole.value || !canUseRole.value) return null;
@@ -63,9 +100,7 @@ const hasAction = computed(() => targetPlayer.value && representativeMutaforma.v
 
 const shouldShowTargetRoleDetails = computed(() => {
   return canUseRole.value && 
-         targetRoleResult.value && 
-         typeof targetRoleResult.value === 'object' &&
-         !targetRoleResult.value.skipped &&
+         targetRoleActionEntry.value && 
          targetRoleResolveDetailsComponent.value;
 });
 </script>
@@ -98,28 +133,28 @@ const shouldShowTargetRoleDetails = computed(() => {
         <AsyncTargetRoleDetails
           v-if="AsyncTargetRoleDetails"
           :gameState="props.gameState"
-          :entry="targetRoleResult"
+          :entry="targetRoleActionEntry"
           :players="props.players"
-          :player="representativeMutaforma"
-          :playerIds="mutaformaPlayers.map(p => p.id)"
+          :player="mutaformaUsingTargetRole"
+          :playerIds="mutaformaPlayers.map((p: any) => p.id)"
         />
         
         <!-- Fallback display if component can't be loaded -->
         <div v-else class="text-center text-neutral-400">
           <div class="text-sm mb-2">Azione copiata:</div>
           <div class="text-xs">
-            <strong>Players:</strong> {{ mutaformaPlayers.map(p => p.name).join(', ') }}<br>
-            <strong>Target:</strong> {{ targetRoleResult?.targetId }}<br>
-            <strong>Type:</strong> {{ targetRoleResult?.type }}<br>
-            <strong>Discovered Faction:</strong> {{ targetRoleResult?.discoveredFaction }}<br>
-            <strong>Data:</strong> {{ JSON.stringify(targetRoleResult) }}
+            <strong>Players:</strong> {{ mutaformaPlayers.map((p: any) => p.name).join(', ') }}<br>
+            <strong>Target:</strong> {{ targetRoleActionEntry?.targetId }}<br>
+            <strong>Type:</strong> {{ targetRoleActionEntry?.type }}<br>
+            <strong>Role:</strong> {{ targetRole?.name }}<br>
+            <strong>Data:</strong> {{ JSON.stringify(targetRoleActionEntry) }}
           </div>
         </div>
       </div>
     </div>
 
     <!-- Role Cannot Be Used Due to Constraints -->
-    <div v-else-if="!canUseRole && targetRoleResult && typeof targetRoleResult === 'string'" class="space-y-2">
+    <div v-else-if="!canUseRole && props.entry?.data?.reason" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-sm mb-2">
           Il ruolo copiato non può essere utilizzato:
@@ -128,7 +163,7 @@ const shouldShowTargetRoleDetails = computed(() => {
       
       <div>
         <BlockedRoleCard
-          :reason="targetRoleResult"
+          :reason="props.entry.data.reason"
           :player="targetPlayer"
         />
       </div>

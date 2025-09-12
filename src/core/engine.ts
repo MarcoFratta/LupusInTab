@@ -7,7 +7,7 @@ import {
   SetupManager,
   NightPhaseManager,
   DayPhaseManager
-} from './managers';
+} from './managers/index';
 
 // Re-export main functions for backward compatibility
 export const createEmptyState = GameStateManager.createEmptyState;
@@ -34,6 +34,7 @@ export const setSindaco = GameStateManager.setSindaco;
 
 // Night phase functions
 export const beginNight = NightPhaseManager.beginNight;
+export const nextRole = (state: GameState) => NightPhaseManager.nextRole(state);
 export const recordNightResult = NightPhaseManager.recordNightResult;
 export const resolveNight = NightPhaseManager.resolveNight;
 export const startNextNight = NightPhaseManager.startNextNight;

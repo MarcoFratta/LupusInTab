@@ -20,8 +20,6 @@ COME FUNZIONA:
     color: '#581c87',
     phaseOrder: "any",
     actsAtNight: "never",
-    effectType: 'optional',
-    numberOfUsage: 'unlimited',
     resolve() {},
     checkWin(gameState: any) {
         return wolvesWin(gameState);

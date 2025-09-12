@@ -122,7 +122,7 @@ onUnmounted(() => {
 <template>
   <button
     :class="buttonClasses"
-    :disabled="props.disabled || isActivated.value"
+    :disabled="props.disabled || isActivated"
     @pointerdown="handlePointerDown"
     @pointerup="handlePointerUp"
     @pointerleave="handlePointerLeave"
@@ -134,19 +134,19 @@ onUnmounted(() => {
     </div>
     
     <div
-      v-if="isPressed && !isActivated.value"
+      v-if="isPressed && !isActivated"
       class="absolute inset-0 bg-white/20 transition-all duration-100"
       :style="progressBarStyle"
     ></div>
     
     <div
-      v-if="isPressed && !isActivated.value"
+      v-if="isPressed && !isActivated"
       class="absolute bottom-0 left-0 h-1 bg-white/40 transition-all duration-100"
       :style="progressBarStyle"
     ></div>
     
     <div
-      v-if="isActivated.value"
+      v-if="isActivated"
       class="absolute inset-0 bg-green-500/30 transition-all duration-300"
     ></div>
   </button>

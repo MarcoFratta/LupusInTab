@@ -2,6 +2,7 @@
 import { computed, watch } from 'vue';
 import { useGameStore } from '../../stores/game';
 import { initSetupPlayers as engineInitSetupPlayers, resizePlayers as engineResizePlayers, normalizeRoleCounts as engineNormalizeRoleCounts } from '../../core/engine';
+import { loadPlayersSetup } from '../../utils/storage';
 import { SetupTitle } from '../ui';
 
 const store = useGameStore();
@@ -46,6 +47,8 @@ const hasNameErrors = computed(() => {
 });
 
 function resetNames() {
+  // Reset to default configuration (10 players with default roles)
+  state.setup.numPlayers = 10; // Explicitly set to default 10 players
   engineInitSetupPlayers(state);
   state.setup.numPlayers = state.setup.players.length;
   engineNormalizeRoleCounts(state);

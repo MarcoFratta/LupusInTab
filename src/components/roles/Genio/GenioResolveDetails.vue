@@ -40,7 +40,7 @@ const props = defineProps({
 
 const players = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
-  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+  return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
 const genioNames = computed(() => {
@@ -49,7 +49,7 @@ const genioNames = computed(() => {
     return 'Genio della Lampada';
   }
   if (genioList.length === 1) return genioList[0].name;
-  return genioList.map(g => g.name).join(', ');
+  return genioList.map((g: any) => g.name).join(', ');
 });
 
 const genioEvent = computed(() => {

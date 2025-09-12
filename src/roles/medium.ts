@@ -17,8 +17,8 @@ const medium: RoleDef = {
 
 COME FUNZIONA:
 • Ogni notte può scegliere un giocatore morto con cui comunicare
-• Scopre la fazione visibile del giocatore morto
-• L'azione è obbligatoria: deve comunicare ogni notte
+• Scopre per chi giocava il giocatore morto
+• L'azione è obbligatoria: deve agire ogni notte
 • I risultati vengono mostrati solo al Medium`,
     color: '#f3e8ff',
     phaseOrder: "any",
@@ -38,11 +38,6 @@ COME FUNZIONA:
         // Record the check action in context
         if (seenTeam) {
             RoleAPI.addCheck(action.playerId, id, seenTeam);
-        }
-        
-        // Special rule: Medium dies if investigating lupomannaro
-        if (checkPlayerRole(id, 'lupomannaro', gameState)) {
-            RoleAPI.addKill(action.playerId, 'medium');
         }
         
         return {

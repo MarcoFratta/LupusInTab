@@ -1,6 +1,6 @@
-import {Phase} from "./stores/game";
-
 export type Team = string;
+
+export type Phase = 'setup' | 'revealRoles' | 'preNight' | 'night' | 'resolve' | 'day' | 'end';
 
 export interface FactionConfig {
 	id: string;
@@ -200,10 +200,12 @@ export interface Player {
 
 export interface NightContext {
   pendingKills: Record<string, any>;
-  savesBy: string[];
+  savesBy: Array<{ by: number; target: number; fromRoles: string[] }>;
   checks: any[];
   calledRoles: string[];
   currentRoleId?: string;
+  targeted?: number[];
+  passiveEffectRoles?: string[];
 }
 
 export interface GameState {
@@ -216,8 +218,9 @@ export interface GameState {
 	night: { turns: NightTurn[]; currentIndex: number; context: NightContext | null; summary: NightSummary | null };
 	settings: { skipFirstNightActions: boolean; enableSindaco: boolean; discussionTimerEnabled?: boolean; difficolta?: boolean };
     sindacoId: number | null;
-	    winner: string | null | 'tie';
+	    winner: string | string[] | null | 'tie';
     lynchedHistory?: number[];
+    lynchedHistoryByDay?: Record<number, number[]>;
     usedPowers?: Record<string, number[]>;
     groupings?: Array<{ fromRole: string; toRole: string }>;
 
@@ -228,7 +231,9 @@ export interface GameState {
     roleMeta?: Record<string, any>;
 }
 
-export interface NightTurn { kind: 'group'; roleId: string; playerIds: number[] }
+export interface NightTurnSingle { kind: 'single'; roleId: string; playerId: number }
+export interface NightTurnGroup { kind: 'group'; roleId: string; playerIds: number[] }
+export type NightTurn = NightTurnSingle | NightTurnGroup;
 
 export interface NightSummary { 
     targeted: number[]; 

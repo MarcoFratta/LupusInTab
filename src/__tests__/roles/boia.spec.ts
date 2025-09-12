@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import boia from '../../roles/boia';
-import { setMockGameState } from '../setup';
+import { initializeRoleAPI } from '../../utils/roleAPI';
 
 describe('Boia Role', () => {
   let mockGameState: any;
 
   beforeEach(() => {
+    initializeRoleAPI();
     mockGameState = {
       setup: {
         rolesEnabled: {
@@ -43,7 +44,6 @@ describe('Boia Role', () => {
         }
       ]
     };
-    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {

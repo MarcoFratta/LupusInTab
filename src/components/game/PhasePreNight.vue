@@ -21,8 +21,8 @@ const aliveWithRoles = computed(() => {
     };
   });
   
-  return players.sort((a, b) => {
-    const teamOrder = { 'villaggio': 1, 'lupi': 2, 'mannari': 3, 'matti': 4, 'parassita': 5, 'alieni': 6, 'unknown': 7 };
+  return players.sort((a: any, b: any) => {
+    const teamOrder: Record<string, number> = { 'villaggio': 1, 'lupi': 2, 'mannari': 3, 'matti': 4, 'parassita': 5, 'alieni': 6, 'unknown': 7 };
     const aOrder = teamOrder[a.team] || 7;
     const bOrder = teamOrder[b.team] || 7;
     
@@ -114,18 +114,18 @@ const isFactionExpanded = (team: string) => {
                 <template v-for="(teamPlayers, team) in groupPlayersByTeam(aliveWithRoles)" :key="team">
                   <div v-if="teamPlayers.length > 0" class="space-y-2">
                     <button 
-                      @click="toggleFaction(team)"
+                      @click="toggleFaction(String(team))"
                       class="w-full flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-neutral-700/40 transition-colors duration-200 group"
                     >
                       <div class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: getTeamColor(team) }"></div>
-                        <h5 class="text-md font-medium text-neutral-300 capitalize">{{ getTeamDisplayName(team) }}</h5>
+                        <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: getTeamColor(String(team)) }"></div>
+                        <h5 class="text-md font-medium text-neutral-300 capitalize">{{ getTeamDisplayName(String(team)) }}</h5>
                         <span class="text-xs text-neutral-500">({{ teamPlayers.length }})</span>
                       </div>
                       <div class="flex items-center gap-2">
                         <svg 
                           class="w-4 h-4 text-neutral-400 transition-transform duration-200 group-hover:text-neutral-300"
-                          :class="{ 'rotate-180': isFactionExpanded(team) }"
+                          :class="{ 'rotate-180': isFactionExpanded(String(team)) }"
                           fill="none" 
                           stroke="currentColor" 
                           viewBox="0 0 24 24"
@@ -135,7 +135,7 @@ const isFactionExpanded = (team: string) => {
                       </div>
                     </button>
                     <div 
-                      v-show="isFactionExpanded(team)"
+                      v-show="isFactionExpanded(String(team))"
                       class="pl-3 border-l-2 border-neutral-700/40 ml-2"
                     >
                       <PlayerRoleList :state="props.state" :players="teamPlayers" />

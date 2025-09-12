@@ -7,7 +7,7 @@ declare module '*.vue' {
 declare module 'vue-router';
 
 // Typings for utility modules are provided in their own .d.ts files under `src/utils/`
-declare module './utils/storage' {
+declare module '@/utils/storage' {
 	export function saveGameState(state: unknown): void;
 	export function loadGameState<T = any>(): T | null;
 	export function clearSavedGame(): void;
@@ -19,7 +19,7 @@ declare module './utils/storage' {
 	export function clearSettings(): void;
 }
 
-declare module './utils/random' {
+declare module '@/utils/random' {
 	export function shuffleInPlace<T>(array: T[]): T[];
 	export function shuffled<T>(array: T[]): T[];
 }

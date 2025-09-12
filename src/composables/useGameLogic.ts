@@ -43,8 +43,10 @@ export function useGameLogic() {
     function resetAll() {
         const currentSettings = { ...state.settings };
         
+        // Reset the game state to empty
         Object.assign(store.state, createEmptyState());
         
+        // Restore settings
         state.settings = currentSettings;
         state.showRoleResee = false;
         state.revealPhaseState = {
@@ -54,6 +56,7 @@ export function useGameLogic() {
             roleRevealed: false
         };
         
+        // Load saved players setup (this should NOT be cleared by clearSavedGame)
         const savedPlayers = loadPlayersSetup();
         if (savedPlayers && savedPlayers.players?.length) {
             state.setup.numPlayers = Math.max(4, Math.min(20, Number(savedPlayers.numPlayers) || 6));
@@ -71,8 +74,11 @@ export function useGameLogic() {
             
             engineNormalizeRoleCounts(state as any);
         } else {
+            // If no saved players, initialize with default setup
             engineInitSetupPlayers(state as any);
         }
+        
+        // Clear the saved game state (but NOT the players setup)
         clearSavedGame();
     }
 

@@ -41,7 +41,7 @@ COME FUNZIONA:
 
 		// Find lupo kills to redirect
 		const lupoKills: Array<{ role: string; originalTarget?: number }> = [];
-		const pendingKills = RoleAPI.getPendingKills(gameState);
+		const pendingKills = gameState.night?.context?.pendingKills || {};
 		
 		// Find all lupo kills
 		Object.keys(pendingKills).forEach(playerId => {

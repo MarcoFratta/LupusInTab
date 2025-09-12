@@ -272,3 +272,4 @@ By contributing to LupusInTab, you agree that your contributions will be license
 ## Thank You
 
 Thank you for contributing to LupusInTab! Your contributions help make the game better for everyone.
+

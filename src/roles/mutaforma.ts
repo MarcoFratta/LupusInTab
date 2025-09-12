@@ -123,6 +123,30 @@ non potrà usare il suo ruolo e morirà nella notte successiva.
             }
         }
         
+        // Execute the target role's action as if Mutaforma were that role
+        let targetRoleResult = null;
+        if (effectiveRole.resolve && typeof effectiveRole.resolve === 'function') {
+            try {
+                // Use the target role's action data from the prompt
+                const targetRoleActionData = action.data?.targetRoleAction || action.data;
+                
+                // Create a properly formatted action for the target role
+                const targetRoleAction = {
+                    ...action,
+                    roleId: effectiveRoleId,
+                    playerIds: action.playerIds || [], // Mutaforma players
+                    data: targetRoleActionData
+                };
+                
+                // Execute the target role's resolve function
+                targetRoleResult = effectiveRole.resolve(gameState, targetRoleAction);
+                console.log(`🔄 [DEBUG] Mutaforma executed target role ${effectiveRoleId} action:`, targetRoleResult);
+            } catch (error) {
+                console.error(`🔄 [DEBUG] Error executing target role ${effectiveRoleId} action:`, error);
+                targetRoleResult = null;
+            }
+        }
+        
         // Create the mutaforma action
         const mutaformaAction = {
             type: 'mutaforma_action',
@@ -137,7 +161,7 @@ non potrà usare il suo ruolo e morirà nella notte successiva.
                 ...action.data,
                 targetId: targetId,
                 targetRoleId: effectiveRoleId, // Use effective role ID
-                targetRoleResult: action.data?.targetRoleResult
+                targetRoleResult: targetRoleResult
             }
         };
         

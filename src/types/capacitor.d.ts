@@ -1,3 +1,10 @@
+declare global {
+  interface PluginInterface {
+    addListener(eventName: string, listenerFunc: Function): void;
+    removeAllListeners(eventName: string): void;
+  }
+}
+
 declare module '@capacitor/core' {
   interface PluginInterface {
     addListener(eventName: string, listenerFunc: Function): void;

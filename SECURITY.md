@@ -81,3 +81,4 @@ For security-related questions or concerns, please contact us at [INSERT SECURIT
 ## Acknowledgments
 
 We would like to thank the security researchers who have helped us improve the security of LupusInTab through responsible disclosure.
+

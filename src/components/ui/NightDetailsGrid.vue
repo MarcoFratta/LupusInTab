@@ -32,10 +32,10 @@ const roleActions = computed(() => {
     
     let rolePlayers: any[] = [];
     
-    if (action && typeof action === 'object' && action.playerIds) {
-      rolePlayers = props.gameState.players.filter((p: any) => action.playerIds.includes(p.id));
-    } else if (action && typeof action === 'object' && action.playerId) {
-      const player = props.gameState.players.find((p: any) => p.id === action.playerId);
+    if (action && typeof action === 'object' && 'playerIds' in action) {
+      rolePlayers = props.gameState.players.filter((p: any) => (action as any).playerIds.includes(p.id));
+    } else if (action && typeof action === 'object' && 'playerId' in action) {
+      const player = props.gameState.players.find((p: any) => p.id === (action as any).playerId);
       if (player) rolePlayers = [player];
     } else {
       rolePlayers = props.gameState.players.filter((p: any) => p.roleId === roleId);

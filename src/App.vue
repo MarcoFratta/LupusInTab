@@ -58,7 +58,7 @@ const {
     getMaxCountForRole,
     navigateToPage,
     updatePlayersFromEditor,
-    beginReveal,
+    beginRevealLocal,
     nextRevealLocal,
     beginNight,
     onPromptComplete,

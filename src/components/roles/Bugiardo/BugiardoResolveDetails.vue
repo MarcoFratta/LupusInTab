@@ -20,7 +20,7 @@ const bugiardoEvents = computed(() => {
     return [props.entry];
 });
 
-const bugiardoPlayers = computed(() => props.gameState.players.filter(p => p.roleId === 'bugiardo'));
+const bugiardoPlayers = computed(() => props.gameState.players.filter((p: any) => p.roleId === 'bugiardo'));
 
 const representativeBugiardo = computed(() => {
   const bugiardoList = bugiardoPlayers.value;
@@ -28,7 +28,7 @@ const representativeBugiardo = computed(() => {
   
   return {
     ...bugiardoList[0],
-    name: bugiardoList.length === 1 ? bugiardoList[0].name : bugiardoList.map(b => b.name).join(', '),
+    name: bugiardoList.length === 1 ? bugiardoList[0].name : bugiardoList.map((b: any) => b.name).join(', '),
     roleId: 'bugiardo'
   };
 });
@@ -57,7 +57,7 @@ const getFactionColor = (roleId: string) => {
         <RoleComparisonCard
           :game-state="props.gameState"
           :left-player="representativeBugiardo"
-          :right-player="event.targetId && props.gameState.players.find((p)=>p.id===Number(event.targetId))"
+          :right-player="event.targetId && props.gameState.players.find((p: any)=>p.id===Number(event.targetId))"
           left-label="Bugiardo"
           right-label="Bersaglio"
           :center-content="{

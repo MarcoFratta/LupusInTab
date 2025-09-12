@@ -42,7 +42,7 @@ const timelineDays = computed(() => {
   const state = props.state;
   
   if (state.history) {
-    const nightNumbers = new Set();
+    const nightNumbers = new Set<number>();
     
     for (const nightNum in state.history) {
       nightNumbers.add(Number(nightNum));
@@ -270,7 +270,7 @@ window.addEventListener('resize', updateTimelineLine);
                       class="group/item relative"
                     >
                       <div class="inline-flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium border bg-violet-600/80 text-white border-violet-500/60 hover:bg-violet-500/80 hover:border-violet-400/60 transition-all duration-200 hover:shadow-lg hover:shadow-violet-900/50">
-                        <span class="font-semibold truncate max-w-full" :title="props.state.players.find((p) => p.id === pid)?.name">{{ props.state.players.find((p) => p.id === pid)?.name }}</span>
+                        <span class="font-semibold truncate max-w-full" :title="props.state.players.find((p: any) => p.id === pid)?.name">{{ props.state.players.find((p: any) => p.id === pid)?.name }}</span>
                       </div>
                     </div>
                   </div>
@@ -302,7 +302,7 @@ window.addEventListener('resize', updateTimelineLine);
                   <div v-if="showDetails" class="w-full">
                     <NightDetailsGrid 
                       :game-state="props.state" 
-                      :night-number="currentDay.night" 
+                      :night-number="Number(currentDay.night)" 
                     />
                   </div>
                 </Transition>
@@ -344,7 +344,7 @@ window.addEventListener('resize', updateTimelineLine);
                 <div v-else class="text-center">
                   <div class="group/item relative inline-block">
                     <div class="inline-flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium border bg-amber-600/80 text-white border-amber-500/60 hover:bg-amber-500/80 hover:border-amber-400/60 transition-all duration-200 hover:shadow-lg hover:shadow-amber-900/50">
-                      <span class="font-semibold truncate max-w-full" :title="props.state.players.find((p) => p.id === lynchHistoryByDay[currentDay.day])?.name">{{ props.state.players.find((p) => p.id === lynchHistoryByDay[currentDay.day])?.name }}</span>
+                      <span class="font-semibold truncate max-w-full" :title="currentDay ? props.state.players.find((p: any) => p.id === lynchHistoryByDay[currentDay.day])?.name : ''">{{ currentDay ? props.state.players.find((p: any) => p.id === lynchHistoryByDay[currentDay.day])?.name : '' }}</span>
                     </div>
                   </div>
                 </div>

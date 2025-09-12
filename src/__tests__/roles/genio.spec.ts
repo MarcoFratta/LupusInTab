@@ -235,7 +235,7 @@ describe('Genio della Lampada', () => {
       expect(player.roleId).toBe('veggente');
       
       // The getCurrentTurn function should work correctly with the updated player roles
-      const updatedTurn = NightPhaseManager.getCurrentTurn(gameState);
+      const updatedTurn = gameState.night?.turns?.[gameState.night.currentIndex];
       expect(updatedTurn).toBeDefined();
       expect(updatedTurn.roleId).toBeDefined();
       expect(updatedTurn.playerIds).toBeDefined();

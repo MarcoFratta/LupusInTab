@@ -22,7 +22,7 @@ const investigationEvents = computed(() => {
 
 const veggentePlayers = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
-  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+  return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
 const representativeVeggente = computed(() => {
@@ -32,7 +32,7 @@ const representativeVeggente = computed(() => {
   // Create a representative veggente object that shows all names
   return {
     ...veggenteList[0],
-    name: veggenteList.length === 1 ? veggenteList[0].name : veggenteList.map(v => v.name).join(', '),
+    name: veggenteList.length === 1 ? veggenteList[0].name : veggenteList.map((v: any) => v.name).join(', '),
     roleId: 'veggente'
   };
 });
@@ -53,7 +53,7 @@ const getFactionColor = (faction: string) => {
           class=""
           :game-state="props.gameState"
           :left-player="representativeVeggente"
-          :right-player="event.targetId && props.gameState.players.find((p)=>p.id===Number(event.targetId))"
+          :right-player="event.targetId && props.gameState.players.find((p: any)=>p.id===Number(event.targetId))"
           left-label="Veggente"
           right-label="Bersaglio"
           :center-content="{

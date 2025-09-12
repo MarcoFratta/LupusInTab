@@ -37,14 +37,14 @@ const props = defineProps({
 
 const players = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
-  return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
+  return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
 const simbiontePlayer = computed(() => {
   const simbionteList = players.value;
   if (simbionteList.length === 0) {
     if (props.entry && props.entry.playerId) {
-      const player = props.gameState.players.find(p => p.id === props.entry.playerId);
+      const player = props.gameState.players.find((p: any) => p.id === props.entry.playerId);
       return player ? { ...player, roleId: props.entry.oldRoleId || 'simbionte' } : { name: 'Simbionte', roleId: 'simbionte' };
     }
     return { name: 'Simbionte', roleId: 'simbionte' };
@@ -53,7 +53,7 @@ const simbiontePlayer = computed(() => {
     return { ...simbionteList[0], roleId: props.entry.oldRoleId || 'simbionte' };
   }
   return {
-    name: simbionteList.map(g => g.name).join(', '),
+    name: simbionteList.map((g: any) => g.name).join(', '),
     roleId: props.entry.oldRoleId || 'simbionte'
   };
 });
@@ -68,7 +68,7 @@ const simbionteActionText = computed(() => {
 const targetRolePlayer = computed(() => {
   if (!props.entry?.targetPlayerId || !props.entry?.targetPlayerName) return null;
   
-  const targetPlayer = props.gameState.players.find(p => p.id === props.entry.targetPlayerId);
+  const targetPlayer = props.gameState.players.find((p: any) => p.id === props.entry.targetPlayerId);
   if (!targetPlayer) return null;
   
   return targetPlayer;

@@ -18,7 +18,7 @@ COME FUNZIONA:
 • I primi giocatori vivi alla sua destra e sinistra appaiono come lupi alle investigazioni
 • Non può agire di notte (agisce con gli altri lupi)
 • L'effetto è passivo e permanente`,
-	phaseOrder: 4,
+	phaseOrder: 0,
 	actsAtNight: "never",
 	effectType: 'optional',
 	numberOfUsage: 'unlimited',

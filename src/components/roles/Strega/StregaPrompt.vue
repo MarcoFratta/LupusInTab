@@ -7,10 +7,10 @@ import DisplayFaction from '../../ui/DisplayFaction.vue';
 const props = defineProps<{ gameState: any,playerIds: number[], onComplete: (r:any)=>void }>();
 
 const targetId = ref<number | null>(null);
-const deadPlayers = computed(() => props.gameState.players.filter(p => !p.alive));
+const deadPlayers = computed(() => props.gameState.players.filter((p: any) => !p.alive));
 const deadChoices = computed(() => [
     { label: 'Seleziona un giocatore morto…', value: null },
-    ...deadPlayers.value.map(p => ({ label: p.name, value: p.id }))
+    ...deadPlayers.value.map((p: any) => ({ label: p.name, value: p.id }))
 ]);
 
 const hasDeadPlayers = computed(() => deadPlayers.value.length > 0);

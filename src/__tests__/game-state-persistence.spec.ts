@@ -93,8 +93,8 @@ describe('Game State Persistence', () => {
     await gameLogic.resumeGame(saved);
     
     expect(store.state.revealPhaseState).toBeDefined();
-    expect(store.state.revealPhaseState.showIntro).toBe(false);
-    expect(store.state.revealPhaseState.showPreNightInfo).toBe(true);
+    expect(store.state.revealPhaseState?.showIntro).toBe(false);
+    expect(store.state.revealPhaseState?.showPreNightInfo).toBe(true);
   });
 
   it('should smart restore revealPhaseState when no saved state exists', async () => {
@@ -132,8 +132,8 @@ describe('Game State Persistence', () => {
     
     // Should smart restore to prenight state since revealIndex >= players.length
     expect(store.state.revealPhaseState).toBeDefined();
-    expect(store.state.revealPhaseState.showIntro).toBe(false);
-    expect(store.state.revealPhaseState.showPreNightInfo).toBe(true);
+    expect(store.state.revealPhaseState?.showIntro).toBe(false);
+    expect(store.state.revealPhaseState?.showPreNightInfo).toBe(true);
   });
 
   it('should reset showRoleResee when starting night phase', () => {
@@ -155,8 +155,8 @@ describe('Game State Persistence', () => {
     
     gameLogic.resetAll();
     
-    expect(store.state.revealPhaseState.showIntro).toBe(true);
-    expect(store.state.revealPhaseState.showPreNightInfo).toBe(false);
+    expect(store.state.revealPhaseState?.showIntro).toBe(true);
+    expect(store.state.revealPhaseState?.showPreNightInfo).toBe(false);
   });
 
   it('should reset showRoleResee when resetting game', () => {
@@ -210,9 +210,9 @@ describe('Game State Persistence', () => {
     // When resuming a game, showRoleResee should be reset to false to ensure
     // the game resumes in the proper reveal flow instead of showing a revealed role
     expect(store.state.showRoleResee).toBe(false);
-    expect(store.state.revealPhaseState.showIntro).toBe(false);
-    expect(store.state.revealPhaseState.showPreNightInfo).toBe(true);
-    expect(store.state.revealPhaseState.showRoleReveal).toBe(false);
+    expect(store.state.revealPhaseState?.showIntro).toBe(false);
+    expect(store.state.revealPhaseState?.showPreNightInfo).toBe(true);
+    expect(store.state.revealPhaseState?.showRoleReveal).toBe(false);
     
     // This means the game resumes in the prenight phase, ready for the user to click
     // "Rivela di nuovo un ruolo" again if needed

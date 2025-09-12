@@ -42,8 +42,11 @@ COME FUNZIONA:
         if (isCorrect) {
             RoleAPI.addKill(id, 'boia', { notSavable: true });
         } else {
-            const boiaId = action.playerId || 0;
-            RoleAPI.addKill(boiaId, 'boia', { notSavable: true });
+            // When multiple Boia players act together and make wrong guess, ALL Boia players die
+            const boiaPlayerIds = action.playerIds || [];
+            for (const boiaId of boiaPlayerIds) {
+                RoleAPI.addKill(boiaId, 'boia', { notSavable: true });
+            }
         }
 
         return {

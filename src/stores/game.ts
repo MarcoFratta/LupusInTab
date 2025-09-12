@@ -4,7 +4,6 @@ import type {
 	GameState, 
 	Player, 
 	NightContext, 
-	NightTurn, 
 	NightSummary, 
 	DaySummary,
 	Phase 
@@ -23,12 +22,12 @@ export interface RoleMeta {
 
 export interface NightTurnSingle { kind: 'single'; roleId: string; playerId: number }
 export interface NightTurnGroup { kind: 'group'; roleId: string; playerIds: number[] }
-export type NightTurn = NightTurnSingle | NightTurnGroup;
+export type NightTurnUnion = NightTurnSingle | NightTurnGroup;
 
 // Extended GameState interface for the store with additional properties
 export interface StoreGameState extends GameState {
 	night: { 
-		turns: NightTurn[]; 
+		turns: NightTurnUnion[]; 
 		currentIndex: number; 
 		results: unknown[]; 
 		context: NightContext | null; 
@@ -41,6 +40,7 @@ export interface StoreGameState extends GameState {
 		showRoleReveal: boolean;
 		roleRevealed: boolean;
 	};
+	lynchedHistoryByDay?: Record<number, number[]>;
 }
 
 export const useGameStore = defineStore('game', () => {

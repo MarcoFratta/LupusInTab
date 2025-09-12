@@ -154,7 +154,7 @@ export function useNightPhase() {
 
     const currentGroupNames = computed(() => {
         const entry = currentTurn.value;
-        if (!entry) return null as string[] | null;
+        if (!entry) return null as Array<{ name: string; id: number }> | null;
         
         // Deduplicate player IDs to prevent duplicate keys in Vue template
         const uniquePlayerIds = [...new Set(entry.playerIds)];

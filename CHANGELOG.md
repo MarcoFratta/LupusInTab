@@ -1,3 +1,10 @@
+## [1.14.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.0...v1.14.1) (2025-09-12)
+
+
+### Bug Fixes
+
+* fix roles bugs ([5ecc18a](https://github.com/MarcoFratta/LupusInTab/commit/5ecc18a6be15ae911f73e66f04a633877ee7cbe2))
+
 # [1.14.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.13.2...v1.14.0) (2025-09-05)
 
 

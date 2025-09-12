@@ -1,3 +1,10 @@
+## [1.14.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.1...v1.14.2) (2025-09-12)
+
+
+### Bug Fixes
+
+* fix event history page ([e143a61](https://github.com/MarcoFratta/LupusInTab/commit/e143a61baeccc36f811e02dc9c6283f34e7f97eb))
+
 ## [1.14.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.0...v1.14.1) (2025-09-12)
 
 

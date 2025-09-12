@@ -81,21 +81,13 @@ const timelineDays = computed(() => {
         }
       }
       
+      // Day numbers are always 1-based, matching lynchedHistoryByDay structure
       const dayNum = Number(nightNum);
-      let lynchedPlayer = null;
-      
-      if (state.lynchedHistoryByDay && state.lynchedHistoryByDay[dayNum]) {
-        const lynchedIds = state.lynchedHistoryByDay[dayNum] || [];
-        lynchedPlayer = lynchedIds.length > 0 ? lynchedIds[0] : null;
-      } else if (state.lynchedHistory && state.lynchedHistory[dayNum - 1]) {
-        lynchedPlayer = state.lynchedHistory[dayNum - 1];
-      }
       
       days.push({
         day: dayNum,
         night: nightNum,
         nightSummary: summary,
-        lynchedPlayer,
         nightEvents
       });
     }
@@ -106,20 +98,9 @@ const timelineDays = computed(() => {
 
 const lynchHistoryByDay = computed(() => {
   const state = props.state;
-  const lynchMap: Record<number, any> = {};
   
-  const skipFirstNight = state.settings?.skipFirstNightActions || false;
-  
-  if (skipFirstNight) {
-    for (let i = 0; i < (state.lynchedHistory?.length || 0); i++) {
-      lynchMap[i + 2] = state.lynchedHistory[i];
-    }
-  } else {
-    for (let i = 0; i < (state.lynchedHistory?.length || 0); i++) {
-      lynchMap[i + 1] = state.lynchedHistory[i];
-    }
-  }
-  return lynchMap;
+  // Use the actual lynchedHistoryByDay data structure directly
+  return state.lynchedHistoryByDay || {};
 });
 
 const currentDay = computed(() => {
@@ -336,7 +317,7 @@ window.addEventListener('resize', updateTimelineLine);
                   </div>
                 </div>
                 
-                <div v-if="!lynchHistoryByDay[currentDay.day]" class="text-center py-6">
+                <div v-if="!lynchHistoryByDay[currentDay.day] || lynchHistoryByDay[currentDay.day].length === 0" class="text-center py-6">
                   <div class="text-neutral-400 text-sm mb-2">🤝</div>
                   <div class="text-neutral-400 text-xs font-medium">Nessun linciaggio</div>
                 </div>
@@ -344,7 +325,7 @@ window.addEventListener('resize', updateTimelineLine);
                 <div v-else class="text-center">
                   <div class="group/item relative inline-block">
                     <div class="inline-flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium border bg-amber-600/80 text-white border-amber-500/60 hover:bg-amber-500/80 hover:border-amber-400/60 transition-all duration-200 hover:shadow-lg hover:shadow-amber-900/50">
-                      <span class="font-semibold truncate max-w-full" :title="currentDay ? props.state.players.find((p: any) => p.id === lynchHistoryByDay[currentDay.day])?.name : ''">{{ currentDay ? props.state.players.find((p: any) => p.id === lynchHistoryByDay[currentDay.day])?.name : '' }}</span>
+                      <span class="font-semibold truncate max-w-full" :title="currentDay ? props.state.players.find((p: any) => p.id === lynchHistoryByDay[currentDay.day][0])?.name : ''">{{ currentDay ? props.state.players.find((p: any) => p.id === lynchHistoryByDay[currentDay.day][0])?.name : '' }}</span>
                     </div>
                   </div>
                 </div>

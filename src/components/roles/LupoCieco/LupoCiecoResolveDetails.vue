@@ -111,7 +111,7 @@ const getResultColor = (result) => {
         :left-player="representativeLupoCieco"
         :right-player="props.gameState.players.find(p => p.id === killTargetId)"
         left-label="Lupo Cieco"
-        right-label="Bersaglio Ucciso"
+        right-label="Bersaglio"
         :center-content="{
           action: killingAction
         }"

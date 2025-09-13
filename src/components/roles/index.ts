@@ -19,8 +19,6 @@ export { default as GuardiaResolveDetails } from './Guardia/GuardiaResolveDetail
 export { default as IllusionistaPrompt } from './Illusionista/IllusionistaPrompt.vue';
 export { default as IllusionistaResolveDetails } from './Illusionista/IllusionistaResolveDetails.vue';
 
-export { default as IndemoniatoPrompt } from './Indemoniato/IndemoniatoPrompt.vue';
-export { default as IndemoniatoResolveDetails } from './Indemoniato/IndemoniatoResolveDetails.vue';
 
 export { default as InsinuoPrompt } from './Insinuo/InsinuoPrompt.vue';
 export { default as InsinuoResolveDetails } from './Insinuo/InsinuoResolveDetails.vue';
@@ -37,23 +35,15 @@ export { default as LupomannaroResolveDetails } from './Lupomannaro/LupomannaroR
 export { default as MuccaMannaraPrompt } from './MuccaMannara/MuccaMannaraPrompt.vue';
 export { default as MuccaMannaraResolveDetails } from './MuccaMannara/MuccaMannaraResolveDetails.vue';
 
-export { default as MassonePrompt } from './Massone/MassonePrompt.vue';
-export { default as MassoneResolveDetails } from './Massone/MassoneResolveDetails.vue';
 
 export { default as MediumPrompt } from './Medium/MediumPrompt.vue';
 export { default as MediumResolveDetails } from './Medium/MediumResolveDetails.vue';
 
-export { default as MattoPrompt } from './Matto/MattoPrompt.vue';
-export { default as MattoResolveDetails } from './Matto/MattoResolveDetails.vue';
 
-export { default as StregaPrompt } from './Strega/StregaPrompt.vue';
-export { default as StregaResolveDetails } from './Strega/StregaResolveDetails.vue';
 
 export { default as VeggentePrompt } from './Veggente/VeggentePrompt.vue';
 export { default as VeggenteResolveDetails } from './Veggente/VeggenteResolveDetails.vue';
 
-export { default as VillicoPrompt } from './Villico/VillicoPrompt.vue';
-export { default as VillicoResolveDetails } from './Villico/VillicoResolveDetails.vue';
 
 export { default as MissPurplePrompt } from './MissPurple/MissPurplePrompt.vue';
 export { default as MissPurpleResolveDetails } from './MissPurple/MissPurpleResolveDetails.vue';

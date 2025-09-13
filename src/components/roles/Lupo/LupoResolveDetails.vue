@@ -29,18 +29,6 @@ const wolfNames = computed(() => {
   return wolvesList.map(w => w.name).join(', ');
 });
 
-// For group roles, we need to create a representative player object
-const representativeWolf = computed(() => {
-  const wolvesList = wolves.value;
-  if (wolvesList.length === 0) return null;
-  
-  // Create a representative wolf object that shows all names
-  return {
-    ...wolvesList[0],
-    name: wolfNames.value, // Show all wolf names
-    roleId: 'lupo'
-  };
-});
 
 // Get the correct action text based on number of wolves
 const attackAction = computed(() => {
@@ -64,7 +52,7 @@ const attackAction = computed(() => {
     <div v-else class="space-y-3">
       <RoleComparisonCard
         :game-state="props.gameState"
-        :left-player="representativeWolf"
+        :left-player="wolves"
         :right-player="wolfKills.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
         left-label="Lupi"
         right-label="Bersagli"

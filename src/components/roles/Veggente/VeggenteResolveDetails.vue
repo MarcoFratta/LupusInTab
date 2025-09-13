@@ -25,18 +25,6 @@ const veggentePlayers = computed(() => {
   return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
-const representativeVeggente = computed(() => {
-  const veggenteList = veggentePlayers.value;
-  if (veggenteList.length === 0) return null;
-  
-  // Create a representative veggente object that shows all names
-  return {
-    ...veggenteList[0],
-    name: veggenteList.length === 1 ? veggenteList[0].name : veggenteList.map((v: any) => v.name).join(', '),
-    roleId: 'veggente'
-  };
-});
-
 const getFactionColor = (faction: string) => {
   const factionConfig = getFactionConfig(faction);
   return factionConfig?.color || '#9ca3af';
@@ -52,7 +40,7 @@ const getFactionColor = (faction: string) => {
         <RoleComparisonCard
           class=""
           :game-state="props.gameState"
-          :left-player="representativeVeggente"
+          :left-player="veggentePlayers"
           :right-player="event.targetId && props.gameState.players.find((p: any)=>p.id===Number(event.targetId))"
           left-label="Veggente"
           right-label="Bersaglio"

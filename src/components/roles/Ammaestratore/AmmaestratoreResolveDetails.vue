@@ -26,22 +26,10 @@ const ammaestratorePlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeAmmaestratore = computed(() => {
-  const ammaestratoreList = ammaestratorePlayers.value;
-  if (ammaestratoreList.length === 0) return null;
-  
-  return {
-    ...ammaestratoreList[0],
-    name: ammaestratoreList.length === 1 ? ammaestratoreList[0].name : ammaestratoreList.map(a => a.name).join(', '),
-    roleId: 'ammaestratore'
-  };
-});
-
 const targetPlayer = computed(() => {
   if (!props.entry || !props.entry.targetId) return null;
   return props.gameState.players.find((p) => p.id === props.entry.targetId);
 });
-
 
 </script>
 
@@ -50,7 +38,7 @@ const targetPlayer = computed(() => {
     <div v-if="redirectInfo && targetPlayer" class="space-y-3">
       <RoleComparisonCard
         :game-state="props.gameState"
-        :left-player="representativeAmmaestratore"
+        :left-player="ammaestratorePlayers"
         :right-player="targetPlayer"
         left-label="Ammaestratore"
         right-label="Bersaglio"

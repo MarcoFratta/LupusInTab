@@ -36,17 +36,6 @@ const lupoCiecoNames = computed(() => {
   return players.map(p => p.name).join(', ');
 });
 
-const representativeLupoCieco = computed(() => {
-  const players = lupoCiecoPlayers.value;
-  if (players.length === 0) return null;
-  
-  return {
-    ...players[0],
-    name: lupoCiecoNames.value,
-    roleId: 'lupoCieco'
-  };
-});
-
 const investigationAction = computed(() => {
   const players = lupoCiecoPlayers.value;
   if (!players || players.length === 0) return 'ha investigato';
@@ -84,7 +73,7 @@ const getResultColor = (result) => {
     <div v-else class="space-y-3">
       <RoleComparisonCard
         :game-state="props.gameState"
-        :left-player="representativeLupoCieco"
+        :left-player="lupoCiecoPlayers"
         :right-player="investigationTargets.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
         left-label="Lupo Cieco"
         right-label="Giocatori Investigati"
@@ -108,7 +97,7 @@ const getResultColor = (result) => {
       
       <RoleComparisonCard
         :game-state="props.gameState"
-        :left-player="representativeLupoCieco"
+        :left-player="lupoCiecoPlayers"
         :right-player="props.gameState.players.find(p => p.id === killTargetId)"
         left-label="Lupo Cieco"
         right-label="Bersaglio"

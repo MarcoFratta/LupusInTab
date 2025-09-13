@@ -22,19 +22,7 @@ const barabbaPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeBarabba = computed(() => {
-  const barabbaList = barabbaPlayers.value;
-  if (barabbaList.length === 0) return null;
-  
-  // Create a representative barabba object that shows all names
-  return {
-    ...barabbaList[0],
-    name: barabbaList.length === 1 ? barabbaList[0].name : barabbaList.map(b => b.name).join(', '),
-    roleId: 'barabba'
-  };
-});
-
-const hasAction = computed(() => target.value && representativeBarabba.value);
+const hasAction = computed(() => target.value && barabbaPlayers.value.length > 0);
 </script>
 
 <template>
@@ -42,7 +30,7 @@ const hasAction = computed(() => target.value && representativeBarabba.value);
         <template v-if="hasAction">
             <RoleComparisonCard
                 :game-state="props.gameState"
-                :left-player="representativeBarabba"
+                :left-player="barabbaPlayers"
                 :right-player="target"
                 left-label="Barabba"
                 right-label="Bersaglio"

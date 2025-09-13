@@ -1,9 +1,12 @@
 <script setup>
+import { computed } from 'vue';
 import PlayerRoleCard from './PlayerRoleCard.vue';
+import { ROLES } from '../../roles';
+import { getFactionConfig } from '../../factions';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
-    leftPlayer: { type: Object, required: true },
+    leftPlayer: { type: [Object, Array], required: true },
     rightPlayer: { type: [Object, Array], required: true },
     leftLabel: { type: String, required: true },
     rightLabel: { type: String, required: true },
@@ -11,21 +14,71 @@ const props = defineProps({
 });
 
 const centerContent = props.centerContent;
+
+// Group players by their role
+const groupPlayersByRole = (players) => {
+    if (!Array.isArray(players)) {
+        return players ? [{ roleId: players.roleId, players: [players] }] : [];
+    }
+    
+    const grouped = {};
+    players.forEach(player => {
+        const roleId = player.roleId;
+        if (!grouped[roleId]) {
+            grouped[roleId] = [];
+        }
+        grouped[roleId].push(player);
+    });
+    
+    return Object.entries(grouped).map(([roleId, rolePlayers]) => ({
+        roleId,
+        players: rolePlayers
+    }));
+};
+
+const leftPlayerGroups = computed(() => groupPlayersByRole(props.leftPlayer));
+const rightPlayerGroups = computed(() => groupPlayersByRole(props.rightPlayer));
+
+// Helper to get role info
+const getRoleInfo = (roleId) => {
+    const roleDef = ROLES[roleId];
+    const factionConfig = roleDef ? getFactionConfig(roleDef.team) : null;
+    return {
+        name: roleDef?.name || roleId,
+        color: factionConfig?.color || '#9ca3af'
+    };
+};
 </script>
 
 <template>
   <div class="w-full bg-neutral-900/60 border border-neutral-800/40 rounded-lg py-2 px-1 space-y-4">
     <!-- Player Cards with Clear Relationship -->
     <div class="flex items-center gap-2">
-      <!-- Left Player (Actor) -->
+      <!-- Left Player(s) (Actor) -->
       <div class="text-center flex-1">
         <div class="text-xs text-neutral-400 mb-2">{{ leftLabel }}</div>
-        <PlayerRoleCard 
-            :game-state="gameState" 
-            :player="leftPlayer" 
-            :label="leftLabel" 
-            align="center"
-        />
+        <div v-if="leftPlayerGroups.length > 0" class="space-y-3">
+          <div v-for="group in leftPlayerGroups" :key="group.roleId" class="space-y-2">
+            <!-- Player names for this role group -->
+            <div class="flex flex-wrap gap-1 justify-center">
+              <span v-for="player in group.players" :key="player.id" 
+                    class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200 max-w-full truncate"
+                    :title="player.name">
+                {{ player.name }}
+              </span>
+            </div>
+            <!-- Role label for this group -->
+            <div class="flex items-center justify-center gap-2">
+              <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: getRoleInfo(group.roleId).color }"></div>
+              <span class="text-xs truncate max-w-[8rem]" :style="{ color: getRoleInfo(group.roleId).color }" :title="getRoleInfo(group.roleId).name">
+                {{ getRoleInfo(group.roleId).name }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div v-else class="flex-1 font-medium bg-transparent flex flex-col justify-center items-center text-neutral-400 text-xs">
+          {{ leftLabel || 'N/A' }}
+        </div>
       </div>
       
       <!-- Action Flow Indicator -->
@@ -40,23 +93,28 @@ const centerContent = props.centerContent;
       <!-- Right Player(s) (Target) -->
       <div class="text-center flex-1">
         <div class="text-xs text-neutral-400 mb-2">{{ rightLabel }}</div>
-        <div v-if="Array.isArray(rightPlayer)" class="space-y-2">
-          <PlayerRoleCard 
-            v-for="player in rightPlayer" 
-            :key="player.id"
-            :game-state="gameState" 
-            :player="player" 
-            :label="rightLabel" 
-            align="center"
-          />
+        <div v-if="rightPlayerGroups.length > 0" class="space-y-3">
+          <div v-for="group in rightPlayerGroups" :key="group.roleId" class="space-y-2">
+            <!-- Player names for this role group -->
+            <div class="flex flex-wrap gap-1 justify-center">
+              <span v-for="player in group.players" :key="player.id" 
+                    class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200 max-w-full truncate"
+                    :title="player.name">
+                {{ player.name }}
+              </span>
+            </div>
+            <!-- Role label for this group -->
+            <div class="flex items-center justify-center gap-2">
+              <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: getRoleInfo(group.roleId).color }"></div>
+              <span class="text-xs truncate max-w-[8rem]" :style="{ color: getRoleInfo(group.roleId).color }" :title="getRoleInfo(group.roleId).name">
+                {{ getRoleInfo(group.roleId).name }}
+              </span>
+            </div>
+          </div>
         </div>
-        <PlayerRoleCard 
-          v-else
-          :game-state="gameState" 
-          :player="rightPlayer" 
-          :label="rightLabel" 
-          align="center"
-        />
+        <div v-else class="flex-1 font-medium bg-transparent flex flex-col justify-center items-center text-neutral-400 text-xs">
+          {{ rightLabel || 'N/A' }}
+        </div>
       </div>
     </div>
     

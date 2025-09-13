@@ -161,7 +161,7 @@ function mutaformaCanUseTargetRole(role: any) {
   // Role has usage limits that are already exhausted
   if (effectiveRole.numberOfUsage !== 'unlimited' && effectiveRole.numberOfUsage !== undefined) {
     const usedPowers = props.gameState.usedPowers?.[effectiveRole.id] || [];
-    const timesUsed = usedPowers.length;
+    const timesUsed = usedPowers.length; // Check total usage by any player, not just Mutaforma
     if (timesUsed >= effectiveRole.numberOfUsage) return false;
   }
   
@@ -252,7 +252,7 @@ function completeWithUnusableRole() {
     }
   } else if (targetRole.value?.numberOfUsage !== 'unlimited' && targetRole.value?.numberOfUsage !== undefined) {
     const usedPowers = props.gameState.usedPowers?.[targetRole.value.id] || [];
-    const timesUsed = usedPowers.filter((playerId: number) => props.playerIds.includes(playerId)).length;
+    const timesUsed = usedPowers.length; // Check total usage by any player, not just Mutaforma
     if (timesUsed >= targetRole.value.numberOfUsage) {
       reason = 'usageLimit';
     }
@@ -362,6 +362,9 @@ function getRoleConstraintReason() {
       </div>
       
       <div v-else class="text-center space-y-3">
+        <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+          <p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore per copiare il suo ruolo</p>
+        </div>
         <p class="text-neutral-400 text-base font-medium">
           {{ hasPendingKills ? 'Il vostro potere è bloccato a causa della perdita di equilibrio tra le squadre' : 'Copia il potere di un altro giocatore per questa notte' }}
         </p>

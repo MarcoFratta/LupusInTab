@@ -22,19 +22,7 @@ const angeloPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeAngelo = computed(() => {
-  const angeloList = angeloPlayers.value;
-  if (angeloList.length === 0) return null;
-  
-  // Create a representative angelo object that shows all names
-  return {
-    ...angeloList[0],
-    name: angeloList.length === 1 ? angeloList[0].name : angeloList.map(a => a.name).join(', '),
-    roleId: 'angelo'
-  };
-});
-
-const hasAction = computed(() => target.value && representativeAngelo.value);
+const hasAction = computed(() => target.value && angeloPlayers.value.length > 0);
 </script>
 
 <template>
@@ -42,7 +30,7 @@ const hasAction = computed(() => target.value && representativeAngelo.value);
         <template v-if="hasAction">
             <RoleComparisonCard
                 :game-state="props.gameState"
-                :left-player="representativeAngelo"
+                :left-player="angeloPlayers"
                 :right-player="target"
                 left-label="Angelo"
                 right-label="Resuscitato"

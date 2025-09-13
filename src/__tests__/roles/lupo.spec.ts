@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import lupo from '../../roles/lupo';
-import { setMockGameState } from '../setup';
+import { setMockGameState, getGameState } from '../setup';
 
 describe('Lupo Role', () => {
   let mockGameState: any;
@@ -54,10 +54,11 @@ describe('Lupo Role', () => {
       };
 
       const result = lupo.resolve(mockGameState, action);
+      const gameState = getGameState();
 
-      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
-      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
-      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupo');
+      expect(gameState.night.context.pendingKills[3]).toBeDefined();
+      expect(gameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(gameState.night.context.pendingKills[3][0].role).toBe('lupo');
       expect(result).toBeDefined();
       expect(result.type).toBe('lupo_action');
       expect(result.targetIds).toEqual([3]);
@@ -72,9 +73,10 @@ describe('Lupo Role', () => {
       };
 
       const result = lupo.resolve(mockGameState, action);
+      const gameState = getGameState();
 
-      expect(mockGameState.night.context.pendingKills[3]).toBeDefined();
-      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupo');
+      expect(gameState.night.context.pendingKills[3]).toBeDefined();
+      expect(gameState.night.context.pendingKills[3][0].role).toBe('lupo');
     });
 
     it('should not duplicate kills for the same target', () => {
@@ -93,10 +95,11 @@ describe('Lupo Role', () => {
 
       lupo.resolve(mockGameState, action1);
       lupo.resolve(mockGameState, action2);
+      const gameState = getGameState();
 
-      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(2);
-      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupo');
-      expect(mockGameState.night.context.pendingKills[3][1].role).toBe('lupo');
+      expect(gameState.night.context.pendingKills[3]).toHaveLength(2);
+      expect(gameState.night.context.pendingKills[3][0].role).toBe('lupo');
+      expect(gameState.night.context.pendingKills[3][1].role).toBe('lupo');
     });
 
     it('should handle invalid target ID', () => {
@@ -108,9 +111,10 @@ describe('Lupo Role', () => {
       };
 
       const result = lupo.resolve(mockGameState, action);
+      const gameState = getGameState();
 
       expect(result).toBeDefined();
-      expect(mockGameState.night.context.pendingKills).toEqual({});
+      expect(gameState.night.context.pendingKills).toEqual({});
     });
 
     it('should handle missing target ID', () => {
@@ -122,9 +126,10 @@ describe('Lupo Role', () => {
       };
 
       const result = lupo.resolve(mockGameState, action);
+      const gameState = getGameState();
 
       expect(result).toBeDefined();
-      expect(mockGameState.night.context.pendingKills).toEqual({});
+      expect(gameState.night.context.pendingKills).toEqual({});
     });
 
     it('should handle non-existent target', () => {
@@ -136,9 +141,10 @@ describe('Lupo Role', () => {
       };
 
       const result = lupo.resolve(mockGameState, action);
+      const gameState = getGameState();
 
       expect(result).toBeDefined();
-      expect(mockGameState.night.context.pendingKills[999]).toBeDefined();
+      expect(gameState.night.context.pendingKills[999]).toBeDefined();
     });
 
     it('should handle multiple targets correctly', () => {
@@ -157,11 +163,12 @@ describe('Lupo Role', () => {
 
       lupo.resolve(mockGameState, action1);
       lupo.resolve(mockGameState, action2);
+      const gameState = getGameState();
 
-      expect(mockGameState.night.context.pendingKills[3]).toHaveLength(1);
-      expect(mockGameState.night.context.pendingKills[1]).toHaveLength(1);
-      expect(mockGameState.night.context.pendingKills[3][0].role).toBe('lupo');
-      expect(mockGameState.night.context.pendingKills[1][0].role).toBe('lupo');
+      expect(gameState.night.context.pendingKills[3]).toHaveLength(1);
+      expect(gameState.night.context.pendingKills[1]).toHaveLength(1);
+      expect(gameState.night.context.pendingKills[3][0].role).toBe('lupo');
+      expect(gameState.night.context.pendingKills[1][0].role).toBe('lupo');
     });
   });
 

@@ -5,7 +5,7 @@
     <div v-else class="space-y-4">
       <RoleComparisonCard
         :game-state="gameState"
-        :left-player="simbiontePlayer"
+        :left-player="simbiontePlayers"
         :right-player="targetRolePlayer"
         left-label="Simbionte"
         right-label="Target"
@@ -40,22 +40,20 @@ const players = computed(() => {
   return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
-const simbiontePlayer = computed(() => {
+const simbiontePlayers = computed(() => {
   const simbionteList = players.value;
   if (simbionteList.length === 0) {
     if (props.entry && props.entry.playerId) {
       const player = props.gameState.players.find((p: any) => p.id === props.entry.playerId);
-      return player ? { ...player, roleId: props.entry.oldRoleId || 'simbionte' } : { name: 'Simbionte', roleId: 'simbionte' };
+      return player ? [{ ...player, roleId: props.entry.oldRoleId || 'simbionte' }] : [{ name: 'Simbionte', roleId: 'simbionte' }];
     }
-    return { name: 'Simbionte', roleId: 'simbionte' };
+    return [{ name: 'Simbionte', roleId: 'simbionte' }];
   }
-  if (simbionteList.length === 1) {
-    return { ...simbionteList[0], roleId: props.entry.oldRoleId || 'simbionte' };
-  }
-  return {
-    name: simbionteList.map((g: any) => g.name).join(', '),
+  // Return array of players with updated roleId
+  return simbionteList.map((player: any) => ({
+    ...player,
     roleId: props.entry.oldRoleId || 'simbionte'
-  };
+  }));
 });
 
 const simbionteActionText = computed(() => {

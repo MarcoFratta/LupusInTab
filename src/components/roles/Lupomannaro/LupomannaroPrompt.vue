@@ -29,13 +29,21 @@ const availableRoles = computed(() => {
 </script>
 
 <template>
-    <PromptDeclare
-        :skippable="false"
-        :gameState="props.gameState" 
-        :playerIds="props.playerIds" 
-        :onComplete="props.onComplete"
-        :availablePlayers="availablePlayers"
-        :availableRoles="availableRoles"
-    />
+    <div class="space-y-6">
+        <div class="text-center space-y-3">
+            <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+                <p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore e prova a indovinare il suo ruolo</p>
+            </div>
+        </div>
+        
+        <PromptDeclare
+            :skippable="false"
+            :gameState="props.gameState" 
+            :playerIds="props.playerIds" 
+            :onComplete="props.onComplete"
+            :availablePlayers="availablePlayers"
+            :availableRoles="availableRoles"
+        />
+    </div>
 </template>
 

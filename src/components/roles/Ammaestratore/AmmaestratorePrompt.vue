@@ -40,6 +40,9 @@ function skip() {
 <template>
 	<div class="space-y-6">
 		<div class="text-center space-y-3">
+			<div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+				<p class="text-violet-300 text-sm font-medium">📢 Scegli un bersaglio da far sbranare dai lupi</p>
+			</div>
 			<p class="text-neutral-400 text-base font-medium">Scegli un bersaglio per reindirizzare gli attacchi dei lupi</p>
 			<p class="text-neutral-500 text-sm">Se scegli un lupo, nessuno morirà. Se scegli un altro giocatore, morirà al posto del bersaglio originale.</p>
 		</div>

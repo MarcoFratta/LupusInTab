@@ -52,28 +52,21 @@ const mutaformaPlayers = computed(() => {
   return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
 });
 
-const representativeMutaforma = computed(() => {
-  const mutaformaList = mutaformaPlayers.value;
-  if (mutaformaList.length === 0) return null;
-  
-  return {
-    ...mutaformaList[0],
-    name: mutaformaList.length === 1 ? mutaformaList[0].name : mutaformaList.map((m: any) => m.name).join(', '),
-    roleId: 'mutaforma'
-  };
-});
-
 const mutaformaUsingTargetRole = computed(() => {
-  if (!representativeMutaforma.value || !targetRole.value) return null;
+  if (mutaformaPlayers.value.length === 0 || !targetRole.value) return null;
   
+  // Create a representative mutaforma object for the target role
+  const firstMutaforma = mutaformaPlayers.value[0];
   return {
-    ...representativeMutaforma.value,
+    ...firstMutaforma,
     roleId: targetRole.value.id,
-    name: representativeMutaforma.value.name
+    name: mutaformaPlayers.value.length === 1 
+      ? firstMutaforma.name 
+      : mutaformaPlayers.value.map((m: any) => m.name).join(', ')
   };
 });
 
-const canUseRole = computed(() => props.entry?.data?.canUseRole === true);
+const canUseRole = computed(() => props.entry?.canUseRole === true);
 
 const targetRoleResult = computed(() => props.entry?.data?.targetRoleResult);
 
@@ -96,12 +89,46 @@ const AsyncTargetRoleDetails = computed(() => {
   return defineAsyncComponent(targetRoleResolveDetailsComponent.value);
 });
 
-const hasAction = computed(() => targetPlayer.value && representativeMutaforma.value);
+const hasAction = computed(() => targetPlayer.value && mutaformaPlayers.value.length > 0);
 
 const shouldShowTargetRoleDetails = computed(() => {
   return canUseRole.value && 
          targetRoleActionEntry.value && 
          targetRoleResolveDetailsComponent.value;
+});
+
+// Check if the target role had no effect that night
+const targetRoleHadNoEffect = computed(() => {
+  if (!canUseRole.value) return false;
+  
+  // Check if the target role action was skipped
+  return props.entry?.data?.targetRoleAction?.skipped === true;
+});
+
+// Check if the target role couldn't be used due to constraints
+const targetRoleBlocked = computed(() => {
+  if (canUseRole.value) return false; // If Mutaforma can use the role, it's not blocked
+  
+  // Check if there's a reason why the target role cannot be used
+  const mainReason = props.entry?.reason;
+  
+  // If there's a reason in the main entry, it's a constraint reason
+  if (mainReason && typeof mainReason === 'string') return true;
+  
+  return false;
+});
+
+// Get the constraint reason
+const constraintReason = computed(() => {
+  const mainReason = props.entry?.reason;
+  
+  console.log(`🔄 [DEBUG] MutaformaResolveDetails - entry:`, props.entry);
+  console.log(`🔄 [DEBUG] MutaformaResolveDetails - mainReason:`, mainReason);
+  
+  // Use the main reason from the entry (this is the reason why target role cannot be used)
+  if (mainReason && typeof mainReason === 'string') return mainReason;
+  
+  return 'unknown';
 });
 </script>
 
@@ -111,7 +138,7 @@ const shouldShowTargetRoleDetails = computed(() => {
     <template v-if="hasAction">
       <RoleComparisonCard
         :game-state="props.gameState"
-        :left-player="representativeMutaforma"
+        :left-player="mutaformaPlayers"
         :right-player="targetPlayer"
         left-label="Mutaforma"
         right-label="Ruolo Copiato"
@@ -153,8 +180,26 @@ const shouldShowTargetRoleDetails = computed(() => {
       </div>
     </div>
 
-    <!-- Role Cannot Be Used Due to Constraints -->
-    <div v-else-if="!canUseRole && props.entry?.data?.reason" class="space-y-2">
+    <!-- Target Role Had No Effect -->
+    <div v-else-if="targetRoleHadNoEffect" class="space-y-2">
+      <div class="text-center">
+        <div class="text-neutral-400 text-xs mb-2">
+          Nessun azione effettuata
+        </div>
+      </div>
+      
+      <div class="p-3 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
+        <p class="text-neutral-400 text-sm font-medium">
+          Il ruolo copiato non ha avuto alcun effetto questa notte
+        </p>
+        <p class="text-neutral-500 text-xs mt-1">
+          {{ targetRole?.name }} ha scelto di non utilizzare il suo potere
+        </p>
+      </div>
+    </div>
+
+    <!-- Target Role Blocked Due to Constraints -->
+    <div v-else-if="targetRoleBlocked" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-sm mb-2">
           Il ruolo copiato non può essere utilizzato:
@@ -163,7 +208,23 @@ const shouldShowTargetRoleDetails = computed(() => {
       
       <div>
         <BlockedRoleCard
-          :reason="props.entry.data.reason"
+          :reason="constraintReason"
+          :player="targetPlayer"
+        />
+      </div>
+    </div>
+
+    <!-- Role Cannot Be Used Due to Constraints (fallback) -->
+    <div v-else-if="!canUseRole" class="space-y-2">
+      <div class="text-center">
+        <div class="text-neutral-400 text-sm mb-2">
+          Il ruolo copiato non può essere utilizzato:
+        </div>
+      </div>
+      
+      <div>
+        <BlockedRoleCard
+          :reason="constraintReason"
           :player="targetPlayer"
         />
       </div>

@@ -1,5 +1,8 @@
 import { vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
+import { useGameStore } from '../stores/game';
+import { setGameAPI } from '../utils/roleAPI';
+import { useGameAPI } from '../composables/useGameAPI';
 
 // Mock localStorage
 const localStorageMock = {
@@ -101,3 +104,29 @@ vi.mock('../utils/winConditions', () => ({
 // Don't mock NightPhaseManager - let tests use real functions
 
 // Helper functions removed - tests now use real functions
+
+// Helper function to set mock game state for tests
+export function setMockGameState(mockState: any) {
+  const store = useGameStore();
+  
+  // Ensure night context is properly initialized
+  if (mockState.night?.context && !store.state.night.context) {
+    store.state.night.context = mockState.night.context;
+  }
+  
+  // Set the mock state in the store
+  store.$patch(mockState);
+  
+  // Initialize RoleAPI with the mock state
+  const gameAPI = useGameAPI();
+  setGameAPI(gameAPI);
+  
+  // Return the store so tests can access the updated state
+  return store;
+}
+
+// Helper function to get the current game state from the store
+export function getGameState() {
+  const store = useGameStore();
+  return store.state;
+}

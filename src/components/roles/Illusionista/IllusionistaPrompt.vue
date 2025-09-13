@@ -34,8 +34,11 @@ function submit() {
 <template>
     <div class="space-y-4">
         <div class="text-center">
-            <div class="text-slate-100 text-sm font-medium mb-2">Seleziona un giocatore da bloccare</div>
-            <div class="text-slate-400 text-xs">Il giocatore selezionato non potrà usare la sua abilità notturna</div>
+            <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+                <p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore da illusionare</p>
+            </div>
+            <div class="text-slate-100 text-sm font-medium mb-2">Seleziona un giocatore da illusionare</div>
+            <div class="text-slate-400 text-xs">Il giocatore scelto non potrà usare la sua abilità questa notte</div>
         </div>
         
         <PromptSelect 

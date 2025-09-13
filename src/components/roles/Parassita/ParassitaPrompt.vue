@@ -76,44 +76,50 @@ function updateSelection(value) {
 <template>
     <div class="space-y-6">
         <div class="text-center space-y-3">
+            <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+                <p class="text-violet-300 text-sm font-medium">📢 Scegli i giocatori da infettare</p>
+            </div>
+            <h3 class="text-lg font-semibold text-white">Parassita</h3>
             <p class="text-neutral-400 text-base font-medium">
-                Utilizzo {{ (gameState.custom?.parassita?.usageCount || 0) + 1 }}: Puoi infettare fino a {{ maxTargets }} giocatore{{ maxTargets > 1 ? 'i' : '' }}
+                Utilizzo {{ (gameState.custom?.parassita?.usageCount || 0) + 1 }}: Infetta fino a {{ maxTargets }} giocatore{{ maxTargets > 1 ? 'i' : '' }}
             </p>
-            <p class="text-neutral-400 text-sm">
-                Seleziona i giocatori da infettare (giocatori già infetti non possono essere selezionati)
-            </p>
+            <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
         </div>
         
-        <div v-if="choices.length > 0" class="space-y-4">
-            <div class="grid gap-3">
-                <div v-for="choice in choices" :key="choice.value" class="flex items-center space-x-3 p-3 rounded-xl bg-neutral-800/40 border border-neutral-700/40 hover:bg-neutral-800/60 transition-all duration-200">
-                    <input
-                        type="checkbox"
-                        :id="`player-${choice.value}`"
-                        :value="choice.value"
-                        :checked="targetIds.includes(choice.value)"
-                        @change="(e) => { console.log('Checkbox changed:', choice.value, 'checked:', e.target.checked); updateSelection(choice.value); }"
-                        :disabled="choice.value === null || (!targetIds.includes(choice.value) && targetIds.length >= maxTargets)"
-                        class="w-5 h-5 text-pink-600 bg-neutral-900/70 border-neutral-700 rounded focus:ring-2 focus:ring-pink-500/30 focus:ring-offset-2 focus:ring-offset-neutral-900"
-                    />
-                    <label :for="`player-${choice.value}`" class="text-base font-medium text-neutral-200 cursor-pointer flex-1">
+        <div v-if="choices.length > 0" class="space-y-3">
+            <div class="grid gap-2">
+                <div v-for="choice in choices" :key="choice.value" 
+                     class="flex items-center justify-between p-4 rounded-xl transition-all duration-200 cursor-pointer"
+                     :class="targetIds.includes(choice.value) 
+                       ? 'bg-violet-500/20 border-2 border-violet-500 shadow-lg shadow-violet-500/20 hover:bg-violet-500/25 hover:border-violet-500 hover:shadow-violet-500/30' 
+                       : 'bg-neutral-800/80 border border-neutral-700/60 hover:bg-neutral-800 hover:border-violet-500/30'"
+                     @click="updateSelection(choice.value)">
+                    <span class="text-sm font-medium text-neutral-200">
                         {{ choice.label }}
-                    </label>
+                    </span>
+                    <div v-if="targetIds.includes(choice.value)" class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-violet-500"></div>
+                        <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div v-if="choices.length === 0" class="text-center space-y-4">
-            <p class="text-neutral-400 text-base">
-                Non ci sono più giocatori da infettare. Tutti i giocatori vivi sono già infetti!
-            </p>
+        <div v-if="choices.length === 0" class="text-center space-y-3">
+            <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4">
+                <p class="text-neutral-400 text-sm">
+                    Tutti i giocatori vivi sono già infetti!
+                </p>
+            </div>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3">
             <button
                 v-if="choices.length > 0"
                 @click="() => submit()"
-                class="btn btn-accent w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
+                class="btn btn-accent w-full py-3 text-base font-semibold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
                 :class="{ 'btn-disabled': targetIds.length === 0 }"
                 :disabled="targetIds.length === 0"
             >
@@ -123,7 +129,7 @@ function updateSelection(value) {
             <button
                 v-if="choices.length > 0"
                 @click="() => submit(true)"
-                class="btn btn-outline w-full py-3 text-lg font-semibold rounded-2xl border-neutral-600 text-neutral-300 hover:bg-neutral-700/50 hover:border-neutral-500 transition-all duration-300"
+                class="btn btn-ghost w-full py-2 text-sm font-medium rounded-xl border-neutral-700/50 text-neutral-400 hover:bg-neutral-800/50 hover:text-neutral-300 transition-all duration-300"
             >
                 Salta
             </button>
@@ -131,7 +137,7 @@ function updateSelection(value) {
             <button
                 v-else
                 @click="() => submit()"
-                class="btn btn-accent w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
+                class="btn btn-accent w-full py-3 text-base font-semibold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
             >
                 Continua
             </button>

@@ -16,17 +16,6 @@ const lupomannaroPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeLupomannaro = computed(() => {
-  const lupomannaroList = lupomannaroPlayers.value;
-  if (lupomannaroList.length === 0) return null;
-  
-  return {
-    ...lupomannaroList[0],
-    name: lupomannaroList.length === 1 ? lupomannaroList[0].name : lupomannaroList.map(d => d.name).join(', '),
-    roleId: 'lupomannaro'
-  };
-});
-
 const lupomannaroEvent = computed(() => {
     return props.entry;
 });
@@ -58,9 +47,9 @@ const centerContent = computed(() => ({
 <template>
     <div v-if="!hasDeclaration" class="text-neutral-400 text-center text-xs">Nessuna dichiarazione</div>
     <RoleComparisonCard
-        v-else-if="representativeLupomannaro"
+        v-else-if="lupomannaroPlayers.length > 0"
         :game-state="gameState"
-        :left-player="representativeLupomannaro"
+        :left-player="lupomannaroPlayers"
         :right-player="target"
         left-label="Lupo Mannaro"
         right-label="Bersaglio"

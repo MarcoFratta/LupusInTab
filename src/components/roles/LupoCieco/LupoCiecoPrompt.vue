@@ -133,6 +133,9 @@ function skipKilling() {
         <!-- Investigation Step -->
         <div v-if="step === 'investigation'" class="space-y-4">
             <div class="text-center space-y-2">
+                <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+                    <p class="text-violet-300 text-sm font-medium">📢 Scegli tre giocatori vicini tra loro da investigare</p>
+                </div>
                 <p class="text-neutral-300 text-sm font-medium">
                     Scegliete il primo giocatore da investigare
                 </p>

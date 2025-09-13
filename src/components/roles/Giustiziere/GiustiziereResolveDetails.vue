@@ -22,19 +22,7 @@ const justicerPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeJusticer = computed(() => {
-  const justicerList = justicerPlayers.value;
-  if (justicerList.length === 0) return null;
-  
-  // Create a representative justicer object that shows all names
-  return {
-    ...justicerList[0],
-    name: justicerList.length === 1 ? justicerList[0].name : justicerList.map(j => j.name).join(', '),
-    roleId: 'giustiziere'
-  };
-});
-
-const hasAction = computed(() => target.value && representativeJusticer.value);
+const hasAction = computed(() => target.value && justicerPlayers.value.length > 0);
 </script>
 
 <template>
@@ -42,7 +30,7 @@ const hasAction = computed(() => target.value && representativeJusticer.value);
         <template v-if="hasAction">
             <RoleComparisonCard
                 :game-state="props.gameState"
-                :left-player="representativeJusticer"
+                :left-player="justicerPlayers"
                 :right-player="target"
                 left-label="Giustiziere"
                 right-label="Bersaglio"

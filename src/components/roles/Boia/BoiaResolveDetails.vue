@@ -26,18 +26,6 @@ const boiaPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeBoia = computed(() => {
-  const boiaList = boiaPlayers.value;
-  if (boiaList.length === 0) return null;
-  
-  // Create a representative boia object that shows all names
-  return {
-    ...boiaList[0],
-    name: boiaList.length === 1 ? boiaList[0].name : boiaList.map(h => h.name).join(', '),
-    roleId: 'boia'
-  };
-});
-
 const hasDeclaration = computed(() => target.value && roleId.value);
 const isCorrect = computed(() => boiaEvent.value?.correct ?? false);
 
@@ -57,9 +45,9 @@ const centerContent = computed(() => ({
 <template>
     <div v-if="!hasDeclaration" class="text-neutral-400 text-center text-xs">Nessuna dichiarazione</div>
     <RoleComparisonCard
-        v-else-if="representativeBoia"
+        v-else-if="boiaPlayers.length > 0"
         :game-state="gameState"
-        :left-player="representativeBoia"
+        :left-player="boiaPlayers"
         :right-player="target"
         left-label="Boia"
         right-label="Bersaglio"

@@ -207,8 +207,8 @@ function handleRoleRevealNext() {
 
   <!-- Player Selection -->
   <div v-else-if="showPlayerSelection" class="bg-gradient-to-br from-neutral-900/80 to-neutral-800/60 border border-neutral-700/40 rounded-xl p-4 md:p-6">
-    <!-- Back button -->
-    <div class="text-left mb-4">
+    <!-- Header with back button and title -->
+    <div class="flex items-center justify-between mb-6">
       <button 
         class="p-2 text-neutral-400 hover:text-neutral-200 transition-colors duration-200"
         @click="props.onBack"
@@ -217,6 +217,8 @@ function handleRoleRevealNext() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
       </button>
+      <h3 class="text-lg md:text-xl font-semibold text-neutral-200">Rivela di nuovo un ruolo</h3>
+      <div class="w-10"></div> <!-- Spacer to center the title -->
     </div>
 
     <div class="text-center space-y-4">
@@ -227,7 +229,6 @@ function handleRoleRevealNext() {
         </svg>
       </div>
       <div>
-        <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">Rivela di nuovo un ruolo</h3>
         <p class="text-neutral-400 text-sm leading-relaxed max-w-md mx-auto">
           Seleziona un giocatore per fargli rivedere il suo ruolo
         </p>

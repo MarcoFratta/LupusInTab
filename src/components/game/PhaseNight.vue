@@ -68,7 +68,7 @@ const asyncPromptComponent = computed(() => {
           <!-- Players List -->
           <div v-if="currentGroupNames" class="text-center space-y-4 mb-8">
             <div class="space-y-2">
-              <p class="text-sm text-neutral-300 font-medium">Giocatori attivi:</p>
+              <p class="text-sm text-neutral-300 font-medium">Possono aprire gli occhi:</p>
               <div class="flex flex-wrap justify-center gap-2">
                 <span 
                   v-for="player in currentGroupNames" 

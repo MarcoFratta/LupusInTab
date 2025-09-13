@@ -93,6 +93,19 @@ const knownTeamAllies = computed(() => {
     // This creates one-way visibility: if Role A knows Role B, only Role B sees Role A
     const otherKnowsMe = Array.isArray(otherRoleDef.knownTo) && otherRoleDef.knownTo.includes(myRoleDef.id);
     if (otherKnowsMe) visible = true;
+    
+    // Also check if the other role knows any role that the current role is grouped with
+    if (!visible && Array.isArray(otherRoleDef.knownTo)) {
+      // Check if the current role is grouped with any role that the other role knows
+      if (props.state.groupings) {
+        for (const grouping of props.state.groupings) {
+          if (grouping.toRole === myRoleDef.id && otherRoleDef.knownTo.includes(grouping.fromRole)) {
+            visible = true;
+            break;
+          }
+        }
+      }
+    }
 
     if (visible) {
       const showMode = otherRoleDef.revealToAllies || 'team';

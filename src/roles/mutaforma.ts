@@ -5,8 +5,9 @@ import { ROLES } from '../roles';
 import { RoleAPI } from '../utils/roleAPI';
 
 // Helper function to check if a target role can be used by mutaforma
-function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutaformaPlayerId: number) {
-    if (!targetRole) return false;
+// Returns { canUse: boolean, reason?: string }
+function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutaformaPlayerId: number, targetPlayerId: number) {
+    if (!targetRole) return { canUse: false, reason: 'unknown' };
 
     // Check if role acts at night, considering groupings
     let effectiveRole = targetRole;
@@ -22,34 +23,35 @@ function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutafor
                 effectiveRole = groupedRole;
                 console.log(`🔄 [DEBUG] Mutaforma using grouped role: ${groupedRole.id} instead of ${targetRole.id}`);
             } else {
-                return false; // No valid grouping found
+                return { canUse: false, reason: 'never' }; // No valid grouping found
             }
         } else {
-            return false; // No grouping and actsAtNight is never
+            return { canUse: false, reason: 'never' }; // No grouping and actsAtNight is never
         }
     }
 
     // Check if role requires being dead but mutaforma is alive
-    if (effectiveRole.actsAtNight === 'dead') return false;
+    if (effectiveRole.actsAtNight === 'dead') return { canUse: false, reason: 'alive' };
 
     // Check if role requires being alive but mutaforma is dead
     if (effectiveRole.actsAtNight === 'alive') {
         const mutaformaPlayer = RoleAPI.getPlayer(mutaformaPlayerId);
-        if (!mutaformaPlayer || !mutaformaPlayer.alive) return false;
+        if (!mutaformaPlayer || !mutaformaPlayer.alive) return { canUse: false, reason: 'dead' };
     }
 
     // Check start night restriction
     if (effectiveRole.startNight && typeof effectiveRole.startNight === 'number') {
-        if (RoleAPI.getNightNumber() < effectiveRole.startNight) return false;
+        if (RoleAPI.getNightNumber() < effectiveRole.startNight) return { canUse: false, reason: 'startNight' };
     }
 
-    // Check usage limit restriction
+    // Check usage limit restriction for the target role
     if (effectiveRole.numberOfUsage !== 'unlimited' && effectiveRole.numberOfUsage !== undefined) {
-        const timesUsed = RoleAPI.getPowerUsageCount(effectiveRole.id, mutaformaPlayerId);
-        if (timesUsed >= effectiveRole.numberOfUsage) return false;
+        // Check if the target player has already used their role
+        const timesUsed = RoleAPI.getPowerUsageCount(effectiveRole.id, targetPlayerId);
+        if (timesUsed >= effectiveRole.numberOfUsage) return { canUse: false, reason: 'usageLimit' };
     }
 
-    return true;
+    return { canUse: true };
 }
 
 const mutaforma: RoleDef = {
@@ -92,24 +94,6 @@ non potrà usare il suo ruolo e morirà nella notte successiva.
         
         if (!targetRole) return;
         
-        // Check if the target role can be used by the mutaforma
-        const canUseRole = checkMutaformaCanUseTargetRole(targetRole, gameState, action.playerId);
-        
-        if (!canUseRole) {
-            return {
-                type: 'mutaforma_action',
-                nightNumber: gameState.nightNumber,
-                roleId: 'mutaforma',
-                playerIds: action.playerIds || [],
-                targetId: targetId,
-                targetRoleId: targetRoleId,
-                targetPlayerName: targetPlayer.name,
-                canUseRole: false,
-                reason: 'Role cannot be used by Mutaforma',
-                data: action.data
-            };
-        }
-        
         // Determine the effective role to use (considering groupings)
         let effectiveRoleId = targetRoleId;
         let effectiveRole = targetRole;
@@ -123,9 +107,12 @@ non potrà usare il suo ruolo e morirà nella notte successiva.
             }
         }
         
-        // Execute the target role's action as if Mutaforma were that role
+        // Check if Mutaforma can use the target role
+        const actualCanUseRole = action.data?.canUseRole !== undefined ? action.data.canUseRole : true;
+        
+        // Execute the target role's action only if Mutaforma can use it
         let targetRoleResult = null;
-        if (effectiveRole.resolve && typeof effectiveRole.resolve === 'function') {
+        if (actualCanUseRole && effectiveRole.resolve && typeof effectiveRole.resolve === 'function') {
             try {
                 // Use the target role's action data from the prompt
                 const targetRoleActionData = action.data?.targetRoleAction || action.data;
@@ -147,6 +134,15 @@ non potrà usare il suo ruolo e morirà nella notte successiva.
             }
         }
         
+        // If the role cannot be used, get the reason from the prompt's decision
+        let targetRoleReason = null;
+        if (!actualCanUseRole) {
+            // The reason is stored in targetRoleResult when the role cannot be used
+            targetRoleReason = action.data?.targetRoleResult;
+            console.log(`🔄 [DEBUG] Mutaforma cannot use role, reason:`, targetRoleReason);
+            console.log(`🔄 [DEBUG] Action data:`, action.data);
+        }
+        
         // Create the mutaforma action
         const mutaformaAction = {
             type: 'mutaforma_action',
@@ -156,12 +152,13 @@ non potrà usare il suo ruolo e morirà nella notte successiva.
             targetId: targetId,
             targetRoleId: effectiveRoleId, // Use effective role ID
             targetPlayerName: targetPlayer.name,
-            canUseRole: canUseRole,
+            canUseRole: actualCanUseRole, // Whether Mutaforma can use the target role
+            reason: targetRoleReason, // Reason why target role cannot be used (if applicable)
             data: {
                 ...action.data,
                 targetId: targetId,
                 targetRoleId: effectiveRoleId, // Use effective role ID
-                targetRoleResult: targetRoleResult
+                targetRoleResult: targetRoleResult // Result of executing the target role's action
             }
         };
         

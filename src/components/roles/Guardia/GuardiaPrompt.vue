@@ -34,15 +34,23 @@ function handleComplete(data) {
 </script>
 
 <template>
-	<GenericTargetSelectPrompt
-		title="Guardia"
-		description="Scegli un giocatore da proteggere questa notte"
-		label="Scegli un giocatore da salvare"
-		buttonText="Conferma"
-		accent="emerald"
-		:choices="choices"
-		@complete="handleComplete"
-	/>
+	<div class="space-y-6">
+		<div class="text-center space-y-3">
+			<div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+				<p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore da proteggere questa notte</p>
+			</div>
+		</div>
+		
+		<GenericTargetSelectPrompt
+			title="Guardia"
+			description="Scegli un giocatore da proteggere questa notte"
+			label="Scegli un giocatore da salvare"
+			buttonText="Conferma"
+			accent="emerald"
+			:choices="choices"
+			@complete="handleComplete"
+		/>
+	</div>
 </template>
 
 

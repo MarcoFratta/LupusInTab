@@ -29,17 +29,6 @@ const parassitaNames = computed(() => {
 });
 
 // For group roles, we need to create a representative player object
-const representativeParassita = computed(() => {
-  const parassitaList = parassitaPlayers.value;
-  if (parassitaList.length === 0) return null;
-  
-  // Create a representative parassita object that shows all names
-  return {
-    ...parassitaList[0],
-    name: parassitaNames.value, // Show all parassita names
-    roleId: 'parassita'
-  };
-});
 
 // Get the correct action text based on number of parassita
 const infectAction = computed(() => {
@@ -64,7 +53,7 @@ const infectAction = computed(() => {
     <div v-else class="space-y-3">
       <RoleComparisonCard
         :game-state="props.gameState"
-        :left-player="representativeParassita"
+        :left-player="parassitaPlayers"
         :right-player="targetIds.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
         left-label="Parassita"
         right-label="Giocatori Infetti"
@@ -72,7 +61,6 @@ const infectAction = computed(() => {
           action: infectAction
         }"
       />
-      
 
     </div>
   </div>

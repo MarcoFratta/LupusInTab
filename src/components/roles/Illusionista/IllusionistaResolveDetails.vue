@@ -22,18 +22,6 @@ const illusionistaPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeIllusionista = computed(() => {
-  const illusionistaList = illusionistaPlayers.value;
-  if (illusionistaList.length === 0) return null;
-  
-  // Create a representative illusionista object that shows all names
-  return {
-    ...illusionistaList[0],
-    name: illusionistaList.length === 1 ? illusionistaList[0].name : illusionistaList.map(i => i.name).join(', '),
-    roleId: 'illusionista'
-  };
-});
-
 const hasAction = computed(() => target.value);
 </script>
 
@@ -42,7 +30,7 @@ const hasAction = computed(() => target.value);
         <template v-if="hasAction">
             <RoleComparisonCard
                 :game-state="props.gameState"
-                :left-player="representativeIllusionista"
+                :left-player="illusionistaPlayers"
                 :right-player="target"
                 left-label="Illusionista"
                 right-label="Bersaglio"

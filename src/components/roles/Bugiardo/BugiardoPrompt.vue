@@ -50,6 +50,9 @@ function skip() {
 <template>
 	<div class="space-y-4">
 		<div class="text-center space-y-2">
+			<div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+				<p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore morto da investigare</p>
+			</div>
 			<p class="text-neutral-400 text-base font-medium">Investiga un giocatore morto per scoprire il suo ruolo reale</p>
 			<p class="text-sm text-neutral-500">Puoi usare questo potere una sola volta per partita, a partire dalla notte 2</p>
 		</div>

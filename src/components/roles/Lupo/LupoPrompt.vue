@@ -35,15 +35,23 @@ function handleComplete(data) {
 </script>
 
 <template>
-    <GenericTargetSelectPrompt
-        title="Lupo"
-        description="Scegliete una vittima da eliminare questa notte"
-        label="Chi vuoi eliminare?"
-        buttonText="Conferma selezione"
-        accent="red"
-        :choices="choices"
-        @complete="handleComplete"
-    />
+    <div class="space-y-6">
+        <div class="text-center space-y-3">
+            <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
+                <p class="text-violet-300 text-sm font-medium">📢 Scegliete una vittima da sbranare questa notte</p>
+            </div>
+        </div>
+        
+        <GenericTargetSelectPrompt
+            title="Lupo"
+            description="Scegliete una vittima da sbranare questa notte"
+            label="Chi vuoi eliminare?"
+            buttonText="Conferma selezione"
+            accent="red"
+            :choices="choices"
+            @complete="handleComplete"
+        />
+    </div>
 </template>
 
 

@@ -107,7 +107,7 @@ LupusInTab is designed to be easily extensible. Adding new roles is straightforw
 3. **Add to Game** - Register the role in the game system
 4. **Test** - Ensure the role works correctly
 
-For detailed instructions, see [ROLE_CREATION_GUIDE.md](./ROLE_CREATION_GUIDE.md).
+For detailed instructions, see [ROLE_CREATION_GUIDE.md](./docs/ROLE_CREATION_GUIDE.md).
 
 ### Quick Example
 
@@ -146,7 +146,7 @@ We welcome contributions! Whether you want to:
 - 📚 Update documentation
 - ⚡ Optimize performance
 
-Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+Please see [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for detailed guidelines.
 
 ### Development Workflow
 
@@ -158,9 +158,9 @@ Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## 📚 Documentation
 
-- [Contributing Guide](./CONTRIBUTING.md) - How to contribute to the project
-- [Role Creation Guide](./ROLE_CREATION_GUIDE.md) - Detailed guide for creating new roles
-- [API Reference](./ROLE_CREATION_GUIDE.md#game-api-reference) - Complete API documentation
+- [Contributing Guide](./docs/CONTRIBUTING.md) - How to contribute to the project
+- [Role Creation Guide](./docs/ROLE_CREATION_GUIDE.md) - Detailed guide for creating new roles
+- [API Reference](./docs/ROLE_CREATION_GUIDE.md#game-api-reference) - Complete API documentation
 
 ## 🎨 Features
 

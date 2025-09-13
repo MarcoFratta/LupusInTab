@@ -2,17 +2,26 @@
   <div class="space-y-4">
     <div v-if="!genioEvent" class="text-neutral-400 text-center text-xs">Nessuna trasformazione</div>
     
-    <div v-else class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-4">
-      <!-- Player and Action -->
-      <div class="flex items-center justify-center mb-4">
-        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-800/60 border border-neutral-700/40">
-          <span class="text-neutral-300 text-lg">🧞‍♂️</span>
-          <span class="text-xs font-medium text-neutral-300">{{ genioNames }} {{ players.length === 1 ? 'si è trasformato' : 'si sono trasformati' }}</span>
+    <div v-else class="space-y-3">
+      <!-- Players who used the role -->
+      <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
+        <div class="flex flex-wrap gap-1 justify-center">
+          <span 
+            v-for="player in genioPlayers" 
+            :key="player.id"
+            class="px-2 py-1 bg-neutral-800/60 border border-neutral-700/40 rounded text-xs text-neutral-200 max-w-full truncate"
+            :title="player.name"
+          >
+            {{ player.name }}
+          </span>
+        </div>
+        <div class="text-center text-neutral-300 text-sm mt-2">
+          {{ genioPlayers.length === 1 ? 'si è trasformato' : 'si sono trasformati' }}
         </div>
       </div>
       
       <!-- Chosen Role -->
-      <div class="flex flex-col items-center space-y-2">
+      <div class="flex flex-col items-center space-y-2 pb-4">
         <span class="text-xs text-neutral-400">Nuovo ruolo:</span>
         <div class="px-3 py-2 rounded text-sm font-medium"
              :style="{ 
@@ -38,18 +47,9 @@ const props = defineProps({
   player: { type: Object, required: true }
 });
 
-const players = computed(() => {
+const genioPlayers = computed(() => {
   if (!props.entry || !props.entry.playerIds) return [];
   return props.gameState.players.filter((p: any) => props.entry.playerIds.includes(p.id));
-});
-
-const genioNames = computed(() => {
-  const genioList = players.value;
-  if (genioList.length === 0) {
-    return 'Genio della Lampada';
-  }
-  if (genioList.length === 1) return genioList[0].name;
-  return genioList.map((g: any) => g.name).join(', ');
 });
 
 const genioEvent = computed(() => {

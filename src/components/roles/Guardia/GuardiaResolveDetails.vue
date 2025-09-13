@@ -25,16 +25,6 @@ const guardiaPlayers = computed(() => {
   return props.gameState.players.filter(p => props.entry.playerIds.includes(p.id));
 });
 
-const representativeGuardia = computed(() => {
-  const guardiaList = guardiaPlayers.value;
-  if (guardiaList.length === 0) return null;
-  
-  return {
-    ...guardiaList[0],
-    name: guardiaList.length === 1 ? guardiaList[0].name : guardiaList.map(g => g.name).join(', '),
-    roleId: 'guardia'
-  };
-});
 </script>
 
 <template>
@@ -43,7 +33,7 @@ const representativeGuardia = computed(() => {
       <div v-for="s in doctorChoices" :key="'dc-' + s.target" class="space-y-3">
         <RoleComparisonCard
           :game-state="props.gameState"
-          :left-player="representativeGuardia"
+          :left-player="guardiaPlayers"
           :right-player="props.gameState.players.find((p)=>p.id===s.target)"
           left-label="Guardia"
           right-label="Bersaglio"
@@ -55,5 +45,4 @@ const representativeGuardia = computed(() => {
     </div>
   </div>
 </template>
-
 

@@ -1,3 +1,10 @@
+## [1.14.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.2...v1.14.3) (2025-09-13)
+
+
+### Bug Fixes
+
+* mutaforma and winconditions bug ([a44eec0](https://github.com/MarcoFratta/LupusInTab/commit/a44eec06dfaf1dd1a62f06731567e0a6a3ff2f4f))
+
 ## [1.14.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.1...v1.14.2) (2025-09-12)
 
 

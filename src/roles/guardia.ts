@@ -5,19 +5,13 @@ import { RoleAPI } from "../utils/roleAPI";
 
 const guardia: RoleDef = {
     id: 'guardia',
-    name: 'Guardia',
+    name: 'roleNames.guardia',
     team: 'villaggio',
     score: 5,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Protegge un giocatore ogni notte',
-    longDescription: `La Guardia è il protettore del villaggio, capace di salvare vite preziose.
-
-COME FUNZIONA:
-• Ogni notte può scegliere un giocatore da proteggere
-• Il giocatore protetto non può essere ucciso dai lupi quella notte
-• Non può proteggere lo stesso giocatore due notti consecutive
-• L'azione è obbligatoria: deve proteggere ogni notte`,
+    description: 'roleDescriptions.guardia',
+    longDescription: 'roleDescriptions.guardiaLong',
     color: '#8b5cf6',
 	phaseOrder: "any",
     actsAtNight: "alive",

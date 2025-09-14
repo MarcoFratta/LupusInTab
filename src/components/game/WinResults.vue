@@ -4,7 +4,7 @@
       <div class="relative">
         <div class="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 blur-3xl rounded-full"></div>
         <h2 class="relative text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-          Fine partita
+          {{ t('winResults.title') }}
         </h2>
       </div>
       
@@ -19,7 +19,7 @@
             {{ getWinnerText(winner) }}
           </div>
           <div v-if="winner !== 'tie' && winner" class="text-neutral-400 text-lg">
-            La battaglia è finita
+            {{ t('winResults.battleEnded') }}
           </div>
         </div>
 
@@ -74,7 +74,7 @@
         <div v-if="winner === 'tie'" class="text-center py-8">
           <div class="text-6xl mb-4">💀</div>
           <div class="text-neutral-400 text-lg">
-            Nessuno ha vinto questa battaglia
+            {{ t('winResults.noWinner') }}
           </div>
         </div>
       </div>
@@ -83,10 +83,10 @@
     <div class="space-y-4">
       <ButtonGroup class="w-full max-w-md mx-auto">
         <GhostButton full-width @click="$emit('toggleEventHistory')" class="group">
-          Eventi
+          {{ t('winResults.events') }}
         </GhostButton>
         <PrimaryButton full-width @click="$emit('newGame')" class="group">
-          Nuova partita
+          {{ t('winResults.newGame') }}
         </PrimaryButton>
       </ButtonGroup>
     </div>
@@ -101,6 +101,7 @@ import ButtonGroup from '../ui/ButtonGroup.vue';
 import GhostButton from '../ui/GhostButton.vue';
 import PrimaryButton from '../ui/PrimaryButton.vue';
 import { useWinLogic } from '../../composables/useWinLogic';
+import { useI18n } from '../../composables/useI18n';
 import { FACTIONS } from '../../factions';
 
 interface Props {
@@ -114,6 +115,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const { t } = useI18n();
 
 const winner = computed(() => props.state.winner);
 

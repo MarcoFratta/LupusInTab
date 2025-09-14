@@ -4,32 +4,41 @@ import { useRoute, useRouter } from 'vue-router';
 import { ROLES } from '../../roles/index';
 import { getFactionConfig } from '../../factions';
 import type { RoleDef } from '../../types';
+import { useI18n } from '../../composables/useI18n';
+import { getLocalizedRole } from '../../utils/roleLocalization';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { getRoleDisplayName } from '../../utils/roleUtils';
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const roleId = computed(() => route.query.role as string);
-const role = computed(() => ROLES[roleId.value] as RoleDef | undefined);
+const role = computed(() => {
+  const rawRole = ROLES[roleId.value] as RoleDef | undefined;
+  if (!rawRole) return undefined;
+  return getLocalizedRole(roleId.value, t);
+});
 
-// Map a role id to its Italian display name
+// Map a role id to its localized display name
 function mapRoleIdToName(id: string): string {
-  const r = ROLES[id] as RoleDef | undefined;
-  return r?.name || id;
+  const localizedRole = getLocalizedRole(id, t);
+  return localizedRole?.name || id;
 }
 
 // Get win condition from faction config
 function getWinCondition(team: string): string {
   const faction = getFactionConfig(team);
-  return faction?.winConditionDescription || 'Condizione specifica del ruolo';
+  return faction?.winConditionDescription ? t(faction.winConditionDescription) : t('roleDetails.specificRoleCondition');
 }
 
 // Get actsAtNight display text
 function getActsAtNightText(actsAtNight: string | undefined): string {
   switch (actsAtNight) {
-    case 'always': return 'Agisce sempre di notte';
-    case 'alive': return 'Agisce di notte quando vivo';
-    case 'dead': return 'Agisce di notte quando morto';
-    case 'never': return 'Non agisce di notte';
-    default: return 'Non agisce di notte';
+    case 'always': return t('roleDetails.always');
+    case 'alive': return t('roleDetails.whenAlive');
+    case 'dead': return t('roleDetails.whenDead');
+    case 'never': return t('roleDetails.never');
+    default: return t('roleDetails.never');
   }
 }
 
@@ -38,46 +47,46 @@ function getUsageDisplay(role: RoleDef): string {
   // Handle legacy usage property first
   if (role.usage) {
     const legacyDisplay: Record<string, string> = {
-      'unlimited': 'Illimitato - può agire ogni notte',
-      'once': 'Una volta - può agire solo una volta per partita',
-      'requiredEveryNight': 'Obbligatorio - deve agire ogni notte'
+      'unlimited': t('roleDetails.unlimited'),
+      'once': t('roleDetails.once'),
+      'requiredEveryNight': t('roleDetails.required')
     };
     return legacyDisplay[role.usage] || role.usage;
   }
   
   // Use new numberOfUsage property
   if (role.numberOfUsage === 'unlimited') {
-    return 'Illimitato - può agire ogni notte';
+    return t('roleDetails.unlimited');
   } else if (typeof role.numberOfUsage === 'number') {
-    const times = role.numberOfUsage === 1 ? 'volta' : 'volte';
-    return `${role.numberOfUsage} ${times} per partita`;
+    const times = role.numberOfUsage === 1 ? t('roleDetails.times').replace('volte', 'volta') : t('roleDetails.times');
+    return `${role.numberOfUsage} ${times} ${t('roleDetails.timesPerGame')}`;
   }
   
-  return 'Non specificato';
+  return t('roleDetails.notSpecified');
 }
 
 // Effect type display
 function getEffectTypeDisplay(effectType?: string): string {
   switch (effectType) {
-    case 'required': return 'Obbligatorio - deve utilizzare l\'abilità';
-    case 'optional': return 'Opzionale - può scegliere se utilizzare';
-    default: return 'Opzionale';
+    case 'required': return t('roleDetails.required');
+    case 'optional': return t('roleDetails.optional');
+    default: return t('roleDetails.optional');
   }
 }
 
 // Start night display
 function getStartNightDisplay(startNight?: number): string {
   if (!startNight || startNight === 1) {
-    return 'Dalla prima notte';
+    return t('roleDetails.fromNight') + ' ' + t('roleDetails.firstNight');
   }
-  return `Dalla ${startNight}ª notte`;
+  return t('roleDetails.fromNight') + ` ${startNight}${t('roleDetails.nightOrdinal')}`;
 }
 
 // Get faction display info
 function getFactionInfo(team: string | undefined) {
   if (!team) {
     return {
-      name: 'Sconosciuto',
+      name: t('roleDetails.unknown'),
       color: 'text-neutral-400',
       bgColor: 'bg-neutral-400',
       ringColor: 'ring-neutral-500/40'
@@ -102,7 +111,7 @@ function getFactionInfo(team: string | undefined) {
   }
   
   return {
-    name: faction?.displayName || team,
+    name: getFactionDisplayName(team, t),
     color: faction?.color || 'text-neutral-400',
     bgColor: bgColor,
     ringColor: faction?.ringColor || 'ring-neutral-500/40'
@@ -118,7 +127,7 @@ function getCountDisplay(role: RoleDef): { min: string; max: string } {
   const defaultPlayers = 8;
   
   let min = '0';
-  let max = 'Illimitato';
+  let max = t('roleDetails.unlimited');
   
   if (role.minCount !== undefined) {
     min = typeof role.minCount === 'function' ? role.minCount(defaultPlayers).toString() : role.minCount.toString();
@@ -161,8 +170,8 @@ watch(roleId, () => {
       
       <!-- Role name as main title -->
       <div class="text-center">
-        <h1 class="text-2xl md:text-3xl font-semibold text-neutral-100">{{ role.name }}</h1>
-        <p class="text-sm text-neutral-400 mt-1">Dettagli completi del ruolo</p>
+        <h1 class="text-2xl md:text-3xl font-semibold text-neutral-100">{{ getRoleDisplayName(role.id, t) }}</h1>
+        <p class="text-sm text-neutral-400 mt-1">{{ t('roleDetails.completeRoleDetails') }}</p>
       </div>
     </div>
 
@@ -181,7 +190,7 @@ watch(roleId, () => {
                      :style="{ backgroundColor: getFactionConfig(role.team)?.color || '#9ca3af' }"></div>
               </div>
               <div class="flex-1">
-                <h3 class="text-sm font-semibold text-neutral-200 mb-1">Descrizione</h3>
+                <h3 class="text-sm font-semibold text-neutral-200 mb-1">{{ t('roleDetails.description') }}</h3>
                 <p class="text-sm text-neutral-400 leading-relaxed">{{ role.description }}</p>
               </div>
             </div>
@@ -195,7 +204,7 @@ watch(roleId, () => {
                   </svg>
                 </div>
                 <div class="flex-1">
-                  <h3 class="text-sm font-semibold text-neutral-200 mb-2">Descrizione Dettagliata</h3>
+                  <h3 class="text-sm font-semibold text-neutral-200 mb-2">{{ t('roleDetails.detailedDescription') }}</h3>
                   <div class="text-sm text-neutral-300 leading-relaxed whitespace-pre-line">{{ role.longDescription }}</div>
                 </div>
               </div>
@@ -208,7 +217,7 @@ watch(roleId, () => {
           <!-- Section header -->
           <div class="flex items-center gap-2">
             <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-            <h4 class="text-sm font-semibold text-emerald-400">Informazioni Fazione</h4>
+            <h4 class="text-sm font-semibold text-emerald-400">{{ t('roleDetails.factionInformation') }}</h4>
             <div class="flex-1 h-px bg-neutral-800/50"></div>
           </div>
           
@@ -217,42 +226,42 @@ watch(roleId, () => {
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getFactionConfig(role.team)?.color || '#9ca3af' }"></div>
-                <span class="text-sm font-medium text-neutral-200">Fazione Reale</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.realFaction') }}</span>
               </div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="font-semibold text-sm" :style="{ color: getFactionConfig(role.team)?.color || '#e5e7eb' }">
                   {{ getFactionInfo(role.team).name }}
                 </span>
               </div>
-              <p class="text-xs text-neutral-400">La fazione a cui appartiene realmente</p>
+              <p class="text-xs text-neutral-400">{{ t('roleDetails.realFactionDesc') }}</p>
             </div>
 
             <!-- Visible faction -->
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getFactionConfig(role.visibleAsTeam || role.team || 'villaggio')?.color || '#9ca3af' }"></div>
-                <span class="text-sm font-medium text-neutral-200">Come Appare</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.howItAppears') }}</span>
               </div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="font-semibold text-sm" :style="{ color: getFactionConfig(role.visibleAsTeam || role.team || 'villaggio')?.color || '#e5e7eb' }">
                   {{ getFactionInfo(role.visibleAsTeam || role.team || 'villaggio').name }}
                 </span>
               </div>
-              <p class="text-xs text-neutral-400">Come appare agli altri giocatori</p>
+              <p class="text-xs text-neutral-400">{{ t('roleDetails.howItAppearsDesc') }}</p>
             </div>
 
             <!-- Counts as faction -->
             <div v-if="role.countAs" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: getFactionConfig(role.countAs)?.color || '#9ca3af' }"></div>
-                <span class="text-sm font-medium text-neutral-200">Conta Come</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.countsAs') }}</span>
               </div>
               <div class="flex items-center gap-2 mb-1">
                 <span class="font-semibold text-sm" :style="{ color: getFactionConfig(role.countAs)?.color || '#e5e7eb' }">
                   {{ getFactionInfo(role.countAs).name }}
                 </span>
               </div>
-              <p class="text-xs text-neutral-400">Fazione per cui conta nelle condizioni di vittoria</p>
+              <p class="text-xs text-neutral-400">{{ t('roleDetails.countsAsDesc') }}</p>
             </div>
           </div>
         </div>
@@ -262,7 +271,7 @@ watch(roleId, () => {
           <!-- Section header -->
           <div class="flex items-center gap-2">
             <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-            <h4 class="text-sm font-semibold text-blue-400">Meccaniche di Gioco</h4>
+            <h4 class="text-sm font-semibold text-blue-400">{{ t('roleDetails.gameMechanics') }}</h4>
             <div class="flex-1 h-px bg-neutral-800/50"></div>
           </div>
           
@@ -271,15 +280,15 @@ watch(roleId, () => {
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-purple-500"></div>
-                <span class="text-sm font-medium text-neutral-200">Numero Giocatori</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.playerCount') }}</span>
               </div>
               <div class="space-y-2">
                 <div class="flex justify-between items-center">
-                  <span class="text-xs text-neutral-400">Minimo:</span>
+                  <span class="text-xs text-neutral-400">{{ t('roleDetails.minCount') }}:</span>
                   <span class="font-semibold text-sm">{{ getCountDisplay(role).min }}</span>
                 </div>
                 <div class="flex justify-between items-center">
-                  <span class="text-xs text-neutral-400">Massimo:</span>
+                  <span class="text-xs text-neutral-400">{{ t('roleDetails.maxCount') }}:</span>
                   <span class="font-semibold text-sm">{{ getCountDisplay(role).max }}</span>
                 </div>
               </div>
@@ -289,7 +298,7 @@ watch(roleId, () => {
             <div class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
-                <span class="text-sm font-medium text-neutral-200">Condizione di Vittoria</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.winCondition') }}</span>
               </div>
               <p class="text-xs text-neutral-400 leading-relaxed">
                 {{ getWinCondition(role.team) }}
@@ -300,7 +309,7 @@ watch(roleId, () => {
             <div v-if="role.actsAtNight && role.actsAtNight !== 'never'" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                <span class="text-sm font-medium text-neutral-200">Azione Notturna</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.nightAction') }}</span>
               </div>
               <p class="text-xs text-neutral-400 leading-relaxed">
                 {{ getActsAtNightText(role.actsAtNight) }}
@@ -311,7 +320,7 @@ watch(roleId, () => {
             <div v-if="role.usage || role.numberOfUsage" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
-                <span class="text-sm font-medium text-neutral-200">Utilizzi</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.usage') }}</span>
               </div>
               <p class="text-xs text-neutral-400 leading-relaxed">
                 {{ getUsageDisplay(role) }}
@@ -322,7 +331,7 @@ watch(roleId, () => {
             <div v-if="role.startNight && role.startNight > 1" class="rounded-lg border border-neutral-800/40 bg-neutral-900/60 p-3">
               <div class="flex items-center gap-3 mb-2">
                 <div class="w-2.5 h-2.5 rounded-full bg-cyan-500"></div>
-                <span class="text-sm font-medium text-neutral-200">Inizio Abilità</span>
+                <span class="text-sm font-medium text-neutral-200">{{ t('roleDetails.startNight') }}</span>
               </div>
               <p class="text-xs text-neutral-400 leading-relaxed">
                 {{ getStartNightDisplay(role.startNight) }}
@@ -336,7 +345,7 @@ watch(roleId, () => {
           <!-- Section header -->
           <div class="flex items-center gap-2">
             <div class="w-2.5 h-2.5 rounded-full bg-orange-500"></div>
-            <h4 class="text-sm font-semibold text-orange-400">Abilità e Caratteristiche</h4>
+            <h4 class="text-sm font-semibold text-orange-400">{{ t('roleDetails.abilitiesAndFeatures') }}</h4>
             <div class="flex-1 h-px bg-neutral-800/50"></div>
           </div>
           
@@ -353,25 +362,25 @@ watch(roleId, () => {
               <!-- Can target dead -->
               <div v-if="role.canTargetDead" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
                 <div class="w-2 h-2 rounded-full bg-gray-400"></div>
-                <span class="text-xs font-medium text-neutral-200">Può agire sui morti</span>
+                <span class="text-xs font-medium text-neutral-200">{{ t('roleDetails.canTargetDead') }}</span>
               </div>
               
               <!-- Affected roles -->
               <div v-if="role.affectedRoles?.length" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
                 <div class="w-2 h-2 rounded-full bg-red-400"></div>
-                <span class="text-xs font-medium text-neutral-200">Influenza: {{ role.affectedRoles.map(mapRoleIdToName).join(', ') }}</span>
+                <span class="text-xs font-medium text-neutral-200">{{ t('roleDetails.affects') }}: {{ role.affectedRoles.map(mapRoleIdToName).join(', ') }}</span>
               </div>
               
               <!-- Known to other roles -->
               <div v-if="role.knownTo?.length" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
                 <div class="w-2 h-2 rounded-full bg-pink-400"></div>
-                <span class="text-xs font-medium text-neutral-200">Conosciuto da: {{ role.knownTo.map(mapRoleIdToName).join(', ') }}</span>
+                <span class="text-xs font-medium text-neutral-200">{{ t('roleDetails.knownTo') }}: {{ role.knownTo.map(mapRoleIdToName).join(', ') }}</span>
               </div>
               
               <!-- Reveal to allies -->
               <div v-if="role.revealToAllies" class="flex items-center gap-3 p-3 rounded-lg bg-neutral-800/40">
                 <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
-                <span class="text-xs font-medium text-neutral-200">Rivelato agli alleati: {{ role.revealToAllies === 'role' ? 'Nome del ruolo' : 'Solo fazione' }}</span>
+                <span class="text-xs font-medium text-neutral-200">{{ t('roleDetails.revealedToAllies') }}: {{ role.revealToAllies === 'role' ? t('roleDetails.roleName') : t('roleDetails.factionOnly') }}</span>
               </div>
             </div>
           </div>
@@ -396,8 +405,8 @@ watch(roleId, () => {
       
       <!-- Error title -->
       <div class="text-center">
-        <h1 class="text-2xl md:text-3xl font-semibold text-neutral-100">Ruolo non trovato</h1>
-        <p class="text-sm text-neutral-400 mt-1">Errore nella ricerca del ruolo</p>
+        <h1 class="text-2xl md:text-3xl font-semibold text-neutral-100">{{ t('roleDetails.roleNotFoundTitle') }}</h1>
+        <p class="text-sm text-neutral-400 mt-1">{{ t('roleDetails.roleNotFoundSubtitle') }}</p>
       </div>
     </div>
     
@@ -409,13 +418,13 @@ watch(roleId, () => {
           </svg>
         </div>
         <div class="space-y-2">
-          <p class="text-sm text-neutral-400">Il ruolo richiesto non esiste o non è disponibile.</p>
+          <p class="text-sm text-neutral-400">{{ t('roleDetails.roleNotFound') }}</p>
         </div>
         <button 
           @click="router.push('/setup/roles')"
           class="btn btn-primary text-sm px-4 py-2"
         >
-          Torna ai ruoli
+          {{ t('roleDetails.backToRoles') }}
         </button>
       </div>
     </div>

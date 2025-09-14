@@ -1,23 +1,26 @@
 <script setup lang="ts">
+import { useI18n } from '../../composables/useI18n';
+
 interface Props {
   reason: string;
   player: any;
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 
 const getReasonText = (reason: string) => {
   switch (reason) {
     case 'dead':
-      return 'Non può usare il ruolo';
+      return t('blocking.dead');
     case 'alive':
-      return 'Deve essere morto per agire';
+      return t('blocking.alive');
     case 'startNight':
-      return 'Non è ancora il momento di usare il ruolo';
+      return t('blocking.startNight', { night: props.player?.roleState?.startNight || 2 });
     case 'usageLimit':
-      return 'Ha già usato questo ruolo il massimo numero di volte';
+      return t('blocking.usageLimit');
     default:
-      return 'Non può usare questo ruolo questa notte';
+      return t('blocking.default');
   }
 };
 </script>
@@ -26,7 +29,7 @@ const getReasonText = (reason: string) => {
   <div class="text-center p-2 space-y-1">
     <div class="text-red-400 text-lg">💀</div>
     <div>
-      <div class="text-neutral-100 font-medium text-xs truncate max-w-full" :title="props.player?.name || 'Giocatore'">{{ props.player?.name || 'Giocatore' }} morto</div>
+      <div class="text-neutral-100 font-medium text-xs truncate max-w-full" :title="props.player?.name || t('roleStates.player')">{{ props.player?.name || t('roleStates.player') }} {{ t('roleStates.dead') }}</div>
       <div class="text-neutral-400 text-xs mt-0">
         {{ getReasonText(reason) }}
       </div>

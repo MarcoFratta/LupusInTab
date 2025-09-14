@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
 	gameState: { type: Object, required: true },
@@ -65,7 +68,7 @@ const selectedPlayers = computed(() => {
 });
 
 const killingChoices = computed(() => [
-	{ label: 'Seleziona un bersaglio…', value: null },
+	{ label: t('rolePrompts.selectTarget'), value: null },
 	...selectableForInvestigation.value.map((p) => ({ label: p.name, value: p.id }))
 ]);
 
@@ -134,19 +137,19 @@ function skipKilling() {
         <div v-if="step === 'investigation'" class="space-y-4">
             <div class="text-center space-y-2">
                 <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-                    <p class="text-violet-300 text-sm font-medium">📢 Scegli tre giocatori vicini tra loro da investigare</p>
+                    <p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.chooseThreeAdjacentPlayers') }}</p>
                 </div>
                 <p class="text-neutral-300 text-sm font-medium">
-                    Scegliete il primo giocatore da investigare
+                    {{ t('rolePrompts.chooseFirstPlayerToInvestigate') }}
                 </p>
                 <p class="text-neutral-500 text-xs">
-                    I prossimi 2 giocatori contigui verranno selezionati automaticamente
+                    {{ t('rolePrompts.nextTwoPlayersAutoSelected') }}
                 </p>
             </div>
             
             <div v-if="firstPlayerChoices.length > 0" class="space-y-4">
                 <PromptSelect
-                    label="Chi sarà il primo giocatore investigato?"
+                    :label="t('rolePrompts.whoFirstInvestigated')"
                     v-model="firstPlayerId"
                     :choices="firstPlayerChoices"
                 />
@@ -156,7 +159,7 @@ function skipKilling() {
                     <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-500/10 border border-neutral-500/30">
                         <div class="w-2 h-2 rounded-full bg-neutral-400"></div>
                         <p class="text-neutral-400 text-xs font-medium">
-                            Seleziona un giocatore per vedere i 3 investigati
+                            {{ t('rolePrompts.selectPlayerToSeeThree') }}
                         </p>
                     </div>
                 </div>
@@ -167,7 +170,7 @@ function skipKilling() {
                         <div class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/30">
                             <div class="w-2 h-2 rounded-full bg-violet-400 animate-pulse"></div>
                             <p class="text-violet-200 text-xs font-medium">
-                                Giocatori selezionati per l'investigazione
+                                {{ t('rolePrompts.playersSelectedForInvestigation') }}
                             </p>
                         </div>
                         
@@ -188,7 +191,7 @@ function skipKilling() {
                         
                         <div class="text-center">
                             <p class="text-violet-300/70 text-xs font-medium">
-                                I giocatori verranno investigati in questo ordine
+                                {{ t('rolePrompts.playersWillBeInvestigatedInOrder') }}
                             </p>
                         </div>
                     </div>
@@ -216,13 +219,13 @@ function skipKilling() {
                                     </svg>
                                 </div>
                                 <div class="text-2xl font-bold" :class="investigationResult ? 'text-green-300' : 'text-red-300'">
-                        {{ investigationResult ? 'SÌ' : 'NO' }}
+                        {{ investigationResult ? t('common.yes') : t('common.no') }}
                     </div>
                             </div>
                             
                             <!-- Result Description -->
                             <div class="text-sm font-medium" :class="investigationResult ? 'text-green-200' : 'text-red-200'">
-                        {{ investigationResult ? 'C\'è almeno un lupo tra i giocatori investigati!' : 'Non ci sono lupi tra i giocatori investigati.' }}
+                        {{ investigationResult ? t('rolePrompts.wolfFoundInInvestigation') : t('rolePrompts.noWolfInInvestigation') }}
                             </div>
                         </div>
                     </div>
@@ -245,7 +248,7 @@ function skipKilling() {
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="font-medium">Conferma investigazione</span>
+                            <span class="font-medium">{{ t('rolePrompts.confirmInvestigation') }}</span>
                         </div>
                         <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
                     </button>
@@ -256,10 +259,10 @@ function skipKilling() {
             <div v-else class="space-y-3">
                 <div class="p-4 rounded-lg bg-neutral-800/40 border border-neutral-700/40 text-center">
                     <p class="text-neutral-400 text-sm font-medium mb-1">
-                        Non ci sono abbastanza giocatori per investigare
+                        {{ t('rolePrompts.notEnoughPlayersToInvestigate') }}
                     </p>
                     <p class="text-neutral-500 text-xs">
-                        Non è possibile selezionare 3 giocatori contigui senza includere te stesso
+                        {{ t('rolePrompts.cannotSelectThreeAdjacent') }}
                     </p>
                 </div>
                 
@@ -268,7 +271,7 @@ function skipKilling() {
                         class="w-full px-4 py-2 text-sm font-medium rounded-lg border border-neutral-600/40 hover:bg-neutral-700/40 transition-all duration-300 text-neutral-300" 
                         @click="skipInvestigation"
                     >
-                        Salta investigazione
+                        {{ t('rolePrompts.skipInvestigation') }}
                     </button>
                 </div>
             </div>
@@ -278,18 +281,18 @@ function skipKilling() {
         <div v-else-if="step === 'killing'" class="space-y-4">
             <div class="text-center space-y-2">
                 <p class="text-neutral-300 text-sm font-medium">
-                    Tutti i lupi sono morti! Ora potete anche uccidere qualcuno
+                    {{ t('rolePrompts.allWolvesDeadCanKill') }}
                 </p>
                 <p class="text-neutral-500 text-xs">
-                    Scegliete un bersaglio da eliminare
+                    {{ t('rolePrompts.chooseTargetToEliminate') }}
                 </p>
             </div>
             
             <PromptSelect
-                label="Chi volete uccidere?"
+                :label="t('rolePrompts.whoToKill')"
                 v-model="killTargetId"
                 :choices="killingChoices"
-                buttonText="Conferma uccisione"
+                :buttonText="t('rolePrompts.confirmKill')"
                 accent="red"
                 :disabled="killingChoices.length === 0"
                 @confirm="submitKilling"

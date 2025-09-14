@@ -5,13 +5,19 @@ import { useGameStore } from '../../stores/game';
 import { ROLE_LIST } from '../../roles/index';
 import { FACTIONS } from '../../factions';
 import { setRoleEnabled as engineSetRoleEnabled, normalizeRoleCounts as engineNormalizeRoleCounts } from '../../core/engine';
+import { useI18n } from '../../composables/useI18n';
 import { SetupTitle } from '../ui';
+import { getLocalizedRoles } from '../../utils/roleLocalization';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const store = useGameStore();
 const state = store.state as any;
 const router = useRouter();
 
-const roles = computed(() => ROLE_LIST);
+const roles = computed(() => getLocalizedRoles(t));
 
 const rolesByFaction = computed(() => {
   const groups: Record<string, typeof ROLE_LIST> = {};
@@ -51,8 +57,8 @@ function openRoleDetails(roleId: string): void {
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
     <SetupTitle 
-      title="Seleziona i Ruoli"
-      subtitle="Scegli quali ruoli sono disponibili in questa partita. Contadini e Lupi sono sempre abilitati."
+      :title="t('roles.title')"
+      :subtitle="t('roles.subtitle')"
       :showStats="true"
       :statsData="{
         enabled: Object.values(state.setup.rolesEnabled || {}).filter(Boolean).length + 2,
@@ -66,11 +72,11 @@ function openRoleDetails(roleId: string): void {
           <div class="flex items-center gap-3">
             <div class="w-3 h-3 rounded-full" :style="{ backgroundColor: faction.config.color }"></div>
             <h4 class="text-lg md:text-xl font-semibold text-neutral-200">
-              {{ faction.config.displayName }}
+              {{ getFactionDisplayName(faction.name, t) }}
             </h4>
           </div>
           <div class="flex-1 h-px bg-gradient-to-r from-neutral-600 to-transparent opacity-30"></div>
-          <span class="text-sm text-neutral-500 font-medium">{{ faction.roles.length }} ruol{{ faction.roles.length === 1 ? 'o' : 'i' }}</span>
+          <span class="text-sm text-neutral-500 font-medium">{{ faction.roles.length }} {{ faction.roles.length === 1 ? t('roles.role') : t('roles.roles') }}</span>
         </div>
         
         <div class="grid gap-3 grid-cols-1">
@@ -87,14 +93,14 @@ function openRoleDetails(roleId: string): void {
                 <div class="flex items-center gap-3 mb-3">
                   <span class="text-lg md:text-xl font-semibold truncate"
                         :style="{ color: faction.config.color }">
-                    {{ role.name }}
+                    {{ getRoleDisplayName(role.id, t) }}
                   </span>
                   <div v-if="role.id === 'lupo' || role.id === 'villico'" 
                        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Sempre
+                    {{ t('roles.always') }}
                   </div>
                 </div>
                 <div class="text-sm text-neutral-400 leading-relaxed text-left">
@@ -118,7 +124,7 @@ function openRoleDetails(roleId: string): void {
                   @click="openRoleDetails(role.id)"
                   class="px-3 py-2 h-fit text-sm font-medium text-neutral-400 bg-neutral-800/40 hover:bg-neutral-700/50 border border-neutral-700/30 rounded-lg transition-all duration-200 hover:text-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 focus:ring-offset-neutral-900 touch-manipulation"
                 >
-                  Dettagli
+                  {{ t('roles.details') }}
                 </div>
               </div>
             </div>

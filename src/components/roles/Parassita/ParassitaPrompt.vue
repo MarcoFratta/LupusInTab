@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
 	gameState: { type: Object, required: true },
@@ -77,11 +80,10 @@ function updateSelection(value) {
     <div class="space-y-6">
         <div class="text-center space-y-3">
             <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-                <p class="text-violet-300 text-sm font-medium">📢 Scegli i giocatori da infettare</p>
+                <p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.choosePlayersToInfect') }}</p>
             </div>
-            <h3 class="text-lg font-semibold text-white">Parassita</h3>
             <p class="text-neutral-400 text-base font-medium">
-                Utilizzo {{ (gameState.custom?.parassita?.usageCount || 0) + 1 }}: Infetta fino a {{ maxTargets }} giocatore{{ maxTargets > 1 ? 'i' : '' }}
+                {{ t('rolePrompts.usageNumber', { number: (gameState.custom?.parassita?.usageCount || 0) + 1 }) }}: {{ t('rolePrompts.infectUpToPlayers', { count: maxTargets }) }}
             </p>
             <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
         </div>
@@ -98,7 +100,6 @@ function updateSelection(value) {
                         {{ choice.label }}
                     </span>
                     <div v-if="targetIds.includes(choice.value)" class="flex items-center gap-2">
-                        <div class="w-2 h-2 rounded-full bg-violet-500"></div>
                         <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
@@ -110,7 +111,7 @@ function updateSelection(value) {
         <div v-if="choices.length === 0" class="text-center space-y-3">
             <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4">
                 <p class="text-neutral-400 text-sm">
-                    Tutti i giocatori vivi sono già infetti!
+                    {{ t('rolePrompts.allAlivePlayersAlreadyInfected') }}
                 </p>
             </div>
         </div>
@@ -123,7 +124,7 @@ function updateSelection(value) {
                 :class="{ 'btn-disabled': targetIds.length === 0 }"
                 :disabled="targetIds.length === 0"
             >
-                Conferma infezione ({{ targetIds.length }}/{{ maxTargets }})
+                {{ t('rolePrompts.confirmInfection', { current: targetIds.length, max: maxTargets }) }}
             </button>
             
             <button
@@ -131,7 +132,7 @@ function updateSelection(value) {
                 @click="() => submit(true)"
                 class="btn btn-ghost w-full py-2 text-sm font-medium rounded-xl border-neutral-700/50 text-neutral-400 hover:bg-neutral-800/50 hover:text-neutral-300 transition-all duration-300"
             >
-                Salta
+                {{ t('rolePrompts.skip') }}
             </button>
             
             <button
@@ -139,7 +140,7 @@ function updateSelection(value) {
                 @click="() => submit()"
                 class="btn btn-accent w-full py-3 text-base font-semibold rounded-xl shadow-lg shadow-violet-500/25 hover:shadow-xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
             >
-                Continua
+                {{ t('rolePrompts.continue') }}
             </button>
         </div>
     </div>

@@ -2,6 +2,10 @@
 import { computed } from 'vue';
 import { useGameStore } from '../../../stores/game';
 import GenericTargetSelectPrompt from '../../ui/prompts/GenericTargetSelectPrompt.vue';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -37,15 +41,15 @@ function handleComplete(data) {
 	<div class="space-y-6">
 		<div class="text-center space-y-3">
 			<div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-				<p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore da proteggere questa notte</p>
+				<p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.protectPlayer') }}</p>
 			</div>
 		</div>
 		
 		<GenericTargetSelectPrompt
-			title="Guardia"
-			description="Scegli un giocatore da proteggere questa notte"
-			label="Scegli un giocatore da salvare"
-			buttonText="Conferma"
+			:title="t('rolePrompts.protectPlayer')"
+			:description="t('rolePrompts.protectPlayer')"
+			:label="t('rolePrompts.whoToProtect')"
+			:buttonText="t('rolePrompts.confirmSelection')"
 			accent="emerald"
 			:choices="choices"
 			@complete="handleComplete"

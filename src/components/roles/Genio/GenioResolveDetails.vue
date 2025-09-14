@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-4">
-    <div v-if="!genioEvent" class="text-neutral-400 text-center text-xs">Nessuna trasformazione</div>
+    <div v-if="!genioEvent" class="text-neutral-400 text-center text-xs">{{ t('roleDetails.noTransformation') }}</div>
     
     <div v-else class="space-y-3">
       <!-- Players who used the role -->
@@ -16,20 +16,20 @@
           </span>
         </div>
         <div class="text-center text-neutral-300 text-sm mt-2">
-          {{ genioPlayers.length === 1 ? 'si è trasformato' : 'si sono trasformati' }}
+          {{ genioPlayers.length === 1 ? t('roleDetails.transformed') : t('roleDetails.transformedPlural') }}
         </div>
       </div>
       
       <!-- Chosen Role -->
       <div class="flex flex-col items-center space-y-2 pb-4">
-        <span class="text-xs text-neutral-400">Nuovo ruolo:</span>
+        <span class="text-xs text-neutral-400">{{ t('roleDetails.newRole') }}:</span>
         <div class="px-3 py-2 rounded text-sm font-medium"
              :style="{ 
                backgroundColor: getFactionColor(genioEvent.newRoleTeam) + '20',
                color: getFactionColor(genioEvent.newRoleTeam),
                border: `1px solid ${getFactionColor(genioEvent.newRoleTeam)}40`
              }">
-          {{ genioEvent.newRoleName }}
+          {{ getRoleDisplayName(genioEvent.newRoleId, t) }}
         </div>
       </div>
     </div>
@@ -39,6 +39,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { getFactionConfig } from '../../../factions';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps({
   gameState: { type: Object, required: true },
@@ -66,7 +70,8 @@ const genioEvent = computed(() => {
   return {
     message: props.entry.message,
     newRoleName: props.entry.newRoleName,
-    newRoleTeam: props.entry.newRoleTeam
+    newRoleTeam: props.entry.newRoleTeam,
+    newRoleId: props.entry.newRoleId || props.entry.newRoleName
   };
 });
 

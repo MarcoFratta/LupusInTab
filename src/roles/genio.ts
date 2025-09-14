@@ -6,16 +6,10 @@ import { RoleAPI } from '../utils/roleAPI';
 
 export const genio: RoleDef = {
     id: 'genio',
-    name: 'Genio',
+    name: 'roleNames.genio',
     team: 'villaggio',
-    description: 'Si trasforma in un altro ruolo dalla 3ª notte',
-    longDescription: `Il Genio è un ruolo che può cambiare completamente le dinamiche di gioco.
-
-COME FUNZIONA:
-• Dalla 3ª notte in poi, il Genio può trasformarsi in un altro ruolo
-• Gli vengono proposti 3 ruoli casuali tra cui scegliere
-• La trasformazione è permanente per il resto della partita
-• Mantiene la fazione villaggio ma acquisisce i poteri del nuovo ruolo`,
+    description: 'roleDescriptions.genio',
+    longDescription: 'roleDescriptions.genioLong',
     actsAtNight: 'alive',
     effectType: 'required',
     numberOfUsage: 1,

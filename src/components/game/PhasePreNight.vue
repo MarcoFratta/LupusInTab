@@ -4,6 +4,10 @@ import PlayerRoleList from '../ui/PlayerRoleList.vue';
 import { getFactionConfig } from '../../factions';
 import { ROLES } from '../../roles';
 import { SetupTitle } from '../ui';
+import { useI18n } from '../../composables/useI18n';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+
+const { t } = useI18n();
 
 const props = defineProps<{ state: any; onContinue: () => void }>();
 
@@ -51,16 +55,7 @@ const getTeamColor = (team: string) => {
 };
 
 const getTeamDisplayName = (team: string) => {
-  const teamNames: { [key: string]: string } = {
-    'villaggio': 'Villaggio',
-    'lupi': 'Lupi',
-    'mannari': 'Mannari',
-    'matti': 'Matti',
-    'parassita': 'Parassita',
-    'alieni': 'Alieni',
-    'unknown': 'Sconosciuti'
-  };
-  return teamNames[team] || 'Sconosciuti';
+  return getFactionDisplayName(team, t);
 };
 
 const toggleFaction = (team: string) => {
@@ -77,7 +72,7 @@ const isFactionExpanded = (team: string) => {
 </script>
 
 <template>
-  <SetupTitle class="pt-2" title="Preparazione per la Notte" />
+  <SetupTitle class="pt-2" :title="t('phases.preNight')" />
   <div class="w-full px-3 py-2 md:px-6 space-y-4 md:space-y-6">
     <div class="space-y-4 md:space-y-6">
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6">
@@ -90,16 +85,16 @@ const isFactionExpanded = (team: string) => {
                 </svg>
               </div>
               <div class="text-2xl md:text-4xl font-bold text-violet-400">
-                Notte {{ props.state.nightNumber + 1 }}
+                {{ t('preNightPhase.night') }} {{ props.state.nightNumber + 1 }}
               </div>
             </div>
             
             <div class="space-y-2">
               <p class="text-md md:text-2xl font-semibold text-neutral-100 leading-relaxed">
-                Chiedi a tutti i giocatori di chiudere gli occhi
+                {{ t('preNightPhase.askPlayersToCloseEyes') }}
               </p>
               <p class="text-sm md:text-xl text-neutral-300 leading-relaxed">
-                Quando tutti sono pronti prosegui alla fase notturna
+                {{ t('preNightPhase.whenReadyProceed') }}
               </p>
             </div>
           </div>
@@ -107,7 +102,7 @@ const isFactionExpanded = (team: string) => {
           <div class="space-y-4">
             <div class="flex items-center gap-3">
               <div class="w-3 h-3 rounded-full bg-violet-500"></div>
-              <h4 class="text-base md:text-lg font-semibold text-neutral-200">Giocatori vivi e i loro ruoli</h4>
+              <h4 class="text-base md:text-lg font-semibold text-neutral-200">{{ t('preNightPhase.alivePlayersAndRoles') }}</h4>
             </div>
             <div class="bg-neutral-800/40 border border-neutral-700/40 rounded-lg pt-3 px-2 pb-2">
               <div class="space-y-4">
@@ -160,7 +155,7 @@ const isFactionExpanded = (team: string) => {
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
-                <span class="font-medium">Inizia la Notte</span>
+                <span class="font-medium">{{ t('preNightPhase.startNight') }}</span>
               </div>
               
               <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -170,7 +165,7 @@ const isFactionExpanded = (team: string) => {
       </div>
       
       <div class="text-center text-xs text-neutral-500">
-        Ricarica per iniziare una nuova partita dal menu principale
+        {{ t('preNightPhase.reloadHelp') }}
       </div>
     </div>
     

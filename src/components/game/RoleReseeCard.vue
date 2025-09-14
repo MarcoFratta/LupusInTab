@@ -8,6 +8,11 @@ import PromptSelect from '../ui/prompts/PromptSelect.vue';
 import RoleRevealCard from './RoleRevealCard.vue';
 import { ROLES } from '../../roles';
 import * as RoleIcons from '../roles/icons';
+import { useI18n } from '../../composables/useI18n';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   state: any;
@@ -85,7 +90,7 @@ const knownTeamAllies = computed(() => {
 
     if (visible) {
       const showMode = otherRoleDef.revealToAllies || 'team';
-      const labelText = showMode === 'role' ? otherRoleDef.name : (getFactionConfig(otherRoleDef.team)?.displayName || otherRoleDef.team);
+      const labelText = showMode === 'role' ? getRoleDisplayName(otherRoleDef.id, t) : getFactionDisplayName(otherRoleDef.team, t);
       result.push({ 
         id: p.id, 
         name: p.name, 
@@ -124,7 +129,7 @@ const knownRoleAllies = computed(() => {
         // Use the grouped role name for display if applicable
         const displayRoleId = getRevealRoleLabel(otherRoleDef.id, props.state);
         const displayRoleDef = (ROLES as any)[displayRoleId] || otherRoleDef;
-        const labelText = displayRoleDef.name;
+        const labelText = getRoleDisplayName(displayRoleId, t);
         result.push({ 
           id: p.id, 
           name: p.name, 
@@ -217,7 +222,7 @@ function handleRoleRevealNext() {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
       </button>
-      <h3 class="text-lg md:text-xl font-semibold text-neutral-200">Rivela di nuovo un ruolo</h3>
+      <h3 class="text-lg md:text-xl font-semibold text-neutral-200">{{ t('phaseReveal.revealRoleAgain') }}</h3>
       <div class="w-10"></div> <!-- Spacer to center the title -->
     </div>
 
@@ -230,15 +235,15 @@ function handleRoleRevealNext() {
       </div>
       <div>
         <p class="text-neutral-400 text-sm leading-relaxed max-w-md mx-auto">
-          Seleziona un giocatore per fargli rivedere il suo ruolo
+          {{ t('rolePrompts.selectPlayerToRevealRole') }}
         </p>
       </div>
       
       <PromptSelect
-        label="Chi vuoi far rivedere il ruolo?"
+        :label="t('rolePrompts.whoToReveal')"
         v-model="selectedPlayerId"
         :choices="playerChoices"
-        buttonText="Rivela ruolo"
+        :buttonText="t('rolePrompts.revealRole')"
         accent="violet"
         @confirm="handlePlayerSelect"
       />
@@ -249,7 +254,7 @@ function handleRoleRevealNext() {
   <div v-else-if="showPassPhoneCard && !showRoleReveal">
     <PassPhoneCard 
       :playerName="selectedPlayer.name" 
-      buttonText="Rivela"
+      :buttonText="t('phaseReveal.reveal')"
       buttonSize="lg"
       :onActivate="handleShowRole" 
     />
@@ -276,7 +281,7 @@ function handleRoleRevealNext() {
           </svg>
         </div>
         <div>
-          <div class="text-xl md:text-2xl font-extrabold tracking-tight text-neutral-200 mb-1">Ruolo sconosciuto</div>
+          <div class="text-xl md:text-2xl font-extrabold tracking-tight text-neutral-200 mb-1">{{ t('phaseReveal.unknownRole') }}</div>
           <div class="text-neutral-400 text-xs md:text-sm">{{ selectedPlayer?.roleId }}</div>
         </div>
       </div>

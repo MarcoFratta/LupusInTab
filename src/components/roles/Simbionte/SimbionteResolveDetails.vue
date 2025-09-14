@@ -1,21 +1,21 @@
 <template>
   <div class="space-y-4">
-    <div v-if="!simbionteEvent" class="text-neutral-400 text-center text-xs">Nessuna trasformazione</div>
+    <div v-if="!simbionteEvent" class="text-neutral-400 text-center text-xs">{{ t('resolveDetails.noTransformation') }}</div>
     
     <div v-else class="space-y-4">
       <RoleComparisonCard
         :game-state="gameState"
         :left-player="simbiontePlayers"
         :right-player="targetRolePlayer"
-        left-label="Simbionte"
-        right-label="Target"
+        :left-label="getRoleDisplayName('simbionte', t)"
+        :right-label="t('resolveDetails.target')"
         :center-content="{ action: simbionteActionText }"
       />
       
       <InvestigationResultCard 
-        title="Nuovo Ruolo"
-        text="si è trasformato in"
-        :results="simbionteEvent.newRoleName"
+        :title="t('resolveDetails.newRole')"
+        :text="t('resolveDetails.transformedInto')"
+        :results="getRoleDisplayName(simbionteEvent.newRoleId, t)"
         :color="getFactionColor(simbionteEvent.newRoleTeam)"
       />
     </div>
@@ -27,6 +27,10 @@ import { computed } from 'vue';
 import { getFactionConfig } from '../../../factions';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps({
   gameState: { type: Object, required: true },
@@ -58,9 +62,9 @@ const simbiontePlayers = computed(() => {
 
 const simbionteActionText = computed(() => {
   const simbionteList = players.value;
-  if (simbionteList.length === 0) return 'ha copiato';
-  if (simbionteList.length === 1) return 'ha copiato';
-  return 'hanno copiato';
+  if (simbionteList.length === 0) return t('resolveDetails.copied');
+  if (simbionteList.length === 1) return t('resolveDetails.copied');
+  return t('resolveDetails.copiedPlural');
 });
 
 const targetRolePlayer = computed(() => {
@@ -81,7 +85,8 @@ const simbionteEvent = computed(() => {
     message: props.entry.message,
     newRoleName: props.entry.newRoleName,
     newRoleTeam: props.entry.newRoleTeam,
-    targetPlayerName: props.entry.targetPlayerName
+    targetPlayerName: props.entry.targetPlayerName,
+    newRoleId: props.entry.newRoleId || props.entry.newRoleName
   };
 });
 

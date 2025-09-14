@@ -6,20 +6,14 @@ import { checkPlayerRole } from '../utils/roleChecking';
 
 const ammaestratore: RoleDef = {
 	id: 'ammaestratore',
-	name: 'Ammaestratore',
+	name: 'roleNames.ammaestratore',
 	team: 'villaggio',
 	icon: 'AmmaestratoreIcon',
 	score: 6,
 	visibleAsTeam: 'villaggio',
 	countAs: 'villaggio',
-	description: 'Ammaestra i lupi dalla 2ª notte, una volta per partita',
-    longDescription: `L'Ammaestratore può controllare l'azione dei lupi per una notte.
-
-COME FUNZIONA:
-• Dalla 2ª notte in poi, una volta per partita può ammaestrare i lupi
-• Sceglie lui stesso chi verrà ucciso quella notte
-• Se sceglie un lupo, nessuno viene ucciso quella notte
-• L'azione è opzionale: può scegliere di non usarla`,
+	description: 'roleDescriptions.ammaestratore',
+    longDescription: 'roleDescriptions.ammaestratoreLong',
 	color: '#059669',
 	phaseOrder: 2,
 	actsAtNight: "alive",

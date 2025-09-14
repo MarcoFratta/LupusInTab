@@ -5,20 +5,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const misspurple: RoleDef = {
 	id: 'misspurple',
-	name: 'Miss Purple',
+	name: 'roleNames.misspurple',
 	team: 'villaggio',
 	icon: 'MissPurpleIcon',
     score: 6,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Scopre quanti lupi ci sono ogni notte',
-    longDescription: `Miss Purple può contare i lupi nel villaggio.
-
-COME FUNZIONA:
-• Ogni notte scopre quanti lupi ci sono nel villaggio
-• Il conteggio include tutti i giocatori che appaiono come lupi
-• L'azione è obbligatoria: deve contare ogni notte
-• I risultati vengono mostrati solo a Miss Purple`,
+    description: 'roleDescriptions.misspurple',
+    longDescription: 'roleDescriptions.misspurpleLong',
     color: '#9333ea',
     phaseOrder: "any",
     actsAtNight: "alive",

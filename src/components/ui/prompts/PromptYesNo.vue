@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from '../../../composables/useI18n';
+
 const props = defineProps<{
 	label: string;
 	yesText?: string;
@@ -10,6 +12,8 @@ const emit = defineEmits<{
 	(e: 'yes'): void;
 	(e: 'no'): void;
 }>();
+
+const { t } = useI18n();
 
 function onYes() { emit('yes'); }
 function onNo() { emit('no'); }
@@ -29,7 +33,7 @@ function onNo() { emit('no'); }
 				:disabled="disabled" 
 				@click="onNo"
 			>
-				{{ noText || 'No' }}
+				{{ noText || t('prompts.yesNo.no') }}
 			</button>
 			<button 
 				class="btn btn-accent px-8 py-2 text-base font-semibold rounded-xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-200" 
@@ -37,7 +41,7 @@ function onNo() { emit('no'); }
 				:disabled="disabled" 
 				@click="onYes"
 			>
-				{{ yesText || 'Sì' }}
+				{{ yesText || t('prompts.yesNo.yes') }}
 			</button>
 		</div>
 	</div>

@@ -7,20 +7,14 @@ import { GameStateManager } from '../core/managers/GameStateManager';
 
 const veggente: RoleDef = {
 	id: 'veggente',
-	name: 'Veggente',
+	name: 'roleNames.veggente',
 	team: 'villaggio',
 	icon: 'VeggenteIcon',
     score: 7,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Scopre la fazione di un giocatore ogni notte',
-    longDescription: `Il Veggente è l'investigatore del villaggio, capace di scoprire le fazioni dei giocatori.
-
-COME FUNZIONA:
-• Ogni notte può scegliere un giocatore da investigare
-• Scopre la fazione visibile del giocatore (come appare agli altri)
-• L'azione è obbligatoria: deve investigare ogni notte
-• I risultati vengono mostrati solo al Veggente`,
+    description: 'roleDescriptions.veggente',
+    longDescription: 'roleDescriptions.veggenteLong',
     color: '#8b5cf6',
     phaseOrder: "any",
     actsAtNight: "alive",

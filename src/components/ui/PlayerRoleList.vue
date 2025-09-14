@@ -3,6 +3,10 @@ import { computed } from 'vue';
 import { getFactionConfig } from '../../factions';
 import { hexToRgba } from '../../utils/color';
 import { ROLES } from '../../roles';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{ state: any; players: Array<{ id: number; name: string; roleId: string; alive?: boolean }> }>();
 
@@ -13,7 +17,7 @@ const items = computed(() => props.players.map((p: any) => {
   return {
     id: p.id,
     name: p.name,
-    roleName: roleDef?.name || p.roleId,
+    roleName: getRoleDisplayName(p.roleId, t),
     team: roleDef?.team || 'unknown',
     roleColor: factionColor,
     factionColor: factionColor,

@@ -3,6 +3,10 @@ import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
 import { getFactionConfig } from '../../../factions';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 interface Props {
     gameState: any;
@@ -42,17 +46,17 @@ const getFactionColor = (faction: string) => {
           :game-state="props.gameState"
           :left-player="veggentePlayers"
           :right-player="event.targetId && props.gameState.players.find((p: any)=>p.id===Number(event.targetId))"
-          left-label="Veggente"
-          right-label="Bersaglio"
+          :left-label="getRoleDisplayName('veggente', t)"
+          :right-label="t('resolveDetails.target')"
           :center-content="{
-            action: veggentePlayers.length > 1 ? 'hanno visto' : 'ha visto'
+            action: veggentePlayers.length > 1 ? t('resolveDetails.sawPlural') : t('resolveDetails.saw')
           }"
         />
         
         <!-- Investigation Result using reusable component -->
         <InvestigationResultCard 
-          title="Risultato Investigazione"
-          text="gioca per"
+          :title="t('resolveDetails.investigationResult')"
+          :text="t('resolveDetails.playsFor')"
           :results="event.discoveredFaction"
           :color="getFactionColor(event.discoveredFaction)"
         />

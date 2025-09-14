@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { getPlayerRealTimeVisibleTeam } from '../../utils/roleUtils';
+import { getPlayerRealTimeVisibleTeam } from '../../core/engine';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 interface Props {
     gameState: any;
@@ -24,8 +28,7 @@ const teamId = computed(() => {
 
 const teamLabel = computed(() => {
     if (!teamId.value) return null;
-    const t = String(teamId.value).toLowerCase();
-    return t === 'lupi' ? 'Lupi' : 'Villaggio';
+    return getFactionDisplayName(teamId.value, t);
 });
 
 const teamPillClass = computed(() => {
@@ -42,7 +45,7 @@ const teamPillClass = computed(() => {
             <div class="text-center space-y-3">
                 <div class="text-xs text-neutral-400">{{ discoveryText }}</div>
                 <div class="flex items-center justify-center gap-3">
-                    <span class="text-neutral-400 text-xs">appare come</span>
+                    <span class="text-neutral-400 text-xs">{{ t('phaseReveal.appearsAs') }}</span>
                     <span class="px-3 py-1.5 rounded text-sm font-medium border" :class="teamPillClass">{{ teamLabel }}</span>
                 </div>
             </div>

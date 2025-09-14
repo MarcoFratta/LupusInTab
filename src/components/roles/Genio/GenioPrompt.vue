@@ -2,10 +2,10 @@
   <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-6">
     <div class="text-center mb-6">
       <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-        <p class="text-violet-300 text-sm font-medium">📢 Scegli uno dei tre ruoli disponibili in cui trasformarti</p>
+        <p class="text-violet-300 text-sm font-medium">📢 {{ t('genio.chooseRole') }}</p>
       </div>
       <p class="text-neutral-300 text-sm">
-        Scegli uno dei tre ruoli disponibili per trasformarti
+        {{ t('genio.chooseRoleDescription') }}
       </p>
     </div>
 
@@ -19,12 +19,12 @@
       >
         <div class="flex items-center gap-3">
           <div class="flex-1 text-left">
-            <div class="font-semibold text-neutral-100">{{ role.name }}</div>
+            <div class="font-semibold text-neutral-100">{{ getRoleDisplayName(role.id, t) }}</div>
             <div 
               class="text-xs font-medium"
               :style="{ color: role.factionConfig?.color || '#9ca3af' }"
             >
-              {{ role.factionConfig?.displayName || role.team }}
+              {{ getFactionDisplayName(role.team, t) }}
             </div>
           </div>
           <div 
@@ -47,7 +47,7 @@
           <path d="M23 20v-6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Rimescola i ruoli
+        {{ t('rolePrompts.reshuffleRoles') }}
       </button>
     </div>
   </div>
@@ -57,6 +57,9 @@
 import { computed, onMounted, ref } from 'vue';
 import { ROLES } from '../../../roles';
 import { getFactionConfig } from '../../../factions';
+import { getFactionDisplayName } from '../../../utils/factionUtils';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+import { useI18n } from '../../../composables/useI18n';
 
 const props = defineProps<{
   gameState: any;
@@ -64,6 +67,7 @@ const props = defineProps<{
   onComplete: (result: any) => void;
 }>();
 
+const { t } = useI18n();
 const shuffleKey = ref(0);
 const selectedRoles = ref<any[]>([]);
 

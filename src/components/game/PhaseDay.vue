@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue';
 import { DiscussionTimer, SetupTitle } from '../ui';
 import PromptSelect from '../ui/prompts/PromptSelect.vue';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   state: any;
@@ -22,7 +25,7 @@ const showSkipCard = computed(() => isFirstDaySkipped.value && !needsSindacoElec
 
 // Choices for select boxes
 const lynchChoices = computed(() => [
-  { label: 'Seleziona un giocatore…', value: null },
+  { label: t('dayPhase.selectPlayer'), value: null },
   ...alivePlayers.value.map((p: any) => ({ 
     label: `${props.state.sindacoId === p.id ? '★ ' : ''}${p.name}`, 
     value: p.id 
@@ -30,7 +33,7 @@ const lynchChoices = computed(() => [
 ]);
 
 const sindacoChoices = computed(() => [
-  { label: 'Seleziona un giocatore…', value: null },
+  { label: t('dayPhase.selectPlayer'), value: null },
   ...alivePlayers.value.map((p: any) => ({ 
     label: `${props.state.sindacoId === p.id ? '★ ' : ''}${p.name}`, 
     value: p.id 
@@ -56,7 +59,7 @@ function confirmSindaco() {
 
 <template>
   <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4 overflow-visible">
-    <SetupTitle :title="`Giorno ${props.state.dayNumber}`" />
+    <SetupTitle :title="`${t('dayPhase.day')} ${props.state.dayNumber}`" />
     
     <div class="w-full max-w-2xl space-y-4 mt-2 text-center">
       <div class="relative">
@@ -73,18 +76,18 @@ function confirmSindaco() {
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">Eleggi il Sindaco</h3>
+                  <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">{{ t('dayPhase.electMayor') }}</h3>
                   <div class="w-12 h-0.5 bg-gradient-to-r from-amber-500/50 to-yellow-500/50 mx-auto rounded-full"></div>
                 </div>
-                <p class="text-neutral-300 text-sm">Il voto dell'eletto conterà come 2 per il resto della partita.</p>
+                <p class="text-neutral-300 text-sm">{{ t('dayPhase.mayorVoteDescription') }}</p>
               </div>
             </div>
             
             <PromptSelect
-              label="Chi vuoi eleggere come Sindaco?"
+              :label="t('dayPhase.whoToElectAsMayor')"
               v-model="selectedId"
               :choices="sindacoChoices"
-              buttonText="Conferma Sindaco"
+              :buttonText="t('rolePrompts.confirmMayor')"
               accent="emerald"
               :disabled="sindacoChoices.length === 0"
               @confirm="confirmSindaco"
@@ -101,7 +104,7 @@ function confirmSindaco() {
           </div>
           
           <div>
-            <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">Il linciaggio del primo giorno è saltato</h3>
+            <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">{{ t('dayPhase.firstDayLynchSkipped') }}</h3>
             <div class="w-12 h-0.5 bg-gradient-to-r from-amber-500/50 to-orange-500/50 mx-auto rounded-full"></div>
           </div>
         </div>
@@ -120,7 +123,7 @@ function confirmSindaco() {
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>
-            <span class="font-medium">Vai alla notte</span>
+            <span class="font-medium">{{ t('dayPhase.goToNight') }}</span>
           </div>
           
           <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -138,9 +141,9 @@ function confirmSindaco() {
               </svg>
             </div>
             <div>
-              <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">Seleziona il giocatore da linciare</h3>
+              <h3 class="text-lg md:text-xl font-semibold text-neutral-200 mb-2">{{ t('dayPhase.selectPlayerToLynch') }}</h3>
               <div class="w-12 h-0.5 bg-gradient-to-r from-red-500/50 to-orange-500/50 mx-auto rounded-full"></div>
-              <p class="text-neutral-300 text-sm mt-3">È il momento di votare. Effettuate le votazioni, poi seleziona chi è stato linciato.</p>
+              <p class="text-neutral-300 text-sm mt-3">{{ t('dayPhase.timeToVote') }}</p>
             </div>
           </div>
         </div>
@@ -148,10 +151,10 @@ function confirmSindaco() {
         <DiscussionTimer :enabled="discussionEnabled" :alivePlayersCount="alivePlayers.length" />
 
         <PromptSelect
-          label="Chi vuoi linciare?"
+          :label="t('dayPhase.whoToLynch')"
           v-model="selectedId"
           :choices="lynchChoices"
-          buttonText="Conferma linciaggio"
+          :buttonText="t('rolePrompts.confirmLynch')"
           accent="red"
           :disabled="lynchChoices.length === 0"
           @confirm="confirmLynch"

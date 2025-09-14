@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -32,15 +35,15 @@ const hasAction = computed(() => target.value);
                 :game-state="props.gameState"
                 :left-player="illusionistaPlayers"
                 :right-player="target"
-                left-label="Illusionista"
-                right-label="Bersaglio"
+                :left-label="t('roleNames.illusionista')"
+                :right-label="t('roleDetails.target')"
                 :center-content="{
-                    action: 'ha bloccato'
+                    action: t('roleDetails.hasBlocked')
                 }"
             />
         </template>
         <template v-else>
-            <div class="text-neutral-400 text-center text-xs">Nessun giocatore bloccato</div>
+            <div class="text-neutral-400 text-center text-xs">{{ t('roleDetails.noPlayerBlocked') }}</div>
         </template>
     </div>
 </template>

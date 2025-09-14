@@ -2,8 +2,12 @@
 import { computed, defineAsyncComponent } from 'vue';
 import { ROLES } from '../../roles';
 import { getFactionConfig } from '../../factions';
+import { useI18n } from '../../composables/useI18n';
+import { getRoleDisplayName } from '../../utils/roleUtils';
 import BlockedRoleCard from './BlockedRoleCard.vue';
 import EventCard from './EventCard.vue';
+
+const { t } = useI18n();
 
 interface Props {
   gameState: any;
@@ -65,7 +69,7 @@ const detailEntries = computed(() => {
     const roleDef = (ROLES as any)[roleId];
     if (!roleDef) continue;
     
-    const title = roleDef.name || roleId;
+    const title = getRoleDisplayName(roleId, t);
     const action = roleData.action;
     const firstPlayer = roleData.players[0];
     
@@ -132,10 +136,10 @@ const detailEntries = computed(() => {
   if (entries.length === 0) {
     entries.push({
       key: 'no-actions',
-      title: 'Nessuna azione',
+      title: t('phaseReveal.noAction'),
       component: 'div',
       props: { 
-        content: 'Nessun ruolo ha utilizzato i suoi poteri questa notte.',
+        content: t('phaseReveal.noRolesUsedPowers'),
         roleId: 'none'
       }
     });
@@ -191,7 +195,7 @@ const detailEntries = computed(() => {
             v-bind="e.props || {}" 
           />
           <div v-else class="text-center p-2 text-neutral-400 text-xs">
-            {{ e.props?.content || 'Nessun dettaglio disponibile' }}
+            {{ e.props?.content || t('gameConstants.noDetailsAvailable') }}
           </div>
         </div>
       </div>

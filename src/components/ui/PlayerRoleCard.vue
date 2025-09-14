@@ -2,6 +2,8 @@
 import { computed } from 'vue';
 import { getFactionConfig } from '../../factions';
 import { ROLES } from '../../roles';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -9,6 +11,8 @@ const props = defineProps({
     label: { type: String, required: true },
     align: { type: String, default: 'left' }
 });
+
+const { t } = useI18n();
 
 const playerRoleDef = computed(() => props.player ? ROLES[props.player.roleId] : null);
 const factionConfig = computed(() => playerRoleDef.value ? getFactionConfig(playerRoleDef.value.team) : null);
@@ -43,7 +47,7 @@ const playerNames = computed(() => {
       </div>
       <div class="flex items-center justify-center gap-2 mt-2">
         <div class="w-2 h-2 rounded-full" :style="{ backgroundColor: factionConfig?.color || '#9ca3af' }"></div>
-        <span class="text-xs truncate max-w-[8rem]" :style="{ color: factionConfig?.color || '#9ca3af' }" :title="playerRoleDef?.name || player.roleId">{{ playerRoleDef?.name || player.roleId }}</span>
+        <span class="text-xs truncate max-w-[8rem]" :style="{ color: factionConfig?.color || '#9ca3af' }" :title="getRoleDisplayName(player.roleId, t)">{{ getRoleDisplayName(player.roleId, t) }}</span>
       </div>
     </div>
     <div v-else class="flex-1 font-medium bg-transparent flex flex-col justify-center items-center text-neutral-400 text-xs">

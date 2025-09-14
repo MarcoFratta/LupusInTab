@@ -3,19 +3,13 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const matto: RoleDef = {
     id: 'matto',
-    name: 'Matto',
+    name: 'roleNames.matto',
     team: 'matti',
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     score: 30,
-    description: 'Vince se viene linciato dal villaggio',
-    longDescription: `Il Matto è un ruolo che vince solo se viene linciato.
-
-COME FUNZIONA:
-• Vince da solo se viene linciato dal villaggio durante il giorno
-• Non ha abilità notturne
-• Appare come villaggio alle investigazioni
-• Conta come villaggio per le condizioni di vittoria`,
+    description: 'roleDescriptions.matto',
+    longDescription: 'roleDescriptions.mattoLong',
     color: '#e9d5ff',
     phaseOrder: "any",
     actsAtNight: "never",

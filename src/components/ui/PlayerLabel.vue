@@ -3,18 +3,23 @@ import { computed } from 'vue';
 import { getFactionConfig } from '../../factions';
 import { hexToRgba } from '../../utils/color';
 import { ROLES } from '../../roles';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+import { useI18n } from '../../composables/useI18n';
 
 const props = defineProps<{ 
   roleId: string;
   showFaction?: boolean;
 }>();
 
+const { t } = useI18n();
+
 const roleDef = computed(() => ROLES[props.roleId]);
 const faction = computed(() => getFactionConfig(roleDef.value?.team || 'unknown'));
 
-const roleName = computed(() => roleDef.value?.name || props.roleId);
+const roleName = computed(() => getRoleDisplayName(props.roleId, t));
 const factionColor = computed(() => faction.value?.color || '#9ca3af');
-const factionName = computed(() => faction.value?.displayName || roleDef.value?.team || 'unknown');
+const factionName = computed(() => getFactionDisplayName(roleDef.value?.team || 'unknown', t));
 
 const chipStyle = computed(() => ({
   color: factionColor.value,

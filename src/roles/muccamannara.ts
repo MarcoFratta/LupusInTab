@@ -4,21 +4,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const muccamannara: RoleDef = {
     id: 'muccamannara',
-    name: 'Mucca Mannara',
+    name: 'roleNames.muccamannara',
     team: 'mannari',
     score: 33,
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Vince solo se rimane viva con un altro giocatore',
-    longDescription: `La Mucca Mannara è un ruolo solitario con poteri speciali.
-
-COME FUNZIONA:
-• Vince solo se rimane in vita con esattamente un altro giocatore
-• Se rimane in vita, nessun altro può vincere
-• I lupi non possono ucciderla
-• Conosce l'identità dei lupi
-• Muore se il Veggente la investiga`,
+    description: 'roleDescriptions.muccamannara',
+    longDescription: 'roleDescriptions.muccamannaraLong',
     color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "never",

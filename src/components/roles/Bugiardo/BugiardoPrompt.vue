@@ -3,13 +3,17 @@ import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import { ROLES } from '../../../roles';
 import { getFactionConfig } from '../../../factions';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{ gameState: any,playerIds: number[], onComplete: (r:any)=>void }>();
 
 const targetId = ref<number | null>(null);
 const selectable = computed(() => props.gameState.players.filter((p: any) => !p.alive && !props.playerIds.includes(p.id)));
 const choices = computed(() => [
-	{ label: 'Seleziona un giocatore morto…', value: null },
+	{ label: t('rolePrompts.selectDeadPlayer'), value: null },
 	...selectable.value.map((p: any) => ({ label: `${p.name}`, value: p.id }))
 ]);
 
@@ -51,25 +55,25 @@ function skip() {
 	<div class="space-y-4">
 		<div class="text-center space-y-2">
 			<div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-				<p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore morto da investigare</p>
+				<p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.chooseDeadPlayerToInvestigate') }}</p>
 			</div>
-			<p class="text-neutral-400 text-base font-medium">Investiga un giocatore morto per scoprire il suo ruolo reale</p>
-			<p class="text-sm text-neutral-500">Puoi usare questo potere una sola volta per partita, a partire dalla notte 2</p>
+			<p class="text-neutral-400 text-base font-medium">{{ t('rolePrompts.investigateDeadPlayerDescription') }}</p>
+			<p class="text-sm text-neutral-500">{{ t('rolePrompts.powerOncePerGameFromNight2') }}</p>
 		</div>
 		
 		<div v-if="!canUsePower" class="bg-neutral-800 rounded-lg p-6 text-center">
 			<div class="text-neutral-400 text-lg">
-				<span v-if="gameState.nightNumber < 2">Potrai usare questo potere dalla notte 2</span>
-				<span v-else>Hai già usato questo potere</span>
+				<span v-if="gameState.nightNumber < 2">{{ t('rolePrompts.canUsePowerFromNight2') }}</span>
+				<span v-else>{{ t('rolePrompts.alreadyUsedPower') }}</span>
 			</div>
 		</div>
 		
 		<template v-else>
 			<PromptSelect
-				label="Chi vuoi investigare?"
+				:label="t('rolePrompts.whoToInvestigate')"
 				v-model="targetId"
 				:choices="choices"
-				buttonText="Conferma selezione"
+				:buttonText="t('rolePrompts.confirmSelection')"
 				accent="red"
 				:disabled="!choices.length"
 				@confirm="submit"
@@ -77,9 +81,9 @@ function skip() {
 				<div v-if="selectedPlayer" class="space-y-3">
 					<div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-4">
 						<div class="text-center space-y-3">
-							<div class="text-xs text-neutral-400">Risultato investigazione</div>
+							<div class="text-xs text-neutral-400">{{ t('rolePrompts.investigationResult') }}</div>
 							<div class="flex items-center justify-center gap-3">
-								<span class="text-neutral-400 text-xs">aveva il ruolo</span>
+								<span class="text-neutral-400 text-xs">{{ t('rolePrompts.hadRole') }}</span>
 								<span 
 									class="px-3 py-1.5 rounded text-sm font-medium border"
 									:style="{ 
@@ -88,7 +92,7 @@ function skip() {
 										color: getFactionColor(selectedPlayer.roleId)
 									}"
 								>
-									{{ ROLES[selectedPlayer.roleId]?.name || selectedPlayer.roleId }}
+									{{ getRoleDisplayName(selectedPlayer.roleId, t) }}
 								</span>
 							</div>
 						</div>
@@ -101,7 +105,7 @@ function skip() {
 					@click="skip"
 					class="bg-neutral-600 w-full hover:bg-neutral-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
 				>
-					Salta
+					{{ t('rolePrompts.skip') }}
 				</button>
 			</div>
 		</template>

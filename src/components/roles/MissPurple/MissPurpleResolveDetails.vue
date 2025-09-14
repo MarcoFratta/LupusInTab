@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
+import { useI18n } from '../../../composables/useI18n';
 
 interface Props {
     gameState: any;
@@ -10,6 +11,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const { t } = useI18n();
 
 const misspurpleEvents = computed(() => {
     if (!props.entry || !props.entry.lupiCount) return [];
@@ -40,8 +42,8 @@ const misspurplePlayers = computed(() => {
         </div>
         
         <InvestigationResultCard 
-          title="Risultato Investigazione"
-          text="lupi nel villaggio"
+          :title="t('resolveDetails.investigationResult')"
+          :text="t('rolePrompts.wolvesInVillage')"
           :results="event.lupiCount.toString()"
           color="#9333ea"
         />

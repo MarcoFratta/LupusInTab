@@ -5,20 +5,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 export const lupoCieco: RoleDef = {
     id: 'lupoCieco',
-    name: 'Lupo Cieco',
+    name: 'roleNames.lupoCieco',
     team: 'lupi',
     visibleAsTeam: 'lupi',
     score: 14,
     countAs: 'lupi',
     color: '#7c2d12',
-    description: 'Investiga 3 giocatori contigui per trovare lupi',
-    longDescription: `Il Lupo Cieco può investigare gruppi di giocatori per trovare lupi.
-
-COME FUNZIONA:
-• Può investigare 3 giocatori contigui per scoprire se c'è almeno un lupo
-• Se tutti i lupi sono morti, può anche uccidere un giocatore
-• L'azione è obbligatoria: deve investigare ogni notte
-• Può iniziare ad agire dalla 2ª notte`,
+    description: 'roleDescriptions.lupoCieco',
+    longDescription: 'roleDescriptions.lupoCiecoLong',
     phaseOrder: 2,
     actsAtNight: "alive",
     effectType: 'required',

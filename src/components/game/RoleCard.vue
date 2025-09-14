@@ -3,6 +3,10 @@ import { computed } from 'vue';
 import type { RoleDef } from '../../types';
 import { hexToRgba } from '../../utils/color';
 import { getFactionConfig } from '../../factions';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   role: RoleDef;
@@ -63,7 +67,7 @@ function handleInputChange(event: Event) {
       <div class="flex items-center justify-center w-full">
         <h3 class="w-full text-center text-sm font-semibold leading-tight truncate"
              :style="{ color: getFactionConfig(role.team)?.color || '#9ca3af' }">
-          {{ role.name }}
+          {{ getRoleDisplayName(role.id, t) }}
         </h3>
       </div>
       

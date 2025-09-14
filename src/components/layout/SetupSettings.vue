@@ -3,10 +3,12 @@ import { useGameStore } from '../../stores/game';
 import { watch, computed, ref, onMounted } from 'vue';
 import { SetupTitle } from '../ui';
 import { saveSettings } from '../../utils/storage';
+import { useI18n } from '../../composables/useI18n';
 
 const store = useGameStore();
 const state = store.state as any;
 const appVersion = ref('');
+const { t, currentLocale, availableLocales, changeLanguage } = useI18n();
 
 const activeSettingsCount = computed(() => Object.values(state.settings).filter(Boolean).length);
 
@@ -47,32 +49,32 @@ const openGitHubIssue = () => {
   window.open('https://github.com/MarcoFratta/LupusInTab/issues/new', '_blank');
 };
 
-const gameSettings = [
+const gameSettings = computed(() => [
   {
     key: 'skipFirstNightActions',
-    title: 'Salta le azioni della prima notte',
-    description: 'Tutti i ruoli vengono chiamati nella Notte 1, ma i loro effetti sono ignorati.',
+    title: t('settings.skipFirstNight'),
+    description: t('settings.skipFirstNightDescription'),
     disabled: false
   },
   {
     key: 'enableSindaco',
-    title: 'Abilita Sindaco',
-    description: 'Il voto del sindaco vale doppio durante la votazione quando è in vita.',
+    title: t('settings.enableMayor'),
+    description: t('settings.enableMayorDescription'),
     disabled: true
   },
   {
     key: 'discussionTimerEnabled',
-    title: 'Timer discussione (giorno)',
-    description: 'Mostra un timer compatto nella fase di linciaggio per la discussione (max 60 minuti).',
+    title: t('settings.discussionTimer'),
+    description: t('settings.discussionTimerDescription'),
     disabled: false
   },
   {
     key: 'difficolta',
-    title: 'Difficoltà Massima',
-    description: 'Considera i raggruppamenti di ruoli durante i controlli. Es: Lupo Mannaro rileva Lupo Ciccione come Lupo.',
+    title: t('settings.maxDifficulty'),
+    description: t('settings.maxDifficultyDescription'),
     disabled: false
   }
-];
+]);
 
 const toggleSetting = (key: string) => {
   state.settings[key] = !state.settings[key];
@@ -82,11 +84,51 @@ const toggleSetting = (key: string) => {
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
          <SetupTitle 
-           title="Impostazioni"
+           :title="t('settings.title')"
          />
 
+    <!-- Language Selection -->
     <div class="space-y-4">
-      <h3 class="text-lg font-semibold text-neutral-200">Opzioni di Gioco</h3>
+      <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.language') }}</h3>
+      
+      <div class="p-4 rounded-lg border border-neutral-800/40 bg-neutral-900/30">
+        <div class="space-y-3">
+          <div class="space-y-1">
+            <span class="text-sm font-medium text-neutral-200">{{ t('settings.selectLanguage') }}</span>
+            <p class="text-xs text-neutral-500 leading-relaxed text-left">
+              {{ t('settings.languageDescription') }}
+            </p>
+          </div>
+          
+          <div class="relative">
+            <select 
+              :value="currentLocale.code"
+              @change="changeLanguage(($event.target as HTMLSelectElement).value)"
+              class="w-full px-3 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 appearance-none cursor-pointer"
+            >
+              <option 
+                v-for="locale in availableLocales" 
+                :key="locale.code" 
+                :value="locale.code"
+                class="bg-neutral-800 text-neutral-200"
+              >
+                {{ locale.flag }} {{ locale.name }}
+              </option>
+            </select>
+            
+            <!-- Custom dropdown arrow -->
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.gameOptions') }}</h3>
       
       <div class="space-y-3">
         <div v-for="setting in gameSettings" 
@@ -125,15 +167,15 @@ const toggleSetting = (key: string) => {
     </div>
 
     <div class="space-y-4">
-      <h3 class="text-lg font-semibold text-neutral-200">Supporta il Progetto</h3>
+      <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.supportProject') }}</h3>
       
       <div class="space-y-3">
         <div class="p-4 rounded-lg border border-neutral-800/40 bg-neutral-900/30 hover:bg-neutral-900/50 hover:border-neutral-700/50 transition-all duration-200">
           <div class="space-y-3">
             <div class="space-y-1">
-              <span class="text-sm font-medium text-neutral-200">Offrimi un caffè</span>
+              <span class="text-sm font-medium text-neutral-200">{{ t('settings.buyCoffee') }}</span>
               <p class="text-xs text-neutral-500 leading-relaxed text-left">
-                Se ti piace il progetto, considera di supportarlo con una donazione per mantenere il progetto attivo.
+                {{ t('settings.buyCoffeeDescription') }}
               </p>
             </div>
             <button 
@@ -142,7 +184,7 @@ const toggleSetting = (key: string) => {
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 5v3H6V5h10zm2.5 7H16v1c0 2.76-2.24 5-5 5s-5-2.24-5-5v-1H5.5c-.83 0-1.5.67-1.5 1.5S4.67 13 5.5 13H18.5c.83 0 1.5-.67 1.5-1.5S19.33 11 18.5 11z"/>
               </svg>
-              Offri un caffè
+              {{ t('settings.offerCoffee') }}
             </button>
           </div>
         </div>
@@ -150,21 +192,21 @@ const toggleSetting = (key: string) => {
         <div class="p-4 rounded-lg border border-neutral-800/40 bg-neutral-900/30 hover:bg-neutral-900/50 hover:border-neutral-700/50 transition-all duration-200">
           <div class="space-y-3">
             <div class="space-y-1">
-              <span class="text-sm font-medium text-neutral-200">Contribuisci su GitHub</span>
+              <span class="text-sm font-medium text-neutral-200">{{ t('settings.contributeGitHub') }}</span>
               <p class="text-xs text-neutral-500 leading-relaxed text-left">
-                Lascia una stella al progetto e segnala eventuali problemi o suggerimenti per miglioramenti.
+                {{ t('settings.contributeGitHubDescription') }}
               </p>
             </div>
             <div class="flex flex-col sm:flex-row gap-2">
               <button 
                 @click="openGitHubStar"
                 class="flex-1 py-2.5 px-4 bg-neutral-600/20 hover:bg-neutral-600/30 text-neutral-400 hover:text-neutral-300 text-sm font-medium rounded-lg transition-all duration-200 border border-neutral-500/30 hover:border-neutral-500/50">
-                Lascia una stella
+                {{ t('settings.starProject') }}
               </button>
               <button 
                 @click="openGitHubIssue"
                 class="flex-1 py-2.5 px-4 bg-neutral-600/20 hover:bg-neutral-600/30 text-neutral-400 hover:text-neutral-300 text-sm font-medium rounded-lg transition-all duration-200 border border-neutral-500/30 hover:border-neutral-500/50">
-                Segnala un problema
+                {{ t('settings.reportIssue') }}
               </button>
             </div>
           </div>
@@ -173,7 +215,7 @@ const toggleSetting = (key: string) => {
     </div>
 
     <div v-if="appVersion" class="text-xs text-neutral-500 text-center mt-6">
-      Versione {{ appVersion }}
+      {{ t('settings.version') }} {{ appVersion }}
     </div>
   </div>
 </template>

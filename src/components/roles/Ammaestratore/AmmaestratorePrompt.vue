@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{ gameState: any,playerIds: number[], onComplete: (r:any)=>void }>();
 
@@ -14,12 +17,12 @@ const choices = computed(() => {
 	
 	if (!hasWolfKills) {
 		return [
-			{ label: 'Nessun attacco dei lupi da reindirizzare', value: null, disabled: true }
+			{ label: t('rolePrompts.noWolfAttacksToRedirect'), value: null, disabled: true }
 		];
 	}
 	
 	return [
-		{ label: 'Nessuno', value: null },
+		{ label: t('common.none'), value: null },
 		...alive.map((p: any) => ({ 
 			label: p.name, 
 			value: p.id,
@@ -41,17 +44,17 @@ function skip() {
 	<div class="space-y-6">
 		<div class="text-center space-y-3">
 			<div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-				<p class="text-violet-300 text-sm font-medium">📢 Scegli un bersaglio da far sbranare dai lupi</p>
+				<p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.chooseTargetForWolves') }}</p>
 			</div>
-			<p class="text-neutral-400 text-base font-medium">Scegli un bersaglio per reindirizzare gli attacchi dei lupi</p>
-			<p class="text-neutral-500 text-sm">Se scegli un lupo, nessuno morirà. Se scegli un altro giocatore, morirà al posto del bersaglio originale.</p>
+			<p class="text-neutral-400 text-base font-medium">{{ t('rolePrompts.chooseTargetToRedirect') }}</p>
+			<p class="text-neutral-500 text-sm">{{ t('rolePrompts.ammaestratoreDescription') }}</p>
 		</div>
 		
 		<PromptSelect
-			label="Scegli un bersaglio"
+			:label="t('rolePrompts.chooseTarget')"
 			v-model="targetId"
 			:choices="choices"
-			buttonText="Conferma"
+			:buttonText="t('rolePrompts.confirmSelection')"
 			accent="emerald"
 			@confirm="submit"
 		/>
@@ -61,7 +64,7 @@ function skip() {
 				@click="skip"
 				class="bg-neutral-600 w-full hover:bg-neutral-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
 			>
-				Salta
+				{{ t('common.skip') }}
 			</button>
 		</div>
 	</div>

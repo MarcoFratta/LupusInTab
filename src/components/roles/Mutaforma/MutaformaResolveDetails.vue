@@ -4,6 +4,10 @@ import { ROLES } from '../../../roles';
 import { getFactionConfig } from '../../../factions';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import BlockedRoleCard from '../../ui/BlockedRoleCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   gameState: any;
@@ -140,10 +144,10 @@ const constraintReason = computed(() => {
         :game-state="props.gameState"
         :left-player="mutaformaPlayers"
         :right-player="targetPlayer"
-        left-label="Mutaforma"
-        right-label="Ruolo Copiato"
+        :left-label="getRoleDisplayName('mutaforma', t)"
+        :right-label="t('resolveDetails.copiedRole')"
         :center-content="{
-          action: mutaformaPlayers.length > 1 ? 'hanno copiato' : 'ha copiato'
+          action: mutaformaPlayers.length > 1 ? t('resolveDetails.copiedPlural') : t('resolveDetails.copied')
         }"
       />
     </template>
@@ -152,7 +156,7 @@ const constraintReason = computed(() => {
     <div v-if="shouldShowTargetRoleDetails" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-sm ">
-          Risultato dell'azione copiata:
+          {{ t('resolveDetails.copiedActionResult') }}
         </div>
       </div>
       
@@ -168,12 +172,12 @@ const constraintReason = computed(() => {
         
         <!-- Fallback display if component can't be loaded -->
         <div v-else class="text-center text-neutral-400">
-          <div class="text-sm mb-2">Azione copiata:</div>
+          <div class="text-sm mb-2">{{ t('resolveDetails.copiedAction') }}</div>
           <div class="text-xs">
             <strong>Players:</strong> {{ mutaformaPlayers.map((p: any) => p.name).join(', ') }}<br>
             <strong>Target:</strong> {{ targetRoleActionEntry?.targetId }}<br>
             <strong>Type:</strong> {{ targetRoleActionEntry?.type }}<br>
-            <strong>Role:</strong> {{ targetRole?.name }}<br>
+            <strong>Role:</strong> {{ getRoleDisplayName(targetRole?.id, t) }}<br>
             <strong>Data:</strong> {{ JSON.stringify(targetRoleActionEntry) }}
           </div>
         </div>
@@ -184,16 +188,16 @@ const constraintReason = computed(() => {
     <div v-else-if="targetRoleHadNoEffect" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-xs mb-2">
-          Nessun azione effettuata
+          {{ t('resolveDetails.noActionTaken') }}
         </div>
       </div>
       
       <div class="p-3 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
         <p class="text-neutral-400 text-sm font-medium">
-          Il ruolo copiato non ha avuto alcun effetto questa notte
+          {{ t('resolveDetails.copiedRoleNoEffect') }}
         </p>
         <p class="text-neutral-500 text-xs mt-1">
-          {{ targetRole?.name }} ha scelto di non utilizzare il suo potere
+          {{ getRoleDisplayName(targetRole?.id, t) }} {{ t('resolveDetails.copiedRoleChoseNotToUse') }}
         </p>
       </div>
     </div>
@@ -202,7 +206,7 @@ const constraintReason = computed(() => {
     <div v-else-if="targetRoleBlocked" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-sm mb-2">
-          Il ruolo copiato non può essere utilizzato:
+          {{ t('resolveDetails.copiedRoleCannotBeUsed') }}
         </div>
       </div>
       
@@ -218,7 +222,7 @@ const constraintReason = computed(() => {
     <div v-else-if="!canUseRole" class="space-y-2">
       <div class="text-center">
         <div class="text-neutral-400 text-sm mb-2">
-          Il ruolo copiato non può essere utilizzato:
+          {{ t('resolveDetails.copiedRoleCannotBeUsed') }}
         </div>
       </div>
       
@@ -232,7 +236,7 @@ const constraintReason = computed(() => {
 
     <!-- No Action Taken -->
     <div v-else-if="!hasAction" class="text-center text-sm mb-2 text-neutral-400">
-      Nessuna azione intrapresa
+      {{ t('resolveDetails.noActionTaken') }}
     </div>
   </div>
 </template>

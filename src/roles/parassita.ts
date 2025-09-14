@@ -4,17 +4,11 @@ import { RoleAPI } from "../utils/roleAPI";
 
 export const parassita: RoleDef = {
     id: 'parassita',
-    name: 'Parassita',
+    name: 'roleNames.parassita',
     team: 'parassita',
     score: 25,
-    description: 'Infetta i giocatori ogni notte',
-    longDescription: `Il Parassita infetta i giocatori per vincere la partita.
-
-COME FUNZIONA:
-• Ogni notte può infettare altri giocatori
-• I giocatori infetti rimangono infetti per il resto della partita
-• Vince se tutti i giocatori vivi sono infetti
-• L'azione è opzionale: può scegliere di non infettare`,
+    description: 'roleDescriptions.parassita',
+    longDescription: 'roleDescriptions.parassitaLong',
     color: '#ec4899',
     phaseOrder: "any",
     actsAtNight: "alive",

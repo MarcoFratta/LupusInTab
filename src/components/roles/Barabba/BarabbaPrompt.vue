@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -17,7 +20,7 @@ const hasActed = computed(() => {
 const targetId = ref(null);
 const selectable = computed(() => props.gameState.players.filter(p => p.alive && !props.playerIds.includes(p.id)));
 const choices = computed(() => [
-    { label: 'Seleziona un giocatore…', value: null },
+    { label: t('rolePrompts.selectPlayerPlaceholder'), value: null },
     ...selectable.value.map((p) => ({ label: p.name, value: p.id }))
 ]);
 
@@ -37,13 +40,13 @@ function skip() {
     <div class="space-y-3">
         <div v-if="!hasActed" class="text-center space-y-3">
             <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-                <p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore da uccidere</p>
+                <p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.choosePlayerToKill') }}</p>
             </div>
         </div>
-        <div v-if="hasActed" class="text-xs text-neutral-400">Hai già usato il tuo potere in questa partita.</div>
+        <div v-if="hasActed" class="text-xs text-neutral-400">{{ t('rolePrompts.powerAlreadyUsed') }}</div>
         <PromptSelect
             v-else
-            label="Barabba, scegli un giocatore da uccidere (una volta per partita)"
+            :label="t('rolePrompts.choosePlayerToKill')"
             v-model="targetId"
             :choices="choices"
             buttonText=""
@@ -52,7 +55,7 @@ function skip() {
         />
         <SkipConfirmButtons
             v-if="!hasActed"
-            confirm-text="Uccidi"
+            :confirm-text="'rolePrompts.kill'"
             :confirm-disabled="!canSubmit"
             @confirm="submit"
             @skip="skip"
@@ -60,7 +63,7 @@ function skip() {
         <div v-else>
             <SkipConfirmButtons
                 :showSkip="false"
-                confirm-text="Continua"
+                confirm-text="common.continue"
                 :confirm-disabled="false"
                 @confirm="skip"
             />

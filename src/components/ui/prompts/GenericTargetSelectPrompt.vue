@@ -2,22 +2,39 @@
 import { computed, ref } from 'vue';
 import { useGameStore } from '../../../stores/game';
 import PromptSelect from './PromptSelect.vue';
+import { useI18n } from '../../../composables/useI18n';
 
 const props = defineProps({
     title: { type: String, required: true },
     description: { type: String, required: true },
     label: { type: String, required: true },
-    buttonText: { type: String, default: 'Conferma selezione' },
+    buttonText: { type: String, default: 'rolePrompts.confirmSelection' },
     accent: { type: String, default: 'blue' },
     onComplete: { type: Function, required: true },
     disabled: { type: Boolean, default: false },
     choices: { type: Array, required: true }
 });
 
+const { t } = useI18n();
 const targetId = ref(null);
 
+// Check if buttonText is a translation key or already translated
+const translatedButtonText = computed(() => {
+    // If it starts with common translation key prefixes, translate it
+    if (props.buttonText.startsWith('rolePrompts.') || 
+        props.buttonText.startsWith('common.') || 
+        props.buttonText.startsWith('setup.') || 
+        props.buttonText.startsWith('game.') ||
+        props.buttonText.startsWith('phases.') ||
+        props.buttonText.startsWith('resolveDetails.')) {
+        return t(props.buttonText);
+    }
+    // Otherwise, it's already translated
+    return props.buttonText;
+});
+
 const choices = computed(() => [
-    { label: 'Seleziona un giocatore…', value: null },
+    { label: t('rolePrompts.selectPlayer'), value: null },
     ...props.choices
 ]);
 
@@ -40,7 +57,7 @@ function submit() {
             :label="label"
             v-model="targetId"
             :choices="choices"
-            :buttonText="buttonText"
+            :buttonText="translatedButtonText"
             :accent="accent"
             :disabled="choices.length === 0 || disabled"
             @confirm="submit"

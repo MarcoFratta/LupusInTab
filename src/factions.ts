@@ -4,50 +4,50 @@ export const FACTIONS: Record<string, FactionConfig> = {
 	villaggio: {
 		id: 'villaggio',
 		name: 'villaggio',
-		displayName: 'Villaggio',
+		displayName: 'factions.villaggio',
 		color: '#10b981',
 		ringColor: 'ring-emerald-500/40',
-		winConditionDescription: 'I villici vincono quando tutti i lupi sono stati eliminati'
+		winConditionDescription: 'factionWinConditions.villaggio'
 	},
 	lupi: {
 		id: 'lupi',
 		name: 'lupi',
-		displayName: 'Lupi',
+		displayName: 'factions.lupi',
 		color: '#f87171',
 		ringColor: 'ring-red-400/40',
-		winConditionDescription: 'I lupi vincono quando raggiungono la parità numerica con i villici o li superano'
+		winConditionDescription: 'factionWinConditions.lupi'
 	},
 	mannari: {
 		id: 'mannari',
 		name: 'mannari',
-		displayName: 'Mannari',
+		displayName: 'factions.mannari',
 		color: '#7c3aed',
 		ringColor: 'ring-violet-600/40',
-		winConditionDescription: 'Il lupo mannaro vince se restano solo in due (lui e un altro giocatore)'
+		winConditionDescription: 'factionWinConditions.mannari'
 	},
 	matti: {
 		id: 'matti',
 		name: 'matti',
-		displayName: 'Matti',
+		displayName: 'factions.matti',
 		color: '#f59e0b',
 		ringColor: 'ring-amber-500/40',
-		winConditionDescription: 'Il matto vince se viene eliminato durante il giorno (votazione)'
+		winConditionDescription: 'factionWinConditions.matti'
 	},
 	parassita: {
 		id: 'parassita',
 		name: 'parassita',
-		displayName: 'Parassiti',
+		displayName: 'factions.parassita',
 		color: '#3b82f6',
 		ringColor: 'ring-blue-500/40',
-		winConditionDescription: 'Il parassita vince quando tutti i giocatori vivi sono infetti'
+		winConditionDescription: 'factionWinConditions.parassita'
 	},
 	alieni: {
 		id: 'alieni',
 		name: 'alieni',
-		displayName: 'Alieni',
+		displayName: 'factions.alieni',
 		color: '#ec4899',
 		ringColor: 'ring-pink-500/40',
-		winConditionDescription: 'Gli alieni vincono quando rimangono vivi con lo stesso numero di giocatori per ogni squadra'
+		winConditionDescription: 'factionWinConditions.alieni'
 	}
 };
 

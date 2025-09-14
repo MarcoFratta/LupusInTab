@@ -2,6 +2,9 @@
 import { ref, computed } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import { ROLES } from '../../../roles/index';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -12,7 +15,7 @@ const props = defineProps({
 const targetId = ref(null);
 
 const aliveChoices = computed(() => [
-    { label: 'Seleziona un giocatore...', value: null },
+    { label: t('rolePrompts.selectPlayerPlaceholder'), value: null },
     ...props.gameState.players
         .filter(p => {
             // Only show alive players
@@ -35,17 +38,17 @@ function submit() {
     <div class="space-y-4">
         <div class="text-center">
             <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-                <p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore da illusionare</p>
+                <p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.choosePlayerToIllusion') }}</p>
             </div>
-            <div class="text-slate-100 text-sm font-medium mb-2">Seleziona un giocatore da illusionare</div>
-            <div class="text-slate-400 text-xs">Il giocatore scelto non potrà usare la sua abilità questa notte</div>
+            <div class="text-slate-100 text-sm font-medium mb-2">{{ t('rolePrompts.choosePlayerToBlock') }}</div>
+            <div class="text-slate-400 text-xs">{{ t('rolePrompts.illusionistaDescription') }}</div>
         </div>
         
         <PromptSelect 
-            label="Seleziona un giocatore da bloccare"
+            :label="t('rolePrompts.choosePlayerToBlock')"
             v-model="targetId" 
             :choices="aliveChoices" 
-            buttonText="Conferma"
+            :buttonText="t('rolePrompts.confirmSelection')"
             @confirm="submit"
         />
     </div>

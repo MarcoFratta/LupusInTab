@@ -2,6 +2,10 @@
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import PlayerRoleCard from '../../ui/PlayerRoleCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps({ 
   gameState: { type: Object, required: true },
@@ -43,10 +47,10 @@ const infectAction = computed(() => {
   <div class="space-y-4">
     <div v-if="!targetIds || targetIds.length === 0" class="p-4 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
       <p class="text-neutral-400 text-base font-medium">
-        Nessuna infezione effettuata
+        {{ t('resolveDetails.noInfectionPerformed') }}
       </p>
       <p class="text-neutral-500 text-sm mt-1">
-        Il Parassita ha scelto di non infettare nessuno
+        {{ t('resolveDetails.parassitaChoseNotToInfect') }}
       </p>
     </div>
     
@@ -55,8 +59,8 @@ const infectAction = computed(() => {
         :game-state="props.gameState"
         :left-player="parassitaPlayers"
         :right-player="targetIds.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
-        left-label="Parassita"
-        right-label="Giocatori Infetti"
+        :left-label="getRoleDisplayName('parassita', t)"
+        :right-label="t('resolveDetails.infectedPlayers')"
         :center-content="{
           action: infectAction
         }"

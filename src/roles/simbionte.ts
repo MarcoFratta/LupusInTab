@@ -6,16 +6,10 @@ import { RoleAPI } from '../utils/roleAPI';
 
 export const simbionte: RoleDef = {
     id: 'simbionte',
-    name: 'Simbionte',
+    name: 'roleNames.simbionte',
     team: 'alieni',
-    description: 'Assume il ruolo di un altro giocatore all\'inizio',
-    longDescription: `Il Simbionte può assumere il ruolo di un altro giocatore.
-
-COME FUNZIONA:
-• All'inizio della partita può scegliere un giocatore
-• Assume il ruolo del giocatore scelto per il resto della partita
-• Il giocatore originale mantiene il suo ruolo
-• L'azione è obbligatoria: deve scegliere un giocatore`,
+    description: 'roleDescriptions.simbionte',
+    longDescription: 'roleDescriptions.simbionteLong',
     actsAtNight: 'alive',
     effectType: 'required',
     numberOfUsage: 1,

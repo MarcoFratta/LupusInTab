@@ -13,7 +13,7 @@
                     </span>
                 </div>
                 <div class="text-center text-neutral-300 text-sm mt-2">
-                    ha insinuato:
+                    {{ t('resolveDetails.insinuated') }}
                 </div>
             </div>
             
@@ -27,7 +27,7 @@
         </div>
         
         <div v-else class="text-center text-neutral-400 text-sm">
-            Nessun giocatore è stato insinuato questa notte.
+            {{ t('resolveDetails.noPlayerInsinuated') }}
         </div>
     </div>
 </template>
@@ -36,6 +36,9 @@
 import { computed } from 'vue';
 import type { GameState } from '../../../types';
 import FactionComparisonCard from '../../ui/FactionComparisonCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 interface Props {
     gameState: GameState;

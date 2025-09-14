@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -32,10 +35,10 @@ const hasAction = computed(() => target.value && angeloPlayers.value.length > 0)
                 :game-state="props.gameState"
                 :left-player="angeloPlayers"
                 :right-player="target"
-                left-label="Angelo"
-                right-label="Resuscitato"
+                :left-label="t('resolveDetails.angelo')"
+                :right-label="t('resolveDetails.resuscitato')"
                 :center-content="{
-                    action: 'ha resuscitato'
+                    action: t('resolveDetails.resurrected')
                 }"
             />
         </template>

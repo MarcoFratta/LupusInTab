@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { GAME_CONSTANTS } from '../../../constants/game';
+import { useI18n } from '../../../composables/useI18n';
 
 interface Props {
   onComplete: (result: any) => void;
 }
 
 defineProps<Props>();
+const { t } = useI18n();
 </script>
 
 <template>
@@ -21,7 +23,7 @@ defineProps<Props>();
       
       <div class="space-y-3">
         <h3 class="text-xl sm:text-2xl font-bold text-neutral-100">
-          {{ GAME_CONSTANTS.PROMPT_MESSAGES.FIRST_NIGHT_SKIPPED.title }}
+          {{ t('promptMessages.firstNightSkipped.title') }}
         </h3>
         <div class="w-16 h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
       </div>
@@ -40,7 +42,7 @@ defineProps<Props>();
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
         </svg>
-        <span class="font-semibold">{{ GAME_CONSTANTS.PROMPT_MESSAGES.FIRST_NIGHT_SKIPPED.buttonText }}</span>
+        <span class="font-semibold">{{ t('promptMessages.firstNightSkipped.buttonText') }}</span>
       </div>
       
       <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>

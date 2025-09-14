@@ -5,20 +5,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const giustiziere: RoleDef = {
 	id: 'giustiziere',
-	name: 'Giustiziere',
+	name: 'roleNames.giustiziere',
 	team: 'villaggio',
 	icon: 'GiustiziereIcon',
     visibleAsTeam: 'villaggio',
     score: 4,
     countAs: 'villaggio',
-    description: 'Giustizia un giocatore una volta per partita',
-    longDescription: `Il Giustiziere può eliminare un giocatore durante la notte.
-
-COME FUNZIONA:
-• Una volta per partita, di notte può giustiziare un giocatore
-• Il giocatore giustiziato muore immediatamente
-• L'azione è opzionale: può scegliere di non usarla
-• Non può essere usata più di una volta per partita`,
+    description: 'roleDescriptions.giustiziere',
+    longDescription: 'roleDescriptions.giustiziereLong',
     color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "alive",

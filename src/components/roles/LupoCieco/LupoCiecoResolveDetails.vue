@@ -3,6 +3,10 @@ import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
 import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
 import PlayerRoleCard from '../../ui/PlayerRoleCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps({ 
   gameState: { type: Object, required: true },
@@ -63,10 +67,10 @@ const getResultColor = (result) => {
     <!-- Investigation Results -->
     <div v-if="!investigationTargets || investigationTargets.length === 0" class="p-4 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
       <p class="text-neutral-400 text-base font-medium">
-        Nessuna investigazione effettuata
+        {{ t('resolveDetails.noInvestigationPerformed') }}
       </p>
       <p class="text-neutral-500 text-sm mt-1">
-        Il Lupo Cieco ha scelto di non investigare nessuno
+        {{ t('resolveDetails.lupoCiecoChoseNotToInvestigate') }}
       </p>
     </div>
     
@@ -75,8 +79,8 @@ const getResultColor = (result) => {
         :game-state="props.gameState"
         :left-player="lupoCiecoPlayers"
         :right-player="investigationTargets.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
-        left-label="Lupo Cieco"
-        right-label="Giocatori Investigati"
+        :left-label="getRoleDisplayName('lupoCieco', t)"
+        :right-label="t('resolveDetails.investigatedPlayers')"
         :center-content="{
           action: investigationAction
         }"
@@ -84,8 +88,8 @@ const getResultColor = (result) => {
       
       <!-- Investigation Result using InvestigationResultCard -->
       <InvestigationResultCard 
-        title="Risultato Investigazione"
-        text="Lupi trovati"
+        :title="t('resolveDetails.investigationResult')"
+        :text="t('resolveDetails.wolvesFound')"
         :results="investigationResults"
         :color="investigationResults.length > 0 ? getResultColor(investigationResults[0]) : '#9ca3af'"
       />
@@ -99,8 +103,8 @@ const getResultColor = (result) => {
         :game-state="props.gameState"
         :left-player="lupoCiecoPlayers"
         :right-player="props.gameState.players.find(p => p.id === killTargetId)"
-        left-label="Lupo Cieco"
-        right-label="Bersaglio"
+        :left-label="getRoleDisplayName('lupoCieco', t)"
+        :right-label="t('resolveDetails.target')"
         :center-content="{
           action: killingAction
         }"

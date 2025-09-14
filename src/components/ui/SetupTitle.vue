@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from '../../composables/useI18n';
+
 interface Props {
   title: string;
   subtitle?: string;
@@ -10,6 +12,7 @@ interface Props {
 }
 
 defineProps<Props>();
+const { t } = useI18n();
 </script>
 
 <template>
@@ -30,14 +33,14 @@ defineProps<Props>();
     <div v-if="showStats && statsData" class="flex items-center justify-center gap-3">
       <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
         <div class="w-3 h-3 rounded-full bg-violet-500"></div>
-        <span class="text-sm font-medium text-neutral-200">Abilitati</span>
+        <span class="text-sm font-medium text-neutral-200">{{ t('setup.enabled') }}</span>
         <span class="text-sm font-bold text-violet-400">
           {{ statsData.enabled }}
         </span>
       </div>
       <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-500/10 border border-neutral-500/20">
         <div class="w-3 h-3 rounded-full bg-neutral-500"></div>
-        <span class="text-sm font-medium text-neutral-200">Disabilitati</span>
+        <span class="text-sm font-medium text-neutral-200">{{ t('setup.disabled') }}</span>
         <span class="text-sm font-bold text-neutral-400">
           {{ statsData.disabled }}
         </span>

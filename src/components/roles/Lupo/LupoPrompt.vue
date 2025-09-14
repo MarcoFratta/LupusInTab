@@ -1,7 +1,11 @@
 <script setup>
 import { computed } from 'vue';
 import { useGameStore } from '../../../stores/game';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
 import GenericTargetSelectPrompt from '../../ui/prompts/GenericTargetSelectPrompt.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -38,15 +42,15 @@ function handleComplete(data) {
     <div class="space-y-6">
         <div class="text-center space-y-3">
             <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-                <p class="text-violet-300 text-sm font-medium">📢 Scegliete una vittima da sbranare questa notte</p>
+                <p class="text-violet-300 text-sm font-medium">📢 {{ t('gameConstants.chooseVictim') }}</p>
             </div>
         </div>
         
         <GenericTargetSelectPrompt
-            title="Lupo"
-            description="Scegliete una vittima da sbranare questa notte"
-            label="Chi vuoi eliminare?"
-            buttonText="Conferma selezione"
+            :title="t('gameConstants.chooseVictim')"
+            :description="t('gameConstants.chooseVictim')"
+            :label="t('gameConstants.whoToEliminate')"
+            :buttonText="t('gameConstants.confirmSelection')"
             accent="red"
             :choices="choices"
             @complete="handleComplete"

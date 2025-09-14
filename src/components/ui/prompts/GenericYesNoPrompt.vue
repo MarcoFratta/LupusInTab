@@ -2,12 +2,15 @@
 import { ref } from 'vue';
 import SecondaryButton from '../SecondaryButton.vue';
 import PrimaryButton from '../PrimaryButton.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     title: { type: String, required: true },
     description: { type: String, required: true },
-    yesText: { type: String, default: 'Sì' },
-    noText: { type: String, default: 'No' },
+    yesText: { type: String, default: 'rolePrompts.yes' },
+    noText: { type: String, default: 'rolePrompts.no' },
     onComplete: { type: Function, required: true },
     disabled: { type: Boolean, default: false }
 });
@@ -45,7 +48,7 @@ function selectNo() {
                 @click="selectNo"
                 :disabled="disabled"
             >
-                {{ noText }}
+                {{ t(noText) }}
             </SecondaryButton>
             
             <PrimaryButton
@@ -53,7 +56,7 @@ function selectNo() {
                 @click="selectYes"
                 :disabled="disabled"
             >
-                {{ yesText }}
+                {{ t(yesText) }}
             </PrimaryButton>
         </div>
         
@@ -63,7 +66,7 @@ function selectNo() {
                 :disabled="selected === null || disabled"
                 class="px-8"
             >
-                Conferma
+                {{ t('rolePrompts.confirm') }}
             </PrimaryButton>
         </div>
     </div>

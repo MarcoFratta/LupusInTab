@@ -5,6 +5,10 @@ import PromptSelectString from './PromptSelectString.vue';
 import SkipConfirmButtons from '../SkipConfirmButtons.vue';
 import PrimaryButton from '../PrimaryButton.vue';
 import { ROLES } from '../../../roles';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -32,13 +36,13 @@ const currentPlayer = computed(() => {
 const aliveChoices = computed(() => {
     if (props.availablePlayers) {
         return [
-            { label: 'Giocatore…', value: null },
+            { label: t('rolePrompts.selectPlayer'), value: null },
             ...props.availablePlayers.map(p => ({ label: p.name, value: p.id }))
         ];
     }
     
     return [
-        { label: 'Giocatore…', value: null },
+        { label: t('rolePrompts.selectPlayer'), value: null },
         ...props.gameState.players
             .filter(p => p.alive && (!currentPlayer.value || p.id !== currentPlayer.value.id))
             .map(p => ({ label: p.name, value: p.id }))
@@ -48,9 +52,9 @@ const aliveChoices = computed(() => {
 const roleChoices = computed(() => {
     if (props.availableRoles) {
         return [
-            { label: 'Ruolo…', value: null }, 
+            { label: t('rolePrompts.selectRole'), value: null }, 
             ...props.availableRoles.map((roleId) => ({ 
-                label: ROLES[roleId]?.name || roleId, 
+                label: getRoleDisplayName(roleId, t), 
                 value: roleId 
             }))
         ];
@@ -62,9 +66,9 @@ const roleChoices = computed(() => {
     const availableRoles = rolesInGame.filter(roleId => !currentPlayer.value || roleId !== currentPlayer.value.roleId);
     
     return [
-        { label: 'Ruolo…', value: null }, 
+        { label: t('rolePrompts.selectRole'), value: null }, 
         ...availableRoles.map((roleId) => ({ 
-            label: ROLES[roleId]?.name || roleId, 
+            label: getRoleDisplayName(roleId, t), 
             value: roleId 
         }))
     ];
@@ -86,13 +90,13 @@ function skip() {
     <div class="space-y-6">
         <div class="space-y-4">
             <div class="text-center">
-                <h4 class="text-base font-medium text-neutral-200 mb-2">Seleziona giocatore e ruolo</h4>
+                <h4 class="text-base font-medium text-neutral-200 mb-2">{{ t('rolePrompts.selectPlayerAndRole') }}</h4>
                 <div class="w-8 h-0.5 bg-gradient-to-r from-neutral-500 to-neutral-400 mx-auto rounded-full"></div>
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-start gap-4 sm:gap-x-3 sm:gap-y-2">
                 <div class="text-center sm:text-left">
-                    <label class="block text-sm font-medium text-neutral-300 mb-2">Giocatore</label>
+                    <label class="block text-sm font-medium text-neutral-300 mb-2">{{ t('rolePrompts.player') }}</label>
                     <div class="relative">
                         <select 
                             v-model="targetId"
@@ -115,7 +119,7 @@ function skip() {
                 </div>
                 
                 <div class="text-center sm:text-right">
-                    <label class="block text-sm font-medium text-neutral-300 mb-2">Ruolo</label>
+                    <label class="block text-sm font-medium text-neutral-300 mb-2">{{ t('rolePrompts.role') }}</label>
                     <div class="relative">
                         <select 
                             v-model="roleId"
@@ -148,7 +152,7 @@ function skip() {
             @click="submit"
             class="w-full"
         >
-            Conferma
+            {{ t('rolePrompts.confirm') }}
         </PrimaryButton>
     </div>
 </template>

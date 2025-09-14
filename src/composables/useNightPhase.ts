@@ -4,10 +4,14 @@ import { NightPhaseManager } from '../core/managers/NightPhaseManager';
 import { ROLES } from '../roles';
 import { getFactionConfig } from '../factions';
 import { GAME_CONSTANTS } from '../constants/game';
+import { getFactionDisplayName } from '../utils/factionUtils';
+import { getRoleDisplayName } from '../utils/roleUtils';
+import { useI18n } from './useI18n';
 
 export function useNightPhase() {
     const store = useGameStore();
     const state = store.state;
+    const { t } = useI18n();
 
     const PHASES = {
         NIGHT: 'night',
@@ -71,17 +75,48 @@ export function useNightPhase() {
         if (!entry) return false;
         const turnPlayers = entry.playerIds
         const alivePlayers = state.players.filter(p => turnPlayers.includes(p.id) && p.alive);
-        return alivePlayers.length == 0;
+        const deadPlayers = state.players.filter(p => turnPlayers.includes(p.id) && !p.alive);
+        
+        // Check if any dead players have roles that can act when dead
+        const deadPlayersWithDeadAction = deadPlayers.filter(p => {
+            const role = ROLES[p.roleId];
+            return role && role.actsAtNight === 'dead';
+        });
+        
+        // If there are dead players with roles that can act when dead, don't show generic dead prompt
+        if (deadPlayersWithDeadAction.length > 0) return false;
+        
+        // Only show dead prompt if all players are dead and none can act when dead
+        return alivePlayers.length === 0;
     });
 
     const shouldShowAlivePrompt = computed(() => {
         const entry = currentTurn.value;
         if (!entry) return false;
         
-        const deadMembers = state.players.filter((p) => 
-            entry.playerIds.includes(p.id) && p.alive && p.roleState?.actsAtNight === 'dead'
+        const aliveMembers = state.players.filter((p) => 
+            entry.playerIds.includes(p.id) && p.alive
         );
-        return deadMembers.length > 0;
+        
+        const deadMembers = state.players.filter((p) => 
+            entry.playerIds.includes(p.id) && !p.alive
+        );
+        
+        // Check if there are alive players whose roles require them to be dead to act
+        const aliveMembersWithDeadAction = aliveMembers.filter((p) => {
+            const role = ROLES[p.roleId];
+            return role && role.actsAtNight === 'dead';
+        });
+        
+        // Check if there are dead players whose roles can act when dead
+        const deadMembersWithDeadAction = deadMembers.filter((p) => {
+            const role = ROLES[p.roleId];
+            return role && role.actsAtNight === 'dead';
+        });
+        
+        // Only show alive prompt if there are alive players with dead-action roles
+        // AND no dead players can act (so the role-specific prompt won't show)
+        return aliveMembersWithDeadAction.length > 0 && deadMembersWithDeadAction.length === 0;
     });
 
     const shouldShowBlockedPrompt = computed(() => {
@@ -173,8 +208,8 @@ export function useNightPhase() {
         
         const factionConfig = getFactionConfig(role.team);
         return {
-            name: role.name,
-            faction: factionConfig?.displayName || role.team,
+            name: getRoleDisplayName(role.id, t),
+            faction: getFactionDisplayName(role.team, t),
             color: factionConfig?.color || GAME_CONSTANTS.DEFAULT_ROLE_COLOR
         };
     });

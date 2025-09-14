@@ -3,12 +3,15 @@ import { computed, ref } from 'vue';
 import { useGameStore } from '../../../stores/game';
 import SecondaryButton from '../SecondaryButton.vue';
 import PrimaryButton from '../PrimaryButton.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     title: { type: String, required: true },
     description: { type: String, required: true },
     label: { type: String, required: true },
-    buttonText: { type: String, default: 'Conferma selezione' },
+    buttonText: { type: String, default: 'rolePrompts.confirmSelection' },
     accent: { type: String, default: 'blue' },
     onComplete: { type: Function, required: true },
     disabled: { type: Boolean, default: false },
@@ -56,7 +59,7 @@ function submit() {
             <h3 class="text-lg font-semibold text-white">{{ title }}</h3>
             <p class="text-neutral-400 text-base font-medium">{{ description }}</p>
             <p v-if="minTargets > 0 || maxTargets < Infinity" class="text-sm text-neutral-500">
-                Seleziona tra {{ minTargets }} e {{ maxTargets === Infinity ? '∞' : maxTargets }} giocatori
+                {{ t('rolePrompts.selectBetweenPlayers', { min: minTargets, max: maxTargets === Infinity ? '∞' : maxTargets }) }}
             </p>
         </div>
         
@@ -85,7 +88,7 @@ function submit() {
         
         <div v-if="selectedPlayers.length > 0" class="space-y-3">
             <div class="text-center">
-                <p class="text-sm text-neutral-400">Selezionati ({{ selectedPlayers.length }}):</p>
+                <p class="text-sm text-neutral-400">{{ t('rolePrompts.selectedPlayers', { count: selectedPlayers.length }) }}</p>
                 <p class="text-white font-medium">
                     {{ selectedPlayers.map(p => p.label).join(', ') }}
                 </p>
@@ -93,7 +96,7 @@ function submit() {
             
             <div class="flex gap-2 justify-center">
                 <SecondaryButton @click="clearSelection" :disabled="disabled">
-                    Cancella
+                    {{ t('rolePrompts.clear') }}
                 </SecondaryButton>
                 
                 <PrimaryButton
@@ -101,13 +104,13 @@ function submit() {
                     :disabled="!canSubmit || disabled"
                     :class="accent"
                 >
-                    {{ buttonText }}
+                    {{ t(buttonText) }}
                 </PrimaryButton>
             </div>
         </div>
         
         <div v-else class="text-center">
-            <p class="text-neutral-500 text-sm">Seleziona almeno {{ minTargets }} giocatore{{ minTargets !== 1 ? 'i' : '' }}</p>
+            <p class="text-neutral-500 text-sm">{{ t('rolePrompts.selectAtLeastPlayers', { count: minTargets }) }}</p>
         </div>
     </div>
 </template>

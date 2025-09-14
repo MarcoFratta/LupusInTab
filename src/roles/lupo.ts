@@ -5,20 +5,14 @@ import { RoleAPI } from "../utils/roleAPI";
 
 const lupo: RoleDef = {
     id: 'lupo',
-    name: 'Lupo',
+    name: 'roleNames.lupo',
     team: 'lupi',
     icon: 'LupoIcon',
     score: 10,
     visibleAsTeam: 'lupi',
     countAs: 'lupi',
-    description: 'Uccide un giocatore ogni notte',
-    longDescription: `Il Lupo è il ruolo più temuto del gioco, il cuore dell'alleanza dei lupi.
-
-COME FUNZIONA:
-• Ogni notte deve scegliere una vittima da uccidere
-• L'azione è obbligatoria: non può saltare una notte
-• Può uccidere qualsiasi giocatore vivo, inclusi altri lupi se necessario
-• La vittima muore all'alba e non può più partecipare al gioco`,
+    description: 'roleDescriptions.lupo',
+    longDescription: 'roleDescriptions.lupoLong',
     color: '#4c1d95',
     phaseOrder: 1,
     actsAtNight: "alive",

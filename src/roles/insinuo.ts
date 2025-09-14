@@ -4,20 +4,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 export const insinuo: RoleDef = {
 	id: 'insinuo',
-	name: 'Insinuo',
+	name: 'roleNames.insinuo',
 	team: 'lupi',
 	visibleAsTeam: 'villaggio',
 	score: 3,
 	countAs: 'villaggio',
 	color: '#8b5cf6',
-	description: 'Cambia la fazione visibile di un giocatore',
-    longDescription: `L'Insinuo può modificare come un giocatore appare alle investigazioni.
-
-COME FUNZIONA:
-• Di notte può scegliere un giocatore da modificare
-• Cambia la fazione visibile del giocatore per le investigazioni
-• L'effetto dura per il resto della partita
-• L'azione è obbligatoria: deve modificare un giocatore ogni notte`,
+	description: 'roleDescriptions.insinuo',
+    longDescription: 'roleDescriptions.insinuoLong',
 	phaseOrder: 1,
 	actsAtNight: "alive",
 	effectType: 'required',

@@ -1,5 +1,6 @@
 export { useGameLogic } from './useGameLogic';
 export { useGameState } from './useGameState';
+export { useI18n } from './useI18n';
 export { useNightPhase } from './useNightPhase';
 export { useNewRolesPopup } from './useNewRolesPopup';
 export { useTeamBalance } from './useTeamBalance';

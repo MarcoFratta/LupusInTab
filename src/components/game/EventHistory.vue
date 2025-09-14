@@ -3,6 +3,9 @@ import { computed, ref, onMounted, onUpdated, nextTick } from 'vue';
 import EventCard from '../ui/EventCard.vue';
 import GhostButton from '../ui/GhostButton.vue';
 import NightDetailsGrid from '../ui/NightDetailsGrid.vue';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 interface Props {
   state: any;
@@ -139,13 +142,13 @@ window.addEventListener('resize', updateTimelineLine);
           <div class="relative">
             <div class="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 blur-3xl rounded-full"></div>
             <h2 class="relative text-2xl md:text-3xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-              Storico Eventi
+              {{ t('eventHistory.title') }}
             </h2>
           </div>
           <div class="w-16 h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full"></div>
         </div>
         <GhostButton size="sm" @click="props.onClose">
-          ✕ Chiudi
+          ✕ {{ t('common.close') }}
         </GhostButton>
       </div>
       
@@ -185,19 +188,19 @@ window.addEventListener('resize', updateTimelineLine);
                 
                 <div class="mt-3 flex flex-col items-center">
                   <div class="text-sm sm:text-xs font-medium text-neutral-300 text-center">
-                    Giorno {{ day.day }}
+                    {{ t('eventHistory.day', { day: day.day }) }}
                   </div>
                   
                   <div class="flex gap-1 mt-2">
                     <div 
                       v-if="day.nightSummary.died.length > 0"
                       class="w-2 h-2 rounded-full bg-red-400"
-                      :title="`${day.nightSummary.died.length} morti`"
+                      :title="t('eventHistory.deathsCount', { count: day.nightSummary.died.length })"
                     ></div>
                     <div 
                       v-if="lynchHistoryByDay[day.day]"
                       class="w-2 h-2 rounded-full bg-amber-400"
-                      title="Linciaggio"
+                      :title="t('eventHistory.lynching')"
                     ></div>
                   </div>
                 </div>
@@ -222,9 +225,9 @@ window.addEventListener('resize', updateTimelineLine);
                 </div>
                 <div class="text-center">
                   <div class="font-bold text-lg bg-gradient-to-r from-violet-300 to-fuchsia-300 bg-clip-text text-transparent">
-                    Notte {{ currentDay.night }}
+                    {{ t('eventHistory.night', { night: currentDay.night }) }}
                   </div>
-                  <div class="text-neutral-400 text-sm font-medium">Risultati</div>
+                  <div class="text-neutral-400 text-sm font-medium">{{ t('eventHistory.results') }}</div>
                 </div>
               </div>
               
@@ -232,15 +235,15 @@ window.addEventListener('resize', updateTimelineLine);
                 <div class="flex items-center justify-center gap-3 mb-4">
                   <div class="flex items-center gap-2">
                     <div class="w-4 h-4 rounded-full bg-red-400 shadow-sm"></div>
-                    <span class="text-sm font-semibold text-neutral-200">Morti</span>
+                    <span class="text-sm font-semibold text-neutral-200">{{ t('eventHistory.deaths') }}</span>
                     <span class="text-xs text-neutral-400 bg-neutral-700/50 px-2 py-1 rounded-full">({{ currentDay.nightSummary.died.length }})</span>
                   </div>
                 </div>
                 
                 <div v-if="currentDay.nightSummary.died.length === 0" class="text-center py-2">
                   <div class="text-neutral-400 text-sm mb-2">🌅</div>
-                  <div class="text-neutral-400 text-xs font-medium">Nessun morto</div>
-                  <div class="text-neutral-500 text-xs">La notte è stata tranquilla</div>
+                  <div class="text-neutral-400 text-xs font-medium">{{ t('eventHistory.noDeaths') }}</div>
+                  <div class="text-neutral-500 text-xs">{{ t('eventHistory.peacefulNight') }}</div>
                 </div>
                 
                 <div v-else class="space-y-3">
@@ -265,7 +268,7 @@ window.addEventListener('resize', updateTimelineLine);
                 >
                   <div class="flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-violet-400/60"></div>
-                    <span class="text-sm font-medium">Dettagli notturni</span>
+                    <span class="text-sm font-medium">{{ t('eventHistory.nightDetails') }}</span>
                   </div>
                   <div class="w-5 h-5 rounded-full bg-neutral-600/50 flex items-center justify-center transition-all duration-200 group-hover:bg-neutral-500/50">
                     <span class="text-xs font-bold transition-transform duration-300 ease-in-out transform-gpu leading-none" :class="{ '-rotate-90': showDetails }" style="transform-origin: center;">◀</span>
@@ -303,9 +306,9 @@ window.addEventListener('resize', updateTimelineLine);
                 </div>
                 <div class="text-center">
                   <div class="font-bold text-lg bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
-                    Giorno {{ currentDay.day }}
+                    {{ t('eventHistory.day', { day: currentDay.day }) }}
                   </div>
-                  <div class="text-neutral-400 text-sm font-medium">Votazione</div>
+                  <div class="text-neutral-400 text-sm font-medium">{{ t('eventHistory.voting') }}</div>
                 </div>
               </div>
               
@@ -313,13 +316,13 @@ window.addEventListener('resize', updateTimelineLine);
                 <div class="flex items-center justify-center gap-3 mb-4">
                   <div class="flex items-center gap-2">
                     <div class="w-4 h-4 rounded-full bg-amber-400 shadow-sm"></div>
-                    <span class="text-sm font-semibold text-neutral-200">Linciaggio</span>
+                    <span class="text-sm font-semibold text-neutral-200">{{ t('eventHistory.lynching') }}</span>
                   </div>
                 </div>
                 
                 <div v-if="!lynchHistoryByDay[currentDay.day] || lynchHistoryByDay[currentDay.day].length === 0" class="text-center py-6">
                   <div class="text-neutral-400 text-sm mb-2">🤝</div>
-                  <div class="text-neutral-400 text-xs font-medium">Nessun linciaggio</div>
+                  <div class="text-neutral-400 text-xs font-medium">{{ t('eventHistory.noLynching') }}</div>
                 </div>
                 
                 <div v-else class="text-center">
@@ -336,7 +339,7 @@ window.addEventListener('resize', updateTimelineLine);
       </div>
       
       <div v-if="timelineDays.length === 0" class="relative bg-neutral-900/80 backdrop-blur-sm border border-neutral-800/40 rounded-2xl p-8 text-center">
-        <div class="text-neutral-400">Nessun evento registrato.</div>
+        <div class="text-neutral-400">{{ t('eventHistory.noEvents') }}</div>
       </div>
     </div>
   </div>

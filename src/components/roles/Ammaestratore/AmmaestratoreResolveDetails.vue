@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({ 
   gameState: { type: Object, required: true }, 
@@ -40,10 +43,10 @@ const targetPlayer = computed(() => {
         :game-state="props.gameState"
         :left-player="ammaestratorePlayers"
         :right-player="targetPlayer"
-        left-label="Ammaestratore"
-        right-label="Bersaglio"
+        :left-label="t('resolveDetails.ammaestratore')"
+        :right-label="t('resolveDetails.target')"
         :center-content="{
-          action: redirectInfo.result === 'blocked' ? 'ha bloccato gli attacchi' : 'ha reindirizzato gli attacchi verso'
+          action: redirectInfo.result === 'blocked' ? t('resolveDetails.blockedAttacks') : t('resolveDetails.redirectedAttacksTo')
         }"
       />
     </div>

@@ -10,36 +10,36 @@ export const GAME_CONSTANTS = {
   },
   PROMPT_MESSAGES: {
     FIRST_NIGHT_SKIPPED: {
-      title: 'La prima notte è tranquilla. Gli effetti sono ignorati.',
-      buttonText: 'Salta'
+      title: 'promptMessages.firstNightSkipped.title',
+      buttonText: 'promptMessages.firstNightSkipped.buttonText'
     },
     DEAD: {
-      title: 'Tutti i giocatori con questo ruolo sono morti',
-      subtitle: 'Non possono usare il loro ruolo questa notte',
-      buttonText: 'Continua'
+      title: 'promptMessages.dead.title',
+      subtitle: 'promptMessages.dead.subtitle',
+      buttonText: 'promptMessages.dead.buttonText'
     },
     ALIVE: {
-      title: 'I giocatori con questo ruolo sono vivi',
-      subtitle: 'Devono essere morti per usare il loro ruolo',
-      buttonText: 'Continua'
+      title: 'promptMessages.alive.title',
+      subtitle: 'promptMessages.alive.subtitle',
+      buttonText: 'promptMessages.alive.buttonText'
     },
     BLOCKED: {
-      title: 'Tutti i giocatori con questo ruolo sono bloccati',
-      subtitle: 'Qualcuno ha bloccato il loro ruolo',
-      buttonText: 'Continua'
+      title: 'promptMessages.blocked.title',
+      subtitle: 'promptMessages.blocked.subtitle',
+      buttonText: 'promptMessages.blocked.buttonText'
     },
     START_NIGHT: {
-      title: 'Non è ancora il momento',
-      buttonText: 'Continua'
+      title: 'promptMessages.startNight.title',
+      buttonText: 'promptMessages.startNight.buttonText'
     },
     USAGE_LIMIT: {
-      title: 'Limite di utilizzo raggiunto',
-      subtitle: 'Questo ruolo è già stato usato il massimo numero di volte',
-      buttonText: 'Continua'
+      title: 'promptMessages.usageLimit.title',
+      subtitle: 'promptMessages.usageLimit.subtitle',
+      buttonText: 'promptMessages.usageLimit.buttonText'
     },
     NO_ACTION: {
-      title: 'Nessuna azione richiesta per questo ruolo',
-      buttonText: 'Continua'
+      title: 'promptMessages.noAction.title',
+      buttonText: 'promptMessages.noAction.buttonText'
     }
   }
 } as const;

@@ -21,6 +21,7 @@ export { default as SkipConfirmButtons } from './SkipConfirmButtons.vue';
 export { default as DiscussionTimer } from './DiscussionTimer.vue';
 export { default as SetupTitle } from './SetupTitle.vue';
 export { default as LongPressButton } from './LongPressButton.vue';
+export { default as LanguageSwitcher } from './LanguageSwitcher.vue';
 export { default as NewRolesPopup } from './NewRolesPopup.vue';
 export { default as PassPhoneCard } from './PassPhoneCard.vue';
 export * from './prompts';

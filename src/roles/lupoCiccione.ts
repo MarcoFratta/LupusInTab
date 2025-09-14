@@ -4,20 +4,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 export const lupoCiccione: RoleDef = {
 	id: 'lupoCiccione',
-	name: 'Lupo Ciccione',
+	name: 'roleNames.lupoCiccione',
 	team: 'lupi',
 	visibleAsTeam: 'lupi',
 	score: 15,
 	countAs: 'lupi',
 	color: '#dc2626',
-	description: 'È un lupo che confonde le investigazioni',
-    longDescription: `Il Lupo Ciccione è un lupo che disturba le investigazioni.
-
-COME FUNZIONA:
-• È un lupo a tutti gli effetti
-• I primi giocatori vivi alla sua destra e sinistra appaiono come lupi alle investigazioni
-• Non può agire di notte (agisce con gli altri lupi)
-• L'effetto è passivo e permanente`,
+	description: 'roleDescriptions.lupoCiccione',
+    longDescription: 'roleDescriptions.lupoCiccioneLong',
 	phaseOrder: 0,
 	actsAtNight: "never",
 	effectType: 'optional',

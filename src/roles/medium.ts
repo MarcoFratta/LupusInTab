@@ -7,19 +7,13 @@ import { GameStateManager } from '../core/managers/GameStateManager';
 
 const medium: RoleDef = {
     id: 'medium',
-    name: 'Medium',
+    name: 'roleNames.medium',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
     score: 5,
     countAs: 'villaggio',
-    description: 'Comunica con i morti ogni notte',
-    longDescription: `Il Medium può comunicare con i giocatori morti per ottenere informazioni.
-
-COME FUNZIONA:
-• Ogni notte può scegliere un giocatore morto con cui comunicare
-• Scopre per chi giocava il giocatore morto
-• L'azione è obbligatoria: deve agire ogni notte
-• I risultati vengono mostrati solo al Medium`,
+    description: 'roleDescriptions.medium',
+    longDescription: 'roleDescriptions.mediumLong',
     color: '#f3e8ff',
     phaseOrder: "any",
     actsAtNight: "alive",

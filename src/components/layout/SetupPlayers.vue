@@ -3,7 +3,10 @@ import { computed, watch } from 'vue';
 import { useGameStore } from '../../stores/game';
 import { initSetupPlayers as engineInitSetupPlayers, resizePlayers as engineResizePlayers, normalizeRoleCounts as engineNormalizeRoleCounts } from '../../core/engine';
 import { loadPlayersSetup } from '../../utils/storage';
+import { useI18n } from '../../composables/useI18n';
 import { SetupTitle } from '../ui';
+
+const { t } = useI18n();
 
 const store = useGameStore();
 const state = store.state as any;
@@ -30,12 +33,12 @@ const getDuplicateNameError = (playerName: string) => {
     p.name?.trim().toLowerCase() === trimmedName
   ).length;
   
-  return count > 1 ? 'Nome duplicato' : null;
+  return count > 1 ? t('players.duplicateName') : null;
 };
 
 const getCharacterLengthError = (playerName: string) => {
   if (!playerName) return null;
-  return playerName.length > 15 ? 'Nome troppo lungo (max 15 caratteri)' : null;
+  return playerName.length > 15 ? t('players.nameTooLong') : null;
 };
 
 const getPlayerNameError = (playerName: string) => {
@@ -55,7 +58,7 @@ function resetNames() {
 }
 
 function addPlayer() {
-  state.setup.players.push({ name: `Giocatore ${state.setup.players.length + 1}` });
+  state.setup.players.push({ name: t('players.placeholder', { number: state.setup.players.length + 1 }) });
   state.setup.numPlayers = state.setup.players.length;
   engineNormalizeRoleCounts(state);
 }
@@ -93,14 +96,14 @@ function movePlayerDown(index: number) {
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
     <SetupTitle 
-      title="Gestione Giocatori"
-      subtitle="Inserisci i nomi nello stesso ordine in cui siete posizionati"
+      :title="t('players.title')"
+      :subtitle="t('players.subtitle')"
     />
     
     <div class="flex items-center justify-center gap-3">
       <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500/10 border border-violet-500/20">
         <div class="w-3 h-3 rounded-full bg-violet-500"></div>
-        <span class="text-sm font-medium text-neutral-200">Giocatori</span>
+        <span class="text-sm font-medium text-neutral-200">{{ t('players.players') }}</span>
         <span class="text-sm font-bold text-violet-400">{{ playerCount }}</span>
       </div>
     </div>
@@ -110,7 +113,7 @@ function movePlayerDown(index: number) {
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
         </svg>
-        <span class="text-sm font-medium">Risolvi gli errori nei nomi per continuare</span>
+        <span class="text-sm font-medium">{{ t('players.nameErrors') }}</span>
       </div>
     </div>
 
@@ -132,7 +135,7 @@ function movePlayerDown(index: number) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6"/>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 20v-6h-6"/>
             </svg>
-            <span class="font-medium">Reset</span>
+            <span class="font-medium">{{ t('players.reset') }}</span>
           </div>
         </button>
         
@@ -149,7 +152,7 @@ function movePlayerDown(index: number) {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m-7-7h14"/>
             </svg>
-            <span class="font-medium">Aggiungi</span>
+            <span class="font-medium">{{ t('players.addPlayer') }}</span>
           </div>
           
           <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -172,7 +175,7 @@ function movePlayerDown(index: number) {
                 class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700/40 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                 :disabled="index === 0"
                 @click="movePlayerUp(index)"
-                title="Sposta giocatore in alto"
+                :title="t('players.moveUp')"
               >
                 <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
@@ -182,7 +185,7 @@ function movePlayerDown(index: number) {
                 class="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-lg text-neutral-500 hover:text-neutral-300 hover:bg-neutral-700/40 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
                 :disabled="index === state.setup.players.length - 1"
                 @click="movePlayerDown(index)"
-                title="Sposta giocatore in basso"
+                :title="t('players.moveDown')"
               >
                 <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -198,7 +201,7 @@ function movePlayerDown(index: number) {
                 :class="{
                   'border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50': getPlayerNameError(player.name)
                 }"
-                :placeholder="`Giocatore ${index + 1}`"
+                :placeholder="t('players.placeholder', { number: index + 1 })"
                 maxlength="15"
               />
               <div v-if="getPlayerNameError(player.name)" class="mt-1 text-red-400 text-xs flex items-center gap-1">
@@ -212,7 +215,7 @@ function movePlayerDown(index: number) {
             <button 
               class="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center rounded-lg border border-neutral-700/40 bg-neutral-800/40 text-neutral-400 hover:bg-red-500/20 hover:border-red-500/40 hover:text-red-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500/50"
               @click="removePlayer(index)"
-              title="Rimuovi giocatore"
+              :title="t('players.removePlayer')"
             >
               <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

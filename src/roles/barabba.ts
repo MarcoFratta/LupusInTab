@@ -5,19 +5,13 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const barabba: RoleDef = {
     id: 'barabba',
-    name: 'Barabba',
+    name: 'roleNames.barabba',
     team: 'villaggio',
     visibleAsTeam: 'villaggio',
     score: 6,
     countAs: 'villaggio',
-    description: 'Porta un giocatore nell\'aldilà quando è morto',
-    longDescription: `Barabba può portare un giocatore nell'aldilà quando è morto.
-
-COME FUNZIONA:
-• Quando è morto, può portare con sé un giocatore nell'aldilà
-• L'azione è opzionale: può scegliere di non usarla
-• Può essere usata solo una volta per partita
-• Il giocatore scelto muore immediatamente`,
+    description: 'roleDescriptions.barabba',
+    longDescription: 'roleDescriptions.barabbaLong',
     color: '#c4b5fd',
     phaseOrder: "any",
     actsAtNight: "dead",

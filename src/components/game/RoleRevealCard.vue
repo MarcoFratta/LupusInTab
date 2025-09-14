@@ -3,6 +3,9 @@ import { getFactionConfig } from '../../factions';
 import FactionLabel from '../ui/FactionLabel.vue';
 import { LongPressButton } from '../ui';
 import * as RoleIcons from '../roles/icons';
+import { useI18n } from '../../composables/useI18n';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { getRoleDisplayName, getRoleDescription } from '../../utils/roleUtils';
 
 const props = defineProps<{
   player: any;
@@ -14,6 +17,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   next: [];
 }>();
+
+const { t } = useI18n();
 
 function handleNext() {
   emit('next');
@@ -31,28 +36,28 @@ function handleNext() {
           </div> -->
           <div class="text-2xl md:text-3xl font-extrabold tracking-tight mb-2" 
                :style="{ color: getFactionConfig(roleDef.team)?.color || '#e5e7eb' }">
-            {{ roleDef.name }}
+            {{ getRoleDisplayName(roleDef.id, t) }}
           </div>
           <div v-if="roleDef.description" class="text-neutral-300 text-sm md:text-base leading-relaxed max-w-md mx-auto mb-4">
-            {{ roleDef.description }}
+            {{ getRoleDescription(roleDef.id, t) }}
           </div>
           
           <div class="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-neutral-800/40 border border-neutral-700/40">
-            <span class="text-neutral-200 font-medium">La tua fazione</span>
-            <FactionLabel :team="roleDef.team" :labelText="getFactionConfig(roleDef.team)?.displayName || roleDef.team" size="lg" />
+            <span class="text-neutral-200 font-medium">{{ t('phaseReveal.yourFaction') }}</span>
+            <FactionLabel :team="roleDef.team" :labelText="getFactionDisplayName(roleDef.team, t)" size="lg" />
           </div>
         </div>
 
         <div v-if="(props.knownRoleAllies && props.knownRoleAllies.length) || (props.knownTeamAllies && props.knownTeamAllies.length)" class="pt-4 border-t border-neutral-700/40">
           <div class="text-center mb-4">
-            <h4 class="text-base md:text-lg font-semibold text-neutral-200 mb-2">Le tue informazioni</h4>
+            <h4 class="text-base md:text-lg font-semibold text-neutral-200 mb-2">{{ t('phaseReveal.yourInformation') }}</h4>
             <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500/50 to-fuchsia-500/50 mx-auto rounded-full"></div>
           </div>
           
           <div v-if="props.knownRoleAllies && props.knownRoleAllies.length" class="mb-4 last:mb-0">
             <div class="text-neutral-300 text-sm font-medium mb-2 flex items-center gap-2">
               <div class="w-1 h-4 rounded-full bg-violet-400"></div>
-              Vi conoscete a vicenda ({{ props.knownRoleAllies.length }})
+              {{ t('phaseReveal.youKnowEachOther') }} ({{ props.knownRoleAllies.length }})
             </div>
             <div class="space-y-2">
               <div v-for="p in props.knownRoleAllies" :key="p.id" class="flex items-center justify-between p-3 bg-neutral-800/40 border border-neutral-700/40 rounded-lg hover:bg-neutral-800/60 transition-colors">
@@ -65,7 +70,7 @@ function handleNext() {
           <div v-if="props.knownTeamAllies && props.knownTeamAllies.length">
             <div class="text-neutral-300 text-sm font-medium mb-2 flex items-center gap-2">
               <div class="w-1 h-4 rounded-full bg-fuchsia-400"></div>
-              Tu conosci loro ({{ props.knownTeamAllies.length }})
+              {{ t('phaseReveal.youKnowThem') }} ({{ props.knownTeamAllies.length }})
             </div>
             <div class="space-y-2">
               <div v-for="p in props.knownTeamAllies" :key="p.id" class="flex items-center justify-between p-3 bg-neutral-800/40 border border-neutral-700/40 rounded-lg hover:bg-neutral-800/60 transition-colors">
@@ -78,7 +83,7 @@ function handleNext() {
 
         <!-- Prossimo button inside the card -->
         <div class="pt-4">
-          <div class="text-xs text-neutral-400 mb-2 text-center">tieni premuto per continuare</div>
+          <div class="text-xs text-neutral-400 mb-2 text-center">{{ t('phaseReveal.holdToContinue') }}</div>
           <LongPressButton 
             size="lg"
             fullWidth
@@ -87,7 +92,7 @@ function handleNext() {
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
             </svg>
-            Prossimo
+            {{ t('phaseReveal.next') }}
           </LongPressButton>
         </div>
       </div>
@@ -103,7 +108,7 @@ function handleNext() {
           </svg>
         </div>
         <div>
-          <div class="text-xl md:text-2xl font-extrabold tracking-tight text-neutral-200 mb-1">Ruolo sconosciuto</div>
+          <div class="text-xl md:text-2xl font-extrabold tracking-tight text-neutral-200 mb-1">{{ t('phaseReveal.unknownRole') }}</div>
           <div class="text-neutral-400 text-xs md:text-sm">{{ player?.roleId }}</div>
         </div>
       </div>
@@ -117,7 +122,7 @@ function handleNext() {
         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
         </svg>
-        Tieni premuto per continuare
+        {{ t('phaseReveal.holdToContinue') }}
       </LongPressButton>
     </div>
   </div>

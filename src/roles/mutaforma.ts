@@ -56,24 +56,13 @@ function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutafor
 
 const mutaforma: RoleDef = {
     id: 'mutaforma',
-    name: 'Mutaforma',
+    name: 'roleNames.mutaforma',
     team: 'alieni',
     visibleAsTeam: 'villaggio',
     countAs: 'alieni',
     score: 35,
-    description: 'Copia il potere di un altro giocatore ogni notte',
-    longDescription: `La Mutaforma può copiare i poteri di altri giocatori.
-
-COME FUNZIONA:
-• Ogni notte può scegliere un giocatore e copiare il suo potere
-• Usa il potere del giocatore scelto per quella notte
-• Può copiare solo ruoli che possono agire di notte
-• L'azione è obbligatoria: deve copiare un potere ogni notte
-
-ATTENZIONE: 
-Se almeno una fazione perde tutti i suoi giocatori vivi, il mutaforma 
-non potrà usare il suo ruolo e morirà nella notte successiva.
-`,
+    description: 'roleDescriptions.mutaforma',
+    longDescription: 'roleDescriptions.mutaformaLong',
     color: '#10b981',
     phaseOrder: 2,
     actsAtNight: "alive",

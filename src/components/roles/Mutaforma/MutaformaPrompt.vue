@@ -3,6 +3,10 @@ import { computed, ref, defineAsyncComponent } from 'vue';
 import PromptSelect from '../../ui/prompts/PromptSelect.vue';
 import { ROLES } from '../../../roles';
 import { getFactionConfig } from '../../../factions';
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   gameState: any;
@@ -24,10 +28,10 @@ const selectable = computed(() => {
 });
 
 const choices = computed(() => [
-  { label: 'Seleziona un giocatore...', value: null },
+  { label: t('rolePrompts.selectPlayerPlaceholder'), value: null },
   ...selectable.value.map((p: any) => {
     const role = ROLES[p.roleId];
-    const roleName = role ? role.name : p.roleId;
+    const roleName = role ? getRoleDisplayName(role.id, t) : p.roleId;
     return { 
       label: `${p.name} (${roleName})`, 
       value: p.id 
@@ -221,7 +225,7 @@ function skip() {
       targetId: null, 
       skipped: true, 
       reason: 'mutaforma_passive_death',
-      message: 'Potere non utilizzato a causa della perdita di equilibrio tra le squadre'
+      message: t('roleDetails.powerNotUsedDueToImbalance')
     });
     return;
   }
@@ -272,25 +276,25 @@ function getRoleConstraintReason() {
 
   // Check if mutaforma players are dying due to passive effect
   if (hasPendingKills.value) {
-    return 'Non puoi utilizzare il tuo potere perché stai morendo a causa della perdita di equilibrio tra le squadre.';
+    return t('roleDetails.cannotUsePowerDying');
   }
 
   // Check if target player's roleState.actsAtNight is blocked
   if (targetPlayer.value?.roleState?.actsAtNight === 'blocked') {
-    return 'Il giocatore selezionato è bloccato e non può utilizzare il suo ruolo.';
+    return t('roleDetails.selectedPlayerBlocked');
   }
 
   // Check if target player is dead
   if (!targetPlayer.value?.alive) {
-    return 'Il giocatore selezionato è morto e non può utilizzare il suo ruolo.';
+    return t('roleDetails.selectedPlayerDead');
   }
 
   if (targetRole.value.actsAtNight === 'never') {
-    return 'Questo ruolo non può essere utilizzato durante la notte.';
+    return t('roleDetails.roleCannotBeUsedAtNight');
   }
 
   if (targetRole.value.actsAtNight === 'dead') {
-    return 'Questo ruolo richiede di essere morto per essere utilizzato.';
+    return t('roleDetails.roleRequiresDead');
   }
 
   if (targetRole.value.actsAtNight === 'alive') {
@@ -299,7 +303,7 @@ function getRoleConstraintReason() {
       return player && player.alive;
     });
     if (aliveMutaformaPlayers.length === 0) {
-      return 'Questo ruolo richiede che tu sia vivo per essere utilizzato.';
+      return t('roleDetails.roleRequiresAlive');
     }
   }
 
@@ -307,7 +311,7 @@ function getRoleConstraintReason() {
     const startNight = props.gameState.settings.skipFirstNightActions ? targetRole.value.startNight + 1 :
         targetRole.value.startNight;
     if (props.gameState.nightNumber < startNight) {
-      return `Questo ruolo può essere utilizzato solo a partire dalla notte ${startNight}.`;
+      return t('roleDetails.roleCanOnlyBeUsedFromNight', { night: startNight });
     }
   }
  console.log('checking -> ' + targetRole.value.id)
@@ -317,15 +321,15 @@ function getRoleConstraintReason() {
     const usedPowers = props.gameState.usedPowers?.[targetRole.value.id] || [];
     const timesUsed = usedPowers.length;
     if (timesUsed >= targetRole.value.numberOfUsage) {
-      return `Questo ruolo è già stato utilizzato il numero massimo di volte permesso.`;
+      return t('roleDetails.maxUsageReached');
     }
   }
 
   if (targetRole.value.actsAtNight === 'blocked') {
-    return 'Questo ruolo è bloccato da un altro giocatore o ha altre restrizioni.';
+    return t('roleDetails.roleBlockedByOther');
   }
 
-  return 'Questo ruolo non può essere utilizzato per motivi sconosciuti.';
+  return t('roleDetails.roleCannotBeUsedUnknown');
 }
 </script>
 
@@ -347,7 +351,7 @@ function getRoleConstraintReason() {
           </h3>
           <div class="w-12 h-0.5 bg-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full"></div>
           <p class="text-red-300 text-sm">
-            Non potete usare il vostro potere questa notte perché state morendo a causa della perdita di equilibrio tra le squadre
+            {{ t('roleDetails.cannotUsePowerDying') }}
           </p>
         </div>
         
@@ -356,26 +360,26 @@ function getRoleConstraintReason() {
             @click="skip"
             class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300"
           >
-            Continua senza potere
+            {{ t('rolePrompts.continueWithoutPower') }}
           </button>
         </div>
       </div>
       
       <div v-else class="text-center space-y-3">
         <div class="bg-violet-500/10 border border-violet-500/20 rounded-lg p-3 mb-4">
-          <p class="text-violet-300 text-sm font-medium">📢 Scegli un giocatore per copiare il suo ruolo</p>
+          <p class="text-violet-300 text-sm font-medium">📢 {{ t('rolePrompts.choosePlayerToCopy') }}</p>
         </div>
         <p class="text-neutral-400 text-base font-medium">
-          {{ hasPendingKills ? 'Il vostro potere è bloccato a causa della perdita di equilibrio tra le squadre' : 'Copia il potere di un altro giocatore per questa notte' }}
+          {{ hasPendingKills ? t('roleDetails.powerBlockedDueToImbalance') : t('roleDetails.copyAnotherPlayerPower') }}
         </p>
       </div>
 
       <PromptSelect
         v-if="!hasPendingKills"
-        :label="hasPendingKills ? 'Potere non disponibile - Squadra sbilanciata' : 'Mutaforma, scegli un giocatore per copiare il suo ruolo'"
+        :label="hasPendingKills ? t('rolePrompts.powerUnavailable') : t('rolePrompts.choosePlayerToCopy')"
         v-model="targetId"
         :choices="choices"
-        :buttonText="hasPendingKills ? 'Potere bloccato' : 'Copia Ruolo'"
+        :buttonText="hasPendingKills ? t('rolePrompts.powerBlocked') : t('rolePrompts.copyRole')"
         accent="emerald"
         :disabled="choices.length === 0 || hasPendingKills"
         @confirm="selectTarget"
@@ -386,16 +390,16 @@ function getRoleConstraintReason() {
     <div v-else-if="targetRole && showTargetRolePrompt" class="space-y-6">
       <div class="text-center space-y-3">
         <h3 class="text-lg sm:text-xl font-semibold text-neutral-100">
-          Ruolo copiato con successo
+          {{ t('roleDetails.roleCopiedSuccessfully') }}
         </h3>
         <div class="w-12 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-400 mx-auto rounded-full"></div>
         <p class="text-neutral-300 text-sm">
-          Ruolo copiato:
+          {{ t('roleDetails.copiedRole') }}:
           <span 
             class="font-medium"
             :style="{ color: targetRoleFactionColor }"
           >
-            {{ targetRole?.name || 'Sconosciuto' }}
+            {{ targetRole ? getRoleDisplayName(targetRole.id, t) : t('common.unknown') }}
           </span>
         </p>
       </div>
@@ -407,7 +411,7 @@ function getRoleConstraintReason() {
           :disabled="hasPendingKills"
           class="btn btn-ghost text-sm text-neutral-400 hover:text-neutral-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Scegli un altro ruolo
+          {{ t('rolePrompts.chooseAnotherRole') }}
         </button>
       </div>
 
@@ -421,11 +425,11 @@ function getRoleConstraintReason() {
         
         <div class="space-y-3 mb-6">
           <h3 class="text-lg sm:text-xl font-semibold text-amber-100">
-            Ruolo non utilizzabile
+            {{ t('roleDetails.roleNotUsable') }}
           </h3>
           <div class="w-12 h-0.5 bg-gradient-to-r from-amber-500 to-amber-400 mx-auto rounded-full"></div>
           <p class="text-amber-300 text-sm">
-            {{ hasPendingKills ? 'Non puoi utilizzare il tuo potere perché stai morendo a causa della perdita di equilibrio tra le squadre' : getRoleConstraintReason() }}
+            {{ hasPendingKills ? t('roleDetails.cannotUsePowerDying') : getRoleConstraintReason() }}
           </p>
         </div>
         
@@ -433,7 +437,7 @@ function getRoleConstraintReason() {
           @click="completeWithUnusableRole"
           class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 transform hover:scale-105 active:scale-95 transition-all duration-300"
         >
-          {{ hasPendingKills ? 'Continua' : 'Continua' }}
+          {{ t('rolePrompts.continue') }}
         </button>
       </div>
 
@@ -458,11 +462,11 @@ function getRoleConstraintReason() {
       
       <div class="space-y-3">
         <h3 class="text-lg sm:text-xl font-semibold text-neutral-100">
-          {{ hasPendingKills ? 'Potere non disponibile' : 'Ruolo non utilizzabile' }}
+          {{ hasPendingKills ? t('roleDetails.powerNotAvailable') : t('roleDetails.roleNotUsable') }}
         </h3>
         <div class="w-12 h-0.5 bg-gradient-to-r from-neutral-500 to-neutral-400 mx-auto rounded-full"></div>
         <p class="text-neutral-300 text-sm">
-          {{ hasPendingKills ? 'Non puoi utilizzare il tuo potere perché stai morendo' : 'Il ruolo selezionato non può essere utilizzato' }}
+          {{ hasPendingKills ? t('roleDetails.cannotUsePowerDyingShort') : t('roleDetails.selectedRoleCannotBeUsed') }}
         </p>
       </div>
       
@@ -471,7 +475,7 @@ function getRoleConstraintReason() {
         :disabled="hasPendingKills"
         class="btn btn-secondary w-full py-3 text-lg font-semibold rounded-2xl shadow-xl shadow-neutral-500/30 hover:shadow-2xl hover:shadow-neutral-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {{ hasPendingKills ? 'Continua' : 'Torna alla selezione' }}
+        {{ hasPendingKills ? t('rolePrompts.continue') : t('rolePrompts.backToSelection') }}
       </button>
     </div>
   </div>

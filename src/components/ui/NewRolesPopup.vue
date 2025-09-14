@@ -6,10 +6,10 @@
 				<div class="absolute inset-0 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 rounded-t-2xl"></div>
 				<div class="relative">
 					<h2 class="text-2xl font-bold text-center bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-						Nuovi Ruoli Disponibili!
+						{{ t('newRoles.title') }}
 					</h2>
 					<p class="text-neutral-300 text-center text-sm mt-2">
-						Sono arrivati nuovi ruoli nel villaggio! Ecco cosa c'è di nuovo:
+						{{ t('newRoles.description') }}
 					</p>
 				</div>
 			</div>
@@ -60,6 +60,8 @@ import { computed } from 'vue';
 import { ROLES } from '../../roles';
 import { getFactionConfig } from '../../factions';
 import { hexToRgba } from '../../utils/color';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { useI18n } from '../../composables/useI18n';
 
 interface Props {
 	show: boolean;
@@ -72,6 +74,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const { t } = useI18n();
 
 const getRoleName = (roleId: string): string => {
 	return ROLES[roleId]?.name || roleId;
@@ -79,8 +82,7 @@ const getRoleName = (roleId: string): string => {
 
 const getFactionName = (roleId: string): string => {
 	const role = ROLES[roleId];
-	const faction = getFactionConfig(role?.team);
-	return faction?.displayName || role?.team || 'Sconosciuto';
+	return getFactionDisplayName(role?.team, t) || 'Sconosciuto';
 };
 
 const getFactionColor = (roleId: string): string => {

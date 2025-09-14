@@ -4,18 +4,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const massone: RoleDef = {
 	id: 'massone',
-	name: 'Massone',
+	name: 'roleNames.massone',
 	team: 'villaggio',
 	icon: 'MassoneIcon',
     score: 3,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Conosce gli altri massoni',
-    longDescription: `Il Massone è un membro del villaggio che conosce gli altri massoni.
-
-COME FUNZIONA:
-• Conosce gli altri massoni durante la fase di rivelazione
-• Non ha poteri speciali di notte`,
+    description: 'roleDescriptions.massone',
+    longDescription: 'roleDescriptions.massoneLong',
     color: '#a78bfa',
     phaseOrder: "any",
     actsAtNight: "never",

@@ -1,6 +1,9 @@
 <script setup>
 import { computed } from 'vue';
 import RoleComparisonCard from '../../ui/RoleComparisonCard.vue';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({ 
   gameState: { type: Object, required: true },
@@ -33,8 +36,8 @@ const wolfNames = computed(() => {
 // Get the correct action text based on number of wolves
 const attackAction = computed(() => {
   const wolvesList = wolves.value;
-  if (!wolvesList || wolvesList.length === 0) return 'ha attaccato';
-  return wolvesList.length === 1 ? 'ha attaccato' : 'hanno attaccato';
+  if (!wolvesList || wolvesList.length === 0) return t('resolveDetails.attacked');
+  return wolvesList.length === 1 ? t('resolveDetails.attacked') : t('resolveDetails.attackedPlural');
 });
 </script>
 
@@ -42,10 +45,10 @@ const attackAction = computed(() => {
   <div class="space-y-4">
     <div v-if="!wolfKills || wolfKills.length === 0" class="p-4 rounded-xl bg-neutral-800/40 border border-neutral-700/40 text-center">
       <p class="text-neutral-400 text-base font-medium">
-        Nessun attacco effettuato
+        {{ t('resolveDetails.noAttack') }}
       </p>
       <p class="text-neutral-500 text-sm mt-1">
-        I Lupi hanno scelto di non attaccare nessuno
+        {{ t('resolveDetails.wolvesChoseNotToAttack') }}
       </p>
     </div>
     
@@ -54,8 +57,8 @@ const attackAction = computed(() => {
         :game-state="props.gameState"
         :left-player="wolves"
         :right-player="wolfKills.map(id => props.gameState.players.find(p => p.id === id)).filter(Boolean)"
-        left-label="Lupi"
-        right-label="Bersagli"
+        :left-label="t('resolveDetails.wolves')"
+        :right-label="t('resolveDetails.targets')"
         :center-content="{
           action: attackAction
         }"

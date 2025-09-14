@@ -12,7 +12,10 @@ import GhostButton from './components/ui/GhostButton.vue';
 import ButtonGroup from './components/ui/ButtonGroup.vue';
 import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
-import { useNewRolesPopup } from './composables';
+import { useNewRolesPopup, useI18n } from './composables';
+import { LanguageSwitcher } from './components/ui';
+
+const { t } = useI18n();
 
 
 const savedGameAtBoot = loadGameState();
@@ -145,14 +148,14 @@ async function resumeGameLocal() {
 	<div v-if="showUpdateNotification" class="fixed top-4 left-4 right-4 z-50 bg-violet-600 text-white p-4 rounded-lg shadow-lg">
 		<div class="flex items-center justify-between">
 			<div>
-				<h3 class="font-semibold">App Update Available</h3>
-				<p class="text-sm opacity-90">A new version of the app is ready. Refresh to get the latest features.</p>
+				<h3 class="font-semibold">{{ t('updates.available') }}</h3>
+				<p class="text-sm opacity-90">{{ t('updates.description') }}</p>
 			</div>
 			<button 
 				@click="refreshApp" 
 				class="bg-white text-violet-600 px-4 py-2 rounded-lg font-medium hover:bg-violet-50 transition-colors"
 			>
-				Refresh Now
+				{{ t('updates.refreshNow') }}
 			</button>
 		</div>
 	</div>
@@ -162,19 +165,18 @@ async function resumeGameLocal() {
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl
 	 backdrop-blur-sm sm:p-4 md:p-6 lg:p-8 text-neutral-200 capacitor-mobile"
        :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
-
 		<!-- Resume banner -->
 		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" 
 		class="bg-neutral-800/50 sm:border mt-4
 		 sm:border-neutral-800/40 rounded-xl sm:rounded-xl p-3 sm:p-4 mb-6 mx-4 sm:mx-0 overflow-hidden">
 			<div class="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
 				<div class="text-center sm:text-left min-w-0 flex-1">
-					<h3 class="text-base sm:text-lg font-semibold text-neutral-100 mb-1 truncate">Partita in corso</h3>
-					<p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">Hai una partita salvata che puoi riprendere</p>
+					<h3 class="text-base sm:text-lg font-semibold text-neutral-100 mb-1 truncate">{{ t('game.gameInProgress') }}</h3>
+					<p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">{{ t('game.savedGame') }}</p>
 				</div>
 				<div class="flex gap-1.5 sm:gap-2 w-full sm:w-auto">
-					<button class="btn btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="dismissResumeBanner">Ignora</button>
-					<button class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="resumeGameLocal">Riprendi</button>
+					<button class="btn btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="dismissResumeBanner">{{ t('common.ignore') }}</button>
+					<button class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="resumeGameLocal">{{ t('common.resume') }}</button>
 				</div>
 			</div>
 		</div>
@@ -199,7 +201,7 @@ async function resumeGameLocal() {
 						? 'btn btn-primary shadow-sm' 
 						: 'btn btn-ghost'"
 				>
-					Ruoli
+					{{ t('nav.roles') }}
 				</router-link>
 				<router-link 
 					:to="{ name: 'setup', params: { page: 'players' } }"
@@ -208,7 +210,7 @@ async function resumeGameLocal() {
 						? 'btn btn-primary shadow-sm' 
 						: 'btn btn-ghost'"
 				>
-					Giocatori
+					{{ t('nav.players') }}
 				</router-link>
 				<router-link 
 					:to="{ name: 'setup', params: { page: 'settings' } }"
@@ -217,7 +219,7 @@ async function resumeGameLocal() {
 						? 'btn btn-primary shadow-sm' 
 						: 'btn btn-ghost'"
 				>
-					Impostazioni
+					{{ t('nav.settings') }}
 				</router-link>
 			</div>
 
@@ -289,7 +291,7 @@ async function resumeGameLocal() {
 						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
 					</svg>
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isRoles ? 'text-violet-400' : 'text-neutral-500'">Ruoli</span>
+				<span class="text-[10px] font-medium mt-1" :class="isRoles ? 'text-violet-400' : 'text-neutral-500'">{{ t('nav.roles') }}</span>
 			</router-link>
 			<router-link 
 				:to="{ name: 'setup', params: { page: 'players' } }"
@@ -304,7 +306,7 @@ async function resumeGameLocal() {
 						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
 					</svg>
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isPlayers ? 'text-violet-400' : 'text-neutral-500'">Giocatori</span>
+				<span class="text-[10px] font-medium mt-1" :class="isPlayers ? 'text-violet-400' : 'text-neutral-500'">{{ t('nav.players') }}</span>
 			</router-link>
 			<router-link 
 				:to="{ name: 'setup', params: { page: 'settings' } }"
@@ -321,7 +323,7 @@ async function resumeGameLocal() {
 						<path v-else stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001 1.51H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
 					</svg>
 				</div>
-				<span class="text-[10px] font-medium mt-1" :class="isSettings ? 'text-violet-400' : 'text-neutral-500'">Impostazioni</span>
+				<span class="text-[10px] font-medium mt-1" :class="isSettings ? 'text-violet-400' : 'text-neutral-500'">{{ t('nav.settings') }}</span>
 			</router-link>
 		</div>
 	</div>

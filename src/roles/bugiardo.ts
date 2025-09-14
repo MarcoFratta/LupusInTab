@@ -5,20 +5,14 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const bugiardo: RoleDef = {
 	id: 'bugiardo',
-	name: 'Bugiardo',
+	name: 'roleNames.bugiardo',
 	team: 'lupi',
 	icon: 'BugiardoIcon',
     score: 8,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Scopre il ruolo di un morto una volta per partita',
-    longDescription: `Il Bugiardo è un aiutante dei lupi che può investigare i morti.
-
-COME FUNZIONA:
-• Una volta per partita può scoprire il ruolo di un giocatore morto
-• L'azione è opzionale: può scegliere di non usarla
-• Può iniziare ad agire dalla 2ª notte
-• Appare come villaggio alle investigazioni`,
+    description: 'roleDescriptions.bugiardo',
+    longDescription: 'roleDescriptions.bugiardoLong',
     color: '#dc2626',
     phaseOrder: "any",
     actsAtNight: "alive",

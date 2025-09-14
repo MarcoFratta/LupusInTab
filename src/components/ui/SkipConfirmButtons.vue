@@ -1,7 +1,11 @@
 <script setup>
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
+
 const props = defineProps({
-  confirmText: { type: String, default: 'Conferma' },
-  skipText: { type: String, default: 'Salta' },
+  confirmText: { type: String, default: 'rolePrompts.confirm' },
+  skipText: { type: String, default: 'rolePrompts.skip' },
   confirmDisabled: { type: Boolean, default: false },
   skipDisabled: { type: Boolean, default: false },
   showSkip: { type: Boolean, default: true },
@@ -19,7 +23,7 @@ const emit = defineEmits(['confirm', 'skip']);
       :disabled="skipDisabled"
       @click="emit('skip')"
     >
-      {{ skipText }}
+      {{ t(skipText) }}
     </button>
     <button 
       class="btn btn-accent py-2 text-base font-semibold rounded-xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-200"
@@ -30,7 +34,7 @@ const emit = defineEmits(['confirm', 'skip']);
       :disabled="confirmDisabled"
       @click="emit('confirm')"
     >
-      {{ confirmText }}
+      {{ t(confirmText) }}
     </button>
   </div>
 </template>

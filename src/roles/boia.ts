@@ -6,19 +6,13 @@ import { checkPlayerRole } from '../utils/roleChecking';
 
 const boia: RoleDef = {
     id: 'boia',
-    name: 'Boia',
+    name: 'roleNames.boia',
     team: 'lupi',
     score: 4,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Uccide un giocatore se indovina il suo ruolo',
-    longDescription: `Il Boia è un assassino preciso che deve indovinare il ruolo per colpire.
-
-COME FUNZIONA:
-• Ogni notte può scegliere un giocatore e dichiarare il suo ruolo
-• Se indovina il ruolo, il giocatore muore immediatamente
-• Se sbaglia, il Boia muore al suo posto
-• L'azione è opzionale: può scegliere di non agire`,
+    description: 'roleDescriptions.boia',
+    longDescription: 'roleDescriptions.boiaLong',
     color: '#5b21b6',
     phaseOrder: "any",
     actsAtNight: "alive",

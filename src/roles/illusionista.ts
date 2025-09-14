@@ -5,19 +5,13 @@ import { RoleAPI } from "../utils/roleAPI";
 
 const illusionista: RoleDef = {
     id: 'illusionista',
-    name: 'Illusionista',
+    name: 'roleNames.illusionista',
     team: 'lupi',
 	score: 6,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Blocca le abilità notturne di un giocatore',
-    longDescription: `L'Illusionista può impedire a un giocatore di usare le sue abilità notturne.
-
-COME FUNZIONA:
-• Di notte può scegliere un giocatore da bloccare
-• Il giocatore bloccato non può usare le sue abilità notturne
-• Il blocco dura per quella notte
-• L'azione è opzionale: può scegliere di non usarla`,
+    description: 'roleDescriptions.illusionista',
+    longDescription: 'roleDescriptions.illusionistaLong',
     color: '#a78bfa',
     phaseOrder: -3,
     actsAtNight: "alive",

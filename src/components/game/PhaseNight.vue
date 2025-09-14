@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue';
 import { useNightPhase } from '../../composables/useNightPhase';
+import { useI18n } from '../../composables/useI18n';
 import { SetupTitle } from '../ui';
+
+const { t } = useI18n();
 import {
   FirstNightSkippedPrompt,
   DeadPrompt,
@@ -46,7 +49,7 @@ const asyncPromptComponent = computed(() => {
   <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
     <SetupTitle 
       v-if="!currentRole" 
-      title="Notte" 
+      :title="t('phases.night')" 
     />
     <div v-else class="text-center space-y-3 overflow-visible py-3">
       <div class="relative overflow-visible">
@@ -55,7 +58,7 @@ const asyncPromptComponent = computed(() => {
           class="relative text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-lg drop-shadow-violet-500/50"
           :style="{ '--tw-gradient-from': roleDisplayInfo?.color || '#8b5cf6', '--tw-gradient-to': roleDisplayInfo?.color || '#a855f7' }"
         >
-          {{ currentRole.name }}
+          {{ roleDisplayInfo?.name || currentRole.name }}
         </h2>
       </div>
       <div class="w-16 md:w-24 h-0.5 md:h-1 bg-gradient-to-r from-violet-500 to-fuchsia-500 mx-auto rounded-full"></div>
@@ -68,7 +71,7 @@ const asyncPromptComponent = computed(() => {
           <!-- Players List -->
           <div v-if="currentGroupNames" class="text-center space-y-4 mb-8">
             <div class="space-y-2">
-              <p class="text-sm text-neutral-300 font-medium">Possono aprire gli occhi:</p>
+              <p class="text-sm text-neutral-300 font-medium">{{ t('gameConstants.canOpenEyes') }}</p>
               <div class="flex flex-wrap justify-center gap-2">
                 <span 
                   v-for="player in currentGroupNames" 
@@ -139,7 +142,7 @@ const asyncPromptComponent = computed(() => {
                 </h3>
                 <div class="w-12 h-0.5 bg-gradient-to-r from-red-500 to-red-400 mx-auto rounded-full"></div>
                 <p class="text-red-300 text-sm">
-                  Impossibile trovare il prompt per il ruolo {{ currentRole.name }}. 
+                  Impossibile trovare il prompt per il ruolo {{ roleDisplayInfo?.name || currentRole.name }}. 
                   Questo potrebbe essere un errore del sistema.
                 </p>
               </div>

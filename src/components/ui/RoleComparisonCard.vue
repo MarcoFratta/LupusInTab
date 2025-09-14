@@ -3,6 +3,10 @@ import { computed } from 'vue';
 import PlayerRoleCard from './PlayerRoleCard.vue';
 import { ROLES } from '../../roles';
 import { getFactionConfig } from '../../factions';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     gameState: { type: Object, required: true },
@@ -44,7 +48,7 @@ const getRoleInfo = (roleId) => {
     const roleDef = ROLES[roleId];
     const factionConfig = roleDef ? getFactionConfig(roleDef.team) : null;
     return {
-        name: roleDef?.name || roleId,
+        name: getRoleDisplayName(roleId, t),
         color: factionConfig?.color || '#9ca3af'
     };
 };
@@ -122,7 +126,7 @@ const getRoleInfo = (roleId) => {
     <div v-if="centerContent.declaredRole || centerContent.status" class="flex flex-col items-center pt-3 border-t border-neutral-800/40 space-y-2">
       <!-- Declared Role -->
       <div v-if="centerContent.declaredRole" class="flex items-center gap-2">
-        <span class="text-xs text-neutral-400">Dichiarato:</span>
+        <span class="text-xs text-neutral-400">{{ t('roleComparison.declared') }}</span>
         <div class="px-2.5 py-1 rounded text-xs font-medium"
              :style="{ 
                  color: centerContent.declaredRole.color || '#9ca3af',

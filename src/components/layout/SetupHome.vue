@@ -12,13 +12,17 @@ import {
 } from '../../core/engine';
 import RoleCard from '../game/RoleCard.vue';
 import { useTeamBalance } from '../../composables/useTeamBalance';
+import { useI18n } from '../../composables/useI18n';
 import { SetupTitle } from '../ui';
+import { getLocalizedRoles } from '../../utils/roleLocalization';
+import { getFactionDisplayName } from '../../utils/factionUtils';
 
 const store = useGameStore();
 const state = store.state as any;
 
 const { teamBalance } = useTeamBalance();
 const { canStart: canStartFromState } = useGameState();
+const { t } = useI18n();
 
 const roleCounts = computed(() => ({ ...state.setup.rolesCounts }));
 const totalRolesSelected = computed(() => {
@@ -44,13 +48,7 @@ const disadvantagedTeam = computed(() => {
 });
 
 const getTeamDisplayName = (teamName: string) => {
-  const teamNames: Record<string, string> = {
-    'villaggio': 'Villaggio',
-    'lupi': 'Lupi',
-    'mannari': 'Mannari',
-    'matti': 'Matti'
-  };
-  return teamNames[teamName] || teamName;
+  return getFactionDisplayName(teamName, t);
 };
 
 const canStart = canStartFromState;
@@ -92,7 +90,7 @@ const factionOrder: Record<string, number> = {
 };
 
 const sortedEnabledRoles = computed(() => {
-  return ROLE_LIST
+  return getLocalizedRoles(t)
     .filter(r => state.setup.rolesEnabled?.[r.id] ?? true)
     .slice()
     .sort((a, b) => {
@@ -110,12 +108,12 @@ const sortedEnabledRoles = computed(() => {
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
     <!-- Setup Title -->
-    <SetupTitle title="Configurazione" />
+    <SetupTitle :title="t('setup.title')" />
     
     <!-- Team Balance Section -->
     <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 md:p-4">
       <div class="flex items-center justify-between mb-2">
-        <h3 class="text-sm font-medium text-neutral-300">Bilanciamento</h3>
+        <h3 class="text-sm font-medium text-neutral-300">{{ t('setup.balance') }}</h3>
         <div class="text-lg font-bold" 
              :class="teamBalance.fairness >= 70 
                ? 'text-violet-400' 
@@ -139,7 +137,7 @@ const sortedEnabledRoles = computed(() => {
         </div>
         
         <div v-if="disadvantagedTeam && teamBalance.fairness < 100" class="text-center text-xs text-neutral-500">
-          Fazione più debole: <span class="font-medium text-neutral-400">{{ getTeamDisplayName(disadvantagedTeam) }}</span>
+          {{ t('setup.weakestFaction') }}: <span class="font-medium text-neutral-400">{{ getTeamDisplayName(disadvantagedTeam) }}</span>
         </div>
       </div>
 
@@ -162,7 +160,7 @@ const sortedEnabledRoles = computed(() => {
           <svg v-else class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
           </svg>
-          <span class="font-medium">{{ canStart ? 'Avvia' : 'Configura' }}</span>
+          <span class="font-medium">{{ canStart ? t('setup.startGame') : t('setup.configureGame') }}</span>
         </div>
         
         <div class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
@@ -175,7 +173,7 @@ const sortedEnabledRoles = computed(() => {
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
         </svg>
-        <span class="text-sm font-medium">Risolvi i nomi duplicati per avviare il gioco</span>
+        <span class="text-sm font-medium">{{ t('setup.duplicateNames') }}</span>
       </div>
     </div>
 
@@ -185,7 +183,7 @@ const sortedEnabledRoles = computed(() => {
       <!-- Roles Section -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <h3 class="text-lg md:text-xl font-semibold text-neutral-200">Ruoli</h3>
+          <h3 class="text-lg md:text-xl font-semibold text-neutral-200">{{ t('setup.roles') }}</h3>
           <div class="flex items-center gap-2">
             <div class="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-300"
                  :class="totalRolesSelected === state.setup.players.length 

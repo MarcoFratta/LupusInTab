@@ -5,6 +5,9 @@ import GhostButton from '../ui/GhostButton.vue';
 import PrimaryButton from '../ui/PrimaryButton.vue';
 import NightDetailsGrid from '../ui/NightDetailsGrid.vue';
 import { SetupTitle } from '../ui';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   state: any;
@@ -17,7 +20,7 @@ const showDetails = ref(false);
 
 <template>
      <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-       <SetupTitle title="Esito della Notte" />
+       <SetupTitle :title="t('phaseResolve.title')" />
      <div class="w-full max-w-2xl space-y-4 mt-2 text-center">
 
     <!-- Mobile-First Content Sections -->
@@ -28,7 +31,7 @@ const showDetails = ref(false);
         
         <!-- Events to Announce Header -->
         <div class="text-center space-y-2">
-          <h3 class="text-lg font-semibold text-neutral-300">Eventi da annunciare</h3>
+          <h3 class="text-lg font-semibold text-neutral-300">{{ t('phaseResolve.nightResults') }}</h3>
           <div class="w-12 h-0.5 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full mx-auto"></div>
         </div>
 
@@ -53,18 +56,18 @@ const showDetails = ref(false);
                   </div>
                   <div class="text-center">
                     <div class="font-bold text-lg bg-gradient-to-r from-red-300 to-red-400 bg-clip-text text-transparent">
-                      Morti
+                      {{ t('phaseResolve.deaths') }}
                     </div>
                     <div class="text-red-400 text-sm font-medium">
-                      {{ props.state.night.summary.died.length }} {{ props.state.night.summary.died.length === 1 ? 'giocatore' : 'giocatori' }}
+                      {{ props.state.night.summary.died.length }} {{ props.state.night.summary.died.length === 1 ? t('phaseResolve.player') : t('phaseResolve.players') }}
                     </div>
                   </div>
                 </div>
                 
                 <div v-if="props.state.night.summary.died.length === 0" class="text-center py-4">
                   <div class="text-red-400 text-2xl mb-2">🌅</div>
-                  <div class="text-red-300 text-sm font-medium mb-1">Nessun morto</div>
-                  <div class="text-red-400/70 text-xs">La notte è stata tranquilla</div>
+                  <div class="text-red-300 text-sm font-medium mb-1">{{ t('phaseResolve.noDeaths') }}</div>
+                  <div class="text-red-400/70 text-xs">{{ t('phaseResolve.peacefulNight') }}</div>
                 </div>
                 
                 <div v-else class="space-y-3">
@@ -101,10 +104,10 @@ const showDetails = ref(false);
                   </div>
                   <div class="text-center">
                     <div class="font-bold text-lg bg-gradient-to-r from-emerald-300 to-emerald-400 bg-clip-text text-transparent">
-                      Resuscitati
+                      {{ t('phaseResolve.resurrected') }}
                     </div>
                     <div class="text-emerald-400 text-sm font-medium">
-                      {{ props.state.night.summary.resurrected.length }} {{ props.state.night.summary.resurrected.length === 1 ? 'giocatore' : 'giocatori' }}
+                      {{ props.state.night.summary.resurrected.length }} {{ props.state.night.summary.resurrected.length === 1 ? t('phaseResolve.player') : t('phaseResolve.players') }}
                     </div>
                   </div>
                 </div>
@@ -135,9 +138,9 @@ const showDetails = ref(false);
           <div class="space-y-3">
             <ButtonGroup>
               <GhostButton full-width @click="showDetails = !showDetails">
-                {{ showDetails ? 'Nascondi' : 'Dettagli' }}
+                {{ showDetails ? t('phaseResolve.hide') : t('phaseResolve.details') }}
               </GhostButton>
-              <PrimaryButton full-width @click="props.onContinue">Continua</PrimaryButton>
+              <PrimaryButton full-width @click="props.onContinue">{{ t('phaseResolve.continue') }}</PrimaryButton>
             </ButtonGroup>
           </div>
         </div>
@@ -154,13 +157,13 @@ const showDetails = ref(false);
       <div v-else class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6 text-center">
         <div class="flex items-center justify-center gap-3">
           <div class="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
-          <div class="text-neutral-400">Risoluzione in corso…</div>
+          <div class="text-neutral-400">{{ t('phaseResolve.resolving') }}</div>
         </div>
       </div>
       
       <!-- Help Text -->
       <div class="text-center text-xs text-neutral-500">
-        Ricarica per iniziare una nuova partita dal menu principale
+        {{ t('phaseResolve.reloadHelp') }}
       </div>
       </div>
      </div>

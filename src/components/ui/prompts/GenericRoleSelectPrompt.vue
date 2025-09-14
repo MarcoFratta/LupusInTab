@@ -2,12 +2,16 @@
 import { computed, ref } from 'vue';
 import { ROLES } from '../../../roles';
 import PromptSelect from './PromptSelect.vue';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+import { useI18n } from '../../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     title: { type: String, required: true },
     description: { type: String, required: true },
     label: { type: String, required: true },
-    buttonText: { type: String, default: 'Conferma selezione' },
+    buttonText: { type: String, default: 'rolePrompts.confirmSelection' },
     accent: { type: String, default: 'blue' },
     onComplete: { type: Function, required: true },
     disabled: { type: Boolean, default: false },
@@ -44,9 +48,9 @@ const availableRoles = computed(() => {
 });
 
 const choices = computed(() => [
-    { label: 'Seleziona un ruolo…', value: null },
+    { label: t('rolePrompts.selectRole'), value: null },
     ...availableRoles.value.map((role) => ({ 
-        label: role.name, 
+        label: getRoleDisplayName(role.id, t), 
         value: role.id,
         disabled: false
     }))
@@ -71,7 +75,7 @@ function submit() {
             :label="label"
             v-model="selectedRoleId"
             :choices="choices"
-            :buttonText="buttonText"
+            :buttonText="t(buttonText)"
             :accent="accent"
             :disabled="choices.length === 0 || disabled"
             @confirm="submit"

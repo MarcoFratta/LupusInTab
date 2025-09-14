@@ -6,21 +6,14 @@ import { checkPlayerRole } from '../utils/roleChecking';
 
 const lupomannaro: RoleDef = {
     id: 'lupomannaro',
-    name: 'Lupo Mannaro',
+    name: 'roleNames.lupomannaro',
     team: 'mannari',
     score: 45,
     revealAlliesWithinRole: false,
     visibleAsTeam: 'lupi',
     countAs: 'villaggio',
-    description: 'Vince solo se rimane vivo con un altro giocatore',
-    longDescription: `Il Lupo Mannaro è un ruolo solitario con poteri speciali.
-
-COME FUNZIONA:
-• Vince solo se rimane in vita con esattamente un altro giocatore
-• Di notte può dichiarare un giocatore e un ruolo: se indovina, la vittima muore
-• Se rimane in vita, nessun altro può vincere
-• I lupi non possono ucciderlo
-• Muore se il Veggente lo investiga`,
+    description: 'roleDescriptions.lupomannaro',
+    longDescription: 'roleDescriptions.lupomannaroLong',
     color: '#7c3aed',
     phaseOrder: "any",
     actsAtNight: "alive",

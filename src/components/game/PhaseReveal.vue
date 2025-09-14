@@ -8,6 +8,11 @@ import { shouldRolesKnowEachOther, getRevealRoleLabel } from '../../utils/reveal
 import FactionLabel from '../ui/FactionLabel.vue';
 import { ROLES } from '../../roles';
 import { SetupTitle, LongPressButton, PassPhoneCard } from '../ui';
+import { useI18n } from '../../composables/useI18n';
+import { getFactionDisplayName } from '../../utils/factionUtils';
+import { getRoleDisplayName } from '../../utils/roleUtils';
+
+const { t } = useI18n();
 
 const props = defineProps<{ state: any, onStartNight: () => void }>();
 
@@ -109,7 +114,7 @@ const knownTeamAllies = computed(() => {
 
     if (visible) {
       const showMode = otherRoleDef.revealToAllies || 'team';
-      const labelText = showMode === 'role' ? otherRoleDef.name : (getFactionConfig(otherRoleDef.team)?.displayName || otherRoleDef.team);
+      const labelText = showMode === 'role' ? getRoleDisplayName(otherRoleDef.id, t) : getFactionDisplayName(otherRoleDef.team, t);
       result.push({ 
         id: p.id, 
         name: p.name, 
@@ -149,7 +154,7 @@ const knownRoleAllies = computed(() => {
         // Use the grouped role name for display if applicable
         const displayRoleId = getRevealRoleLabel(otherRoleDef.id, props.state);
         const displayRoleDef = ROLES[displayRoleId] || otherRoleDef;
-        const labelText = displayRoleDef.name;
+        const labelText = getRoleDisplayName(displayRoleId, t);
         result.push({ 
           id: p.id, 
           name: p.name, 
@@ -196,7 +201,7 @@ function startNight() {
 
 <template>
   <div class="flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-    <SetupTitle title="Rivelazione dei ruoli" />
+    <SetupTitle :title="t('phaseReveal.title')" />
     <div class="w-full max-w-2xl space-y-4 mt-2 text-center">
 
       <!-- Role Resee Component -->
@@ -218,16 +223,16 @@ function startNight() {
             </svg>
           </div>
           <div>
-            <h3 class="text-base md:text-lg font-semibold text-neutral-200 mb-2">Come rivelare i ruoli</h3>
+            <h3 class="text-base md:text-lg font-semibold text-neutral-200 mb-2">{{ t('phaseReveal.howToReveal') }}</h3>
             <p class="text-neutral-400 text-xs md:text-sm leading-relaxed max-w-md mx-auto">
-              Passa il dispositivo a ogni giocatore a turno. Tieni premuto per vedere il tuo ruolo, poi passa al prossimo.
+              {{ t('phaseReveal.howToRevealDescription') }}
             </p>
           </div>
           <button 
             class="btn w-full btn-accent p-4 text-sm font-semibold rounded-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg shadow-violet-500/25"
             @click="continueFromIntro"
           >
-            Inizia Rivelazioni
+            {{ t('phaseReveal.startReveals') }}
           </button>
         </div>
       </div>
@@ -241,13 +246,13 @@ function startNight() {
             </svg>
           </div>
           <div class="space-y-4">
-            <h3 class="text-xl md:text-2xl font-semibold text-neutral-200 mb-3">Prima che inizi la Notte</h3>
+            <h3 class="text-xl md:text-2xl font-semibold text-neutral-200 mb-3">{{ t('phaseReveal.beforeNight') }}</h3>
             <div class="space-y-3">
               <p class="text-lg md:text-xl font-semibold text-neutral-100 leading-relaxed">
-                Chiedi a tutti i giocatori di chiudere gli occhi
+                {{ t('phaseReveal.closeEyes') }}
               </p>
               <p class="text-base md:text-lg text-neutral-300 leading-relaxed">
-                Quando tutti sono pronti vai alla prima notte
+                {{ t('phaseReveal.whenReady') }}
               </p>
             </div>
           </div>
@@ -265,14 +270,14 @@ function startNight() {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
               </svg>
-              Rivela di nuovo un ruolo
+              {{ t('phaseReveal.revealAgain') }}
             </button>
             <button 
               class="btn btn-accent w-full px-6 py-3 text-base font-semibold
                rounded-lg transform hover:scale-105 active:scale-95 transition-all duration-200 shadow-lg shadow-violet-500/25"
               @click="startNight"
             >
-              Inizia la Notte
+              {{ t('phaseReveal.startNight') }}
             </button>
           </div>
         </div>
@@ -283,7 +288,7 @@ function startNight() {
         <div v-if="!showRoleReveal">
           <PassPhoneCard 
             :playerName="currentPlayer.name" 
-            :buttonText="roleRevealed ? 'Ruolo rivelato' : 'Rivela'"
+            :buttonText="roleRevealed ? t('phaseReveal.roleRevealed') : t('phaseReveal.reveal')"
             buttonSize="lg"
             :onActivate="() => { updateRevealState({ showRoleReveal: true, roleRevealed: true }); }"
           />
@@ -293,7 +298,7 @@ function startNight() {
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
-              <span class="text-xs font-medium">Ruolo rivelato!</span>
+              <span class="text-xs font-medium">{{ t('phaseReveal.roleRevealedSuccess') }}</span>
             </div>
           </div>
         </div>

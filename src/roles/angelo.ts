@@ -5,19 +5,13 @@ import { RoleAPI } from '../utils/roleAPI';
 
 const angelo: RoleDef = {
     id: 'angelo',
-    name: 'Angelo',
+    name: 'roleNames.angelo',
     team: 'villaggio',
     score: 6,
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
-    description: 'Riporta in vita un giocatore morto una volta per partita',
-    longDescription: `L'Angelo può riportare in vita un giocatore morto.
-
-COME FUNZIONA:
-• Una volta per partita, di notte può riportare in vita un giocatore morto
-• Il giocatore torna in vita e può partecipare al gioco
-• L'azione è opzionale: può scegliere di non usarla
-• Non può essere usata più di una volta per partita`,
+    description: 'roleDescriptions.angelo',
+    longDescription: 'roleDescriptions.angeloLong',
     color: '#f3e8ff',
     phaseOrder: -2,
     actsAtNight: "alive",

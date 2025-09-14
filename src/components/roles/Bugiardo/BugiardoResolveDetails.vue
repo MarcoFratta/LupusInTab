@@ -5,6 +5,10 @@ import InvestigationResultCard from '../../ui/InvestigationResultCard.vue';
 import { getFactionConfig } from '../../../factions';
 import { ROLES } from '../../../roles';
 import {getRoleById} from "../../../utils/roleUtils";
+import { useI18n } from '../../../composables/useI18n';
+import { getRoleDisplayName } from '../../../utils/roleUtils';
+
+const { t } = useI18n();
 
 interface Props {
     gameState: any;
@@ -27,7 +31,7 @@ const getRoleColor = (roleId: string) => {
   return role?.color || '#9ca3af';
 };
 const getRoleName = (roleId: string) => {
-  return ROLES[roleId].name;
+  return getRoleDisplayName(roleId, t);
 }
 const getFactionColor = (roleId: string) => {
   const role = ROLES[roleId];
@@ -45,16 +49,16 @@ const getFactionColor = (roleId: string) => {
           :game-state="props.gameState"
           :left-player="bugiardoPlayers"
           :right-player="event.targetId && props.gameState.players.find((p: any)=>p.id===Number(event.targetId))"
-          left-label="Bugiardo"
-          right-label="Bersaglio"
+          :left-label="getRoleDisplayName('bugiardo', t)"
+          :right-label="t('resolveDetails.target')"
           :center-content="{
-            action: bugiardoPlayers.length > 1 ? 'hanno visto' : 'ha visto'
+            action: bugiardoPlayers.length > 1 ? t('resolveDetails.sawPlural') : t('resolveDetails.saw')
           }"
         />
         
         <InvestigationResultCard 
-          title="Risultato Investigazione"
-          text="aveva il ruolo"
+          :title="t('resolveDetails.investigationResult')"
+          :text="t('resolveDetails.hadRole')"
           :results="getRoleName(event.discoveredRole)"
           :color="getFactionColor(event.discoveredRole)"
         />

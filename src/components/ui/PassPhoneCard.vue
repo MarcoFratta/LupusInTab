@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { LongPressButton } from './index';
+import { useI18n } from '../../composables/useI18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   playerName: string;
@@ -21,12 +24,12 @@ const defaultButtonSize = props.buttonSize || 'lg';
         </svg>
       </div>
       <div>
-        <div class="text-neutral-300 text-base md:text-lg mb-2">Passa il telefono a</div>
+        <div class="text-neutral-300 text-base md:text-lg mb-2">{{ t('phaseReveal.passPhoneTo') }}</div>
         <div class="text-2xl md:text-3xl font-bold text-neutral-100 mb-4 truncate max-w-full" :title="playerName">
           {{ playerName }}
         </div>
       </div>
-      <div class="text-xs text-neutral-400 mb-2">tieni premuto per rivelare</div>
+      <div class="text-xs text-neutral-400 mb-2">{{ t('phaseReveal.holdToReveal') }}</div>
       <LongPressButton
         class="w-full"
         :size="defaultButtonSize"

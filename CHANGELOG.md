@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.3...v1.15.0) (2025-09-14)
+
+
+### Features
+
+* add english language support ([f82ad00](https://github.com/MarcoFratta/LupusInTab/commit/f82ad004527030460a9e66f3616828f19cea6cc6))
+
 ## [1.14.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.2...v1.14.3) (2025-09-13)
 
 

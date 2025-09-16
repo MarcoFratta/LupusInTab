@@ -859,7 +859,7 @@ HOW IT WORKS:
   newRoles: {
     title: 'New Roles Available!',
     description: 'New roles have arrived in the village! Here\'s what\'s new:',
-    gotIt: 'Perfect! I understand'
+    gotIt: 'Perfect!'
   },
 
   // Genio role

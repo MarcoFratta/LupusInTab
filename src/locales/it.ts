@@ -894,7 +894,7 @@ COME FUNZIONA:
   newRoles: {
     title: 'Nuovi Ruoli Disponibili!',
     description: 'Sono arrivati nuovi ruoli nel villaggio! Ecco cosa c\'è di nuovo:',
-    gotIt: 'Perfetto! Ho capito'
+    gotIt: 'Perfetto!'
   },
 
   // Genio role

@@ -242,212 +242,193 @@ export default {
 
   // Role descriptions
   roleDescriptions: {
-    lupo: 'The wolf eats a player every night. Wins if wolves are in majority.',
+    lupo: 'The wolf devours a player every night.',
     veggente: 'Every night can check a player\'s faction.',
     guardia: 'Every night can protect a player from wolves.',
     boia: 'Can kill a player by correctly declaring their role.',
     giustiziere: 'Can kill a player during the night once per game.',
-    angelo: 'Can resurrect a dead player once per game.',
-    barabba: 'Can kill a player once per game when dead.',
+    angelo: 'Once per game can resurrect a dead player.',
+    barabba: 'When dead, can take a player with him to the afterlife.',
     bugiardo: 'Can investigate dead players to discover their roles.',
     genio: 'Can transform into another player\'s role once per game.',
     illusionista: 'Can block a player\'s ability during the night.',
-    indemoniato: 'A wolf that wins with the wolf team.',
-    insinuo: 'Can change a player\'s visible faction during the night.',
-    lupomannaro: 'A wolf that can kill players by correctly declaring their role.',
+    indemoniato: 'A villager who plays for the wolves.',
+    insinuo: 'During the night, can change a player\'s faction in the eyes of those who investigate them.',
+    lupomannaro: 'Plays alone. Every night can kill a player by correctly declaring their role. Cannot be killed by wolves.',
     massone: 'Knows the identity of other masons.',
     matto: 'Wins if lynched.',
-    medium: 'Can investigate a dead player every night to discover their faction.',
-    misspurple: 'Can count how many wolves are alive every night.',
-    muccamannara: 'A cow that transforms into a wolf.',
-    mutaforma: 'Can use another player\'s role for one night.',
+    medium: 'Can investigate a dead player to discover their faction.',
+    misspurple: 'Every night discovers how many players that appear as wolves are alive.',
+    muccamannara: 'Plays alone. Knows the wolves and appears as a wolf. Cannot be killed by wolves.',
+    mutaforma: 'Every night can copy another player\'s role.',
     parassita: 'Infects other players and wins when all are infected.',
-    simbionte: 'Can transform into another player\'s role once per game.',
+    simbionte: 'Must transform into another player\'s role at the start of the game.',
     villico: 'A village inhabitant with no special powers.',
-    lupoCieco: 'A wolf that investigates three adjacent players each night.',
-    lupoCiccione: 'A wolf that makes adjacent players appear as wolves.',
-    ammaestratore: 'Can redirect wolf attacks from the 2nd night, once per game.',
-    lupoLong: `The Wolf is the most feared role in the game, the heart of the wolf alliance.
+    lupoCieco: 'A wolf that investigates three adjacent players every night. Does not know the other wolves.',
+    lupoCiccione: 'A wolf that makes players adjacent to him appear as wolves.',
+    ammaestratore: 'Can redirect the wolves\' target from the 2nd night, once per game.',
+    lupoLong: `The Wolf is the most feared role in the game, every night must choose a victim to devour.
 
 HOW IT WORKS:
 • Every night must choose a victim to kill
-• The action is mandatory: cannot skip a night
-• Can kill any living player, including other wolves if necessary
-• The victim dies at dawn and can no longer participate in the game`,
+• Can kill any living player
+• The victim dies at dawn`,
     veggenteLong: `The Seer is the village investigator, capable of discovering players' factions.
 
 HOW IT WORKS:
 • Every night can choose a player to investigate
-• Discovers the visible faction of the player (as it appears to others)
-• The action is mandatory: must investigate every night
-• Results are shown only to the Seer`,
+• Discovers the faction of that player (as it appears to others)`,
     guardiaLong: `The Guard is the village protector, capable of saving innocent lives.
 
 HOW IT WORKS:
 • Every night can choose a player to protect
-• The protected player cannot be killed that night
-• Cannot protect herself
-• The action is mandatory: must protect every night
+• The protected player cannot be killed by wolves that night
 
 CUSTOMIZATION:
 This is a generic role that can be adapted to different playstyles:
 • Can protect themselves
 • Cannot protect the same player twice in a row`,
-    boiaLong: `The Executioner is a player who can kill by correctly declaring another player's role.
+    boiaLong: `The Hangman works for the wolves.
+    Once per game can kill another player by correctly declaring their role.
+    If the declaration is wrong, the Hangman dies.
 
 HOW IT WORKS:
+• Is seen as a wolf
 • During the night can declare a player's role
 • If the declaration is correct, the player dies
-• If the declaration is wrong, the Executioner dies
+• If the declaration is wrong, the Hangman dies
 • Can act only once per game`,
     giustiziereLong: `The Executioner is the village avenger, capable of executing the guilty.
 
 HOW IT WORKS:
 • During the night can choose a player to execute
-• The action is immediate and cannot be stopped
-• Can execute only once per game
-• Must be strategic in their choice`,
+• The action cannot be stopped
+• Can execute only once per game`,
     massoneLong: `The Mason is a member of a secret society that knows other members.
 
 HOW IT WORKS:
-• Knows the identity of other masons
-• Can communicate secretly with them
-• Has no special powers beyond knowledge
-• Must work together to win`,
+• Knows the identity of other masons`,
     villicoLong: `The Villager is a common citizen without special powers, but with the right to vote.
 
 HOW IT WORKS:
-• Has no special powers
-• Can vote during lynching phases
-• Must use logic and observation to identify wolves
-• Their survival is crucial for village victory`,
+• Has no special powers`,
     angeloLong: `The Angel is a divine being capable of resurrecting the dead.
 
 HOW IT WORKS:
 • Can resurrect a dead player
 • The action can be used only once per game
-• The resurrected player returns to the game with their original role
-• Must be strategic in the moment of resurrection`,
-    barabbaLong: `Barabbas is a criminal who can kill a player once per game when dead.
+• The resurrected player returns to the game with their original role`,
+    barabbaLong: `When dead, can take a player with him to the afterlife.
 
 HOW IT WORKS:
 • Can kill a player during the night when dead
-• The action can be used only once per game
-• Cannot kill himself
-• Must be strategic in their choice`,
-    mattoLong: `The Madman is a player who wins if lynched by the village.
+• The action can be used only once per game`,
+    mattoLong: `The Madman is a villager who wins if lynched by the village.
 
 HOW IT WORKS:
 • Wins immediately if lynched
 • Has no other special powers
-• Must convince the village to lynch him
-• Must be subtle in their strategy`,
+• Must convince the village to lynch him`,
     lupomannaroLong: `The Werewolf is a wolf that can kill players by correctly declaring their role.
+    Plays alone and cannot be killed by wolves.
+    Wins if survives until the end of the game.
 
 HOW IT WORKS:
-• Behaves like a normal wolf
+• Cannot be killed by wolves
 • Can kill a player by declaring their role
 • If the declaration is correct, the player dies
-• If the declaration is wrong, no one dies
-• Wolves cannot kill it`,
-    muccamannaraLong: `The Cow Werewolf is a wolf that appears as a villager to investigators.
+• If the declaration is wrong, no one dies`,
+    muccamannaraLong: `The Werecow plays alone. Knows the wolves and appears as a wolf.
+    Wins if survives until the end of the game.
 
 HOW IT WORKS:
-• Behaves like a normal wolf
-• Appears as a villager when investigated
-• Can confuse investigations
-• Must be strategic in their survival`,
-    indemoniatoLong: `The Possessed is a wolf that cannot be killed by wolves.
+• Cannot be killed by wolves
+• Appears as a wolf when investigated
+• Can confuse investigations`,
+    indemoniatoLong: `The Possessed is a villager who plays for the wolves.
 
 HOW IT WORKS:
-• Behaves like a normal wolf
-• Cannot be killed by other wolves
-• Can only be killed by the village
-• Must be strategic in their survival`,
-    insinuoLong: `The Insinuator is a player who can change another player's visible faction.
+• Behaves like a normal villager
+• Must help the wolves win even if they don't know who they are`,
+    insinuoLong: `The Insinuator works for the wolves. Can change a player's faction in the eyes
+    of other players who investigate them.
 
 HOW IT WORKS:
 • Every night can choose a player to "insinuate"
-• Changes the visible faction of the chosen player
+• Changes the visible faction of the chosen player, if they were a wolf they appear as villager, if they were a villager they appear as wolf
 • The effect lasts for one night
 • Can confuse investigations`,
-    illusionistaLong: `The Illusionist is a player who can block another player's ability.
+    illusionistaLong: `The Illusionist plays for the wolves. Can block another player's ability.
 
 HOW IT WORKS:
 • Every night can choose a player to block
 • The blocked player cannot use their ability that night
 • The effect lasts for one night
-• Can be strategic in blocking wolves`,
-    genioLong: `The Genius is a player who can transform into another player's role.
+• If there is another living player with the same role as the blocked player,
+  those players can still use their ability`,
+    genioLong: `The Genius can transform into another role chosen from three at random.
+    Can use this power only once per game, starting from the third night.
 
 HOW IT WORKS:
-• Can choose a player and transform into their role
-• The action can be used only once per game
-• Assumes all powers of the chosen role
-• Must be strategic in their choice`,
-    parassitaLong: `The Parasite is a player who wins if they survive until the end of the game.
+• Can choose a role from three at random (chosen by the narrator)
+• The action can be used only once per game`,
+    parassitaLong: `The Parasite wins if they manage to infect all living players.
 
 HOW IT WORKS:
-• Has no special powers
-• Wins if they survive until the end
-• Must be strategic in their survival
-• Can ally with anyone to survive`,
-    simbionteLong: `The Symbiont is a player who can assume another player's role.
+• The first night can infect up to 3 players
+• The second night can infect up to 2 players
+• From the third night onwards, can infect 1 player
+• Wins if all other living players are infected`,
+    simbionteLong: `The Symbiont assumes another player's role. The first night must
+    choose a player and immediately assume their role.
 
 HOW IT WORKS:
-• Can choose a player and assume their role
-• The action can be used only once per game
-• Assumes all powers of the chosen role
-• Must be strategic in their choice`,
-    mutaformaLong: `The Shapeshifter is a player who can copy another player's role.
+• Must choose a player and assume their role
+• The action can be used only once per game`,
+    mutaformaLong: `The Shapeshifter is an alien who, every night, can copy another player's role.
 
 HOW IT WORKS:
-• Can choose a player and copy their role
-• The action can be used only once per game
-• Copies all powers of the chosen role
-• Must be strategic in their choice`,
-    misspurpleLong: `Miss Purple is a mysterious role with special powers.
+• Can choose a player and copy their role for that night
+• Copies all powers of the chosen role`,
+    misspurpleLong: `Miss Purple is a villager who, every night, discovers how many players
+    that appear as wolves are alive.
 
 HOW IT WORKS:
-• Has unique special powers
-• Her identity is secret
-• Must be strategic in using her powers
-• Can influence the course of the game`,
-    bugiardoLong: `The Liar is a player who can investigate dead players to discover their roles.
+• Every night discovers how many players that appear as wolves are alive`,
+    bugiardoLong: `The Liar works for the wolves. Once per game can discover the role
+    of a dead player.
 
 HOW IT WORKS:
 • Can investigate dead players
-• Discovers information about dead players' roles
-• Can be useful to understand the game composition
-• Must be strategic in their investigations`,
-    ammaestratoreLong: `The Trainer is a player who can redirect wolf attacks.
+• Discovers the role of a dead player
+• Can help the wolves by pretending to have the discovered role`,
+    ammaestratoreLong: `The Trainer can train the wolves and force them to devour a victim chosen by him.
+    If the trainer chooses a wolf as victim, no one dies.
+    If he chooses another player, they die instead of the wolves' original target.
 
 HOW IT WORKS:
 • Can choose a target for wolf attacks
 • If chooses a wolf, no one dies
-• If chooses another player, they die instead of the original target
-• Must be strategic in their choice`,
+• If chooses another player, they die instead of the original target`,
     lupoCiccioneLong: `The Fat Wolf is a wolf that makes adjacent players appear as wolves.
 
 HOW IT WORKS:
-• Behaves like a normal wolf
-• Makes players to the left and right appear as wolves
-• Can confuse investigations
-• Must be strategic in their survival`,
-    lupoCiecoLong: `The Blind Wolf is a wolf that investigates three adjacent players.
+• Behaves like a normal wolf, so opens eyes with wolves
+• Makes the first two living players to his left and right appear as wolves
+• Can confuse investigations`,
+    lupoCiecoLong: `The Blind Wolf is a solitary wolf who doesn't know the other wolves.
+    The other wolves don't know him. Can investigate three adjacent players and discover if
+    there is at least one wolf among the three.
 
 HOW IT WORKS:
 • Every night investigates three adjacent players
 • Discovers if there is at least one wolf among the three
-• If all wolves are dead, can also kill
-• Must be strategic in their investigations`,
+• If all wolves are dead, can also kill like a normal wolf`,
     mediumLong: `The Medium can communicate with dead players to obtain information.
 
 HOW IT WORKS:
 • Every night can choose a dead player to communicate with
-• Discovers which team the dead player played for
-• The action is mandatory: must act every night
-• Results are shown only to the Medium`
+• Discovers which team the dead player played for`
   },
 
   // Faction names

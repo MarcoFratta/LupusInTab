@@ -242,60 +242,59 @@ export default {
 
   // Role descriptions
   roleDescriptions: {
-    lupo: 'Il lupo mangia un giocatore ogni notte. Vince se i lupi sono in maggioranza.',
+    lupo: 'Il lupo sbrana un giocatore ogni notte.',
     veggente: 'Ogni notte può controllare la fazione di un giocatore.',
     guardia: 'Ogni notte può proteggere un giocatore dai lupi.',
     boia: 'Può uccidere un giocatore dichiarando correttamente il suo ruolo.',
     giustiziere: 'Può uccidere un giocatore durante la notte una volta per partita.',
-    angelo: 'Può resuscitare un giocatore morto una volta per partita.',
-    barabba: 'Può uccidere un giocatore una volta per partita quando è morto.',
+    angelo: 'Una volta per partita può resuscitare un giocatore morto.',
+    barabba: 'Quando muore, può portare con se un giocatore nell\'aldilà.',
     bugiardo: 'Può investigare i giocatori morti per scoprire i loro ruoli.',
     genio: 'Può trasformarsi nel ruolo di un altro giocatore una volta per partita.',
     illusionista: 'Può bloccare l\'abilità di un giocatore durante la notte.',
-    indemoniato: 'Un lupo che vince con la squadra dei lupi.',
-    insinuo: 'Può cambiare la fazione visibile di un giocatore durante la notte.',
-    lupomannaro: 'Un lupo che può uccidere giocatori dichiarando correttamente il loro ruolo.',
+    indemoniato: 'Un contadino che gioca per i lupi.',
+    insinuo: 'Durate la notte, può cambiare la fazione di un giocatore agli occhi di chi lo controlla.',
+    lupomannaro: 'Gioca da solo. Ogni notte può uccidere un giocatore dichiarando correttamente il suo ruolo.'+
+    ' Non può essere ucciso dai lupi.',
     massone: 'Conosce l\'identità degli altri massoni.',
     matto: 'Vince se viene linciato.',
-    medium: 'Può investigare un giocatore morto ogni notte per scoprire la sua fazione.',
-    misspurple: 'Può contare quanti lupi sono vivi ogni notte.',
-    muccamannara: 'Una mucca che si trasforma in lupo.',
-    mutaforma: 'Può usare il ruolo di un altro giocatore per una notte.',
+    medium: 'Può investigare un giocatore morto per scoprire la sua fazione.',
+    misspurple: 'Ogni notte scopre quanti giocatori che appaiono come lupi sono vivi.',
+    muccamannara: 'Gioca da sola. Conosce i lupi e appare come lupo. Non può essere uccisa dai lupi.',
+    mutaforma: 'Ogni notte può copiare il ruolo di un altro giocatore.',
     parassita: 'Infetta altri giocatori e vince quando tutti sono infetti.',
-    simbionte: 'Può trasformarsi nel ruolo di un altro giocatore una volta per partita.',
+    simbionte: 'Deve trasformarsi nel ruolo di un altro giocatore a inizio partita.',
     villico: 'Un abitante del villaggio senza poteri speciali.',
-    lupoCieco: 'Un lupo che investiga tre giocatori adiacenti ogni notte.',
-    lupoCiccione: 'Un lupo che fa apparire i giocatori adiacenti come lupi.',
-    ammaestratore: 'Può reindirizzare gli attacchi dei lupi dalla 2ª notte, una volta per partita.',
-    lupoLong: `Il Lupo è il ruolo più temuto del gioco, il cuore dell'alleanza dei lupi.
+    lupoCieco: 'Un lupo che investiga tre giocatori adiacenti ogni notte. Non conosce gli altri lupi.',
+    lupoCiccione: 'Un lupo che fa apparire i giocatori a lui adiacenti come lupi.',
+    ammaestratore: 'Può reindirizzare il bersaglio dei lupi dalla 2ª notte, una volta per partita.',
+    lupoLong: `Il Lupo è il ruolo più temuto del gioco, ogni notte deve scegliere una vittima da sbranare.
 
 COME FUNZIONA:
 • Ogni notte deve scegliere una vittima da uccidere
-• L'azione è obbligatoria: non può saltare una notte
-• Può uccidere qualsiasi giocatore vivo, inclusi altri lupi se necessario
-• La vittima muore all'alba e non può più partecipare al gioco`,
+• Può uccidere qualsiasi giocatore vivo
+• La vittima muore all'alba`,
     veggenteLong: `Il Veggente è l'investigatore del villaggio, capace di scoprire le fazioni dei giocatori.
 
 COME FUNZIONA:
 • Ogni notte può scegliere un giocatore da investigare
-• Scopre la fazione visibile del giocatore (come appare agli altri)
-• L'azione è obbligatoria: deve investigare ogni notte
-• I risultati vengono mostrati solo al Veggente`,
+• Scopre la fazione di quel giocatore (come appare agli altri)`,
     guardiaLong: `La Guardia è il protettore del villaggio, capace di salvare vite innocenti.
 
 COME FUNZIONA:
 • Ogni notte può scegliere un giocatore da proteggere
-• Il giocatore protetto non può essere ucciso quella notte
-• Non può proteggere se stessa
-• L'azione è obbligatoria: deve proteggere ogni notte
+• Il giocatore protetto non può essere ucciso dai lupi quella notte
 
 PERSONALIZZAZIONE:
-Questo è un ruolo generico che può essere adattato a diversi stili di gioco:
+Questo è un ruolo generico che può essere adattato a diversi stili di gioco, ad esempio:
 • Può proteggere se stesso
 • Non può proteggere lo stesso giocatore due volte di seguito`,
-    boiaLong: `Il Boia è un giocatore che può uccidere dichiarando correttamente il ruolo di un altro giocatore.
+    boiaLong: `Il Boia lavora per i lupi. 
+    Una volta per partita può uccidere un altro giocatore dichiarando correttamente il suo ruolo.
+    Se la dichiarazione è sbagliata, il Boia muore.
 
 COME FUNZIONA:
+• Viene visto come lupo
 • Durante la notte può dichiarare il ruolo di un giocatore
 • Se la dichiarazione è corretta, il giocatore muore
 • Se la dichiarazione è sbagliata, il Boia muore
@@ -304,150 +303,133 @@ COME FUNZIONA:
 
 COME FUNZIONA:
 • Durante la notte può scegliere un giocatore da giustiziare
-• L'azione è immediata e non può essere fermata
-• Può giustiziare solo una volta per partita
-• Deve essere strategico nella sua scelta`,
+• L'azione non può essere fermata
+• Può giustiziare solo una volta per partita`,
     massoneLong: `Il Massone è un membro di una società segreta che conosce gli altri membri.
 
 COME FUNZIONA:
-• Conosce l'identità degli altri massoni
-• Può comunicare segretamente con loro
-• Non ha poteri speciali oltre alla conoscenza
-• Deve lavorare insieme per vincere`,
-    villicoLong: `Il Villico è un cittadino comune senza poteri speciali, ma con il diritto di voto.
+• Conosce l'identità degli altri massoni`,
+    villicoLong: `Il Contadino è un cittadino comune senza poteri speciali, ma con il diritto di voto.
 
 COME FUNZIONA:
-• Non ha poteri speciali
-• Può votare durante le fasi di linciaggio
-• Deve usare la logica e l'osservazione per identificare i lupi
-• La sua sopravvivenza è cruciale per la vittoria del villaggio`,
+• Non ha poteri speciali`,
     angeloLong: `L'Angelo è un essere divino capace di resuscitare i morti.
 
 COME FUNZIONA:
 • Può resuscitare un giocatore morto
 • L'azione può essere usata solo una volta per partita
-• Il giocatore resuscitato torna in gioco con il suo ruolo originale
-• Deve essere strategico nel momento della resurrezione`,
-    barabbaLong: `Barabba è un criminale che può uccidere un giocatore una volta per partita quando è morto.
+• Il giocatore resuscitato torna in gioco con il suo ruolo originale`,
+    barabbaLong: `Quando muore, può portare con se un giocatore nell'aldilà.
 
 COME FUNZIONA:
 • Può uccidere un giocatore durante la notte quando è morto
-• L'azione può essere usata solo una volta per partita
-• Non può uccidere se stesso
-• Deve essere strategico nella sua scelta`,
-    mattoLong: `Il Matto è un giocatore che vince se viene linciato dal villaggio.
+• L'azione può essere usata solo una volta per partita`,
+    mattoLong: `Il Matto è un contadino che vince se viene linciato dal villaggio.
 
 COME FUNZIONA:
 • Vince immediatamente se viene linciato
 • Non ha altri poteri speciali
-• Deve convincere il villaggio a linciarlo
-• Deve essere sottile nella sua strategia`,
+• Deve convincere il villaggio a linciarlo`,
     lupomannaroLong: `Il Lupo Mannaro è un lupo che può uccidere giocatori dichiarando correttamente il loro ruolo.
+    Gioca da solo e non può essere ucciso dai lupi.
+    Vince se sopravvive fino alla fine del gioco.
 
 COME FUNZIONA:
-• Si comporta come un lupo normale
+• Non può essere ucciso dai lupi
 • Può uccidere un giocatore dichiarando il suo ruolo
 • Se la dichiarazione è corretta, il giocatore muore
-• Se la dichiarazione è sbagliata, nessuno muore
-• I lupi non possono ucciderlo`,
-    muccamannaraLong: `La Mucca Mannara è un lupo che appare come villico agli investigatori.
+• Se la dichiarazione è sbagliata, nessuno muore`,
+    muccamannaraLong: `La Mucca Mannara gioca da sola. Conosce i lupi e appare come lupo.
+    Vince se sopravvive fino alla fine del gioco.
 
 COME FUNZIONA:
-• Si comporta come un lupo normale
-• Appare come villico quando investigata
-• Può confondere le investigazioni
-• Deve essere strategica nella sua sopravvivenza`,
-    indemoniatoLong: `L'Indemoniato è un lupo che non può essere ucciso dai lupi.
+• Non può essere uccisa dai lupi
+• Appare come lupo quando investigata
+• Può confondere le investigazioni`,
+    indemoniatoLong: `L'Indemoniato è un contadino che gioca per i lupi.
 
 COME FUNZIONA:
-• Si comporta come un lupo normale
-• Non può essere ucciso dagli altri lupi
-• Può essere ucciso solo dal villaggio
-• Deve essere strategico nella sua sopravvivenza`,
-    insinuoLong: `L'Insinuo è un giocatore che può cambiare la fazione visibile di un altro giocatore.
+• Si comporta come un contadio normale
+• Deve aiutare i lupi a vincere anche se non sa chi sono`,
+    insinuoLong: `L'Insinuo lavora per i lupi. Può cambiare la fazione di un giocatore agli occhi
+    degli altri giocatori che lo controllano.
 
 COME FUNZIONA:
 • Ogni notte può scegliere un giocatore da "insinuare"
-• Cambia la fazione visibile del giocatore scelto
+• Cambia la fazione del giocatore scelto, se era lupo apparirà come villico, se era villico apparirà come lupo
 • L'effetto dura per una notte
 • Può confondere le investigazioni`,
-    illusionistaLong: `L'Illusionista è un giocatore che può bloccare l'abilità di un altro giocatore.
+    illusionistaLong: `L'Illusionista gioca per i lupi. Può bloccare l'abilità di un altro giocatore.
 
 COME FUNZIONA:
 • Ogni notte può scegliere un giocatore da bloccare
 • Il giocatore bloccato non può usare la sua abilità quella notte
 • L'effetto dura per una notte
-• Può essere strategico nel bloccare i lupi`,
-    genioLong: `Il Genio è un giocatore che può trasformarsi nel ruolo di un altro giocatore.
+• Se è presente un altro giocatore vivo con lo stesso ruolo del giocatore bloccato, 
+  quei giocatori possono usare lo stesso la loro abilità`,
+    genioLong: `Il Genio può trasformarsi in un altro ruolo scelto tra tre a caso.
+    Può usare questo potere solo una volta per partita, a partire dalla terza notte.
 
 COME FUNZIONA:
-• Può scegliere un giocatore e trasformarsi nel suo ruolo
-• L'azione può essere usata solo una volta per partita
-• Assume tutti i poteri del ruolo scelto
-• Deve essere strategico nella sua scelta`,
-    parassitaLong: `Il Parassita è un giocatore che vince se sopravvive fino alla fine del gioco.
+• Può scegliere un ruolo tra tre a caso (scelti dal narratore)
+• L'azione può essere usata solo una volta per partita`,
+    parassitaLong: `Il Parassita vince se riesce ad infettare tutti i giocatori vivi.
 
 COME FUNZIONA:
-• Non ha poteri speciali
-• Vince se sopravvive fino alla fine
-• Deve essere strategico nella sua sopravvivenza
-• Può allearsi con chiunque per sopravvivere`,
-    simbionteLong: `Il Simbionte è un giocatore che può assumere il ruolo di un altro giocatore.
+• La prima notte può infettare fino a 3 giocatori
+• La seconda notte può infettare fino a 2 giocatori
+• Dalla terza notte, in poi, può infettare 1 giocatore
+• Vince se tutti gli altri giocatori vivi sono infetti`,
+    simbionteLong: `Il Simbionte assume il ruolo di un altro giocatore. La prima notte deve 
+    scegliere un giocatore e assumerà, immediatamente, il suo ruolo.
 
 COME FUNZIONA:
-• Può scegliere un giocatore e assumere il suo ruolo
-• L'azione può essere usata solo una volta per partita
-• Assume tutti i poteri del ruolo scelto
-• Deve essere strategico nella sua scelta`,
-    mutaformaLong: `La Mutaforma è un giocatore che può copiare il ruolo di un altro giocatore.
+• Deve scegliere un giocatore e assumere il suo ruolo
+• L'azione può essere usata solo una volta per partita`,
+    mutaformaLong: `La Mutaforma è un alieno che, ogni notte, può copiare il ruolo di un altro giocatore.
 
 COME FUNZIONA:
-• Può scegliere un giocatore e copiare il suo ruolo
-• L'azione può essere usata solo una volta per partita
-• Copia tutti i poteri del ruolo scelto
-• Deve essere strategica nella sua scelta`,
-    misspurpleLong: `Miss Purple è un ruolo misterioso con poteri speciali.
+• Può scegliere un giocatore e copiare il suo ruolo per quella notte
+• Copia tutti i poteri del ruolo scelto`,
+    misspurpleLong: `Miss Purple è una contadina che, ogni notte, scopre quanti giocatori che 
+    appaiono come lupi sono vivi.
 
 COME FUNZIONA:
-• Ha poteri speciali unici
-• La sua identità è segreta
-• Deve essere strategica nell'uso dei suoi poteri
-• Può influenzare il corso del gioco`,
-    bugiardoLong: `Il Bugiardo è un giocatore che può investigare i giocatori morti per scoprire i loro ruoli.
+• Ogni notte scopre quanti giocatori che appaiono come lupi sono vivi`,
+    bugiardoLong: `Il Bugiardo lavora per i lupi. Una volta per partita può scoprire il ruolo di 
+    un giocatore morto.
 
 COME FUNZIONA:
 • Può investigare i giocatori morti
-• Scopre informazioni sui ruoli dei morti
-• Può essere utile per capire la composizione del gioco
-• Deve essere strategico nelle sue investigazioni`,
-    ammaestratoreLong: `L'Ammaestratore è un giocatore che può reindirizzare gli attacchi dei lupi.
+• Scopre il ruolo di un giocatore morto
+• Può aiutare i lupi fingendo di avere il ruolo che ha scoperto`,
+    ammaestratoreLong: `L'Ammaestratore può ammaestrare i lupi e costringerli a sbranare una vittima scelta da lui.
+    Se l'ammaestratore sceglie un lupo come vittima , nessuno muore. 
+    Se sceglie un altro giocatore, muore al posto del bersaglio originale dei lupi.
 
 COME FUNZIONA:
 • Può scegliere un bersaglio per gli attacchi dei lupi
 • Se sceglie un lupo, nessuno muore
-• Se sceglie un altro giocatore, muore al posto del bersaglio originale
-• Deve essere strategico nella sua scelta`,
+• Se sceglie un altro giocatore, muore al posto del bersaglio originale`,
     lupoCiccioneLong: `Il Lupo Ciccione è un lupo che fa apparire i giocatori adiacenti come lupi.
 
 COME FUNZIONA:
-• Si comporta come un lupo normale
-• Fa apparire i giocatori a sinistra e destra come lupi
-• Può confondere le investigazioni
-• Deve essere strategico nella sua sopravvivenza`,
-    lupoCiecoLong: `Il Lupo Cieco è un lupo che investiga tre giocatori contigui.
+• Si comporta come un lupo normale, quindi apre gli occhi con i lupi
+• Fa apparire i primi due giocatori vivi alla sua sinistra e destra come lupi
+• Può confondere le investigazioni`,
+    lupoCiecoLong: `Il Lupo Cieco è un lupo solitario che non conosce gli altri lupi.
+    Gli altri lupi non lo conoscono. Può investigare tre giocatori contigui e scoprire se 
+    c'è almeno un lupo tra i tre.
 
 COME FUNZIONA:
 • Ogni notte investiga tre giocatori contigui
 • Scopre se c'è almeno un lupo tra i tre
-• Se tutti i lupi sono morti, può anche uccidere
-• Deve essere strategico nelle sue investigazioni`,
+• Se tutti i lupi sono morti, può anche uccidere come un lupo normale`,
     mediumLong: `Il Medium può comunicare con i giocatori morti per ottenere informazioni.
 
 COME FUNZIONA:
 • Ogni notte può scegliere un giocatore morto con cui comunicare
-• Scopre per chi giocava il giocatore morto
-• L'azione è obbligatoria: deve agire ogni notte
-• I risultati vengono mostrati solo al Medium`
+• Scopre per chi giocava il giocatore morto`
   },
 
   // Faction names

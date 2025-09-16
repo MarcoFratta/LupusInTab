@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.0...v1.15.1) (2025-09-16)
+
+
+### Bug Fixes
+
+* better caching ([8c7c503](https://github.com/MarcoFratta/LupusInTab/commit/8c7c50357c20e2d4930bd5012816a69d34c2e5f4))
+
 # [1.15.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.14.3...v1.15.0) (2025-09-14)
 
 

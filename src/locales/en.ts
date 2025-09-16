@@ -40,7 +40,8 @@ export default {
     warning: 'Warning',
     info: 'Information',
     execute: 'Execute',
-    none: 'None'
+    none: 'None',
+    unknown: 'Unknown'
   },
 
   // Game phases
@@ -857,7 +858,8 @@ HOW IT WORKS:
   // New roles popup
   newRoles: {
     title: 'New Roles Available!',
-    description: 'New roles have arrived in the village! Here\'s what\'s new:'
+    description: 'New roles have arrived in the village! Here\'s what\'s new:',
+    gotIt: 'Perfect! I understand'
   },
 
   // Genio role

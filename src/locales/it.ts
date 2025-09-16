@@ -40,7 +40,8 @@ export default {
     warning: 'Avviso',
     info: 'Informazione',
     execute: 'Giustizia',
-    none: 'Nessuno'
+    none: 'Nessuno',
+    unknown: 'Sconosciuto'
   },
 
   // Game phases
@@ -892,7 +893,8 @@ COME FUNZIONA:
   // New roles popup
   newRoles: {
     title: 'Nuovi Ruoli Disponibili!',
-    description: 'Sono arrivati nuovi ruoli nel villaggio! Ecco cosa c\'è di nuovo:'
+    description: 'Sono arrivati nuovi ruoli nel villaggio! Ecco cosa c\'è di nuovo:',
+    gotIt: 'Perfetto! Ho capito'
   },
 
   // Genio role

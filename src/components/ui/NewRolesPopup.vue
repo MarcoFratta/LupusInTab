@@ -48,7 +48,7 @@
 					@click="closePopup"
 					class="w-full btn btn-accent font-semibold rounded-xl shadow-xl shadow-violet-500/30 hover:shadow-2xl hover:shadow-violet-500/40 transform hover:scale-105 active:scale-95 transition-all duration-300 text-base py-3"
 				>
-					Perfetto! Ho capito
+					{{ t('newRoles.gotIt') }}
 				</button>
 			</div>
 		</div>
@@ -77,12 +77,12 @@ const emit = defineEmits<Emits>();
 const { t } = useI18n();
 
 const getRoleName = (roleId: string): string => {
-	return ROLES[roleId]?.name || roleId;
+	return t(`roleNames.${roleId}`) || roleId;
 };
 
 const getFactionName = (roleId: string): string => {
 	const role = ROLES[roleId];
-	return getFactionDisplayName(role?.team, t) || 'Sconosciuto';
+	return getFactionDisplayName(role?.team, t) || t('common.unknown');
 };
 
 const getFactionColor = (roleId: string): string => {

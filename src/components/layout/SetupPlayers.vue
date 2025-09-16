@@ -52,7 +52,7 @@ const hasNameErrors = computed(() => {
 function resetNames() {
   // Reset to default configuration (10 players with default roles)
   state.setup.numPlayers = 10; // Explicitly set to default 10 players
-  engineInitSetupPlayers(state);
+  engineInitSetupPlayers(state, t);
   state.setup.numPlayers = state.setup.players.length;
   engineNormalizeRoleCounts(state);
 }

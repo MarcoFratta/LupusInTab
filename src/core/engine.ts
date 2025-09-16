@@ -15,7 +15,8 @@ export const getAlivePlayers = GameStateManager.getAlivePlayers;
 export const getAliveTeams = GameStateManager.getAliveTeams;
 
 // Setup functions
-export const initSetupPlayers = SetupManager.initSetupPlayers;
+export const initSetupPlayers = (state: GameState, t?: (key: string, params?: any) => string) => 
+  SetupManager.initSetupPlayers(state, t);
 export const initDefaultRolesCounts = SetupManager.initDefaultRolesCounts;
 export const resizePlayers = SetupManager.resizePlayers;
 export const normalizeRoleCounts = SetupManager.normalizeRoleCounts;

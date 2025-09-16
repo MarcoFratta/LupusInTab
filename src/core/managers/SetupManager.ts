@@ -12,15 +12,23 @@ export class SetupManager {
   /**
    * Initialize setup players array
    */
-  static initSetupPlayers(state: GameState): void {
+  static initSetupPlayers(state: GameState, t?: (key: string, params?: any) => string): void {
     // If numPlayers is not set or is 0, default to configured value
     if (!state.setup.numPlayers || state.setup.numPlayers === 0) {
       state.setup.numPlayers = DEFAULT_ROLES_CONFIG.defaultPlayerCount;
     }
     
+    // Use translation function if provided, otherwise fallback to Italian
+    const getPlayerName = (index: number) => {
+      if (t) {
+        return t('players.placeholder', { number: index + 1 });
+      }
+      return `Giocatore ${index + 1}`;
+    };
+    
     state.setup.players = Array.from(
       { length: state.setup.numPlayers }, 
-      (_, i) => ({ name: `Giocatore ${i + 1}` })
+      (_, i) => ({ name: getPlayerName(i) })
     );
     SetupManager.initDefaultRolesCounts(state);
   }

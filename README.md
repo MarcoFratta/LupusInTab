@@ -44,6 +44,22 @@ LupusInTab is a social deduction game where players take on different roles and 
 4. **Open your browser**
    Navigate to `http://localhost:5173`
 
+## 🌐 App Availability
+
+LupusInTab is available on multiple platforms:
+
+### 🌍 Web App
+- **Universal Access**: Play on any device with a modern web browser
+- **No Installation Required**: Just visit [https://lupus-in-tabula.vercel.app/](https://lupus-in-tabula.vercel.app/)
+- **Cross-Platform**: Works on desktop, tablet, and mobile devices
+- **Always Updated**: Get the latest features automatically
+
+### 📱 Android App
+- **Native Experience**: Optimized for Android devices
+- **Offline Play**: Full functionality without internet connection
+- **Google Play Store**: Download from [Play Store](https://play.google.com/store/apps/details?id=com.lupus.master&hl=it)
+- **Easy Installation**: One-tap install from the Play Store
+
 ## 🎯 How to Play
 
 ### Basic Game Flow
@@ -223,7 +239,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🚀 Roadmap
 
-- [ ] Mobile app version
+- [x] Mobile app version (Android available on Play Store)
+- [ ] iOS app version
 - [ ] Online multiplayer support
 - [ ] Role editor interface
 - [ ] Tournament mode

@@ -44,7 +44,7 @@ const getFactionColor = (roleId: string) => {
 <template>
   <div class="space-y-4">
     <template v-if="bugiardoEvents.length">
-      <div v-for="event in bugiardoEvents" :key="'bg-' + event.playerId + '-' + event.targetId" class="space-y-3">
+      <div v-for="event in bugiardoEvents" :key="'bg-' + event.playerId + '-' + event.targetId" class="space-y-2">
         <RoleComparisonCard
           :game-state="props.gameState"
           :left-player="bugiardoPlayers"

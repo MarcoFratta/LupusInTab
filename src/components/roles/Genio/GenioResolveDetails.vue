@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <div v-if="!genioEvent" class="text-neutral-400 text-center text-xs">{{ t('roleDetails.noTransformation') }}</div>
     
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-2">
       <!-- Players who used the role -->
       <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
         <div class="flex flex-wrap gap-1 justify-center">

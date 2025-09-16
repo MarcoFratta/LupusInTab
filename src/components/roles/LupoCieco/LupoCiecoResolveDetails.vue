@@ -74,7 +74,7 @@ const getResultColor = (result) => {
       </p>
     </div>
     
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-2">
       <RoleComparisonCard
         :game-state="props.gameState"
         :left-player="lupoCiecoPlayers"
@@ -96,7 +96,7 @@ const getResultColor = (result) => {
     </div>
     
     <!-- Killing Results -->
-    <div v-if="killTargetId" class="space-y-3 mt-6">
+    <div v-if="killTargetId" class="space-y-2 mt-6">
       <div class="w-full h-px bg-neutral-700/40"></div>
       
       <RoleComparisonCard

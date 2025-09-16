@@ -37,7 +37,7 @@ const getFactionColor = (faction: string) => {
 <template>
   <div class="space-y-4">
     <template v-if="investigationEvents.length">
-      <div v-for="event in investigationEvents" :key="'medium-' + event.playerId + '-' + (event.data?.target || 'no-target')" class="space-y-3">
+      <div v-for="event in investigationEvents" :key="'medium-' + event.playerId + '-' + (event.data?.target || 'no-target')" class="space-y-2">
         <RoleComparisonCard
           :game-state="props.gameState"
           :left-player="mediumPlayers"

@@ -38,7 +38,7 @@ const targetPlayer = computed(() => {
 
 <template>
   <div class="space-y-4">
-    <div v-if="redirectInfo && targetPlayer" class="space-y-3">
+    <div v-if="redirectInfo && targetPlayer" class="space-y-2">
       <RoleComparisonCard
         :game-state="props.gameState"
         :left-player="ammaestratorePlayers"

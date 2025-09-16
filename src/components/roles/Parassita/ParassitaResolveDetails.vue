@@ -54,7 +54,7 @@ const infectAction = computed(() => {
       </p>
     </div>
     
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-2">
       <RoleComparisonCard
         :game-state="props.gameState"
         :left-player="parassitaPlayers"

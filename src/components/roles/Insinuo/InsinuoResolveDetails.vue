@@ -1,6 +1,6 @@
 <template>
     <div class="space-y-4 mb-2">
-        <div v-if="insinuoEvent" class="space-y-3">
+        <div v-if="insinuoEvent" class="space-y-2">
             <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
                 <div class="flex flex-wrap gap-1 justify-center">
                     <span 
@@ -17,7 +17,7 @@
                 </div>
             </div>
             
-            <div class="text-center space-y-1.5">
+            <div class="text-center space-y-2">
                 <div class="text-neutral-100 font-medium truncate max-w-full" :title="getTargetName(insinuoEvent.targetId)">{{ getTargetName(insinuoEvent.targetId) }}</div>
                 <FactionComparisonCard 
                     :current-team="insinuoEvent.previousFaction || 'villaggio'"

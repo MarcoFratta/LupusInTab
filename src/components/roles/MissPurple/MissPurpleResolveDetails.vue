@@ -27,7 +27,7 @@ const misspurplePlayers = computed(() => {
 <template>
   <div class="space-y-4">
     <template v-if="misspurpleEvents.length">
-      <div v-for="event in misspurpleEvents" :key="'mp-' + event.playerId + '-' + event.nightNumber" class="space-y-3">
+      <div v-for="event in misspurpleEvents" :key="'mp-' + event.playerId + '-' + event.nightNumber" class="space-y-2">
         <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-lg p-3">
           <div class="flex flex-wrap gap-1 justify-center">
             <span 

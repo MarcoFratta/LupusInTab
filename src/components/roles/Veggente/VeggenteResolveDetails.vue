@@ -39,7 +39,7 @@ const getFactionColor = (faction: string) => {
   <div>
     <template v-if="investigationEvents.length">
       <div v-for="event in investigationEvents" :key="'mc-' + event.playerId + '-' + (event.data?.target || 'no-target')" 
-      class="space-y-1">
+      class="space-y-2">
         <!-- Player Comparison Row using RoleComparisonCard -->
         <RoleComparisonCard
           class=""

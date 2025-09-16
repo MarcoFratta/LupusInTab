@@ -32,7 +32,7 @@ const buttonClasses = computed(() => {
       'font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg';
   
   const variantClasses = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/25',
+    primary: 'bg-violet-600 hover:bg-violet-700 text-white shadow-violet-500/25',
     secondary: 'bg-neutral-600 hover:bg-neutral-700 text-white shadow-neutral-500/25',
     accent: 'bg-violet-600 hover:bg-violet-700 text-white shadow-violet-500/25'
   };

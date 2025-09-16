@@ -13,6 +13,17 @@ export default defineConfig({
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
                 runtimeCaching: [
                     {
+                        urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/version\.json$/i,
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'version-cache',
+                            expiration: {
+                                maxEntries: 1,
+                                maxAgeSeconds: 60 // Very short cache for version.json
+                            }
+                        }
+                    },
+                    {
                         urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/.*/i,
                         handler: 'StaleWhileRevalidate',
                         options: {

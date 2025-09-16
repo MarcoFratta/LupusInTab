@@ -1,3 +1,10 @@
+## [1.15.4](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.3...v1.15.4) (2025-09-16)
+
+
+### Bug Fixes
+
+* fix reset button ([b3a52ea](https://github.com/MarcoFratta/LupusInTab/commit/b3a52ea9833adcfc065fc6515aca7c4525ed20a4))
+
 ## [1.15.3](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.2...v1.15.3) (2025-09-16)
 
 

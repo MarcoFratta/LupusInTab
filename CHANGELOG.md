@@ -1,3 +1,11 @@
+## [1.15.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.1...v1.15.2) (2025-09-16)
+
+
+### Bug Fixes
+
+* fix new roles popup ([1ca54b1](https://github.com/MarcoFratta/LupusInTab/commit/1ca54b1dc5a31f5bc2931cf09b99cd563520dd1b))
+* fix new roles popup ([d54d126](https://github.com/MarcoFratta/LupusInTab/commit/d54d126500247b87e72481c26505b2d8c51949e5))
+
 ## [1.15.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.0...v1.15.1) (2025-09-16)
 
 

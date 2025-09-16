@@ -30,56 +30,30 @@ export const simbionte: RoleDef = {
                 return null;
             }
 
-            const targetPlayer = RoleAPI.getPlayer(target.playerId);
+            const targetPlayer = RoleAPI.getPlayerFromState(target.playerId, gameState);
             if (!targetPlayer || !targetPlayer.roleId) {
                 return null;
             }
 
             // Get the players from the action (the ones who are acting with this role)
             const actingPlayerIds = action.playerIds || [action.playerId];
-            const actingPlayers = actingPlayerIds.map((id: number) => RoleAPI.getPlayer(id)).filter(Boolean);
+            const actingPlayers = actingPlayerIds.map((id: number) => RoleAPI.getPlayerFromState(id, gameState)).filter(Boolean);
             
-            console.log(`🔄 [DEBUG] Simbionte transformation starting:`);
-            console.log(`🔄 [DEBUG] Acting players:`, actingPlayers.map(p => ({ id: p.id, name: p.name, roleId: p.roleId })));
-            console.log(`🔄 [DEBUG] Target role: ${targetPlayer.roleId} (${targetPlayer.name})`);
-            console.log(`🔄 [DEBUG] Current player roles:`, RoleAPI.getAlivePlayers().map((p: any) => ({ id: p.id, name: p.name, roleId: p.roleId })));
+            if (actingPlayers.length === 0) {
+                return null;
+            }
             
             const newRoleDef = ROLES[targetPlayer.roleId];
             if (!newRoleDef) return null;
             
-            // Transform only the acting players
-            const transformedPlayers = [];
-            for (const player of actingPlayers) {
-                player.roleId = targetPlayer.roleId;
-                PlayerManager.initializePlayerRoleState(player, newRoleDef);
-                transformedPlayers.push(player);
-                console.log(`🔄 [DEBUG] Transformed player ${player.name} (ID: ${player.id}) to ${player.roleId}`);
+            // Use the new API to transform players
+            const transformationResults = RoleAPI.changeMultiplePlayerRoles(actingPlayerIds, targetPlayer.roleId, gameState);
+            
+            if (transformationResults.length === 0) {
+                return null;
             }
             
-            console.log(`🔄 [DEBUG] Transformation complete. ${transformedPlayers.length} players transformed to ${targetPlayer.roleId}`);
-            console.log(`🔄 [DEBUG] Updated player roles:`, RoleAPI.getAlivePlayers().map((p: any) => ({ id: p.id, name: p.name, roleId: p.roleId, actsAtNight: p.roleState?.actsAtNight })));
-            
-            // Handle role transformation during night phase
-            if (gameState.phase === 'night' && gameState.night?.context) {
-                console.log(`🔄 [DEBUG] Simbionte transformation complete. Night phase will continue dynamically.`);
-                
-                // Remove the original simbionte role from calledRoles if it was added
-                const calledRoles = gameState.night.context.calledRoles;
-                const simbionteIndex = calledRoles.indexOf('simbionte');
-                if (simbionteIndex !== -1) {
-                    calledRoles.splice(simbionteIndex, 1);
-                    console.log(`🔄 [DEBUG] Removed 'simbionte' from calledRoles to allow new role to act`);
-                }
-            }
-            
-            // Clean up usedPowers for all transformed players
-            if (gameState.usedPowers && gameState.usedPowers[targetPlayer.roleId]) {
-                for (const player of transformedPlayers) {
-                    gameState.usedPowers[targetPlayer.roleId] = gameState.usedPowers[targetPlayer.roleId].filter(
-                        (playerId: number) => playerId !== player.id
-                    );
-                }
-            }
+            const transformedPlayers = transformationResults.map(result => result.player);
             
             const historyObject = {
                 type: 'simbionte_transform',

@@ -157,6 +157,39 @@ describe('Guardia (Doctor) Role', () => {
       expect(mockGameState.night.context.savesBy[0].target).toBe(3);
       expect(mockGameState.night.context.savesBy[0].fromRoles).toEqual(['lupo']);
     });
+
+    it('should handle skip action', () => {
+      const action = {
+        playerId: 1,
+        playerIds: [1],
+        skipped: true,
+        data: {}
+      };
+
+      const result = guardia.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(result.type).toBe('guardia_skip');
+      expect(result.skipped).toBe(true);
+      expect(result.targetId).toBeNull();
+      expect(mockGameState.night.context.savesBy).toHaveLength(0);
+    });
+
+    it('should handle skip action with data.skipped flag', () => {
+      const action = {
+        playerId: 1,
+        playerIds: [1],
+        data: { skipped: true }
+      };
+
+      const result = guardia.resolve(mockGameState, action);
+
+      expect(result).toBeDefined();
+      expect(result.type).toBe('guardia_skip');
+      expect(result.skipped).toBe(true);
+      expect(result.targetId).toBeNull();
+      expect(mockGameState.night.context.savesBy).toHaveLength(0);
+    });
   });
 
   describe('Win Condition', () => {

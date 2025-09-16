@@ -1,7 +1,8 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useGameStore } from '../../../stores/game';
-import GenericTargetSelectPrompt from '../../ui/prompts/GenericTargetSelectPrompt.vue';
+import PromptSelect from '../../ui/prompts/PromptSelect.vue';
+import SkipConfirmButtons from '../../ui/SkipConfirmButtons.vue';
 import { useI18n } from '../../../composables/useI18n';
 import { getRoleDisplayName } from '../../../utils/roleUtils';
 
@@ -15,16 +16,24 @@ const props = defineProps({
 
 const store = useGameStore();
 const state = store.state;
+const targetId = ref(null);
 
 const choices = computed(() => {
 	const alivePlayers = state.players.filter((p) => 
 		p && p.alive
 	);
 	
-	return alivePlayers.map((p) => ({
-		label: p.name,
-		value: p.id
-	}));
+	return [
+		{ label: t('rolePrompts.selectPlayer'), value: null },
+		...alivePlayers.map((p) => ({
+			label: p.name,
+			value: p.id
+		}))
+	];
+});
+
+const canSubmit = computed(() => {
+	return targetId.value !== null && Number.isFinite(Number(targetId.value)) && Number(targetId.value) > 0;
 });
 
 function handleComplete(data) {
@@ -34,6 +43,15 @@ function handleComplete(data) {
 		saverPlayerId: props.playerIds[0] || 0
 	};
 	props.onComplete(result);
+}
+
+function handleSkip() {
+	props.onComplete({ 
+		targetId: null,
+		saverRole: 'guardia',
+		saverPlayerId: props.playerIds[0] || 0,
+		skipped: true
+	});
 }
 </script>
 
@@ -45,15 +63,25 @@ function handleComplete(data) {
 			</div>
 		</div>
 		
-		<GenericTargetSelectPrompt
-			:title="t('rolePrompts.protectPlayer')"
-			:description="t('rolePrompts.protectPlayer')"
-			:label="t('rolePrompts.whoToProtect')"
-			:buttonText="t('rolePrompts.confirmSelection')"
-			accent="emerald"
-			:choices="choices"
-			@complete="handleComplete"
-		/>
+		<div class="space-y-6">
+			<div class="text-center space-y-3">
+				<h3 class="text-lg font-semibold text-white">{{ t('rolePrompts.protectPlayer') }}</h3>
+				<p class="text-neutral-400 text-base font-medium">{{ t('rolePrompts.whoToProtect') }}</p>
+			</div>
+			
+			<PromptSelect
+				:label="t('rolePrompts.whoToProtect')"
+				v-model="targetId"
+				:choices="choices"
+				accent="emerald"
+			/>
+			
+			<SkipConfirmButtons
+				:confirm-disabled="!canSubmit"
+				@confirm="handleComplete({ targetId: targetId })"
+				@skip="handleSkip"
+			/>
+		</div>
 	</div>
 </template>
 

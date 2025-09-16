@@ -115,10 +115,10 @@ export default {
     skipFirstNightDescription: 'Tutti i ruoli vengono chiamati nella Notte 1, ma i loro effetti sono ignorati.',
     enableMayor: 'Abilita Sindaco',
     enableMayorDescription: 'Il voto del sindaco vale doppio durante la votazione quando è in vita.',
-    discussionTimer: 'Timer discussione (giorno)',
+    discussionTimer: 'Timer discussione',
     discussionTimerDescription: 'Mostra un timer compatto nella fase di linciaggio per la discussione (max 60 minuti).',
     maxDifficulty: 'Difficoltà Massima',
-    maxDifficultyDescription: 'Considera i raggruppamenti di ruoli durante i controlli. Es: Lupo Mannaro rileva Lupo Ciccione come Lupo.'
+    maxDifficultyDescription: 'Richiede dichiarazioni di ruoli più specifiche. Es: Il Boia deve dichiarare "Lupo Ciccione" invece di "Lupo" per uccidere un Lupo Ciccione.'
   },
 
   // Game state
@@ -251,18 +251,18 @@ export default {
     barabba: 'Può uccidere un giocatore una volta per partita quando è morto.',
     bugiardo: 'Può investigare i giocatori morti per scoprire i loro ruoli.',
     genio: 'Può trasformarsi nel ruolo di un altro giocatore una volta per partita.',
-    illusionista: 'Può confondere le indagini degli altri ruoli.',
+    illusionista: 'Può bloccare l\'abilità di un giocatore durante la notte.',
     indemoniato: 'Un lupo che vince con la squadra dei lupi.',
-    insinuo: 'Può influenzare le decisioni degli altri giocatori.',
+    insinuo: 'Può cambiare la fazione visibile di un giocatore durante la notte.',
     lupomannaro: 'Un lupo che può uccidere giocatori dichiarando correttamente il loro ruolo.',
     massone: 'Conosce l\'identità degli altri massoni.',
     matto: 'Vince se viene linciato.',
-    medium: 'Può comunicare con i giocatori morti.',
-    misspurple: 'Un ruolo misterioso con poteri speciali.',
+    medium: 'Può investigare un giocatore morto ogni notte per scoprire la sua fazione.',
+    misspurple: 'Può contare quanti lupi sono vivi ogni notte.',
     muccamannara: 'Una mucca che si trasforma in lupo.',
-    mutaforma: 'Può copiare il ruolo di un altro giocatore per una notte.',
+    mutaforma: 'Può usare il ruolo di un altro giocatore per una notte.',
     parassita: 'Infetta altri giocatori e vince quando tutti sono infetti.',
-    simbionte: 'Può assumere il ruolo di un altro giocatore una volta per partita.',
+    simbionte: 'Può trasformarsi nel ruolo di un altro giocatore una volta per partita.',
     villico: 'Un abitante del villaggio senza poteri speciali.',
     lupoCieco: 'Un lupo che investiga tre giocatori adiacenti ogni notte.',
     lupoCiccione: 'Un lupo che fa apparire i giocatori adiacenti come lupi.',
@@ -287,7 +287,12 @@ COME FUNZIONA:
 • Ogni notte può scegliere un giocatore da proteggere
 • Il giocatore protetto non può essere ucciso quella notte
 • Non può proteggere se stessa
-• L'azione è obbligatoria: deve proteggere ogni notte`,
+• L'azione è obbligatoria: deve proteggere ogni notte
+
+PERSONALIZZAZIONE:
+Questo è un ruolo generico che può essere adattato a diversi stili di gioco:
+• Può proteggere se stesso
+• Non può proteggere lo stesso giocatore due volte di seguito`,
     boiaLong: `Il Boia è un giocatore che può uccidere dichiarando correttamente il ruolo di un altro giocatore.
 
 COME FUNZIONA:
@@ -842,7 +847,7 @@ COME FUNZIONA:
     required: 'Obbligatorio - deve utilizzare l\'abilità',
     optional: 'Opzionale - può scegliere di utilizzare l\'abilità',
     usage: 'Utilizzo',
-    unlimited: 'Illimitato - può agire ogni notte',
+    unlimited: 'Illimitato',
     once: 'Una volta - può agire solo una volta per partita',
     times: 'volte',
     timesPerGame: 'per partita',

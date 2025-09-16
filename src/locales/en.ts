@@ -115,10 +115,10 @@ export default {
     skipFirstNightDescription: 'All roles are called on Night 1, but their effects are ignored.',
     enableMayor: 'Enable Mayor',
     enableMayorDescription: 'The mayor\'s vote counts double during voting when alive.',
-    discussionTimer: 'Discussion timer (day)',
+    discussionTimer: 'Discussion timer',
     discussionTimerDescription: 'Shows a compact timer in the lynching phase for discussion (max 60 minutes).',
     maxDifficulty: 'Maximum Difficulty',
-    maxDifficultyDescription: 'Consider role groupings during checks. E.g.: Werewolf detects Fat Wolf as Wolf.'
+    maxDifficultyDescription: 'Requires more specific role declarations. E.g.: The Executioner must declare "Fat Wolf" instead of "Wolf" to kill a Fat Wolf.'
   },
 
   // Game state
@@ -251,18 +251,18 @@ export default {
     barabba: 'Can kill a player once per game when dead.',
     bugiardo: 'Can investigate dead players to discover their roles.',
     genio: 'Can transform into another player\'s role once per game.',
-    illusionista: 'Can confuse other roles\' investigations.',
+    illusionista: 'Can block a player\'s ability during the night.',
     indemoniato: 'A wolf that wins with the wolf team.',
-    insinuo: 'Can influence other players\' decisions.',
+    insinuo: 'Can change a player\'s visible faction during the night.',
     lupomannaro: 'A wolf that can kill players by correctly declaring their role.',
     massone: 'Knows the identity of other masons.',
     matto: 'Wins if lynched.',
-    medium: 'Can communicate with dead players.',
-    misspurple: 'A mysterious role with special powers.',
+    medium: 'Can investigate a dead player every night to discover their faction.',
+    misspurple: 'Can count how many wolves are alive every night.',
     muccamannara: 'A cow that transforms into a wolf.',
-    mutaforma: 'Can copy another player\'s role for one night.',
+    mutaforma: 'Can use another player\'s role for one night.',
     parassita: 'Infects other players and wins when all are infected.',
-    simbionte: 'Can assume another player\'s role once per game.',
+    simbionte: 'Can transform into another player\'s role once per game.',
     villico: 'A village inhabitant with no special powers.',
     lupoCieco: 'A wolf that investigates three adjacent players each night.',
     lupoCiccione: 'A wolf that makes adjacent players appear as wolves.',
@@ -287,7 +287,12 @@ HOW IT WORKS:
 • Every night can choose a player to protect
 • The protected player cannot be killed that night
 • Cannot protect herself
-• The action is mandatory: must protect every night`,
+• The action is mandatory: must protect every night
+
+CUSTOMIZATION:
+This is a generic role that can be adapted to different playstyles:
+• Can protect themselves
+• Cannot protect the same player twice in a row`,
     boiaLong: `The Executioner is a player who can kill by correctly declaring another player's role.
 
 HOW IT WORKS:
@@ -592,7 +597,10 @@ HOW IT WORKS:
     powerOncePerGame: 'You can use this power only once per game',
     chooseTargetForWolves: 'Choose a target for the wolves to devour',
     chooseTargetToRedirect: 'Choose a target to redirect wolf attacks',
-    ammaestratoreDescription: 'If you choose a wolf, no one will die. If you choose another player, they will die instead of the original target.'
+    ammaestratoreDescription: 'If you choose a wolf, no one will die. If you choose another player, they will die instead of the original target.',
+    whoToReveal: 'Who do you want to reveal the role to?',
+    revealRole: 'Reveal role',
+    selectPlayerToRevealRole: 'Select a player to let them see their role again'
   },
   factionComparison: {
     before: 'Before:',
@@ -639,7 +647,6 @@ HOW IT WORKS:
     confirmLynch: 'Confirm lynching',
     whoToReveal: 'Who do you want to reveal the role to?',
     revealRole: 'Reveal role',
-    selectPlayerToRevealRole: 'Select a player to let them see their role again',
     checkFaction: 'Check a player\'s faction',
     discovered: 'Discovered that',
     noWolfAttacksToRedirect: 'No wolf attacks to redirect',
@@ -806,7 +813,7 @@ HOW IT WORKS:
     required: 'Required - must use the ability',
     optional: 'Optional - can choose to use the ability',
     usage: 'Usage',
-    unlimited: 'Unlimited - can act every night',
+    unlimited: 'Unlimited',
     once: 'Once - can act only once per game',
     times: 'times',
     timesPerGame: 'per game',

@@ -95,7 +95,7 @@ describe('Simbionte Role', () => {
       expect(result.type).toBe('simbionte_transform');
       expect(result.oldRoleId).toBe('simbionte');
       expect(result.newRoleId).toBe('villico');
-      expect(result.newRoleName).toBe('Contadino');
+      expect(result.newRoleName).toBe('roleNames.villico');
       expect(result.newRoleTeam).toBe('villaggio');
       expect(result.targetPlayerId).toBe(2);
       expect(result.targetPlayerName).toBe('Villico Player');
@@ -112,7 +112,7 @@ describe('Simbionte Role', () => {
 
       expect(result).toBeDefined();
       expect(result.newRoleId).toBe('lupo');
-      expect(result.newRoleName).toBe('Lupo');
+      expect(result.newRoleName).toBe('roleNames.lupo');
       expect(result.newRoleTeam).toBe('lupi');
     });
 

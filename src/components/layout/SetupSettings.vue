@@ -87,46 +87,6 @@ const toggleSetting = (key: string) => {
            :title="t('settings.title')"
          />
 
-    <!-- Language Selection -->
-    <div class="space-y-4">
-      <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.language') }}</h3>
-      
-      <div class="p-4 rounded-lg border border-neutral-800/40 bg-neutral-900/30">
-        <div class="space-y-3">
-          <div class="space-y-1">
-            <span class="text-sm font-medium text-neutral-200">{{ t('settings.selectLanguage') }}</span>
-            <p class="text-xs text-neutral-500 leading-relaxed text-left">
-              {{ t('settings.languageDescription') }}
-            </p>
-          </div>
-          
-          <div class="relative">
-            <select 
-              :value="currentLocale.code"
-              @change="changeLanguage(($event.target as HTMLSelectElement).value)"
-              class="w-full px-3 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 appearance-none cursor-pointer"
-            >
-              <option 
-                v-for="locale in availableLocales" 
-                :key="locale.code" 
-                :value="locale.code"
-                class="bg-neutral-800 text-neutral-200"
-              >
-                {{ locale.flag }} {{ locale.name }}
-              </option>
-            </select>
-            
-            <!-- Custom dropdown arrow -->
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="space-y-4">
       <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.gameOptions') }}</h3>
       
@@ -208,6 +168,46 @@ const toggleSetting = (key: string) => {
                 class="flex-1 py-2.5 px-4 bg-neutral-600/20 hover:bg-neutral-600/30 text-neutral-400 hover:text-neutral-300 text-sm font-medium rounded-lg transition-all duration-200 border border-neutral-500/30 hover:border-neutral-500/50">
                 {{ t('settings.reportIssue') }}
               </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language Selection -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.language') }}</h3>
+      
+      <div class="p-4 rounded-lg border border-neutral-800/40 bg-neutral-900/30">
+        <div class="space-y-3">
+          <div class="space-y-1">
+            <span class="text-sm font-medium text-neutral-200">{{ t('settings.selectLanguage') }}</span>
+            <p class="text-xs text-neutral-500 leading-relaxed text-left">
+              {{ t('settings.languageDescription') }}
+            </p>
+          </div>
+          
+          <div class="relative">
+            <select 
+              :value="currentLocale.code"
+              @change="changeLanguage(($event.target as HTMLSelectElement).value)"
+              class="w-full px-3 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 appearance-none cursor-pointer"
+            >
+              <option 
+                v-for="locale in availableLocales" 
+                :key="locale.code" 
+                :value="locale.code"
+                class="bg-neutral-800 text-neutral-200"
+              >
+                {{ locale.flag }} {{ locale.name }}
+              </option>
+            </select>
+            
+            <!-- Custom dropdown arrow -->
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
             </div>
           </div>
         </div>

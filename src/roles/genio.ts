@@ -33,7 +33,7 @@ export const genio: RoleDef = {
 
             // Get the players from the action (the ones who are acting with this role)
             const actingPlayerIds = action.playerIds || [action.playerId];
-            const actingPlayers = actingPlayerIds.map((id: number) => RoleAPI.getPlayer(id)).filter(Boolean);
+            const actingPlayers = actingPlayerIds.map((id: number) => RoleAPI.getPlayerFromState(id, gameState)).filter(Boolean);
             
             console.log(`🔄 [DEBUG] Genio transformation starting:`);
             console.log(`🔄 [DEBUG] Acting players:`, actingPlayers.map((p: any) => ({ id: p.id, name: p.name, roleId: p.roleId })));
@@ -48,39 +48,17 @@ export const genio: RoleDef = {
             const newRoleDef = ROLES[target.roleId];
             if (!newRoleDef) return null;
             
-            // Transform only the acting players
-            const transformedPlayers = [];
-            for (const player of actingPlayers) {
-                player.roleId = target.roleId;
-                PlayerManager.initializePlayerRoleState(player, newRoleDef);
-                transformedPlayers.push(player);
-                console.log(`🔄 [DEBUG] Transformed player ${player.name} (ID: ${player.id}) to ${player.roleId}`);
+            // Use the new API to transform players
+            const transformationResults = RoleAPI.changeMultiplePlayerRoles(actingPlayerIds, target.roleId, gameState);
+            
+            if (transformationResults.length === 0) {
+                console.log(`🔄 [DEBUG] No players were successfully transformed`);
+                return null;
             }
             
-            console.log(`🔄 [DEBUG] Transformation complete. ${transformedPlayers.length} players transformed to ${target.roleId}`);
+            const transformedPlayers = transformationResults.map(result => result.player);
+            
             console.log(`🔄 [DEBUG] Updated player roles:`, RoleAPI.getAlivePlayers().map((p: any) => ({ id: p.id, name: p.name, roleId: p.roleId, actsAtNight: p.roleState?.actsAtNight })));
-            
-            // Handle role transformation during night phase
-            if (gameState.phase === 'night' && gameState.night?.context) {
-                console.log(`🔄 [DEBUG] Genio transformation complete. Night phase will continue dynamically.`);
-                
-                // Remove the original genio role from calledRoles if it was added
-                const calledRoles = gameState.night.context.calledRoles;
-                const genioIndex = calledRoles.indexOf('genio');
-                if (genioIndex !== -1) {
-                    calledRoles.splice(genioIndex, 1);
-                    console.log(`🔄 [DEBUG] Removed 'genio' from calledRoles to allow new role to act`);
-                }
-            }
-            
-            // Clean up usedPowers for all transformed players
-            if (gameState.usedPowers && gameState.usedPowers[target.roleId]) {
-                for (const player of transformedPlayers) {
-                    gameState.usedPowers[target.roleId] = gameState.usedPowers[target.roleId].filter(
-                        (playerId: number) => playerId !== player.id
-                    );
-                }
-            }
             
             const historyObject = {
                 type: 'genio_transform',

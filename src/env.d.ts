@@ -1,10 +1,26 @@
 declare module '*.vue' {
-	import { DefineComponent } from 'vue';
+	import { DefineComponent, Ref } from 'vue';
 	const component: DefineComponent<{}, {}, any>;
 	export default component;
 }
 
 declare module 'vue-router';
+
+// VitePWA types
+declare module 'virtual:pwa-register/vue' {
+	export interface RegisterSWOptions {
+		immediate?: boolean;
+		onNeedRefresh?: () => void;
+		onOfflineReady?: () => void;
+		onRegistered?: (registration: ServiceWorkerRegistration | undefined) => void;
+		onRegisterError?: (error: any) => void;
+	}
+	export function useRegisterSW(options?: RegisterSWOptions): {
+		needRefresh: Ref<boolean>;
+		offlineReady: Ref<boolean>;
+		updateServiceWorker: (reloadPage?: boolean) => Promise<void>;
+	};
+}
 
 // Typings for utility modules are provided in their own .d.ts files under `src/utils/`
 declare module '@/utils/storage' {

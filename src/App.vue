@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Capacitor } from '@capacitor/core';
+import { useRegisterSW } from 'virtual:pwa-register/vue';
 import { PhaseReveal, PhaseNight, PhaseResolve, PhasePreNight, PhaseDay, WinResults, useGameLogic, useGameState, useNightPhase } from './components';
 import { SetupHome, SetupPlayers, SetupRoles, SetupSettings } from './components';
 import { RoleDetails } from './components';
@@ -87,6 +88,27 @@ const {
 
 const showUpdateNotification = ref(false);
 
+// Listen for VitePWA update events
+const { needRefresh, updateServiceWorker } = useRegisterSW({
+	onRegistered(r) {
+		console.log('SW Registered: ' + r);
+	},
+	onRegisterError(error) {
+		console.log('SW registration error', error);
+	},
+});
+
+// Show update notification when needed
+watch(needRefresh, (newValue) => {
+	if (newValue) {
+		showUpdateNotification.value = true;
+	}
+});
+
+const refreshApp = () => {
+	updateServiceWorker();
+};
+
 onMounted(() => {
 	// Wait a bit more for any async operations to complete
 	setTimeout(() => {
@@ -95,20 +117,7 @@ onMounted(() => {
 	
 	// Add capacitor-mobile class to body for scrollbar hiding
 	document.body.classList.add('capacitor-mobile');
-	
-	// Listen for service worker update events
-	document.addEventListener('swUpdated', () => {
-		showUpdateNotification.value = true;
-	});
-	
-	document.addEventListener('swOffline', () => {
-		console.log('App is now offline');
-	});
 });
-
-const refreshApp = () => {
-	window.location.reload();
-};
 
 // Handle bottom navigation conditional CSS classes
 watch(

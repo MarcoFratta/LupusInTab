@@ -92,5 +92,23 @@ export const RoleAPI = {
     // Custom data
     getCustomData: (roleId: string) => getGameAPI().getCustomData(roleId),
     setCustomData: (roleId: string, data: any) => getGameAPI().setCustomData(roleId, data),
-    clearCustomData: (roleId: string) => getGameAPI().clearCustomData(roleId)
+    clearCustomData: (roleId: string) => getGameAPI().clearCustomData(roleId),
+
+    // Role transformations
+    changePlayerRole: (playerId: number, newRoleId: string, gameState: any) => 
+        getGameAPI().changePlayerRole(playerId, newRoleId, gameState),
+    changeMultiplePlayerRoles: (playerIds: number[], newRoleId: string, gameState: any) => 
+        getGameAPI().changeMultiplePlayerRoles(playerIds, newRoleId, gameState),
+    applyPassiveEffects: (roleId: string, gameState: any) => 
+        getGameAPI().applyPassiveEffects(roleId, gameState),
+    applyGroupingFunctions: (roleId: string, gameState: any) => 
+        getGameAPI().applyGroupingFunctions(roleId, gameState),
+
+    // Helper function to get player from either gameState or store
+    getPlayerFromState: (playerId: number, gameState?: any) => {
+        if (gameState && gameState.players) {
+            return gameState.players.find((p: any) => p.id === playerId);
+        }
+        return getGameAPI().getPlayer(playerId);
+    }
 };

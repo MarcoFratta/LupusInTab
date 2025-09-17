@@ -26,11 +26,34 @@ LupusInTab is available on multiple platforms:
 - **Cross-Platform**: Works on desktop, tablet, and mobile devices
 - **Always Updated**: Get the latest features automatically
 
-### 📱 Android App
+### 📱 Mobile Apps
+
+#### Android App
 - **Native Experience**: Optimized for Android devices
 - **Offline Play**: Full functionality without internet connection
 - **Google Play Store**: Download from [Play Store](https://play.google.com/store/apps/details?id=com.lupus.master&hl=it)
 - **Easy Installation**: One-tap install from the Play Store
+
+#### iPhone App (PWA)
+- **Progressive Web App**: Install directly from Safari
+- **Home Screen Access**: Add to home screen for app-like experience
+- **Installation Steps**:
+  1. Open [https://lupus-in-tabula.vercel.app/](https://lupus-in-tabula.vercel.app/) in Safari
+  2. Tap the Share button (square with arrow up)
+  3. Select "Add to Home Screen"
+  4. Tap "Add" to install
+- **Offline Play**: Full functionality without internet connection
+- **Always Updated**: Get the latest features automatically
+
+### 📱 Installation Notes
+
+**Why different behavior between Android and iPhone?**
+
+- **Android (Chrome)**: Uses the web manifest icons directly when installing PWA, with excellent WebP support
+- **Android (Play Store)**: Uses the native app with proper app icons and branding
+- **iPhone (Safari)**: Uses a Progressive Web App (PWA) that requires specific Apple touch icon meta tags and prefers PNG format over WebP
+- **App Name**: The installed app shows "Lupus in Tabula" (updated from "LupusInTab") as defined in the web manifest
+- **Icon Display**: iPhone Safari has stricter requirements for PWA icons and prefers PNG format for Apple touch icons
 
 ## 🎯 How to Play
 

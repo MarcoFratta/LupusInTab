@@ -904,7 +904,7 @@ COME FUNZIONA:
   },
   phaseResolve: {
     title: 'Risoluzione Notte',
-    nightResults: 'Risultati della Notte',
+    nightResults: 'Annunci da fare',
     deaths: 'Morti',
     player: 'giocatore',
     players: 'giocatori',

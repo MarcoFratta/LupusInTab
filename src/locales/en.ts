@@ -898,7 +898,7 @@ HOW IT WORKS:
   },
   phaseResolve: {
     title: 'Night Resolution',
-    nightResults: 'Night Results',
+    nightResults: 'Announcements to make',
     deaths: 'Deaths',
     player: 'player',
     players: 'players',

@@ -1,6 +1,6 @@
 {
   "name": "Lupus in Tabula",
-  "short_name": "LupusInTab",
+  "short_name": "Lupus in Tabula",
   "description": "A digital version of the popular werewolf game",
   "start_url": "/",
   "display": "standalone",

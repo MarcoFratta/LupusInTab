@@ -130,18 +130,18 @@ const showDetails = ref(false);
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Action Buttons -->
-        <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-4 md:p-6">
-          <div class="space-y-3">
-            <ButtonGroup>
-              <GhostButton full-width @click="showDetails = !showDetails">
-                {{ showDetails ? t('phaseResolve.hide') : t('phaseResolve.details') }}
-              </GhostButton>
-              <PrimaryButton full-width @click="props.onContinue">{{ t('phaseResolve.continue') }}</PrimaryButton>
-            </ButtonGroup>
+            <!-- Action Buttons -->
+            <div class="pt-4 border-t border-neutral-700/50">
+              <div class="space-y-3">
+                <ButtonGroup>
+                  <GhostButton full-width @click="showDetails = !showDetails">
+                    {{ showDetails ? t('phaseResolve.hide') : t('phaseResolve.details') }}
+                  </GhostButton>
+                  <PrimaryButton full-width @click="props.onContinue">{{ t('phaseResolve.continue') }}</PrimaryButton>
+                </ButtonGroup>
+              </div>
+            </div>
           </div>
         </div>
 

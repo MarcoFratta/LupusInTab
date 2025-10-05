@@ -15,7 +15,7 @@ export const simbionte: RoleDef = {
     numberOfUsage: 1,
     countAs: 'alieni',
     visibleAsTeam: 'villaggio',
-    score: 0,
+    score: 25,
     startNight: 1,
     phaseOrder: -20,
     canTargetDead: false,

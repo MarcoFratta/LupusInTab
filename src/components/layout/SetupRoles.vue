@@ -17,6 +17,10 @@ const store = useGameStore();
 const state = store.state as any;
 const router = useRouter();
 
+const reference = {
+  url: 'https://lupusinforum.it/topic/276-database-dei-ruoli/'
+};
+
 const roles = computed(() => getLocalizedRoles(t));
 
 const rolesByFaction = computed(() => {
@@ -131,6 +135,15 @@ function openRoleDetails(roleId: string): void {
           </div>
         </div>
       </div>
+    </div>
+    <div class="pt-4 mt-6 border-t border-neutral-800/50 text-center">
+      <span class="text-xs text-neutral-500 align-middle">{{ t('roles.creditPrefix') }} </span>
+      <a
+        :href="reference.url"
+        target="_blank"
+        rel="noopener"
+        class="text-xs ml-1.5 font-medium text-neutral-400 hover:text-neutral-300 underline underline-offset-2 align-middle"
+      >{{ t('roles.creditLabel') }}</a>
     </div>
   </div>
 </template>

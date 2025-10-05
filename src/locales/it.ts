@@ -93,7 +93,9 @@ export default {
     details: 'Dettagli',
     always: 'Sempre',
     roles: 'ruoli',
-    role: 'ruolo'
+    role: 'ruolo',
+    creditPrefix: 'Alcuni ruoli ideati da',
+    creditLabel: 'Lupus in Forum'
   },
 
   // Settings page

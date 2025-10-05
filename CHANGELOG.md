@@ -1,3 +1,11 @@
+# [1.16.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.5...v1.16.0) (2025-10-05)
+
+
+### Features
+
+* add credit link ([67f7787](https://github.com/MarcoFratta/LupusInTab/commit/67f77873847203739e5afe87b7d91d59c8395a13))
+* add option to replay the night ([43e1ea1](https://github.com/MarcoFratta/LupusInTab/commit/43e1ea13a94f56066ac82af85897e32e3df649f5))
+
 ## [1.15.5](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.4...v1.15.5) (2025-09-17)
 
 

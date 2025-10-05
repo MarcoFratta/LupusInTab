@@ -26,6 +26,7 @@ export default {
     next: 'Avanti',
     previous: 'Precedente',
     start: 'Avvia',
+    stop: 'Stop',
     configure: 'Configura',
     resume: 'Riprendi',
     ignore: 'Ignora',
@@ -915,9 +916,14 @@ COME FUNZIONA:
     resurrected: 'Resuscitati',
     details: 'Dettagli',
     hide: 'Nascondi',
+    replayNight: 'Rigioca la notte',
     continue: 'Continua',
     resolving: 'Risoluzione in corso…',
-    reloadHelp: 'Ricarica per iniziare una nuova partita dal menu principale'
+    reloadHelp: 'Ricarica per iniziare una nuova partita dal menu principale',
+    confirmReplayTitle: 'Rigiocare la notte?',
+    confirmReplayText: 'Questo annullerà tutti gli effetti dell\'ultima notte.',
+    confirm: 'Sì, rigioca',
+    cancel: 'Annulla'
   },
   roleComparison: {
     declared: 'Dichiarato:'
@@ -941,7 +947,12 @@ COME FUNZIONA:
     alivePlayersAndRoles: 'Giocatori vivi e i loro ruoli',
     startNight: 'Inizia la Notte',
     reloadHelp: 'Ricarica per iniziare una nuova partita dal menu principale',
-    unknown: 'Sconosciuti'
+    unknown: 'Sconosciuti',
+    backToLynch: 'Cambia giocatore linciato',
+    confirmBackTitle: 'Cambiare giocatore linciato?',
+    confirmBackText: 'Questo annullerà il linciaggio di oggi e tornerai alle votazioni.',
+    confirm: 'Sì, torna indietro',
+    cancel: 'Annulla'
   },
   mediumPrompt: {
     selectDeadPlayer: 'Seleziona un giocatore morto…',

@@ -7,6 +7,7 @@ interface Props {
   variant?: 'primary' | 'secondary' | 'accent';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
+  feedbackPalette?: 'accent' | 'fuchsia' | 'neutral' | 'white';
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -28,7 +29,7 @@ const pressTimer = ref<number | null>(null);
 const isActivated = ref(false);
 
 const buttonClasses = computed(() => {
-  const baseClasses = 'relative overflow-hidden rounded-lg ' +
+  const baseClasses = 'relative overflow-hidden rounded-lg cursor-pointer select-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ' +
       'font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg';
   
   const variantClasses = {
@@ -46,8 +47,37 @@ const buttonClasses = computed(() => {
   const widthClasses = props.fullWidth ? 'w-full' : '';
   
   const pulseClass = isPressed.value && !isActivated.value ? 'animate-pulse' : '';
+  const palette = props.feedbackPalette || (props.variant === 'secondary' ? 'neutral' : 'accent');
+  const ringClass = isPressed.value && !isActivated.value
+    ? (
+        palette === 'neutral' ? 'ring-4 ring-neutral-500 ring-inset'
+      : palette === 'white' ? 'ring-4 ring-neutral-400 ring-inset'
+      : palette === 'fuchsia' ? 'ring-4 ring-fuchsia-500 ring-inset'
+      : 'ring-4 ring-violet-500 ring-inset'
+      )
+    : '';
   
-  return `${baseClasses} ${variantClasses[props.variant]} ${sizeClasses[props.size]} ${widthClasses} ${pulseClass}`;
+  return `${baseClasses} ${variantClasses[props.variant]} ${sizeClasses[props.size]} ${widthClasses} ${pulseClass} ${ringClass}`;
+});
+
+const overlayClass = computed(() => {
+  const palette = props.feedbackPalette || (props.variant === 'secondary' ? 'neutral' : 'accent');
+  return (
+    palette === 'neutral' ? 'bg-neutral-200/10'
+    : palette === 'white' ? 'bg-white/10'
+    : palette === 'fuchsia' ? 'bg-fuchsia-200/10'
+    : 'bg-violet-200/10'
+  );
+});
+
+const barClass = computed(() => {
+  const palette = props.feedbackPalette || (props.variant === 'secondary' ? 'neutral' : 'accent');
+  return (
+    palette === 'neutral' ? 'bg-neutral-300/70'
+    : palette === 'white' ? 'bg-white/60'
+    : palette === 'fuchsia' ? 'bg-fuchsia-300/70'
+    : 'bg-violet-300/70'
+  );
 });
 
 const progressBarStyle = computed(() => ({
@@ -135,13 +165,15 @@ onUnmounted(() => {
     
     <div
       v-if="isPressed && !isActivated"
-      class="absolute inset-0 bg-white/20 transition-all duration-100"
+      class="absolute inset-0 transition-all duration-100"
+      :class="overlayClass"
       :style="progressBarStyle"
     ></div>
     
     <div
       v-if="isPressed && !isActivated"
-      class="absolute bottom-0 left-0 h-1 bg-white/40 transition-all duration-100"
+      class="absolute bottom-0 left-0 h-1 transition-all duration-100"
+      :class="barClass"
       :style="progressBarStyle"
     ></div>
     

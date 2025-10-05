@@ -26,6 +26,7 @@ export default {
     next: 'Next',
     previous: 'Previous',
     start: 'Start',
+    stop: 'Stop',
     configure: 'Configure',
     resume: 'Resume',
     ignore: 'Ignore',
@@ -909,9 +910,14 @@ HOW IT WORKS:
     resurrected: 'Resurrected',
     details: 'Details',
     hide: 'Hide',
+    replayNight: 'Replay night',
     continue: 'Continue',
     resolving: 'Resolving…',
-    reloadHelp: 'Reload to start a new game from the main menu'
+    reloadHelp: 'Reload to start a new game from the main menu',
+    confirmReplayTitle: 'Replay night?',
+    confirmReplayText: 'This will undo all effects of the last night.',
+    confirm: 'Yes, replay',
+    cancel: 'Cancel'
   },
   roleComparison: {
     declared: 'Declared:'
@@ -935,7 +941,12 @@ HOW IT WORKS:
     alivePlayersAndRoles: 'Alive players and their roles',
     startNight: 'Start Night',
     reloadHelp: 'Reload to start a new game from the main menu',
-    unknown: 'Unknown'
+    unknown: 'Unknown',
+    backToLynch: 'Change lynch and go back to day',
+    confirmBackTitle: 'Change lynch and go back?',
+    confirmBackText: 'This will undo today\'s lynch and return to day.',
+    confirm: 'Yes, go back',
+    cancel: 'Cancel'
   },
   mediumPrompt: {
     selectDeadPlayer: 'Select a dead player…',

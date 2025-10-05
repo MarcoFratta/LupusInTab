@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import Swal from 'sweetalert2';
 import ButtonGroup from '../ui/ButtonGroup.vue';
 import GhostButton from '../ui/GhostButton.vue';
 import PrimaryButton from '../ui/PrimaryButton.vue';
@@ -13,6 +14,7 @@ const props = defineProps<{
   state: any;
   onContinue: () => void;
   onReset: () => void;
+  onReplay?: () => void;
 }>();
 
 const showDetails = ref(false);
@@ -41,7 +43,7 @@ const showDetails = ref(false);
             <!-- Deaths Section -->
             <div class="group relative overflow-hidden rounded-2xl border border-red-500/20 bg-gradient-to-br from-red-500/5 via-red-600/5 to-transparent transition-all duration-300 hover:border-red-500/30 hover:from-red-500/10">
               <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div class="relative p-0">
+              <div class="relative p-0 md:p-2 lg:p-4">
                 <div class="flex items-center justify-center gap-4 mb-4">
                   <div class="relative">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/20 border border-red-500/30 flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:shadow-red-500/30 transition-all duration-300">
@@ -64,7 +66,7 @@ const showDetails = ref(false);
                   </div>
                 </div>
                 
-                <div v-if="props.state.night.summary.died.length === 0" class="text-center py-4">
+                <div v-if="props.state.night.summary.died.length === 0" class="text-center py-2">
                   <div class="text-red-400 text-2xl mb-2">🌅</div>
                   <div class="text-red-300 text-sm font-medium mb-1">{{ t('phaseResolve.noDeaths') }}</div>
                   <div class="text-red-400/70 text-xs">{{ t('phaseResolve.peacefulNight') }}</div>
@@ -92,7 +94,7 @@ const showDetails = ref(false);
             <!-- Resurrected Section -->
             <div v-if="props.state.night.summary.resurrected && props.state.night.summary.resurrected.length > 0" class="group relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-emerald-600/5 to-transparent transition-all duration-300 hover:border-emerald-500/30 hover:from-emerald-500/10">
               <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div class="relative p-0">
+              <div class="relative p-0 sm:p-2 lg:p-4">
                 <div class="flex items-center justify-center gap-4 mb-4">
                   <div class="relative">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 border border-emerald-500/30 flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:shadow-emerald-500/30 transition-all duration-300">
@@ -133,12 +135,38 @@ const showDetails = ref(false);
 
             <!-- Action Buttons -->
             <div class="pt-4 border-t border-neutral-700/50">
-              <div class="space-y-3">
+              <div class="space-y-4">
                 <ButtonGroup>
                   <GhostButton full-width @click="showDetails = !showDetails">
                     {{ showDetails ? t('phaseResolve.hide') : t('phaseResolve.details') }}
                   </GhostButton>
-                  <PrimaryButton full-width @click="props.onContinue">{{ t('phaseResolve.continue') }}</PrimaryButton>
+                  <GhostButton v-if="props.onReplay && props.state?.custom?.nightSnapshot" full-width @click="async () => {
+                    const result = await Swal.fire({
+                      title: t('phaseResolve.confirmReplayTitle'),
+                      text: t('phaseResolve.confirmReplayText'),
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: t('phaseResolve.confirm'),
+                      cancelButtonText: t('phaseResolve.cancel'),
+                      background: '#0a0a0a',
+                      color: '#e5e7eb',
+                      customClass: {
+                        popup: 'rounded-2xl border border-neutral-800/60',
+                        title: 'text-violet-300 font-semibold',
+                        htmlContainer: 'text-neutral-300',
+                        actions: 'swal2-actions gap-2 sm:gap-3',
+                        confirmButton: 'swal2-confirm btn btn-primary mr-2',
+                        cancelButton: 'swal2-cancel btn btn-ghost ml-2'
+                      },
+                      buttonsStyling: false
+                    });
+                    if (result.isConfirmed) props.onReplay && props.onReplay();
+                  }">
+                    {{ t('phaseResolve.replayNight') }}
+                  </GhostButton>
+                  <div class="col-span-2 mt-2">
+                    <PrimaryButton full-width @click="props.onContinue">{{ t('phaseResolve.continue') }}</PrimaryButton>
+                  </div>
                 </ButtonGroup>
               </div>
             </div>

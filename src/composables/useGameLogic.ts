@@ -261,6 +261,13 @@ export function useGameLogic() {
 
     function beginNight() { 
         console.log(`🌙 [DEBUG] useGameLogic.beginNight called - Current phase: ${state.phase}, Night: ${state.nightNumber}`);
+        try {
+            const snapshot = JSON.parse(JSON.stringify(state));
+            if (!snapshot.custom) snapshot.custom = {};
+            if (snapshot.custom && snapshot.custom.nightSnapshot) delete snapshot.custom.nightSnapshot;
+            if (!state.custom) (state as any).custom = {};
+            (state as any).custom.nightSnapshot = snapshot;
+        } catch {}
         state.showRoleResee = false;
         startNextNight(state as any, ROLES as any); 
         console.log(`🌙 [DEBUG] useGameLogic.beginNight completed - New phase: ${state.phase}, Night: ${state.nightNumber}`);
@@ -307,6 +314,42 @@ export function useGameLogic() {
         console.log(`🌙 [DEBUG] useGameLogic.startNextNight completed - New phase: ${state.phase}, Night: ${state.nightNumber}`);
     }
 
+    function backToDayFromPreNight() {
+        if (state.phase !== PHASES.PRE_NIGHT) return;
+        const currentDay = state.dayNumber;
+        const lynchedByDay = (state as any).lynchedHistoryByDay || {};
+        const todaysLynches: number[] = Array.isArray(lynchedByDay[currentDay]) ? [...lynchedByDay[currentDay]] : [];
+        if (todaysLynches.length > 0) {
+            for (const playerId of todaysLynches) {
+                const player = state.players.find((p: any) => p.id === playerId);
+                if (player) player.alive = true;
+            }
+            if (Array.isArray((state as any).lynchedHistory)) {
+                (state as any).lynchedHistory = (state as any).lynchedHistory.filter((id: number) => !todaysLynches.includes(id));
+            }
+            delete lynchedByDay[currentDay];
+            (state as any).lynchedHistoryByDay = lynchedByDay;
+        }
+        state.winner = null as any;
+        state.phase = PHASES.DAY as any;
+    }
+
+    function replayNightLocal() {
+        const snapshot = (state as any)?.custom?.nightSnapshot;
+        if (!snapshot) return;
+        Object.assign(store.state, snapshot);
+        try {
+            const stateToSave: any = { ...store.state } as any;
+            if (stateToSave.night?.context?.calledRoles instanceof Set) {
+                stateToSave.night.context.calledRoles = Array.from(stateToSave.night.context.calledRoles);
+            }
+            saveGameState(stateToSave);
+        } catch {}
+        if ((store.state as any)?.custom) {
+            delete (store.state as any).custom.nightSnapshot;
+        }
+    }
+
     function quitAndReset() { 
         resetAll(); 
     }
@@ -343,6 +386,8 @@ export function useGameLogic() {
         resolveNightLocal,
         continueToDayLocal,
         startNextNightLocal,
+        backToDayFromPreNight,
+        replayNightLocal,
         quitAndReset,
         onLynch,
         onSkipDay,

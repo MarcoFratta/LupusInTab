@@ -240,7 +240,7 @@ window.addEventListener('resize', updateTimelineLine);
                   </div>
                 </div>
                 
-                <div v-if="currentDay.nightSummary.died.length === 0" class="text-center py-2">
+                <div v-if="currentDay.nightSummary.died.length === 0" class="text-center">
                   <div class="text-neutral-400 text-sm mb-2">🌅</div>
                   <div class="text-neutral-400 text-xs font-medium">{{ t('eventHistory.noDeaths') }}</div>
                   <div class="text-neutral-500 text-xs">{{ t('eventHistory.peacefulNight') }}</div>
@@ -320,7 +320,7 @@ window.addEventListener('resize', updateTimelineLine);
                   </div>
                 </div>
                 
-                <div v-if="!lynchHistoryByDay[currentDay.day] || lynchHistoryByDay[currentDay.day].length === 0" class="text-center py-6">
+                <div v-if="!lynchHistoryByDay[currentDay.day] || lynchHistoryByDay[currentDay.day].length === 0" class="text-center py-1">
                   <div class="text-neutral-400 text-sm mb-2">🤝</div>
                   <div class="text-neutral-400 text-xs font-medium">{{ t('eventHistory.noLynching') }}</div>
                 </div>

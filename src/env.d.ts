@@ -15,11 +15,7 @@ declare module 'virtual:pwa-register/vue' {
 		onRegistered?: (registration: ServiceWorkerRegistration | undefined) => void;
 		onRegisterError?: (error: any) => void;
 	}
-	export function useRegisterSW(options?: RegisterSWOptions): {
-		needRefresh: Ref<boolean>;
-		offlineReady: Ref<boolean>;
-		updateServiceWorker: (reloadPage?: boolean) => Promise<void>;
-	};
+	export function useRegisterSW(options?: RegisterSWOptions): any;
 }
 
 // Typings for utility modules are provided in their own .d.ts files under `src/utils/`
@@ -38,6 +34,12 @@ declare module '@/utils/storage' {
 declare module '@/utils/random' {
 	export function shuffleInPlace<T>(array: T[]): T[];
 	export function shuffled<T>(array: T[]): T[];
+}
+
+
+declare module 'sweetalert2' {
+	const Swal: any;
+	export default Swal;
 }
 
 

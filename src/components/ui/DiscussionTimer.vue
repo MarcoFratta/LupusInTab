@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useI18n } from '../../composables/useI18n';
 
 interface Props {
   enabled: boolean;
@@ -13,6 +14,8 @@ const ticking = ref(false);
 const plannedSeconds = ref(0);
 const timerInput = ref<string>('');
 const interval = ref<number | null>(null);
+
+const { t } = useI18n();
 
 const mmss = computed(() => {
   const m = Math.floor(plannedSeconds.value / 60);
@@ -88,7 +91,7 @@ function onTimerInput(e: any) {
 
 <template>
   <div v-if="enabled" class="rounded-md border border-neutral-700/60 bg-neutral-900/50 p-3">
-    <div class="text-xs text-center text-neutral-400">Timer discussione</div>
+    <div class="text-xs text-center text-neutral-400">{{ t('settings.discussionTimer') }}</div>
     <div class="mt-2 flex flex-col sm:flex-row sm:items-center gap-2">
       <div class="flex items-center gap-2 sm:gap-1 justify-center sm:justify-start">
         <button class="w-9 h-9 rounded border border-neutral-800/50 bg-neutral-800/60 text-neutral-300 flex items-center justify-center text-lg font-medium leading-none"
@@ -105,9 +108,9 @@ function onTimerInput(e: any) {
                 @click="increasePlanned">+</button>
       </div>
       <div class="flex items-center gap-2 sm:ml-auto">
-        <button class="btn btn-secondary h-9 w-full sm:w-auto" :class="{ 'btn-disabled': !ticking }" :disabled="!ticking" @click="stopDiscussionTimer">Stop</button>
+        <button class="btn btn-secondary h-9 w-full sm:w-auto" :class="{ 'btn-disabled': !ticking }" :disabled="!ticking" @click="stopDiscussionTimer">{{ t('common.stop') }}</button>
         <button class="btn btn-primary h-9 w-full sm:w-auto" :class="{ 'btn-disabled': ticking || plannedSeconds <= 0 }"
-                :disabled="ticking || plannedSeconds <= 0" @click="startDiscussionTimer">Avvia</button>
+                :disabled="ticking || plannedSeconds <= 0" @click="startDiscussionTimer">{{ t('common.start') }}</button>
       </div>
     </div>
   </div>

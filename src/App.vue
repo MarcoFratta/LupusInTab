@@ -69,6 +69,8 @@ const {
     resolveNightLocal,
     continueToDayLocal,
     startNextNightLocal,
+    backToDayFromPreNight,
+    replayNightLocal,
     quitAndReset,
     onLynch,
     onSkipDay,
@@ -243,14 +245,16 @@ async function resumeGameLocal() {
 		<!-- Reveal Roles Phase -->
 		<PhaseReveal v-else-if="state.phase === PHASES.REVEAL" :state="state" :onStartNight="beginNight" />
 
+
 		<!-- Pre-Night Phase -->
-		<PhasePreNight v-else-if="state.phase === PHASES.PRE_NIGHT" :state="state" :onContinue="beginNight" />
+		<PhasePreNight v-else-if="state.phase === PHASES.PRE_NIGHT" :state="state" :onContinue="beginNight" :onBackToDay="backToDayFromPreNight" />
 
 		<!-- Night Phase -->
 		<PhaseNight v-else-if="state.phase === PHASES.NIGHT" :state="state" :onPromptComplete="onPromptComplete" />
 
+
 		<!-- Resolve Phase -->
-		<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDayLocal" :onReset="quitAndReset" />
+		<PhaseResolve v-else-if="state.phase === PHASES.RESOLVE" :state="state" :onContinue="continueToDayLocal" :onReset="quitAndReset" :onReplay="replayNightLocal" />
 
 		<!-- Day Phase -->
 		<PhaseDay v-else-if="state.phase === PHASES.DAY" :state="state" :onLynch="onLynch" :onElectSindaco="onElectSindaco" :onSkipDay="onSkipDay" :onReset="quitAndReset" />

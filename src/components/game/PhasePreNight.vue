@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import Swal from 'sweetalert2';
 import PlayerRoleList from '../ui/PlayerRoleList.vue';
 import { getFactionConfig } from '../../factions';
 import { ROLES } from '../../roles';
@@ -9,7 +10,7 @@ import { getFactionDisplayName } from '../../utils/factionUtils';
 
 const { t } = useI18n();
 
-const props = defineProps<{ state: any; onContinue: () => void }>();
+const props = defineProps<{ state: any; onContinue: () => void; onBackToDay?: () => void }>();
 
 const showRoleResee = ref(false);
 const expandedFactions = ref<Set<string>>(new Set());
@@ -141,7 +142,35 @@ const isFactionExpanded = (team: string) => {
             </div>
           </div>
           
-          <div class="pt-6">
+          <div class="pt-6 space-y-3">
+            <button
+              v-if="props.onBackToDay && (!props.state.settings?.skipFirstNightActions || props.state.nightNumber >= 1)"
+              class="w-full px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-300 bg-neutral-800 text-neutral-200 border border-neutral-700 hover:bg-neutral-700/70"
+              @click="async () => {
+                const result = await Swal.fire({
+                  title: t('preNightPhase.confirmBackTitle'),
+                  text: t('preNightPhase.confirmBackText'),
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonText: t('preNightPhase.confirm'),
+                  cancelButtonText: t('preNightPhase.cancel'),
+                  background: '#0a0a0a',
+                  color: '#e5e7eb',
+                  customClass: {
+                    popup: 'rounded-2xl border border-neutral-800/60',
+                    title: 'text-violet-300 font-semibold',
+                    htmlContainer: 'text-neutral-300',
+                    actions: 'swal2-actions gap-2 sm:gap-3',
+                    confirmButton: 'swal2-confirm btn btn-primary mr-2',
+                    cancelButton: 'swal2-cancel btn btn-ghost ml-2'
+                  },
+                  buttonsStyling: false
+                });
+                if (result.isConfirmed) props.onBackToDay && props.onBackToDay();
+              }"
+            >
+              {{ t('preNightPhase.backToLynch') }}
+            </button>
             <button 
               class="group relative w-full px-6 py-3 text-lg font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-300 overflow-hidden bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25"
               @click="props.onContinue"

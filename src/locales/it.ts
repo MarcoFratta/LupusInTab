@@ -118,9 +118,9 @@ export default {
     skipFirstNight: 'Salta le azioni della prima notte',
     skipFirstNightDescription: 'Tutti i ruoli vengono chiamati nella Notte 1, ma i loro effetti sono ignorati.',
     enableMayor: 'Abilita Sindaco',
-    enableMayorDescription: 'Il voto del sindaco vale doppio durante la votazione quando è in vita.',
+    enableMayorDescription: 'Il voto del sindaco vale doppio durante le votazioni quando è in vita. Viene eletto il primo giorno',
     discussionTimer: 'Timer discussione',
-    discussionTimerDescription: 'Mostra un timer compatto nella fase di linciaggio per la discussione (max 60 minuti).',
+    discussionTimerDescription: 'Mostra un timer nella fase di linciaggio per la discussione.',
     maxDifficulty: 'Difficoltà Massima',
     maxDifficultyDescription: 'Richiede dichiarazioni di ruoli più specifiche. Es: Il Boia deve dichiarare "Lupo Ciccione" invece di "Lupo" per uccidere un Lupo Ciccione.'
   },

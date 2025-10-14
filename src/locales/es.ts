@@ -26,6 +26,7 @@ export default {
     next: 'Siguiente',
     previous: 'Anterior',
     start: 'Iniciar',
+    stop: 'Parar',
     configure: 'Configurar',
     resume: 'Reanudar',
     ignore: 'Ignorar',
@@ -93,7 +94,9 @@ export default {
     details: 'Detalles',
     always: 'Siempre',
     roles: 'roles',
-    role: 'rol'
+    role: 'rol',
+    creditPrefix: 'Algunos roles provienen de',
+    creditLabel: 'Lupus in Forum'
   },
 
   // Settings page
@@ -115,9 +118,9 @@ export default {
     skipFirstNight: 'Saltar acciones de la primera noche',
     skipFirstNightDescription: 'Todos los roles son llamados en la Noche 1, pero sus efectos son ignorados.',
     enableMayor: 'Habilitar Alcalde',
-    enableMayorDescription: 'El voto del alcalde cuenta doble durante la votación cuando está vivo.',
+    enableMayorDescription: 'El voto del alcalde cuenta doble durante la votación cuando está vivo. Se elige el primer día',
     discussionTimer: 'Temporizador de discusión',
-    discussionTimerDescription: 'Muestra un temporizador compacto en la fase de linchamiento para la discusión (máx. 60 minutos).',
+    discussionTimerDescription: 'Muestra un temporizador en la fase de linchamiento para la discusión.',
     maxDifficulty: 'Dificultad Máxima',
     maxDifficultyDescription: 'Requiere declaraciones de roles más específicas. Ej: El Verdugo debe declarar "Lobo Gordo" en lugar de "Lobo" para matar a un Lobo Gordo.'
   },
@@ -719,6 +722,38 @@ CÓMO FUNCIONA:
   },
 
   // Phase Reveal
+  phaseReveal: {
+    title: 'Revelación de Roles',
+    howToReveal: 'Cómo revelar roles',
+    howToRevealDescription: 'Pasa el dispositivo a cada jugador por turno. Mantén presionado para ver tu rol, luego pasa al siguiente.',
+    startReveals: 'Iniciar Revelaciones',
+    beforeNight: 'Antes de que inicie la Noche',
+    closeEyes: 'Pide a todos los jugadores que cierren los ojos',
+    whenReady: 'Cuando todos estén listos ve a la primera noche',
+    revealAgain: 'Revelar de nuevo un rol',
+    startNight: 'Iniciar la Noche',
+    reveal: 'Revelar',
+    roleRevealed: 'Rol revelado',
+    roleRevealedSuccess: '¡Rol revelado!',
+    yourFaction: 'Tu facción',
+    yourInformation: 'Tus información',
+    youKnowEachOther: 'Se conocen',
+    youKnowThem: 'Los conoces',
+    next: 'Siguiente',
+    holdToContinue: 'mantén presionado para continuar',
+    holdToReveal: 'mantén presionado para revelar',
+    unknownRole: 'Rol desconocido',
+    noAction: 'Ninguna acción',
+    passPhoneTo: 'Pasa el teléfono a',
+    noRolesUsedPowers: 'Ningún rol usó sus poderes esta noche.',
+    revealRoleAgain: 'Revelar de nuevo un rol',
+    appearsAs: 'aparece como',
+    nextPlayer: 'Siguiente Jugador',
+    allies: 'Aliados',
+    sameRole: 'Mismo Rol',
+    sameTeam: 'Mismo Equipo'
+  },
+
   // Event History
   eventHistory: {
     title: 'Historial de Eventos',
@@ -879,9 +914,14 @@ CÓMO FUNCIONA:
     resurrected: 'Resucitados',
     details: 'Detalles',
     hide: 'Ocultar',
+    replayNight: 'Repetir noche',
     continue: 'Continuar',
     resolving: 'Resolviendo…',
-    reloadHelp: 'Recarga para iniciar una nueva partida desde el menú principal'
+    reloadHelp: 'Recarga para iniciar una nueva partida desde el menú principal',
+    confirmReplayTitle: '¿Repetir noche?',
+    confirmReplayText: 'Esto deshará todos los efectos de la última noche.',
+    confirm: 'Sí, repetir',
+    cancel: 'Cancelar'
   },
   roleComparison: {
     declared: 'Declarado:'
@@ -905,7 +945,12 @@ CÓMO FUNCIONA:
     alivePlayersAndRoles: 'Jugadores vivos y sus roles',
     startNight: 'Iniciar Noche',
     reloadHelp: 'Recarga para iniciar una nueva partida desde el menú principal',
-    unknown: 'Desconocidos'
+    unknown: 'Desconocidos',
+    backToLynch: 'Cambiar jugador linchado',
+    confirmBackTitle: '¿Cambiar jugador linchado?',
+    confirmBackText: 'Esto deshará el linchamiento de hoy y volverás al día.',
+    confirm: 'Sí, volver atrás',
+    cancel: 'Cancelar'
   },
   mediumPrompt: {
     selectDeadPlayer: 'Selecciona un jugador muerto…',

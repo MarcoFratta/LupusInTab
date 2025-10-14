@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Optimized LongPressButton with requestAnimationFrame
 import { ref, computed, onUnmounted } from 'vue';
 
 interface Props {
@@ -25,10 +26,10 @@ const emit = defineEmits<{
 const isPressed = ref(false);
 const pressStartTime = ref(0);
 const pressProgress = ref(0);
-const pressTimer = ref<number | null>(null);
+const animationFrame = ref<number | null>(null);
 const isActivated = ref(false);
 
-const buttonClasses = computed(() => {
+const baseButtonClasses = computed(() => {
   const baseClasses = 'relative overflow-hidden rounded-lg cursor-pointer select-none focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ' +
       'font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg';
   
@@ -46,6 +47,10 @@ const buttonClasses = computed(() => {
   
   const widthClasses = props.fullWidth ? 'w-full' : '';
   
+  return `${baseClasses} ${variantClasses[props.variant]} ${sizeClasses[props.size]} ${widthClasses}`;
+});
+
+const dynamicButtonClasses = computed(() => {
   const pulseClass = isPressed.value && !isActivated.value ? 'animate-pulse' : '';
   const palette = props.feedbackPalette || (props.variant === 'secondary' ? 'neutral' : 'accent');
   const ringClass = isPressed.value && !isActivated.value
@@ -57,7 +62,7 @@ const buttonClasses = computed(() => {
       )
     : '';
   
-  return `${baseClasses} ${variantClasses[props.variant]} ${sizeClasses[props.size]} ${widthClasses} ${pulseClass} ${ringClass}`;
+  return `${pulseClass} ${ringClass}`;
 });
 
 const overlayClass = computed(() => {
@@ -81,9 +86,22 @@ const barClass = computed(() => {
 });
 
 const progressBarStyle = computed(() => ({
-  width: `${pressProgress.value}%`,
-  transition: 'width 0.1s linear'
+  transform: `scaleX(${pressProgress.value / 100})`,
+  transformOrigin: 'left center'
 }));
+
+function updateProgress() {
+  if (!isPressed.value || isActivated.value) return;
+  
+  const elapsed = Date.now() - pressStartTime.value;
+  pressProgress.value = Math.min((elapsed / props.duration) * 100, 100);
+  
+  if (elapsed >= props.duration) {
+    activate();
+  } else {
+    animationFrame.value = requestAnimationFrame(updateProgress);
+  }
+}
 
 function handlePointerDown(event: PointerEvent) {
   if (props.disabled || isActivated.value) return;
@@ -93,14 +111,7 @@ function handlePointerDown(event: PointerEvent) {
   pressStartTime.value = Date.now();
   pressProgress.value = 0;
   
-  pressTimer.value = window.setInterval(() => {
-    const elapsed = Date.now() - pressStartTime.value;
-    pressProgress.value = Math.min((elapsed / props.duration) * 100, 100);
-    
-    if (elapsed >= props.duration) {
-      activate();
-    }
-  }, 16);
+  animationFrame.value = requestAnimationFrame(updateProgress);
 }
 
 function handlePointerUp() {
@@ -109,9 +120,9 @@ function handlePointerUp() {
   isPressed.value = false;
   pressProgress.value = 0;
   
-  if (pressTimer.value) {
-    clearInterval(pressTimer.value);
-    pressTimer.value = null;
+  if (animationFrame.value) {
+    cancelAnimationFrame(animationFrame.value);
+    animationFrame.value = null;
   }
 }
 
@@ -121,9 +132,9 @@ function handlePointerLeave() {
   isPressed.value = false;
   pressProgress.value = 0;
   
-  if (pressTimer.value) {
-    clearInterval(pressTimer.value);
-    pressTimer.value = null;
+  if (animationFrame.value) {
+    cancelAnimationFrame(animationFrame.value);
+    animationFrame.value = null;
   }
 }
 
@@ -134,24 +145,24 @@ function activate() {
   isPressed.value = false;
   pressProgress.value = 100;
   
-  if (pressTimer.value) {
-    clearInterval(pressTimer.value);
-    pressTimer.value = null;
+  if (animationFrame.value) {
+    cancelAnimationFrame(animationFrame.value);
+    animationFrame.value = null;
   }
   
   emit('activate');
 }
 
 onUnmounted(() => {
-  if (pressTimer.value) {
-    clearInterval(pressTimer.value);
+  if (animationFrame.value) {
+    cancelAnimationFrame(animationFrame.value);
   }
 });
 </script>
 
 <template>
   <button
-    :class="buttonClasses"
+    :class="[baseButtonClasses, dynamicButtonClasses]"
     :disabled="props.disabled || isActivated"
     @pointerdown="handlePointerDown"
     @pointerup="handlePointerUp"
@@ -165,14 +176,14 @@ onUnmounted(() => {
     
     <div
       v-if="isPressed && !isActivated"
-      class="absolute inset-0 transition-all duration-100"
+      class="absolute inset-0 will-change-transform"
       :class="overlayClass"
       :style="progressBarStyle"
     ></div>
     
     <div
       v-if="isPressed && !isActivated"
-      class="absolute bottom-0 left-0 h-1 transition-all duration-100"
+      class="absolute bottom-0 left-0 h-1 w-full will-change-transform"
       :class="barClass"
       :style="progressBarStyle"
     ></div>
@@ -196,5 +207,11 @@ onUnmounted(() => {
 
 .animate-pulse {
   animation: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.will-change-transform {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 </style>

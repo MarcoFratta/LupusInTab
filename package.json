@@ -39,6 +39,7 @@
     "@capacitor/splash-screen": "^7.0.2",
     "@capacitor/status-bar": "^7.0.2",
     "@headlessui/vue": "^1.7.23",
+    "@vercel/analytics": "^1.5.0",
     "pinia": "^3.0.3",
     "sweetalert2": "^11.23.0",
     "vue": "^3.3.4",

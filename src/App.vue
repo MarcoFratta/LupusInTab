@@ -15,6 +15,7 @@ import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
 import { useNewRolesPopup, useI18n } from './composables';
 import { LanguageSwitcher } from './components/ui';
+import { Analytics } from '@vercel/analytics/nuxt'
 
 const { t } = useI18n();
 
@@ -152,6 +153,7 @@ async function resumeGameLocal() {
 </script>
 
 <template class="bg-neutral-950">
+	<Analytics />
 	<!-- Role Details Page -->
 	<RoleDetails v-if="isRoleDetails" />
 	

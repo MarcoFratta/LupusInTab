@@ -7,7 +7,8 @@ export function useI18n() {
   // Available locales
   const availableLocales = ref([
     { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-    { code: 'en', name: 'English', flag: '🇺🇸' }
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' }
   ]);
   
   // Current locale info
@@ -23,7 +24,7 @@ export function useI18n() {
   
   // Translation function with fallback
   const translate = (key: string, params?: Record<string, any>) => {
-    return t(key, params);
+    return t(key, params || {});
   };
   
   return {

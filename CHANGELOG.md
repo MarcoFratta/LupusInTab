@@ -1,3 +1,11 @@
+# [1.17.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.16.0...v1.17.0) (2025-10-14)
+
+
+### Features
+
+* add missing spanish text ([99ac6ae](https://github.com/MarcoFratta/LupusInTab/commit/99ac6ae4103b84f0619bf9ee68c24d6deaf18de0))
+* add spanish locale ([3d11384](https://github.com/MarcoFratta/LupusInTab/commit/3d11384884a9449f647e15c505b85e94886ac272))
+
 # [1.16.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.15.5...v1.16.0) (2025-10-05)
 
 

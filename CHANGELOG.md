@@ -1,3 +1,12 @@
+## [1.17.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.17.0...v1.17.1) (2026-03-18)
+
+
+### Bug Fixes
+
+* **pwa:** prevent cached mixed-version blank Roles ([f3f2b8c](https://github.com/MarcoFratta/LupusInTab/commit/f3f2b8cd2b3d1c396de9ea7a67dd46f69e2a97b5))
+* **pwa:** prevent cached mixed-version blank Roles ([61a31e2](https://github.com/MarcoFratta/LupusInTab/commit/61a31e22ace40a54f57e23207bb9565cde375e4d))
+* resolve gray screen issue ([9975003](https://github.com/MarcoFratta/LupusInTab/commit/9975003900aeec2af0d2bb24356c1b8e06a073dd))
+
 # [1.17.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.16.0...v1.17.0) (2025-10-14)
 
 

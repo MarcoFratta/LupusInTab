@@ -89,7 +89,27 @@ const {
 	closePopup: closeNewRolesPopup
 } = useNewRolesPopup();
 
-const { initialize: initializeCache } = useCache();
+// Service worker registration and update handling
+const { needRefresh, updateServiceWorker } = useRegisterSW({
+    onRegistered(r) {
+        console.log('SW Registered: ' + r);
+    },
+    onRegisterError(error) {
+        console.log('SW registration error', error);
+    },
+});
+
+const showUpdateNotification = ref(false);
+watch(needRefresh, (newValue) => {
+    if (newValue) {
+        showUpdateNotification.value = true;
+    }
+});
+
+const refreshApp = () => {
+    updateServiceWorker(true);
+};
+
 
 // Manual test function for resume
 const testResume = () => {

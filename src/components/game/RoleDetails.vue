@@ -129,11 +129,11 @@ function getCountDisplay(role: RoleDef): { min: string; max: string } {
   let min = '0';
   let max = t('roleDetails.unlimited');
   
-  if (role.minCount !== undefined) {
+  if (role.minCount !== undefined && role.minCount !== null) {
     min = typeof role.minCount === 'function' ? role.minCount(defaultPlayers).toString() : role.minCount.toString();
   }
   
-  if (role.maxCount !== undefined) {
+  if (role.maxCount !== undefined && role.maxCount !== null) {
     max = typeof role.maxCount === 'function' ? role.maxCount(defaultPlayers).toString() : role.maxCount.toString();
   }
   
@@ -185,7 +185,7 @@ watch(roleId, () => {
             <!-- Short description -->
             <div class="flex items-start gap-3">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center" 
-                   :style="{ backgroundColor: getFactionConfig(role.team)?.color + '20' || '#374151' }">
+                   :style="{ backgroundColor: (getFactionConfig(role.team)?.color || '#374151') + '20' }">
                 <div class="w-3 h-3 rounded-full" 
                      :style="{ backgroundColor: getFactionConfig(role.team)?.color || '#9ca3af' }"></div>
               </div>

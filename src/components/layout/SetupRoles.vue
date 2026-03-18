@@ -37,7 +37,7 @@ const rolesByFaction = computed(() => {
   
   return factionOrder.map(factionName => ({
     name: factionName,
-    config: FACTIONS[factionName],
+    config: FACTIONS[factionName] || { color: '#9ca3af' },
     roles: groups[factionName] || []
   })).filter(group => group.roles.length > 0);
 });

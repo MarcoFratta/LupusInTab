@@ -10,6 +10,7 @@ export default defineConfig({
             workbox: {
                 skipWaiting: true,
                 clientsClaim: true,
+                cleanupOutdatedCaches: true,
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
                 runtimeCaching: [
                     {
@@ -20,17 +21,6 @@ export default defineConfig({
                             expiration: {
                                 maxEntries: 1,
                                 maxAgeSeconds: 60 // Very short cache for version.json
-                            }
-                        }
-                    },
-                    {
-                        urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/.*/i,
-                        handler: 'StaleWhileRevalidate',
-                        options: {
-                            cacheName: 'lupus-in-tabula-api',
-                            expiration: {
-                                maxEntries: 100,
-                                maxAgeSeconds: 24 * 60 * 60
                             }
                         }
                     }

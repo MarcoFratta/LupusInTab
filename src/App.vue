@@ -89,29 +89,56 @@ const {
 	closePopup: closeNewRolesPopup
 } = useNewRolesPopup();
 
-const showUpdateNotification = ref(false);
+const { initialize: initializeCache } = useCache();
 
-// Listen for VitePWA update events
-const { needRefresh, updateServiceWorker } = useRegisterSW({
-	onRegistered(r) {
-		console.log('SW Registered: ' + r);
-	},
-	onRegisterError(error) {
-		console.log('SW registration error', error);
-	},
-});
-
-// Show update notification when needed
-watch(needRefresh, (newValue) => {
-	if (newValue) {
-		showUpdateNotification.value = true;
-	}
-});
-
-const refreshApp = () => {
-	updateServiceWorker(true);
+// Manual test function for resume
+const testResume = () => {
+    const result = checkForSavedGames();
+    
+    if (result.hasSavedGame) {
+        resumeGame();
+    }
 };
 
+// Function to manually save a test game state
+const saveTestGame = () => {
+    const testState = {
+        phase: PHASES.REVEAL,
+        nightNumber: 0,
+        dayNumber: 0,
+        players: [
+            		{ id: 1, name: 'Test Player 1', roleId: 'lupo', alive: true, roleState: {} },
+            		{ id: 2, name: 'Test Player 2', roleId: 'villico', alive: true, roleState: {} }
+        ],
+        setup: { numPlayers: 2, players: [], rolesCounts: {}, rolesEnabled: {} },
+        revealIndex: 0,
+        night: { turns: [], currentIndex: 0, results: [], context: null, summary: null },
+        settings: { skipFirstNightActions: true, enableSindaco: false, discussionTimerEnabled: false },
+        sindacoId: null,
+        winner: null,
+        lynchedHistory: [],
+        usedPowers: {},
+
+        custom: {},
+        history: {},
+        nightDeathsByNight: {},
+        lynchedHistoryByDay: {}
+    };
+    
+    saveGameState(testState as any);
+    
+    // Force a check for saved games
+    setTimeout(() => {
+        checkForSavedGames();
+    }, 100);
+};
+
+// Check for saved games after a delay to ensure all watchers are set up
+setTimeout(checkForSavedGames, 100);
+setTimeout(checkForSavedGames, 500);
+setTimeout(checkForSavedGames, 1000);
+
+// Also check after component is mounted
 onMounted(() => {
 	// Wait a bit more for any async operations to complete
 	setTimeout(() => {
@@ -267,7 +294,7 @@ async function resumeGameLocal() {
 			<!-- Main End Game Content -->
 			<div v-if="!showEventHistory" class="w-full">
 				<WinResults 
-					:state="state"
+					:state="state as any"
 					@toggle-event-history="toggleEventHistory"
 					@new-game="quitAndReset"
 				/>

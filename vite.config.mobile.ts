@@ -9,16 +9,19 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/.*/i,
-            handler: 'CacheFirst',
+            urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/version\.json$/i,
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'lupus-in-tabula-api',
+              cacheName: 'version-cache',
               expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 24 * 60 * 60
+                maxEntries: 1,
+                maxAgeSeconds: 60 // Very short cache for version.json
               }
             }
           }

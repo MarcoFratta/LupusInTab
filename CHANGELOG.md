@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.17.1...v1.18.0) (2026-08-08)
+
+
+### Features
+
+* add new role button ([dd85d1b](https://github.com/MarcoFratta/LupusInTab/commit/dd85d1bc180023460b567ec814e524efb039e7f5))
+
 ## [1.17.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.17.0...v1.17.1) (2026-03-18)
 
 

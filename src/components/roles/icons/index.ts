@@ -21,3 +21,4 @@ export { default as MutaformaIcon } from './MutaformaIcon.vue';
 export { default as MissPurpleIcon } from './MissPurpleIcon.vue';
 export { default as BugiardoIcon } from './BugiardoIcon.vue';
 export { default as AmmaestratoreIcon } from './AmmaestratoreIcon.vue';
+export { default as SonnambuloIcon } from './SonnambuloIcon.vue';

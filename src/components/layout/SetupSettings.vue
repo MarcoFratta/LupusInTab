@@ -12,6 +12,8 @@ const { t, currentLocale, availableLocales, changeLanguage } = useI18n();
 
 const activeSettingsCount = computed(() => Object.values(state.settings).filter(Boolean).length);
 
+
+
 const loadAppVersion = async () => {
   try {
     const response = await fetch('/version.json');
@@ -141,8 +143,12 @@ const toggleSetting = (key: string) => {
             <button 
               @click="openBuyMeACoffee"
               class="w-full py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-all duration-200 border border-violet-600 hover:border-violet-700 flex items-center justify-center gap-2">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 5v3H6V5h10zm2.5 7H16v1c0 2.76-2.24 5-5 5s-5-2.24-5-5v-1H5.5c-.83 0-1.5.67-1.5 1.5S4.67 13 5.5 13H18.5c.83 0 1.5-.67 1.5-1.5S19.33 11 18.5 11z"/>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h1a4 4 0 1 1 0 8h-1" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2v2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 2v2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2v2" />
               </svg>
               {{ t('settings.offerCoffee') }}
             </button>
@@ -174,45 +180,8 @@ const toggleSetting = (key: string) => {
       </div>
     </div>
 
-    <!-- Language Selection -->
-    <div class="space-y-4">
-      <h3 class="text-lg font-semibold text-neutral-200">{{ t('settings.language') }}</h3>
-      
-      <div class="p-4 rounded-lg border border-neutral-800/40 bg-neutral-900/30">
-        <div class="space-y-3">
-          <div class="space-y-1">
-            <span class="text-sm font-medium text-neutral-200">{{ t('settings.selectLanguage') }}</span>
-            <p class="text-xs text-neutral-500 leading-relaxed text-left">
-              {{ t('settings.languageDescription') }}
-            </p>
-          </div>
-          
-          <div class="relative">
-            <select 
-              :value="currentLocale.code"
-              @change="changeLanguage(($event.target as HTMLSelectElement).value)"
-              class="w-full px-3 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all duration-200 appearance-none cursor-pointer"
-            >
-              <option 
-                v-for="locale in availableLocales" 
-                :key="locale.code" 
-                :value="locale.code"
-                class="bg-neutral-800 text-neutral-200"
-              >
-                {{ locale.flag }} {{ locale.name }}
-              </option>
-            </select>
-            
-            <!-- Custom dropdown arrow -->
-            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+
 
     <div v-if="appVersion" class="text-xs text-neutral-500 text-center mt-6">
       {{ t('settings.version') }} {{ appVersion }}

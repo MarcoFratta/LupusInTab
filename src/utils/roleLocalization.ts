@@ -13,9 +13,9 @@ export function getLocalizedRole(roleId: string, t: (key: string) => string): Lo
 
   return {
     ...role,
-    name: t(role.name),
-    description: t(role.description),
-    longDescription: t(role.longDescription)
+    name: role.name ? t(role.name) : '',
+    description: role.description ? t(role.description) : '',
+    longDescription: role.longDescription ? t(role.longDescription) : ''
   };
 }
 

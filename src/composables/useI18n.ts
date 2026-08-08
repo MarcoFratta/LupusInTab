@@ -8,7 +8,9 @@ export function useI18n() {
   const availableLocales = ref([
     { code: 'it', name: 'Italiano', flag: '🇮🇹' },
     { code: 'en', name: 'English', flag: '🇺🇸' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' }
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' }
   ]);
   
   // Current locale info

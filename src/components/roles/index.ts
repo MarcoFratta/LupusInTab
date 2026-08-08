@@ -62,3 +62,5 @@ export { default as SimbionteResolveDetails } from './Simbionte/SimbionteResolve
 
 export { default as AmmaestratorePrompt } from './Ammaestratore/AmmaestratorePrompt.vue';
 export { default as AmmaestratoreResolveDetails } from './Ammaestratore/AmmaestratoreResolveDetails.vue';
+export { default as SonnambuloPrompt } from './Sonnambulo/SonnambuloPrompt.vue';
+export { default as SonnambuloResolveDetails } from './Sonnambulo/SonnambuloResolveDetails.vue';

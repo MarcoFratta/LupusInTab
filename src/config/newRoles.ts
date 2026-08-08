@@ -1,6 +1,7 @@
 export const NEW_ROLES_CONFIG = {
-	currentRoles: ['muccamannara',
-		 'misspurple', 'bugiardo', 'mutaforma', 'ammaestratore',
-        'lupoCieco', 'lupoCiccione'
-	]
+	currentRoles: [
+		'sonnambulo'
+	],
+	version: '1.2.0'
 };
+

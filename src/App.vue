@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ROLES } from './roles';
+import { FACTIONS } from './factions';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Capacitor } from '@capacitor/core';
 import { useRegisterSW } from 'virtual:pwa-register/vue';
@@ -13,12 +15,12 @@ import GhostButton from './components/ui/GhostButton.vue';
 import ButtonGroup from './components/ui/ButtonGroup.vue';
 import { useGameStore } from './stores/game';
 import { loadGameState, saveGameState } from './utils/storage';
-import { useNewRolesPopup, useI18n } from './composables';
-import { LanguageSwitcher } from './components/ui';
-import { Analytics } from '@vercel/analytics/nuxt'
+import { useNewRolesPopup, useI18n, useTeamBalance } from './composables';
+import { LanguageSwitcher, SetupTitle, IOSInstallPrompt } from './components/ui';
+import { Analytics } from '@vercel/analytics/vue'
 
 const { t } = useI18n();
-
+const { teamBalance } = useTeamBalance();
 
 const savedGameAtBoot = loadGameState();
 
@@ -26,7 +28,52 @@ const savedGameAtBoot = loadGameState();
 const route = useRoute();
 const router = useRouter();
 const store = useGameStore();
-const state = store.state;
+const state = store.state as any;
+
+const showResumeBanner = ref(true);
+const showNewGameSetup = ref(false);
+const showPlayersAccordion = ref(false);
+const showRolesAccordion = ref(true);
+const showConfirmNewGameModal = ref(false);
+
+// Computed properties for the resume game section
+const savedAlive = computed(() => savedGameAtBoot?.players?.filter((p: any) => p.alive) || []);
+const savedDead = computed(() => savedGameAtBoot?.players?.filter((p: any) => !p.alive) || []);
+const savedGameRoles = computed(() => {
+	const counts = savedGameAtBoot?.setup?.rolesCounts;
+	if (!counts) return [];
+	return Object.entries(counts)
+		.filter(([_, count]) => (count as number) > 0)
+		.map(([roleId, count]) => {
+			const roleDef = ROLES[roleId];
+			const team = roleDef?.team || 'villaggio';
+			const faction = FACTIONS[team];
+			return {
+				id: roleId,
+				name: roleDef?.name || roleId,
+				team,
+				color: faction?.color || '#6b7280',
+				count: count as number
+			};
+		})
+		.sort((a, b) => {
+			const teamOrder: Record<string, number> = { villaggio: 0, lupi: 1, mannari: 2, matti: 3, parassita: 4, alieni: 5 };
+			return (teamOrder[a.team] ?? 99) - (teamOrder[b.team] ?? 99);
+		});
+});
+
+const savedPhaseDisplay = computed(() => {
+	const state = savedGameAtBoot;
+	if (!state) return '';
+	const phase = state.phase || 'night';
+	
+	if (phase === 'night' && state.nightNumber) {
+		return `${t('phases.night')} ${state.nightNumber}`;
+	} else if (phase === 'day' && state.dayNumber) {
+		return `${t('phases.day')} ${state.dayNumber}`;
+	}
+	return t(`phases.${phase}`);
+});
 
 const {
     resumeAvailable,
@@ -197,10 +244,29 @@ async function resumeGameLocal() {
 	}
 }
 
+const handleStartGameRequest = () => {
+	if (resumeAvailable.value) {
+		showConfirmNewGameModal.value = true;
+	} else {
+		beginRevealLocal();
+	}
+};
+
+const confirmNewGame = () => {
+	showConfirmNewGameModal.value = false;
+	beginRevealLocal();
+};
+
+const cancelNewGame = () => {
+	showConfirmNewGameModal.value = false;
+};
+
 </script>
 
 <template class="bg-neutral-950">
 	<Analytics />
+	<LanguageSwitcher />
+	<IOSInstallPrompt v-if="state.phase === PHASES.SETUP" />
 	<!-- Role Details Page -->
 	<RoleDetails v-if="isRoleDetails" />
 	
@@ -221,26 +287,15 @@ async function resumeGameLocal() {
 	</div>
 
 	<!-- Main Game Container -->
-	<div v-if="!isRoleDetails" class="w-full min-h-full bg-neutral-950 sm:max-w-4xl
+	<div v-if="!isRoleDetails" class="w-full bg-neutral-950 sm:bg-transparent sm:max-w-md lg:max-w-4xl
 	 sm:mx-auto sm:border sm:border-neutral-800/40 sm:rounded-2xl
-	 backdrop-blur-sm sm:p-4 md:p-6 lg:p-8 text-neutral-200 capacitor-mobile"
-       :class="state.phase === PHASES.REVEAL || state.phase === PHASES.NIGHT || state.phase === PHASES.PRE_NIGHT || state.phase === PHASES.RESOLVE || state.phase === PHASES.DAY || state.phase === PHASES.END ? 'overflow-visible' : 'overflow-visible'">
-		<!-- Resume banner -->
-		<div v-if="resumeAvailable && state.phase === PHASES.SETUP" 
-		class="bg-neutral-800/50 sm:border mt-4
-		 sm:border-neutral-800/40 rounded-xl sm:rounded-xl p-3 sm:p-4 mb-6 mx-4 sm:mx-0 overflow-hidden">
-			<div class="space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
-				<div class="text-center sm:text-left min-w-0 flex-1">
-					<h3 class="text-base sm:text-lg font-semibold text-neutral-100 mb-1 truncate">{{ t('game.gameInProgress') }}</h3>
-					<p class="text-xs sm:text-sm text-neutral-400 leading-relaxed">{{ t('game.savedGame') }}</p>
-				</div>
-				<div class="flex gap-1.5 sm:gap-2 w-full sm:w-auto">
-					<button class="btn btn-secondary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="dismissResumeBanner">{{ t('common.ignore') }}</button>
-					<button class="btn btn-primary text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 flex-1 sm:flex-none" @click="resumeGameLocal">{{ t('common.resume') }}</button>
-				</div>
-			</div>
-		</div>
-
+	 backdrop-blur-sm sm:p-4 md:p-6 lg:p-8 text-neutral-200 capacitor-mobile
+	 flex flex-col flex-grow"
+       :class="[
+           state.phase === PHASES.SETUP ? 'justify-start' : 'justify-center',
+           'overflow-visible'
+       ]">
+		
 		<!-- Setup Phase -->
 		<div v-if="state.phase === PHASES.SETUP" class="space-y-6 text-center py-2 px-4 sm:px-0 sm:pb-0">
 			<!-- Desktop Page Navigation (hidden on mobile) -->
@@ -284,7 +339,137 @@ async function resumeGameLocal() {
 			</div>
 
 			<!-- Page Content -->
-			<SetupHome v-show="isHome" />
+			<template v-if="isHome">
+				<div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
+					<!-- Generic Title for Home -->
+					<SetupTitle :title="t('setup.playTitle') || 'Gioca'" />
+
+					<!-- Game In Progress Section -->
+					<div v-if="resumeAvailable && !showNewGameSetup" class="w-full max-w-md mx-auto mt-4 sm:mt-8 mb-6 relative z-10 space-y-4 md:space-y-6">
+						
+						<!-- Card 1: Header, Balance, and Action Buttons -->
+						<div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 md:p-4 shadow-lg">
+							<!-- Header -->
+							<div class="flex flex-col items-center text-center gap-2 mb-4 md:mb-5">
+								<h2 class="text-lg font-bold text-white">{{ t('game.gameInProgressTitle') }}</h2>
+								<span class="text-violet-300 font-semibold bg-violet-500/15 px-3 py-1 rounded-lg text-xs border border-violet-500/20">
+									{{ savedPhaseDisplay }}
+								</span>
+							</div>
+
+							<!-- Initial Team Balance Section -->
+							<div class="mb-4">
+								<div class="flex items-center justify-between mb-2">
+									<h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest">{{ t('setup.balance') }}</h3>
+									<div class="text-sm font-bold" 
+											 :class="teamBalance.fairness >= 70 ? 'text-violet-400' : teamBalance.fairness >= 50 ? 'text-yellow-400' : 'text-red-400'">
+										{{ teamBalance.fairness }}%
+									</div>
+								</div>
+								
+								<div class="w-full bg-neutral-800/40 rounded-full h-1.5 overflow-hidden">
+									<div class="h-1.5 rounded-full transition-all duration-500 ease-out"
+											 :class="teamBalance.fairness >= 70 ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500' : teamBalance.fairness >= 50 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' : 'bg-gradient-to-r from-red-500 to-orange-500'"
+											 :style="{ width: `${teamBalance.fairness}%` }">
+									</div>
+								</div>
+							</div>
+
+							<!-- Action Buttons -->
+							<div class="space-y-2.5 mt-2">
+								<button @click="resumeGameLocal" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-400 hover:to-fuchsia-400 text-white font-semibold rounded-xl transition-all shadow-lg shadow-violet-500/25 active:scale-[0.98]">
+									<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+									</svg>
+									{{ t('game.resumeGame') }}
+								</button>
+								<button @click="showNewGameSetup = true" class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-neutral-800/60 hover:bg-neutral-700/60 text-neutral-400 font-medium rounded-xl transition-all border border-neutral-700/40 active:scale-[0.98]">
+									{{ t('game.createNewGame') }}
+								</button>
+							</div>
+						</div>
+
+						<!-- Card 2: Roles List Accordion -->
+						<div v-if="savedGameRoles.length" class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 md:p-4">
+							<button @click="showRolesAccordion = !showRolesAccordion" class="w-full flex items-center justify-between mb-3 group">
+								<h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest group-hover:text-neutral-400 transition-colors">{{ t('game.rolesInGame') }}</h3>
+								<svg class="w-4 h-4 text-neutral-500 transition-transform duration-200" :class="{ 'rotate-180': showRolesAccordion }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+								</svg>
+							</button>
+							<div v-show="showRolesAccordion" class="grid gap-2 grid-cols-1 sm:grid-cols-2">
+								<div v-for="role in savedGameRoles" :key="role.id" class="flex items-center justify-between p-3 rounded-lg bg-neutral-950/40 border border-neutral-800/30">
+									<div class="flex items-center gap-3">
+										<span class="w-2.5 h-2.5 rounded-full" :style="{ backgroundColor: role.color }"></span>
+										<span class="font-medium text-sm text-neutral-200">{{ t(role.name) }}</span>
+									</div>
+									<div class="text-neutral-500 text-sm font-semibold">x{{ role.count }}</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Card 3: Players Accordion -->
+						<div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 md:p-4">
+							<button @click="showPlayersAccordion = !showPlayersAccordion" class="w-full flex items-center justify-between mb-2 group">
+								<h3 class="text-xs font-bold text-neutral-500 uppercase tracking-widest group-hover:text-neutral-400 transition-colors">
+									{{ t('players.players') }} <span class="opacity-75">({{ savedGameAtBoot?.players?.length || 0 }})</span>
+								</h3>
+								<svg class="w-4 h-4 text-neutral-500 transition-transform duration-200" :class="{ 'rotate-180': showPlayersAccordion }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+								</svg>
+							</button>
+
+							<div v-show="showPlayersAccordion" class="mt-3 bg-neutral-950/40 rounded-lg border border-neutral-800/30 p-3 space-y-3">
+								<!-- Alive Players -->
+								<div v-if="savedAlive.length">
+									<h4 class="text-[10px] font-bold text-emerald-500/70 uppercase tracking-wider mb-2 px-0.5 flex items-center gap-1.5">
+										<div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+										{{ t('game.alive') }} ({{ savedAlive.length }})
+									</h4>
+									<div class="flex flex-wrap gap-1.5">
+										<span
+											v-for="player in savedAlive"
+											:key="player.id"
+											class="px-2.5 py-1 text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 rounded-md"
+										>
+											{{ player.name }}
+										</span>
+									</div>
+								</div>
+								<!-- Dead Players -->
+								<div v-if="savedDead.length">
+									<h4 class="text-[10px] font-bold text-red-500/60 uppercase tracking-wider mb-2 px-0.5 flex items-center gap-1.5">
+										<div class="w-1.5 h-1.5 rounded-full bg-red-400/60"></div>
+										{{ t('game.dead') }} ({{ savedDead.length }})
+									</h4>
+									<div class="flex flex-wrap gap-1.5">
+										<span
+											v-for="player in savedDead"
+											:key="player.id"
+											class="px-2.5 py-1 text-xs font-medium bg-red-500/8 text-red-400/70 border border-red-500/10 rounded-md line-through decoration-red-500/30"
+										>
+											{{ player.name }}
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Setup Config UI (Hidden when Game in Progress view is shown) -->
+				<div v-if="!resumeAvailable || showNewGameSetup" class="w-full">
+					<div v-if="resumeAvailable && showNewGameSetup" class="absolute top-4 left-4 z-50 md:top-6 md:left-6">
+						<button @click="showNewGameSetup = false" class="p-1.5 rounded-lg bg-neutral-900/60 hover:bg-neutral-800/60 border border-neutral-800/40 transition-all duration-200 hover:scale-105 cursor-pointer text-white">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+							</svg>
+						</button>
+					</div>
+					<SetupHome @startGame="handleStartGameRequest(beginRevealLocal)" />
+				</div>
+			</template>
 			<SetupRoles v-show="isRoles" />
 			<SetupPlayers v-show="isPlayers" />
 			<SetupSettings v-show="isSettings" />
@@ -407,6 +592,32 @@ async function resumeGameLocal() {
 		:new-roles="newRoles"
 		@close="closeNewRolesPopup"
 	/>
+
+	<!-- Confirm New Game Modal -->
+	<div v-if="showConfirmNewGameModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-sm">
+		<div class="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl relative overflow-hidden">
+			<div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-rose-500"></div>
+			<div class="flex flex-col items-center text-center space-y-4">
+				<div class="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 mb-2 border border-red-500/20 shadow-inner">
+					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+					</svg>
+				</div>
+				<div>
+					<h3 class="text-lg font-bold text-white mb-2">{{ t('game.confirmOverwriteTitle') }}</h3>
+					<p class="text-neutral-400 text-sm leading-relaxed">{{ t('game.confirmOverwriteText') }}</p>
+				</div>
+				<div class="flex gap-3 w-full mt-4">
+					<button @click="cancelNewGame" class="flex-1 px-4 py-2.5 rounded-xl font-medium text-neutral-300 bg-neutral-800/80 hover:bg-neutral-700 border border-neutral-700/50 transition-colors">
+						{{ t('game.cancelNewGame', 'Annulla') }}
+					</button>
+					<button @click="confirmNewGame" class="flex-1 px-4 py-2.5 rounded-xl font-medium text-white bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 transition-colors shadow-lg shadow-red-500/25">
+						{{ t('game.confirmOverwrite', 'Sovrascrivi') }}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 
 	<!-- App Update Overlay -->
 	<!-- Removed cache visual components -->

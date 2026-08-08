@@ -25,3 +25,4 @@ export { default as LanguageSwitcher } from './LanguageSwitcher.vue';
 export { default as NewRolesPopup } from './NewRolesPopup.vue';
 export { default as PassPhoneCard } from './PassPhoneCard.vue';
 export * from './prompts';
+export { default as IOSInstallPrompt } from './IOSInstallPrompt.vue';

@@ -13,12 +13,13 @@ import {
 import RoleCard from '../game/RoleCard.vue';
 import { useTeamBalance } from '../../composables/useTeamBalance';
 import { useI18n } from '../../composables/useI18n';
-import { SetupTitle } from '../ui';
 import { getLocalizedRoles } from '../../utils/roleLocalization';
 import { getFactionDisplayName } from '../../utils/factionUtils';
 
 const store = useGameStore();
 const state = store.state as any;
+
+const emit = defineEmits(['startGame']);
 
 const { teamBalance } = useTeamBalance();
 const { canStart: canStartFromState } = useGameState();
@@ -76,10 +77,6 @@ function updateRoleCount(roleId: string, count: number) {
   engineUpdateRoleCount(state, roleId, count);
 }
 
-function beginReveal() {
-  engineBeginReveal(state, ROLE_LIST as any, shuffled);
-}
-
 const factionOrder: Record<string, number> = {
   'villaggio': 0,
   'lupi': 1,
@@ -107,9 +104,6 @@ const sortedEnabledRoles = computed(() => {
 
 <template>
   <div class="w-full px-3 md:px-6 space-y-4 md:space-y-6">
-    <!-- Setup Title -->
-    <SetupTitle :title="t('setup.title')" />
-    
     <!-- Team Balance Section -->
     <div class="bg-neutral-900/60 border border-neutral-800/40 rounded-xl p-3 md:p-4">
       <div class="flex items-center justify-between mb-2">
@@ -147,7 +141,7 @@ const sortedEnabledRoles = computed(() => {
                 ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25' 
                 : 'bg-neutral-800/60 text-neutral-400 border border-neutral-700/50'" 
               :disabled="!canStart" 
-              @click="beginReveal">
+              @click="$emit('startGame')">
         <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div class="absolute inset-0 bg-gradient-to-r from-violet-400 to-fuchsia-400"></div>
           <div class="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 opacity-80"></div>

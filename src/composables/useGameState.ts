@@ -112,7 +112,7 @@ export function useGameState() {
             () => {
                 if (state.phase !== 'setup') {
                     // Convert Set to array before saving for proper serialization
-                    const stateToSave = { ...state };
+                    const stateToSave = { ...state, lastSavedAt: Date.now() };
                     if (stateToSave.night?.context?.calledRoles instanceof Set) {
                         stateToSave.night.context.calledRoles = Array.from(stateToSave.night.context.calledRoles);
                     }

@@ -24,6 +24,7 @@ import bugiardo from './bugiardo';
 import ammaestratore from './ammaestratore';
 import { lupoCiccione } from './lupoCiccione';
 import { lupoCieco } from './lupoCieco';
+import sonnambulo from './sonnambulo';
 
 const rolesArray: RoleDef[] = [
 	lupo,
@@ -51,6 +52,7 @@ const rolesArray: RoleDef[] = [
 	ammaestratore,
 	lupoCiccione,
 	lupoCieco,
+	sonnambulo,
 ];
 
 export const ROLES: Record<string, RoleDef> = rolesArray.reduce((acc, role) => {

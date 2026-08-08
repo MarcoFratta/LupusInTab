@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.18.0...v1.19.0) (2026-08-08)
+
+
+### Features
+
+* minor fix + sonnambulo role ([189b770](https://github.com/MarcoFratta/LupusInTab/commit/189b770d4e3c8ed06cee65898347bdc511153525))
+
 # [1.18.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.17.1...v1.18.0) (2026-08-08)
 
 

@@ -96,7 +96,10 @@ export default {
     roles: 'roles',
     role: 'rol',
     creditPrefix: 'Algunos roles provienen de',
-    creditLabel: 'Lupus in Forum'
+    creditLabel: 'Lupus in Forum',
+    requestRole: '¿Falta un rol?',
+    requestRoleDescription: '¡Solicítalo apoyando el proyecto en Ko-fi!',
+    requestRoleButton: 'Solicitar rol'
   },
 
   // Settings page
@@ -107,9 +110,9 @@ export default {
     languageDescription: 'Elige el idioma de la interfaz de usuario',
     gameOptions: 'Opciones de Juego',
     supportProject: 'Apoya el Proyecto',
-    buyCoffee: 'Cómprame un café',
+    buyCoffee: 'Ko-fi',
     buyCoffeeDescription: 'Si te gusta el proyecto, considera apoyarlo con una donación para mantener el proyecto activo.',
-    offerCoffee: 'Cómprame un café',
+    offerCoffee: 'Apoya en Ko-fi',
     contributeGitHub: 'Contribuye en GitHub',
     contributeGitHubDescription: 'Dale una estrella al proyecto y reporta cualquier problema o sugerencia de mejora.',
     starProject: 'Dale una estrella',

@@ -38,7 +38,7 @@ watch(() => state.settings, () => {
 }, { deep: true });
 
 const openBuyMeACoffee = () => {
-  window.open('https://buymeacoffee.com/frattarolaf', '_blank');
+  window.open('https://ko-fi.com/marcofratta', '_blank');
 };
 
 const openGitHubStar = () => {

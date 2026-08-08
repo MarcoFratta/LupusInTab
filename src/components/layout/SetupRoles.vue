@@ -56,6 +56,10 @@ function isEnabled(roleId: string): boolean {
 function openRoleDetails(roleId: string): void {
   router.push({ name: 'role-details', query: { role: roleId } });
 }
+
+const openBuyMeACoffee = () => {
+  window.open('https://ko-fi.com/marcofratta', '_blank');
+};
 </script>
 
 <template>
@@ -69,6 +73,25 @@ function openRoleDetails(roleId: string): void {
         disabled: Object.values(state.setup.rolesEnabled || {}).filter(v => !v).length
       }"
     />
+
+    <div class="p-4 mb-6 rounded-lg border border-neutral-800/40 bg-neutral-900/30 hover:bg-neutral-900/50 hover:border-neutral-700/50 transition-all duration-200">
+      <div class="space-y-3">
+        <div class="space-y-1">
+          <span class="text-sm font-medium text-neutral-200">{{ t('roles.requestRole') }}</span>
+          <p class="text-xs text-neutral-500 leading-relaxed text-left">
+            {{ t('roles.requestRoleDescription') }}
+          </p>
+        </div>
+        <button 
+          @click="openBuyMeACoffee"
+          class="w-full py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium rounded-lg transition-all duration-200 border border-violet-600 hover:border-violet-700 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 5v3H6V5h10zm2.5 7H16v1c0 2.76-2.24 5-5 5s-5-2.24-5-5v-1H5.5c-.83 0-1.5.67-1.5 1.5S4.67 13 5.5 13H18.5c.83 0 1.5-.67 1.5-1.5S19.33 11 18.5 11z"/>
+          </svg>
+          {{ t('roles.requestRoleButton') }}
+        </button>
+      </div>
+    </div>
 
     <div class="space-y-6">
       <div v-for="faction in rolesByFaction" :key="faction.name" class="space-y-4">

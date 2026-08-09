@@ -1,3 +1,4 @@
+import { setMockGameState } from '../setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import illusionista from '../../roles/illusionista';
 
@@ -37,6 +38,7 @@ describe('Illusionista Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {

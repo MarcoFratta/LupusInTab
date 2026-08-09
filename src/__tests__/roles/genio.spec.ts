@@ -1,3 +1,4 @@
+import { setMockGameState } from '../setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { genio } from '../../roles/genio';
 import { NightPhaseManager } from '../../core/managers/NightPhaseManager';
@@ -79,6 +80,7 @@ describe('Genio della Lampada', () => {
     vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
       return mockGameState.players.find((p: any) => p.id === playerId);
     });
+    setMockGameState(mockGameState);
   });
 
   describe('resolve function', () => {
@@ -175,7 +177,7 @@ describe('Genio della Lampada', () => {
       expect(result).toBeDefined();
       expect(result.type).toBe('genio_transform');
       expect(result.newRoleId).toBe('veggente');
-      expect(result.newRoleName).toBe('Veggente');
+      expect(result.newRoleName).toBe('roleNames.veggente');
     });
   });
 

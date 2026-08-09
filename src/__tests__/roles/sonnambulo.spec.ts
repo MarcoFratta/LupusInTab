@@ -1,3 +1,4 @@
+import { setMockGameState } from '../setup';
 import { describe, it, expect, beforeEach } from 'vitest';
 import sonnambulo from '../../roles/sonnambulo';
 
@@ -28,6 +29,7 @@ describe('Sonnambulo Role', () => {
         { id: 3, roleId: 'villico', roleState: { realTeam: 'villaggio' }, name: 'Villico Player', alive: true }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {

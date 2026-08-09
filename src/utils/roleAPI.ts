@@ -17,6 +17,14 @@ export function setGameAPI(api: ReturnType<typeof useGameAPI>) {
     gameAPIInstance = api;
 }
 
+export function setTestState(testState: any) {
+    gameAPIInstance = useGameAPI(testState);
+}
+
+export function clearTestState() {
+    gameAPIInstance = null;
+}
+
 export function getGameAPI(): ReturnType<typeof useGameAPI> {
     if (!gameAPIInstance) {
         // Fallback to creating a new instance if not set

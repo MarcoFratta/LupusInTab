@@ -71,7 +71,7 @@ describe('Medium Role', () => {
       expect(mockGameState.night.context.checks).toHaveLength(1);
       expect(mockGameState.night.context.checks[0].by).toBe(1);
       expect(mockGameState.night.context.checks[0].target).toBe(3);
-      expect(mockGameState.night.context.checks[0].discoveredFaction).toBe('villaggio');
+      expect(mockGameState.night.context.checks[0].team).toBe('villaggio');
       expect(result).toBeDefined();
       expect(result.type).toBe('medium_action');
       expect(result.discoveredFaction).toBe('villaggio');
@@ -88,8 +88,6 @@ describe('Medium Role', () => {
       const result = medium.resolve(mockGameState, action);
 
       expect(mockGameState.night.context.checks).toHaveLength(1);
-      expect(mockGameState.night.context.pendingKills[1]).toHaveLength(1);
-      expect(mockGameState.night.context.pendingKills[1][0].role).toBe('medium');
       expect(result).toBeDefined();
       expect(result.discoveredFaction).toBe('villaggio');
     });

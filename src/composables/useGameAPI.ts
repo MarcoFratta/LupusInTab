@@ -9,9 +9,14 @@ import type { GameState, Player, RoleDef } from '../types';
  * Provides a clean, consistent API for role interactions and game state access
  * This eliminates props drilling and provides a standardized way to interact with the game
  */
-export function useGameAPI() {
-    const store = useGameStore();
-    const state = store.state;
+export function useGameAPI(customState?: any) {
+    let state: any;
+    if (customState) {
+        state = customState;
+    } else {
+        const store = useGameStore();
+        state = store.state;
+    }
 
     // ===== PLAYER QUERIES =====
 
@@ -217,7 +222,7 @@ export function useGameAPI() {
      * Add a kill to pending kills
      */
     const addKill = (targetId: number, killerRole: string, data?: any) => {
-        if (!state.night?.context) return;
+        if (!state.night) state.night = {}; if (!state.night.context) state.night.context = {};
         if (!state.night.context.pendingKills) {
             state.night.context.pendingKills = {};
         }
@@ -243,7 +248,7 @@ export function useGameAPI() {
      * Add a save
      */
     const addSave = (targetId: number, saverId: number, fromRoles: string[]) => {
-        if (!state.night?.context) return;
+        if (!state.night) state.night = {}; if (!state.night.context) state.night.context = {};
         if (!state.night.context.savesBy) {
             state.night.context.savesBy = [];
         }
@@ -258,7 +263,7 @@ export function useGameAPI() {
      * Add an investigation check
      */
     const addCheck = (investigatorId: number, targetId: number, discoveredTeam: string) => {
-        if (!state.night?.context) return;
+        if (!state.night) state.night = {}; if (!state.night.context) state.night.context = {};
         if (!state.night.context.checks) {
             state.night.context.checks = [];
         }

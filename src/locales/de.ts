@@ -286,8 +286,8 @@ export default {
     lupoCiccioneLong: "Der dicke Wolf lässt Nachbarn wie Wölfe aussehen.",
     lupoCiecoLong: "Der blinde Wolf ist einsam und untersucht Spieler.",
     mediumLong: "Das Medium kann mit den Toten sprechen.",
-    sonnambulo: "Wandelt jede Nacht im Schlaf und schläft im Haus eines anderen Spielers. Ist sicher, wenn die Wölfe sein Haus angreifen, stirbt aber, wenn sie das Haus angreifen, das er besucht.",
-    sonnambuloLong: "Der Schlafwandler ist eine Dorfrolle, die jede Nacht im Schlaf wandelt und im Haus eines anderen Spielers schläft.\n\nWIE ES FUNKTIONIERT:\n• Wählt jede Nacht einen anderen Spieler aus, den er besucht.\n• Wenn Wölfe sein Haus angreifen, während er weg ist, ist der Schlafwandler sicher, da er nicht zu Hause ist.\n• Wenn Wölfe das Haus angreifen, das er besucht, stirbt der Schlafwandler bei dem Angriff (es sei denn, das Ziel wird vom Wächter geschützt oder ist ein Wolf)."
+    sonnambulo: "Wandelt jede Nacht im Schlaf und schläft im Haus eines anderen Spielers.",
+    sonnambuloLong: "Der Schlafwandler ist eine Dorfrolle, die jede Nacht im Schlaf wandelt und im Haus eines anderen Spielers schläft.\n\nWIE ES FUNKTIONIERT:\n• Wählt jede Nacht einen anderen Spieler aus, den er besucht.\n• Wenn Wölfe sein Haus angreifen, während er weg ist, ist der Schlafwandler sicher, da er nicht zu Hause ist.\n• Wenn der besuchte Spieler in dieser Nacht stirbt, stirbt auch der Schlafwandler, weil er sich im selben Haus befand.\n• Wenn er einen Wolf besucht, ist er sicher, ABER wenn die Wölfe den Schlafwandler als Ziel ausgewählt hatten, stirbt er."
   },
   factions: {
     village: "Dorf",
@@ -442,7 +442,9 @@ export default {
     noWolfAttacksToRedirect: "Keine Wolfsangriffe zum Umleiten",
     notEnoughPlayersToInvestigate: "Nicht genügend Spieler zum Überprüfen",
     powerAlreadyUsed: "Kraft bereits genutzt",
-    skipInvestigation: "Überprüfung überspringen"
+    skipInvestigation: "Überprüfung überspringen",
+    sonnambuloChoosePlayer: "Schlafwandler, wähle einen Spieler zum Besuchen heute Nacht",
+    sonnambuloChoosePlayerDescription: "Wähle bei welchem Spieler du heute Nacht schlafen möchtest."
   },
   factionComparison: {
     before: "Vorher:",

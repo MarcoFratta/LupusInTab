@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { parassita } from '../../roles/parassita';
-import { setMockGameState } from '../setup';
+import { setMockGameState, getGameState } from '../setup';
 import { RoleAPI } from '../../utils/roleAPI';
 
 describe('Parassita Role', () => {
@@ -50,12 +50,13 @@ describe('Parassita Role', () => {
       ]
     };
     setMockGameState(mockGameState);
+    mockGameState = getGameState();
   });
 
   describe('Role Definition', () => {
     it('should have correct basic properties', () => {
       expect(parassita.id).toBe('parassita');
-      expect(parassita.name).toBe('Parassita');
+      expect(parassita.name).toBe('roleNames.parassita');
       expect(parassita.team).toBe('parassita');
       expect(parassita.phaseOrder).toBe('any');
       expect(parassita.actsAtNight).toBe('alive');
@@ -66,7 +67,7 @@ describe('Parassita Role', () => {
     });
 
     it('should have correct description and color', () => {
-      expect(parassita.description).toBe('Infetta i giocatori ogni notte');
+      expect(parassita.description).toBe('roleDescriptions.parassita');
       expect(parassita.color).toBe('#ec4899');
     });
   });

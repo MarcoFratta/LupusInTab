@@ -65,7 +65,7 @@ describe('Simbionte Role', () => {
   describe('Role Definition', () => {
     it('should have correct basic properties', () => {
       expect(simbionte.id).toBe('simbionte');
-      expect(simbionte.name).toBe('Simbionte');
+      expect(simbionte.name).toBe('roleNames.simbionte');
       expect(simbionte.team).toBe('alieni');
       expect(simbionte.countAs).toBe('alieni');
       expect(simbionte.visibleAsTeam).toBe('villaggio');

@@ -111,11 +111,11 @@ export function setMockGameState(mockState: any) {
   
   // Ensure night context is properly initialized
   if (mockState.night?.context && !store.state.night.context) {
-    store.state.night.context = mockState.night.context;
+    store.state.night.context = mockState.night.context as any;
   }
   
-  // Set the mock state in the store
-  store.$patch(mockState);
+  // Set the mock state in the store targeting the reactive state object properly
+  store.$patch({ state: mockState });
   
   // Initialize RoleAPI with the mock state
   const gameAPI = useGameAPI();
@@ -130,3 +130,15 @@ export function getGameState() {
   const store = useGameStore();
   return store.state;
 }
+
+import { clearTestState } from '../utils/roleAPI';
+let currentScope: any = null;
+
+afterEach(() => {
+  vi.clearAllMocks();
+  clearTestState();
+  if (currentScope) {
+    currentScope.stop();
+    currentScope = null;
+  }
+});

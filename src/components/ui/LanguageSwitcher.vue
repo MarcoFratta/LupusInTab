@@ -2,7 +2,8 @@
   <!-- Floating Flag Button -->
   <button
     @click="isOpen = true"
-    class="fixed top-4 right-4 md:top-6 md:right-6 z-[60] w-10 h-10 rounded-full bg-neutral-900/80 border border-neutral-700/50 hover:border-neutral-600 shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 backdrop-blur-md"
+    class="fixed right-4 md:right-6 z-[60] w-10 h-10 rounded-full bg-neutral-900/80 border border-neutral-700/50 hover:border-neutral-600 shadow-lg flex items-center justify-center transition-all duration-200 hover:scale-105 backdrop-blur-md"
+    style="top: calc(env(safe-area-inset-top, 0px) + 1rem);"
   >
     <span class="text-xl leading-none">{{ currentLocale.flag }}</span>
   </button>

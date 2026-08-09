@@ -286,8 +286,8 @@ export default {
     lupoCiccioneLong: "The Fat Wolf is a wolf that makes adjacent players appear as wolves.\n\nHOW IT WORKS:\n• Behaves like a normal wolf, so opens eyes with wolves\n• Makes the first two living players to his left and right appear as wolves\n• Can confuse investigations",
     lupoCiecoLong: "The Blind Wolf is a solitary wolf who doesn't know the other wolves.\n    The other wolves don't know him. Can investigate three adjacent players and discover if\n    there is at least one wolf among the three.\n\nHOW IT WORKS:\n• Every night investigates three adjacent players\n• Discovers if there is at least one wolf among the three\n• If all wolves are dead, can also kill like a normal wolf",
     mediumLong: "The Medium can communicate with dead players to obtain information.\n\nHOW IT WORKS:\n• Every night can choose a dead player to communicate with\n• Discovers which team the dead player played for",
-    sonnambulo: "Every night wanders in their sleep and goes to sleep at another player's house. Safe if wolves attack their house, but dies if they attack the house they are visiting.",
-    sonnambuloLong: "The Sleepwalker is a village role who wanders in their sleep every night and goes to sleep at another player's house.\n\nHOW IT WORKS:\n• Every night selects another player to visit.\n• If wolves attack their house while away, the Sleepwalker is safe because they are not home.\n• If wolves attack the house they are visiting, the Sleepwalker dies in the attack (unless the target is protected by the Guard or is a Wolf)."
+    sonnambulo: "Every night wanders in their sleep and goes to sleep at another player's house.",
+    sonnambuloLong: "The Sleepwalker is a village role who wanders in their sleep every night and goes to sleep at another player's house.\n\nHOW IT WORKS:\n• Every night selects another player to visit.\n• If wolves attack their house while away, the Sleepwalker is safe because they are not home.\n• If the player they are visiting dies that night, the Sleepwalker also dies because they were in the same house.\n• If they visit a Wolf, they are safe from the wolves' attack, BUT if the wolves had chosen the Sleepwalker as their target, the Sleepwalker dies."
   },
   factions: {
     village: "Village",
@@ -442,7 +442,9 @@ export default {
     noWolfAttacksToRedirect: "No wolf attacks to redirect",
     notEnoughPlayersToInvestigate: "Not enough players to investigate",
     powerAlreadyUsed: "Power already used",
-    skipInvestigation: "Skip investigation"
+    skipInvestigation: "Skip investigation",
+    sonnambuloChoosePlayer: "Sleepwalker, choose a player to visit tonight",
+    sonnambuloChoosePlayerDescription: "Choose which player's house to sleep at tonight."
   },
   factionComparison: {
     before: "Before:",

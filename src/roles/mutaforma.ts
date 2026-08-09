@@ -18,7 +18,7 @@ function checkMutaformaCanUseTargetRole(targetRole: any, gameState: any, mutafor
         
         if (grouping) {
             // Use the grouped role instead
-            const groupedRole = ROLES[grouping.fromRole];
+            const groupedRole = ((gameState.roles && gameState.roles[grouping.fromRole]) || ROLES[grouping.fromRole]);
             if (groupedRole && groupedRole.actsAtNight !== 'never') {
                 effectiveRole = groupedRole;
                 console.log(`🔄 [DEBUG] Mutaforma using grouped role: ${groupedRole.id} instead of ${targetRole.id}`);
@@ -79,7 +79,9 @@ const mutaforma: RoleDef = {
         if (!targetPlayer) return;
         
         const targetRoleId = targetPlayer.roleId;
-        const targetRole = ROLES[targetRoleId];
+        
+        // For testing purposes, try to get from game state if available
+        let targetRole = (gameState.roles && gameState.roles[targetRoleId]) || ROLES[targetRoleId];
         
         if (!targetRole) return;
         
@@ -91,7 +93,7 @@ const mutaforma: RoleDef = {
             const grouping = groupings.find((g: any) => g.toRole === targetRoleId);
             if (grouping) {
                 effectiveRoleId = grouping.fromRole;
-                effectiveRole = ROLES[effectiveRoleId];
+                effectiveRole = ((gameState.roles && gameState.roles[effectiveRoleId]) || ROLES[effectiveRoleId]);
                 console.log(`🔄 [DEBUG] Mutaforma will use effective role: ${effectiveRoleId} instead of ${targetRoleId}`);
             }
         }
@@ -190,7 +192,7 @@ const mutaforma: RoleDef = {
         const alivePlayers = RoleAPI.getAlivePlayers();
         
         for (const alivePlayer of alivePlayers) {
-            const roleDef = ROLES[alivePlayer.roleId];
+            const roleDef = ((gameState.roles && gameState.roles[alivePlayer.roleId]) || ROLES[alivePlayer.roleId]);
             if (!roleDef) continue;
             
             const team = roleDef.countAs || roleDef.team;
@@ -200,7 +202,7 @@ const mutaforma: RoleDef = {
         const allTeams = new Set<string>();
         const allPlayers = [...RoleAPI.getAlivePlayers(), ...RoleAPI.getDeadPlayers()];
         for (const gamePlayer of allPlayers) {
-            const roleDef = ROLES[gamePlayer.roleId];
+            const roleDef = ((gameState.roles && gameState.roles[gamePlayer.roleId]) || ROLES[gamePlayer.roleId]);
             if (!roleDef) continue;
             
             const team = roleDef.countAs || roleDef.team;

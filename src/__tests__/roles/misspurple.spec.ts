@@ -21,9 +21,9 @@ describe('Miss Purple Role', () => {
   describe('Role Definition', () => {
     it('should have correct basic properties', () => {
       expect(misspurple.id).toBe('misspurple');
-      expect(misspurple.name).toBe('Miss Purple');
+      expect(misspurple.name).toBe('roleNames.misspurple');
       expect(misspurple.team).toBe('villaggio');
-      expect(misspurple.description).toBe('Scopre quanti lupi ci sono ogni notte');
+      expect(misspurple.description).toBe('roleDescriptions.misspurple');
       expect(misspurple.color).toBe('#9333ea');
       expect(misspurple.phaseOrder).toBe('any');
       expect(misspurple.actsAtNight).toBe('alive');

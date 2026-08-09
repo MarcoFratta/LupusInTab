@@ -91,6 +91,11 @@ export class NightPhaseManager {
   static nextRole(state: GameState): any {
     if (!state.night?.context) return null;
     
+    // Fix corrupted calledRoles (sometimes Vue reactivity changes it to a Set or similar)
+    if (state.night.context.calledRoles && !Array.isArray(state.night.context.calledRoles)) {
+      state.night.context.calledRoles = Array.from(state.night.context.calledRoles);
+    }
+    
     const availableRoles = this.getAvailableRoles(state);
     
     if (availableRoles.length === 0) {

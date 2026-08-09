@@ -7,7 +7,7 @@ const sonnambulo: RoleDef = {
     name: 'roleNames.sonnambulo',
     team: 'villaggio',
     icon: 'SonnambuloIcon',
-    score: 1, // relatively low impact role, similar to Villager
+    score: 0, // slightly less than villico, sleepwalking can be risky
     visibleAsTeam: 'villaggio',
     countAs: 'villaggio',
     description: 'roleDescriptions.sonnambulo',

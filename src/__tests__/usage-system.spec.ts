@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+vi.unmock('../core/managers/NightPhaseManager');
+vi.unmock('../core/managers/GameStateManager');
+vi.unmock('../core/engine');
 import { canPlayerActAtNight, hasPlayerExceededUsageLimit } from '../utils/roleUtils';
 import { beginReveal } from '../core/engine';
 import { ROLES } from '../roles';

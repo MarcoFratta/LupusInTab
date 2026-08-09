@@ -28,7 +28,7 @@ const boia: RoleDef = {
         const declaredRoleId = action?.data?.roleId ? String(action.data.roleId) : '';
         if (!Number.isFinite(id)) return;
         
-        const targetPlayer = RoleAPI.getPlayer(id);
+        const targetPlayer = RoleAPI.getPlayer(id); console.log("TargetPlayer:", targetPlayer);
         if (!targetPlayer) return;
         
         const isCorrect = checkPlayerRole(id, declaredRoleId, gameState);

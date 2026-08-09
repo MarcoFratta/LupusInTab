@@ -55,7 +55,7 @@ describe('Ammaestratore Role', () => {
   describe('Role Properties', () => {
     it('should have correct basic properties', () => {
       expect(ammaestratore.id).toBe('ammaestratore');
-      expect(ammaestratore.name).toBe('Ammaestratore');
+      expect(ammaestratore.name).toBe('roleNames.ammaestratore');
       expect(ammaestratore.team).toBe('villaggio');
       expect(ammaestratore.visibleAsTeam).toBe('villaggio');
       expect(ammaestratore.countAs).toBe('villaggio');

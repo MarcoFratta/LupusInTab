@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import veggente from '../../roles/veggente';
-import { setMockGameState } from '../setup';
+import { setMockGameState, getGameState } from '../setup';
 
 describe('Veggente Role', () => {
   let mockGameState: any;
@@ -56,6 +56,7 @@ describe('Veggente Role', () => {
       ]
     };
     setMockGameState(mockGameState);
+    mockGameState = getGameState();
   });
 
   describe('Resolve Function', () => {

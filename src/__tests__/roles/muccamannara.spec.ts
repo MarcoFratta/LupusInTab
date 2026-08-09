@@ -53,7 +53,7 @@ describe('MuccaMannara Role', () => {
   describe('Role Properties', () => {
     it('should have correct basic properties', () => {
       expect(muccamannara.id).toBe('muccamannara');
-      expect(muccamannara.name).toBe('Mucca Mannara');
+      expect(muccamannara.name).toBe('roleNames.muccamannara');
       expect(muccamannara.team).toBe('mannari');
       expect(muccamannara.actsAtNight).toBe('never');
     });
@@ -150,12 +150,12 @@ describe('MuccaMannara Role', () => {
       // Start the night phase which will apply passive effects for all roles
       NightPhaseManager.beginNight(gameState, {} as any);
       
-      // Call getCurrentTurn to trigger processing of roles with actsAtNight: "never"
-      let turn = NightPhaseManager.getCurrentTurn(gameState);
+      // Call nextRole to trigger processing of roles with actsAtNight: "never"
+      let turn = NightPhaseManager.nextRole(gameState);
       while (turn) {
         // Mark the role as called
         gameState.night.context.calledRoles.push(turn.roleId);
-        turn = NightPhaseManager.getCurrentTurn(gameState);
+        turn = NightPhaseManager.nextRole(gameState);
       }
 
       // Verify that the passive effect was applied and lupo kills were filtered out
@@ -191,12 +191,12 @@ describe('MuccaMannara Role', () => {
       // Start the night phase which will apply passive effects for all roles
       NightPhaseManager.beginNight(gameState, {} as any);
       
-      // Call getCurrentTurn to trigger processing of roles with actsAtNight: "never"
-      let turn = NightPhaseManager.getCurrentTurn(gameState);
+      // Call nextRole to trigger processing of roles with actsAtNight: "never"
+      let turn = NightPhaseManager.nextRole(gameState);
       while (turn) {
         // Mark the role as called
         gameState.night.context.calledRoles.push(turn.roleId);
-        turn = NightPhaseManager.getCurrentTurn(gameState);
+        turn = NightPhaseManager.nextRole(gameState);
       }
 
       // Verify that the passive effect was applied and lupo kills were filtered out
@@ -232,12 +232,12 @@ describe('MuccaMannara Role', () => {
       // Start the night phase which will apply passive effects for all roles
       NightPhaseManager.beginNight(gameState, {} as any);
       
-      // Call getCurrentTurn to trigger processing of roles with actsAtNight: "never"
-      let turn = NightPhaseManager.getCurrentTurn(gameState);
+      // Call nextRole to trigger processing of roles with actsAtNight: "never"
+      let turn = NightPhaseManager.nextRole(gameState);
       while (turn) {
         // Mark the role as called
         gameState.night.context.calledRoles.push(turn.roleId);
-        turn = NightPhaseManager.getCurrentTurn(gameState);
+        turn = NightPhaseManager.nextRole(gameState);
       }
 
       // Verify that the passive effect was applied and lupo kills were filtered out

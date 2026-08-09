@@ -81,6 +81,15 @@ export default defineConfig({
         environment: 'node',
         include: ['src/**/*.spec.ts'],
         setupFiles: ['src/__tests__/setup.ts'],
+        pool: 'forks',
+        poolOptions: {
+            forks: {
+                isolate: false,
+                minForks: 1,
+                maxForks: 2,
+                execArgv: ['--max-old-space-size=8192']
+            }
+        }
     },
 });
 

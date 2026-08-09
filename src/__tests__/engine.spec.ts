@@ -1,4 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
+import { setTestState } from '../utils/roleAPI';
+
+vi.unmock('../core/engine');
+vi.unmock('../core/managers/NightPhaseManager');
+vi.unmock('../core/managers/GameStateManager');
 import {
   createEmptyState,
   initSetupPlayers,
@@ -46,10 +51,16 @@ const TEST_ROLES = {
     resolve: (state: any, action: any) => {
       if (action.data?.targetId) {
         const id = action.data.targetId as number;
-        if (!Array.isArray(state.night.context.saves)) {
-          state.night.context.saves = [];
+        if (!Array.isArray(state.night.context.savesBy)) {
+          state.night.context.savesBy = [];
         }
-        state.night.context.saves.push({
+        
+        // Remove lupo kills
+        if (state.night.context.pendingKills?.[id]) {
+          state.night.context.pendingKills[id] = state.night.context.pendingKills[id].filter((k: any) => k.role !== 'lupo');
+        }
+
+        state.night.context.savesBy.push({
           targetId: id,
           fromRoles: ['lupo'],
           byRole: 'guardia'
@@ -285,6 +296,8 @@ describe('new roles logic', () => {
       { id: 3, name: 'D', roleId: 'guardia', alive: true, roleState: {} },
     ] as any;
     
+    setTestState(s);
+
     // Initialize role states properly
     for (const player of s.players) {
       const roleDef = ROLES[player.roleId];
@@ -785,8 +798,8 @@ describe('NightPhaseManager Set handling', () => {
     // Verify it's now a Set
     expect(state.night.context?.calledRoles instanceof Set).toBe(true);
     
-    // Call getCurrentTurn which should fix the corrupted array
-    const turn = state.night?.turns?.[state.night.currentIndex];
+    // Call nextRole which should fix the corrupted array
+    const turn = nextRole(state as any);
     
     // Verify calledRoles is back to being an array
     expect(Array.isArray(state.night.context?.calledRoles)).toBe(true);

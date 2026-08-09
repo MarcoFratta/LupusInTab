@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import bugiardo from '../../roles/bugiardo';
-import { setMockGameState } from '../setup';
+import { setMockGameState, getGameState } from '../setup';
 
 describe('Bugiardo Role', () => {
   let mockGameState: any;
@@ -23,18 +23,19 @@ describe('Bugiardo Role', () => {
       ]
     };
     setMockGameState(mockGameState);
+    mockGameState = getGameState();
   });
 
   describe('Role Definition', () => {
     it('should have correct basic properties', () => {
       expect(bugiardo.id).toBe('bugiardo');
-      expect(bugiardo.name).toBe('Bugiardo');
+      expect(bugiardo.name).toBe('roleNames.bugiardo');
       expect(bugiardo.team).toBe('lupi');
       expect(bugiardo.icon).toBe('BugiardoIcon');
       expect(bugiardo.score).toBe(8);
       expect(bugiardo.visibleAsTeam).toBe('villaggio');
       expect(bugiardo.countAs).toBe('villaggio');
-      expect(bugiardo.description).toBe('Scopre il ruolo di un morto una volta per partita');
+      expect(bugiardo.description).toBe('roleDescriptions.bugiardo');
       expect(bugiardo.color).toBe('#dc2626');
       expect(bugiardo.phaseOrder).toBe('any');
       expect(bugiardo.actsAtNight).toBe('alive');

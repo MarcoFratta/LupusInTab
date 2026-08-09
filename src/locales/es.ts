@@ -286,8 +286,8 @@ export default {
     lupoCiccioneLong: "El Lobo Gordo es un lobo que hace que los jugadores adyacentes aparezcan como lobos.\n\nCÓMO FUNCIONA:\n• Se comporta como un lobo normal, así que abre los ojos con los lobos\n• Hace que los primeros dos jugadores vivos a su izquierda y derecha aparezcan como lobos\n• Puede confundir las investigaciones",
     lupoCiecoLong: "El Lobo Ciego es un lobo solitario que no conoce a los otros lobos.\n    Los otros lobos no lo conocen. Puede investigar tres jugadores contiguos y descubrir si\n    hay al menos un lobo entre los tres.\n\nCÓMO FUNCIONA:\n• Cada noche investiga tres jugadores contiguos\n• Descubre si hay al menos un lobo entre los tres\n• Si todos los lobos están muertos, también puede matar como un lobo normal",
     mediumLong: "El Médium puede comunicarse con jugadores muertos para obtener información.\n\nCÓMO FUNCIONA:\n• Cada noche puede elegir un jugador muerto con quien comunicarse\n• Descubre para qué equipo jugaba el jugador muerto",
-    sonnambulo: "Cada noche vaga en sueños y va a dormir a casa de otro jugador. Está a salvo si los lobos atacan su casa, pero muere si atacan la casa que está visitando.",
-    sonnambuloLong: "El Sonámbulo es un rol del villagio que cada noche vaga en sueños y va a dormir a casa de otro jugador.\n\nCÓMO FUNCIONA:\n• Cada noche selecciona a otro jugador para visitar.\n• Si los lobos atacan su casa mientras está fuera, el Sonámbulo está a salvo porque no está en casa.\n• Si los lobos atacan la casa que está visitando, el Sonámbulo muere en el ataque (a menos que el objetivo esté protegido por la Guardia o sea un Lobo)."
+    sonnambulo: "Cada noche vaga en sueños y va a dormir a casa de otro jugador.",
+    sonnambuloLong: "El Sonámbulo es un rol del pueblo que cada noche vaga en sueños y va a dormir a casa de otro jugador.\n\nCÓMO FUNCIONA:\n• Cada noche selecciona a otro jugador para visitar.\n• Si los lobos atacan su casa mientras está fuera, el Sonámbulo está a salvo porque no está en casa.\n• Si el jugador que está visitando muere esa noche, el Sonámbulo también muere porque se encontraba en la misma casa.\n• Si visita a un Lobo, está a salvo, PERO si los lobos habían elegido al Sonámbulo como objetivo, muere."
   },
   factions: {
     village: "Aldea",
@@ -442,7 +442,9 @@ export default {
     noWolfAttacksToRedirect: "Sin ataques de lobos para redirigir",
     notEnoughPlayersToInvestigate: "No hay suficientes jugadores para investigar",
     powerAlreadyUsed: "Poder ya utilizado",
-    skipInvestigation: "Omitir investigación"
+    skipInvestigation: "Omitir investigación",
+    sonnambuloChoosePlayer: "Sonámbulo, elige a qué jugador visitar esta noche",
+    sonnambuloChoosePlayerDescription: "Elige en la casa de qué jugador ir a dormir esta noche."
   },
   factionComparison: {
     before: "Antes:",

@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+vi.unmock('../core/managers/NightPhaseManager');
+vi.unmock('../core/managers/GameStateManager');
+vi.unmock('../core/engine');
 import { ROLES } from '../roles';
 import { useGameSimulation } from '../composables/useGameSimulation';
 import { checkPlayerRole, getPlayersWithRole, hasAnyPlayerWithRole } from '../utils/roleChecking';

@@ -1,3 +1,4 @@
+import { setMockGameState } from '../setup';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { checkPlayerRole } from '../../utils/roleChecking';
 

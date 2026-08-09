@@ -286,8 +286,8 @@ export default {
     lupoCiccioneLong: "Le Gros Loup camoufle ses voisins en loups.",
     lupoCiecoLong: "Le Loup Aveugle est solitaire et enquête.",
     mediumLong: "Le Médium parle aux morts.",
-    sonnambulo: "Chaque nuit déambule dans son sommeil et va dormir chez un autre joueur. Est en sécurité si les loups attaquent sa maison, mais meurt s'ils attaquent la maison qu'il visite.",
-    sonnambuloLong: "Le Somnambule est un rôle du village qui chaque nuit déambule dans son sommeil et va dormir chez un autre joueur.\n\nCOMMENT ÇA MARCHE :\n• Chaque nuit choisit un autre joueur à visiter.\n• Si les loups attaquent sa maison pendant son absence, le Somnambule est en sécurité car il n'est pas chez lui.\n• Si les loups attaquent la maison qu'il visite, le Somnambule meurt pendant l'attaque (sauf si la cible est protégée par la Garde ou est un Loup)."
+    sonnambulo: "Chaque nuit déambule dans son sommeil et va dormir chez un autre joueur.",
+    sonnambuloLong: "Le Somnambule est un rôle du village qui chaque nuit déambule dans son sommeil et va dormir chez un autre joueur.\n\nCOMMENT ÇA MARCHE :\n• Chaque nuit choisit un autre joueur à visiter.\n• Si les loups attaquent sa maison pendant son absence, le Somnambule est en sécurité car il n'est pas chez lui.\n• Si le joueur qu'il visite meurt cette nuit-là, le Somnambule meurt aussi car il se trouvait dans la même maison.\n• S'il visite un Loup, il est en sécurité, MAIS si les loups avaient choisi le Somnambule comme cible, il meurt."
   },
   factions: {
     village: "Village",
@@ -442,7 +442,9 @@ export default {
     noWolfAttacksToRedirect: "Aucune attaque de loup à réorienter",
     notEnoughPlayersToInvestigate: "Pas assez de joueurs à enquêter",
     powerAlreadyUsed: "Pouvoir déjà utilisé",
-    skipInvestigation: "Passer l'enquête"
+    skipInvestigation: "Passer l'enquête",
+    sonnambuloChoosePlayer: "Somnambule, choisis un joueur chez qui dormir",
+    sonnambuloChoosePlayerDescription: "Choisis chez quel joueur aller dormir cette nuit."
   },
   factionComparison: {
     before: "Avant:",

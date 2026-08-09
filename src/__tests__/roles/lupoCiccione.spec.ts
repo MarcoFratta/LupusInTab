@@ -1,3 +1,4 @@
+import { setMockGameState } from '../setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { lupoCiccione } from '../../roles/lupoCiccione';
 import { NightPhaseManager } from '../../core/managers/NightPhaseManager';
@@ -82,17 +83,18 @@ describe('Lupo Ciccione Role', () => {
     vi.spyOn(RoleAPI, 'getPlayer').mockImplementation((playerId: number) => {
       return mockGameState.players.find((p: any) => p.id === playerId);
     });
+    setMockGameState(mockGameState);
   });
 
   describe('Role Properties', () => {
     it('should have correct basic properties', () => {
       expect(lupoCiccione.id).toBe('lupoCiccione');
-      expect(lupoCiccione.name).toBe('Lupo Ciccione');
+      expect(lupoCiccione.name).toBe('roleNames.lupoCiccione');
       expect(lupoCiccione.team).toBe('lupi');
       expect(lupoCiccione.visibleAsTeam).toBe('lupi');
       expect(lupoCiccione.countAs).toBe('lupi');
       expect(lupoCiccione.actsAtNight).toBe('never');
-      expect(lupoCiccione.phaseOrder).toBe(4);
+      expect(lupoCiccione.phaseOrder).toBe(0);
     });
 
     it('should have passive effect function', () => {

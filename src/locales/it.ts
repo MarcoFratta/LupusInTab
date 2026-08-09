@@ -286,8 +286,8 @@ export default {
     lupoCiccioneLong: "Il Lupo Ciccione è un lupo che fa apparire i giocatori adiacenti come lupi.\n\nCOME FUNZIONA:\n• Si comporta come un lupo normale, quindi apre gli occhi con i lupi\n• Fa apparire i primi due giocatori vivi alla sua sinistra e destra come lupi\n• Può confondere le investigazioni",
     lupoCiecoLong: "Il Lupo Cieco è un lupo solitario che non conosce gli altri lupi.\n    Gli altri lupi non lo conoscono. Può investigare tre giocatori contigui e scoprire se \n    c'è almeno un lupo tra i tre.\n\nCOME FUNZIONA:\n• Ogni notte investiga tre giocatori contigui\n• Scopre se c'è almeno un lupo tra i tre\n• Se tutti i lupi sono morti, può anche uccidere come un lupo normale",
     mediumLong: "Il Medium può comunicare con i giocatori morti per ottenere informazioni.\n\nCOME FUNZIONA:\n• Ogni notte può scegliere un giocatore morto con cui comunicare\n• Scopre per chi giocava il giocatore morto",
-    sonnambulo: "Ogni notte vaga nel sonno e va a dormire a casa di un altro giocatore. È al sicuro se i lupi attaccano la sua casa, ma muore se attaccano la casa che sta visitando.",
-    sonnambuloLong: "Il Sonnambulo è un ruolo del villaggio che ogni notte vaga nel sonno e va a dormire a casa di un altro giocatore.\n\nCOME FUNZIONA:\n• Ogni notte seleziona un altro giocatore da visitare.\n• Se i lupi attaccano la sua casa mentre è via, il Sonnambulo è al sicuro perché non si trova a casa.\n• Se i lupi attaccano la casa che sta visitando, il Sonnambulo muore nell'attacco (a meno che il bersaglio non sia protetto dalla Guardia o non sia un Lupo)."
+    sonnambulo: "Ogni notte vaga nel sonno e va a dormire a casa di un altro giocatore.",
+    sonnambuloLong: "Il Sonnambulo è un ruolo del villaggio che ogni notte vaga nel sonno e va a dormire a casa di un altro giocatore.\n\nCOME FUNZIONA:\n• Ogni notte seleziona un altro giocatore da visitare.\n• Se i lupi attaccano la sua casa mentre è via, il Sonnambulo è al sicuro perché non si trova a casa.\n• Se il giocatore che sta visitando muore quella notte, anche il Sonnambulo muore perché si trovava nella stessa casa.\n• Se va da un Lupo è salvo, ma se i lupi avevano scelto proprio il Sonnambulo come vittima, muore."
   },
   factions: {
     village: "Villaggio",
@@ -442,7 +442,9 @@ export default {
     noWolfAttacksToRedirect: "Nessun attacco dei lupi da reindirizzare",
     notEnoughPlayersToInvestigate: "Giocatori insufficienti da indagare",
     powerAlreadyUsed: "Potere già utilizzato",
-    skipInvestigation: "Salta indagine"
+    skipInvestigation: "Salta indagine",
+    sonnambuloChoosePlayer: "Sonnambulo, scegli da quale giocatore andare a dormire",
+    sonnambuloChoosePlayerDescription: "Scegli da quale giocatore andare a dormire questa notte."
   },
   factionComparison: {
     before: "Prima:",

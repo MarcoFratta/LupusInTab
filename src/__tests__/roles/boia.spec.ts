@@ -1,3 +1,4 @@
+import { setMockGameState } from '../setup';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import boia from '../../roles/boia';
 import { initializeRoleAPI } from '../../utils/roleAPI';
@@ -44,6 +45,7 @@ describe('Boia Role', () => {
         }
       ]
     };
+    setMockGameState(mockGameState);
   });
 
   describe('Resolve Function', () => {

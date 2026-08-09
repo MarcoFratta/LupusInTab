@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.19.0...v1.19.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* fix tests ([2430a8f](https://github.com/MarcoFratta/LupusInTab/commit/2430a8f9c1f0f5bba9bc6857ba9f2905e5ed01cd))
+
 # [1.19.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.18.0...v1.19.0) (2026-08-08)
 
 

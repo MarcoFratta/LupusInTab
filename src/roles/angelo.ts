@@ -29,6 +29,7 @@ const angelo: RoleDef = {
             target.alive = true;
         }
 
+        
         return {
             type: 'angelo_action',
             nightNumber: gameState.nightNumber,

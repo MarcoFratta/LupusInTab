@@ -1,6 +1,6 @@
 # LupusInTab 🐺
 
-A modern, web-based implementation of the classic "Lupus in Tabula" (Werewolf) game built with Vue 3 and TypeScript.
+A modern, web-based implementation of the classic "Lupi nel Villaggio" (Werewolf) game built with Vue 3 and TypeScript.
 
 ![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
@@ -22,7 +22,7 @@ LupusInTab is available on multiple platforms:
 
 ### 🌍 Web App
 - **Universal Access**: Play on any device with a modern web browser
-- **No Installation Required**: Just visit [https://lupus-in-tabula.vercel.app/](https://lupus-in-tabula.vercel.app/)
+- **No Installation Required**: Just visit [https://lupi-nel-villaggio.vercel.app/](https://lupi-nel-villaggio.vercel.app/)
 - **Cross-Platform**: Works on desktop, tablet, and mobile devices
 - **Always Updated**: Get the latest features automatically
 
@@ -38,7 +38,7 @@ LupusInTab is available on multiple platforms:
 - **Progressive Web App**: Install directly from Safari
 - **Home Screen Access**: Add to home screen for app-like experience
 - **Installation Steps**:
-  1. Open [https://lupus-in-tabula.vercel.app/](https://lupus-in-tabula.vercel.app/) in Safari
+  1. Open [https://lupi-nel-villaggio.vercel.app/](https://lupi-nel-villaggio.vercel.app/) in Safari
   2. Tap the Share button (square with arrow up)
   3. Select "Add to Home Screen"
   4. Tap "Add" to install
@@ -52,7 +52,7 @@ LupusInTab is available on multiple platforms:
 - **Android (Chrome)**: Uses the web manifest icons directly when installing PWA, with excellent WebP support
 - **Android (Play Store)**: Uses the native app with proper app icons and branding
 - **iPhone (Safari)**: Uses a Progressive Web App (PWA) that requires specific Apple touch icon meta tags and prefers PNG format over WebP
-- **App Name**: The installed app shows "Lupus in Tabula" (updated from "LupusInTab") as defined in the web manifest
+- **App Name**: The installed app shows "Lupi nel Villaggio" (updated from "LupusInTab") as defined in the web manifest
 - **Icon Display**: iPhone Safari has stricter requirements for PWA icons and prefers PNG format for Apple touch icons
 
 ## 🎯 How to Play
@@ -242,7 +242,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Inspired by the classic "Lupus in Tabula" game
+- Inspired by classic werewolf/social deduction party games
 - Built with modern web technologies
 - Community contributions and feedback
 

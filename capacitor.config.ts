@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Lupus Master',
   webDir: 'dist',
   server: {
-    url: 'https://lupus-in-tabula.vercel.app',
+    url: 'https://lupi-nel-villaggio.vercel.app',
     cleartext: true,
     androidScheme: 'https'
   },

@@ -41,6 +41,13 @@ fi
 echo "🔄 Syncing Capacitor..."
 npx cap sync
 
+# Set Android target SDK to Android 16 (API 36)
+if [ -f "android/variables.gradle" ]; then
+    echo "🔧 Setting Android target SDK to Android 16 (API 36)..."
+    sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/' android/variables.gradle
+    sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/' android/variables.gradle
+fi
+
 echo "✅ Capacitor setup complete!"
 echo ""
 echo "Next steps:"

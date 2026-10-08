@@ -16,7 +16,7 @@ Thank you for your interest in contributing to LupusInTab! This document provide
 
 ## Project Overview
 
-LupusInTab is a Vue 3 + TypeScript implementation of the "Lupus in Tabula" (Werewolf) game. It's a web-based multiplayer game where players take on different roles and try to achieve their team's win condition.
+LupusInTab is a Vue 3 + TypeScript implementation of the "Lupi nel Villaggio" (Werewolf) game. It's a web-based multiplayer game where players take on different roles and try to achieve their team's win condition.
 
 ### Key Features
 

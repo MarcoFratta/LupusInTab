@@ -52,8 +52,8 @@ RUN mkdir -p $ANDROID_HOME/cmdline-tools/latest && \
 RUN yes | sdkmanager --licenses && \
     sdkmanager \
         "platform-tools" \
-        "platforms;android-34" \
-        "build-tools;34.0.0" \
+        "platforms;android-36" \
+        "build-tools;36.0.0" \
         "extras;android;m2repository" \
         "extras;google;m2repository"
 

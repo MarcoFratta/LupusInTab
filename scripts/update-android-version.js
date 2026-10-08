@@ -51,6 +51,16 @@ buildGradleContent = buildGradleContent.replace(
 fs.writeFileSync(buildGradlePath, buildGradleContent);
 console.log('✅ Android build.gradle updated');
 
+// Update Android variables.gradle to target Android 16 (API 36)
+const variablesGradlePath = path.join(__dirname, '..', 'android', 'variables.gradle');
+if (fs.existsSync(variablesGradlePath)) {
+  let variablesContent = fs.readFileSync(variablesGradlePath, 'utf8');
+  variablesContent = variablesContent.replace(/compileSdkVersion\s*=\s*\d+/, 'compileSdkVersion = 36');
+  variablesContent = variablesContent.replace(/targetSdkVersion\s*=\s*\d+/, 'targetSdkVersion = 36');
+  fs.writeFileSync(variablesGradlePath, variablesContent);
+  console.log('✅ Android variables.gradle updated (compileSdkVersion = 36, targetSdkVersion = 36)');
+}
+
 // Update package.json version if it doesn't match
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
@@ -61,17 +71,25 @@ if (packageJson.version !== version) {
   console.log('✅ package.json version updated');
 }
 
-// Create a version info file for the build
+// Create or update version info file for the build
+const versionInfoPath = path.join(__dirname, '..', 'public', 'version.json');
+let existingVersionData = {};
+if (fs.existsSync(versionInfoPath)) {
+  try {
+    existingVersionData = JSON.parse(fs.readFileSync(versionInfoPath, 'utf8'));
+  } catch (e) {}
+}
+
 const versionInfo = {
+  ...existingVersionData,
   version,
   versionCode,
   buildDate: new Date().toISOString(),
-  notes: notes || 'No release notes provided'
+  notes: notes || existingVersionData.changelog || 'No release notes provided'
 };
 
-const versionInfoPath = path.join(__dirname, '..', 'public', 'version.json');
-fs.writeFileSync(versionInfoPath, JSON.stringify(versionInfo, null, 2));
-console.log('✅ Version info file created');
+fs.writeFileSync(versionInfoPath, JSON.stringify(versionInfo, null, 2) + '\n');
+console.log('✅ Version info file updated');
 
 console.log(`🎉 Android version successfully updated to ${version} (${versionCode})`);
 console.log('📝 Remember to commit these changes before building!');

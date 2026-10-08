@@ -34,10 +34,10 @@ VitePWA({
     globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
     runtimeCaching: [
       {
-        urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/.*/i,
+        urlPattern: /^https:\/\/lupi-nel-villaggio\.vercel\.app\/.*/i,
         handler: 'StaleWhileRevalidate',
         options: {
-          cacheName: 'lupus-in-tabula-api',
+          cacheName: 'lupi-nel-villaggio-api',
           expiration: {
             maxEntries: 100,
             maxAgeSeconds: 24 * 60 * 60
@@ -59,10 +59,10 @@ VitePWA({
     globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
     runtimeCaching: [
       {
-        urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/.*/i,
+        urlPattern: /^https:\/\/lupi-nel-villaggio\.vercel\.app\/.*/i,
         handler: 'CacheFirst',  // More aggressive caching for mobile
         options: {
-          cacheName: 'lupus-in-tabula-api',
+          cacheName: 'lupi-nel-villaggio-api',
           expiration: {
             maxEntries: 100,
             maxAgeSeconds: 24 * 60 * 60

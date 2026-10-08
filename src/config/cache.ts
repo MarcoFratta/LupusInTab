@@ -1,6 +1,6 @@
 export const CACHE_CONFIG = {
   WEBSITE_URL: process.env.NODE_ENV === 'production' 
-    ? 'https://lupus-in-tabula.vercel.app' 
+    ? 'https://lupi-nel-villaggio.vercel.app' 
     : 'http://localhost:3000',
   VERSION_ENDPOINT: '/version.json',
   CACHE_DURATION: Infinity,

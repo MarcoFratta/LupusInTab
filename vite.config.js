@@ -14,7 +14,7 @@ export default defineConfig({
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,webp}'],
                 runtimeCaching: [
                     {
-                        urlPattern: /^https:\/\/lupus-in-tabula\.vercel\.app\/version\.json$/i,
+                        urlPattern: /^https:\/\/lupi-nel-villaggio\.vercel\.app\/version\.json$/i,
                         handler: 'NetworkFirst',
                         options: {
                             cacheName: 'version-cache',
@@ -27,7 +27,7 @@ export default defineConfig({
                 ]
             },
             manifest: {
-                name: 'Lupus in Tabula',
+                name: 'Lupi nel Villaggio',
                 short_name: 'LupusInTab',
                 description: 'A digital version of the popular werewolf game',
                 theme_color: '#0f172a',

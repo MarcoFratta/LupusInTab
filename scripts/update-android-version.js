@@ -51,14 +51,15 @@ buildGradleContent = buildGradleContent.replace(
 fs.writeFileSync(buildGradlePath, buildGradleContent);
 console.log('✅ Android build.gradle updated');
 
-// Update Android variables.gradle to target Android 16 (API 36)
+// Update Android variables.gradle to target Android 16 (API 36) and minSdkVersion 24
 const variablesGradlePath = path.join(__dirname, '..', 'android', 'variables.gradle');
 if (fs.existsSync(variablesGradlePath)) {
   let variablesContent = fs.readFileSync(variablesGradlePath, 'utf8');
+  variablesContent = variablesContent.replace(/minSdkVersion\s*=\s*\d+/, 'minSdkVersion = 24');
   variablesContent = variablesContent.replace(/compileSdkVersion\s*=\s*\d+/, 'compileSdkVersion = 36');
   variablesContent = variablesContent.replace(/targetSdkVersion\s*=\s*\d+/, 'targetSdkVersion = 36');
   fs.writeFileSync(variablesGradlePath, variablesContent);
-  console.log('✅ Android variables.gradle updated (compileSdkVersion = 36, targetSdkVersion = 36)');
+  console.log('✅ Android variables.gradle updated (minSdkVersion = 24, compileSdkVersion = 36, targetSdkVersion = 36)');
 }
 
 // Update package.json version if it doesn't match

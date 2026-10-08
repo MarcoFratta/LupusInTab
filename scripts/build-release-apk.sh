@@ -22,8 +22,9 @@ npm run build
 echo "🔄 Syncing with Capacitor..."
 npx cap sync android
 
-# Ensure target SDK is Android 16 (API 36)
+# Ensure target SDK is Android 16 (API 36) and minSdkVersion 24
 if [ -f "android/variables.gradle" ]; then
+    sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
     sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/' android/variables.gradle
     sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/' android/variables.gradle
 fi

@@ -319,8 +319,9 @@ jobs:
             echo "✅ build.gradle found, updating version..."
             node scripts/update-android-version.js $(node -p "require('./package.json').version")
             
-            # Ensure variables.gradle targets Android 16 (API 36)
+            # Ensure variables.gradle targets Android 16 (API 36) and minSdkVersion 24 (Play Protect)
             if [ -f "android/variables.gradle" ]; then
+              sed -i 's/minSdkVersion = [0-9]*/minSdkVersion = 24/' android/variables.gradle
               sed -i 's/compileSdkVersion = [0-9]*/compileSdkVersion = 36/' android/variables.gradle
               sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/' android/variables.gradle
             fi
@@ -336,7 +337,8 @@ jobs:
             grep "versionCode" android/app/build.gradle
             grep "versionName" android/app/build.gradle
             if [ -f "android/variables.gradle" ]; then
-              echo "🔍 Verifying target SDK version..."
+              echo "🔍 Verifying SDK versions..."
+              grep "minSdkVersion" android/variables.gradle
               grep "compileSdkVersion" android/variables.gradle
               grep "targetSdkVersion" android/variables.gradle
             fi

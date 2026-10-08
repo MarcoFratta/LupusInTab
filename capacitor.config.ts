@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.lupus.master',
-  appName: 'Lupus Master',
+  appName: 'Lupi nel Villaggio',
   webDir: 'dist',
   server: {
     url: 'https://lupi-nel-villaggio.vercel.app',

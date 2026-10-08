@@ -48,6 +48,12 @@ if [ -f "android/variables.gradle" ]; then
     sed -i 's/targetSdkVersion = [0-9]*/targetSdkVersion = 36/' android/variables.gradle
 fi
 
+# Ensure app_name is set to Lupi nel Villaggio in strings.xml
+if [ -f "android/app/src/main/res/values/strings.xml" ]; then
+    sed -i 's/<string name="app_name">.*<\/string>/<string name="app_name">Lupi nel Villaggio<\/string>/' android/app/src/main/res/values/strings.xml
+    sed -i 's/<string name="title_activity_main">.*<\/string>/<string name="title_activity_main">Lupi nel Villaggio<\/string>/' android/app/src/main/res/values/strings.xml
+fi
+
 echo "✅ Capacitor setup complete!"
 echo ""
 echo "Next steps:"

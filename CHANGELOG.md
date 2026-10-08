@@ -5,6 +5,13 @@
 
 * bump minSdkVersion to 24 and configure semantic release rules ([c3b2fb5](https://github.com/MarcoFratta/LupusInTab/commit/c3b2fb5ead94a9dd335c3e64a83837342509acfc))
 
+## [1.20.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.20.1...v1.20.2) (2026-10-08)
+
+
+### Bug Fixes
+
+* bump minSdkVersion to 24 and configure semantic release rules ([c3b2fb5](https://github.com/MarcoFratta/LupusInTab/commit/c3b2fb5ead94a9dd335c3e64a83837342509acfc))
+
 ## [1.20.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.20.0...v1.20.1) (2026-10-08)
 
 

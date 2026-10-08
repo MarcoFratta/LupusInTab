@@ -235,6 +235,8 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
 
       - name: Add Capacitor Android platform
         run: npx cap add android || echo "Android platform already exists"

@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.20.2...v1.21.0) (2026-10-08)
+
+
+### Features
+
+* bump version ([3400325](https://github.com/MarcoFratta/LupusInTab/commit/3400325fe0a4b9bb25284067bf21bd99ee19c523))
+
 ## [1.20.2](https://github.com/MarcoFratta/LupusInTab/compare/v1.20.1...v1.20.2) (2026-10-08)
 
 

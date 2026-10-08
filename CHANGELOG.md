@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.19.1...v1.20.0) (2026-10-08)
+
+
+### Features
+
+* target Android 16 (API 36) and rename to Lupi nel Villaggio ([b1b8205](https://github.com/MarcoFratta/LupusInTab/commit/b1b8205a9c5d4f8c27531b47fbcce6a0f4a372d2))
+
 ## [1.19.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.19.0...v1.19.1) (2026-08-09)
 
 

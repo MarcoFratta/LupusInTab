@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/MarcoFratta/LupusInTab/compare/v1.20.0...v1.20.1) (2026-10-08)
+
+
+### Bug Fixes
+
+* **ci:** avoid installing deprecated tools package in setup-android ([ade4976](https://github.com/MarcoFratta/LupusInTab/commit/ade4976372ac1038e87e1745582dd9671ef3a888))
+
 # [1.20.0](https://github.com/MarcoFratta/LupusInTab/compare/v1.19.1...v1.20.0) (2026-10-08)
 
 
